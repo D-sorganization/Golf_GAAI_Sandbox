@@ -147,11 +147,13 @@ items:
     title: "Upgrade example notebooks and scripts to current architecture"
     priority: medium
     status: done
-    started_at: "2026-03-19T04:27:37Z"
+    started_at: "2026-03-18T21:27:37-07:00"
     pr_url: "https://github.com/D-sorganization/Golf_GAAI_Sandbox/pull/13"
     pr_number: 13
     pr_status: "open"
-    completed_at: "2026-03-19T04:41:37Z"
+    completed_at: "2026-03-18T21:41:44-07:00"
+    cost_usd: "2.2152
+2.2571"
     github_issue: 1957
     artefact: .gaai/project/contexts/artefacts/stories/E03S02.story.md
     dependencies: []
