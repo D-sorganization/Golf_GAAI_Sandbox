@@ -1,0 +1,63 @@
+# Jules orchestration policy example
+#
+# This file is documentation-first for now. It defines the shape of the
+# version-controlled policy layer proposed in the orchestration plan.
+
+enabled: true
+paused: false
+
+limits:
+  max_parallel_issues: 3
+  max_pr_repair_attempts: 3
+  repair_cooldown_minutes: 30
+
+dispatch:
+  require_ready_label: true
+  ready_label: "jules:ready"
+  blocked_label: "jules:blocked"
+  needs_human_label: "jules:needs-human"
+
+triggers:
+  issue_events:
+    - opened
+    - labeled
+    - reopened
+  pr_comment_commands:
+    - "/jules-fix-ci"
+    - "/jules-address-comments"
+  issue_comment_commands:
+    - "/jules-run"
+    - "/jules-retry"
+    - "/jules-status"
+  schedules:
+    queue_sweep: "*/30 * * * *"
+    pr_shepherd: "15 */2 * * *"
+    overnight_batch: "0 8 * * 1,4"
+
+validation_profiles:
+  docs:
+    - "markdown checks"
+    - "path sanity"
+  cleanup:
+    - "formatter"
+    - "linter"
+    - "targeted tests"
+  risky:
+    - "formatter"
+    - "linter"
+    - "type checks"
+    - "targeted tests"
+
+task_classes:
+  docs:
+    parallel: allowed
+    validation: docs
+  review-fix:
+    parallel: allowed
+    validation: cleanup
+  ci-repair:
+    parallel: exclusive
+    validation: cleanup
+  feature:
+    parallel: exclusive
+    validation: risky
