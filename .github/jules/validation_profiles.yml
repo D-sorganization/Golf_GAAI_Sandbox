@@ -1,0 +1,20 @@
+validation_profiles:
+  docs:
+    commands:
+      - "python -m compileall src"
+    notes:
+      - "Use only when the task changes documentation, metadata, or workflow files without touching application logic."
+  cleanup:
+    commands:
+      - "ruff check ."
+      - "black --check ."
+    notes:
+      - "Use for bounded cleanup, review fixes, and most CI repair attempts."
+  risky:
+    commands:
+      - "ruff check ."
+      - "black --check ."
+      - "python -m mypy src"
+      - "pytest -q"
+    notes:
+      - "Use for refactors and feature work when the task can affect runtime behavior."

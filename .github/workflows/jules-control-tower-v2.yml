@@ -1,0 +1,271 @@
+name: Jules Control Tower V2
+
+on:
+  issues:
+    types: [opened, labeled, reopened]
+  workflow_run:
+    workflows: ["CI Standard"]
+    types: [completed]
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Dispatch target"
+        required: false
+        default: "auto"
+        type: choice
+        options:
+          - auto
+          - issue-worker
+          - comment-batch
+          - queue-sweep
+          - pr-shepherd
+      issue_number:
+        description: "Issue number for manual issue dispatch"
+        required: false
+        type: string
+      pr_number:
+        description: "PR number for manual PR shepherd dispatch"
+        required: false
+        type: string
+      dry_run:
+        description: "Report only"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  actions: write
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: jules-control-tower-v2-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  triage:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    outputs:
+      target: ${{ steps.decide.outputs.target }}
+      issue_number: ${{ steps.decide.outputs.issue_number }}
+      pr_number: ${{ steps.decide.outputs.pr_number }}
+      dry_run: ${{ steps.decide.outputs.dry_run }}
+      reason: ${{ steps.decide.outputs.reason }}
+    steps:
+      - name: Decide Dispatch Target
+        id: decide
+        uses: actions/github-script@v8
+        env:
+          AUTOMATION_ENABLED: ${{ vars.JULES_AUTOMATION_ENABLED || 'true' }}
+          AUTOMATION_PAUSED: ${{ vars.JULES_AUTOMATION_PAUSED || 'false' }}
+        with:
+          script: |
+            const event = context.eventName;
+            const enabled = `${process.env.AUTOMATION_ENABLED}` !== "false";
+            const paused = `${process.env.AUTOMATION_PAUSED}` === "true";
+            const manualTarget = context.payload.inputs?.target || "auto";
+            const dryRun = `${context.payload.inputs?.dry_run || "false"}`;
+            const result = {
+              target: "none",
+              issue_number: "",
+              pr_number: "",
+              dry_run: dryRun,
+              reason: "",
+            };
+
+            if (!enabled) {
+              result.reason = "Automation disabled by repository variable.";
+            } else if (paused && event !== "workflow_dispatch") {
+              result.reason = "Automation paused by repository variable.";
+            } else if (event === "workflow_dispatch") {
+              if (manualTarget === "issue-worker" && context.payload.inputs?.issue_number) {
+                result.target = "issue-worker";
+                result.issue_number = `${context.payload.inputs.issue_number}`;
+                result.reason = "Manual issue dispatch.";
+              } else if (manualTarget === "comment-batch" && context.payload.inputs?.pr_number) {
+                result.target = "comment-batch";
+                result.pr_number = `${context.payload.inputs.pr_number}`;
+                result.reason = "Manual comment batch dispatch.";
+              } else if (manualTarget === "pr-shepherd" && context.payload.inputs?.pr_number) {
+                result.target = "pr-shepherd";
+                result.pr_number = `${context.payload.inputs.pr_number}`;
+                result.reason = "Manual PR shepherd dispatch.";
+              } else if (manualTarget === "queue-sweep" || manualTarget === "auto") {
+                result.target = "queue-sweep";
+                result.reason = "Manual queue sweep.";
+              } else {
+                result.reason = "Manual dispatch missing required inputs.";
+              }
+            } else if (event === "issues") {
+              const issue = context.payload.issue;
+              const labels = new Set((issue.labels || []).map((label) => label.name));
+              const hasReady = labels.has("jules:ready");
+              const blocked = labels.has("jules:blocked") || labels.has("jules:needs-human");
+              const alreadyRunning = labels.has("jules:queued") || labels.has("jules:assigned");
+              if (!hasReady) {
+                result.reason = "Issue is not marked jules:ready.";
+              } else if (blocked) {
+                result.reason = "Issue is blocked or needs human review.";
+              } else if (alreadyRunning && context.payload.action !== "reopened") {
+                result.reason = "Issue already queued or assigned.";
+              } else {
+                result.target = "issue-worker";
+                result.issue_number = `${issue.number}`;
+                result.reason = `Issue event ${context.payload.action} eligible for dispatch.`;
+              }
+            } else if (event === "workflow_run") {
+              const run = context.payload.workflow_run;
+              if (run.conclusion !== "failure") {
+                result.reason = "Workflow run did not fail.";
+              } else {
+                result.target = "pr-shepherd";
+                result.reason = "Failed CI workflow run for PR shepherd review.";
+              }
+            } else {
+              result.reason = "No matching dispatch path.";
+            }
+
+            for (const [key, value] of Object.entries(result)) {
+              core.setOutput(key, value);
+            }
+            core.notice(`Target=${result.target}; reason=${result.reason}`);
+
+      - name: Write Triage Summary
+        run: |
+          {
+            echo "## Jules Control Tower V2"
+            echo ""
+            echo "- Event: \`${{ github.event_name }}\`"
+            echo "- Target: \`${{ steps.decide.outputs.target }}\`"
+            echo "- Issue: \`${{ steps.decide.outputs.issue_number || 'n/a' }}\`"
+            echo "- PR: \`${{ steps.decide.outputs.pr_number || 'n/a' }}\`"
+            echo "- Dry run: \`${{ steps.decide.outputs.dry_run }}\`"
+            echo "- Reason: ${{ steps.decide.outputs.reason }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  dispatch-issue-worker:
+    needs: triage
+    if: needs.triage.outputs.target == 'issue-worker'
+    uses: ./.github/workflows/jules-issue-worker.yml
+    with:
+      issue_number: ${{ needs.triage.outputs.issue_number }}
+      dry_run: ${{ needs.triage.outputs.dry_run == 'true' }}
+      force: false
+    secrets: inherit
+
+  dispatch-pr-shepherd:
+    needs: triage
+    if: needs.triage.outputs.target == 'pr-shepherd'
+    uses: ./.github/workflows/jules-pr-shepherd.yml
+    with:
+      pr_number: ${{ needs.triage.outputs.pr_number }}
+      run_id: ${{ github.event.workflow_run.id || '' }}
+      dry_run: ${{ needs.triage.outputs.dry_run == 'true' }}
+    secrets: inherit
+
+  dispatch-comment-batch:
+    needs: triage
+    if: needs.triage.outputs.target == 'comment-batch'
+    uses: ./.github/workflows/jules-comment-batch-processor.yml
+    with:
+      pr_number: ${{ needs.triage.outputs.pr_number }}
+      dry_run: ${{ needs.triage.outputs.dry_run == 'true' }}
+    secrets: inherit
+
+  queue-sweep:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && needs.triage.result == 'success' && needs.triage.outputs.target == 'queue-sweep')
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      issues: write
+      contents: read
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      MAX_PARALLEL: ${{ vars.JULES_MAX_PARALLEL_ISSUES || '3' }}
+      DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+    steps:
+      - name: Stop If Paused
+        if: vars.JULES_AUTOMATION_ENABLED == 'false' || vars.JULES_AUTOMATION_PAUSED == 'true'
+        run: |
+          echo "Jules automation is disabled or paused."
+          {
+            echo "## Jules Queue Sweep"
+            echo ""
+            echo "- Status: skipped"
+            echo "- Reason: automation disabled or paused"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Dispatch Ready Issues
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+          import subprocess
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          max_parallel = int(os.environ.get("MAX_PARALLEL", "3"))
+          dry_run = str(os.environ.get("DRY_RUN", "false")).lower() == "true"
+
+          query = "label:jules:ready -label:jules:queued -label:jules:assigned -label:jules:blocked -label:jules:needs-human state:open"
+          result = subprocess.run(
+              ["gh", "issue", "list", "--repo", repo, "--limit", str(max_parallel), "--search", query, "--json", "number,title"],
+              check=True,
+              capture_output=True,
+              text=True,
+          )
+          issues = json.loads(result.stdout)
+
+          if not issues:
+              print("No ready issues found.")
+              raise SystemExit(0)
+
+          for issue in issues:
+              number = str(issue["number"])
+              print(f"Queue sweep selecting issue #{number}: {issue['title']}")
+              if dry_run:
+                  continue
+              subprocess.run(
+                  [
+                      "gh",
+                      "issue",
+                      "edit",
+                      number,
+                      "--repo",
+                      repo,
+                      "--add-label",
+                      "jules:queued",
+                  ],
+                  check=False,
+              )
+              subprocess.run(
+                  [
+                      "gh",
+                      "workflow",
+                      "run",
+                      "jules-issue-worker.yml",
+                      "--repo",
+                      repo,
+                      "-f",
+                      f"issue_number={number}",
+                      "-f",
+                      "dry_run=false",
+                  ],
+                  check=True,
+              )
+          PY
+
+      - name: Write Queue Sweep Summary
+        if: always()
+        run: |
+          {
+            echo "## Jules Queue Sweep"
+            echo ""
+            echo "- Event: \`${{ github.event_name }}\`"
+            echo "- Max parallel issues: \`${{ env.MAX_PARALLEL }}\`"
+            echo "- Dry run: \`${{ env.DRY_RUN }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

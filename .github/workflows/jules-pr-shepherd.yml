@@ -1,0 +1,301 @@
+name: Jules PR Shepherd
+
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        required: false
+        type: string
+      run_id:
+        required: false
+        type: string
+      dry_run:
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    - cron: "15 */2 * * *"
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR to inspect"
+        required: false
+        type: string
+      run_id:
+        description: "Workflow run id to inspect"
+        required: false
+        type: string
+      dry_run:
+        description: "Report only"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: jules-pr-shepherd-${{ inputs.pr_number || github.event.inputs.pr_number || github.event.workflow_run.id || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  shepherd:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      INPUT_PR: ${{ inputs.pr_number || github.event.inputs.pr_number || '' }}
+      INPUT_RUN: ${{ inputs.run_id || github.event.inputs.run_id || '' }}
+      DRY_RUN: ${{ inputs.dry_run || github.event.inputs.dry_run || false }}
+      MAX_ATTEMPTS: ${{ vars.JULES_MAX_PR_REPAIR_ATTEMPTS || '3' }}
+      COOLDOWN_MINUTES: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
+      - name: Resolve Target PR
+        id: target
+        run: |
+          PR_NUMBER="$INPUT_PR"
+          RUN_ID="$INPUT_RUN"
+
+          if [ -z "$PR_NUMBER" ] && [ "${{ github.event_name }}" = "workflow_run" ]; then
+            RUN_ID="${{ github.event.workflow_run.id }}"
+            HEAD_BRANCH="${{ github.event.workflow_run.head_branch }}"
+            PR_NUMBER=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$HEAD_BRANCH" --state open --json number --jq '.[0].number')
+          fi
+
+          if [ -z "$PR_NUMBER" ] && [ "${{ github.event_name }}" = "schedule" ]; then
+            PR_NUMBER=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --search "label:jules:repair-requested label:jules:managed" --json number --jq '.[0].number')
+            if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" = "null" ]; then
+              PR_NUMBER=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --search "label:jules:managed" --json number --jq '.[0].number')
+            fi
+          fi
+
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Skip If No PR
+        if: steps.target.outputs.pr_number == ''
+        run: |
+          echo "No eligible PR found."
+          exit 0
+
+      - name: Inspect PR Eligibility
+        id: inspect
+        run: |
+          gh pr view "${{ steps.target.outputs.pr_number }}" --repo "$GITHUB_REPOSITORY" --json number,headRefName,isDraft,labels,title,url,body > /tmp/jules_pr.json
+
+          python3 <<'PY'
+          import json
+          import os
+
+          pr = json.load(open("/tmp/jules_pr.json"))
+          labels = {label["name"] for label in pr.get("labels", [])}
+          reason = "eligible"
+          eligible = (
+              not pr.get("isDraft")
+              and "jules:managed" in labels
+              and "jules:blocked" not in labels
+              and "jules:needs-human" not in labels
+          )
+          if pr.get("isDraft"):
+              reason = "draft pr"
+          elif "jules:managed" not in labels:
+              reason = "not Jules-managed"
+          elif "jules:blocked" in labels:
+              reason = "blocked"
+          elif "jules:needs-human" in labels:
+              reason = "needs human"
+          output = os.environ["GITHUB_OUTPUT"]
+          with open(output, "a", encoding="utf-8") as fh:
+              fh.write(f"eligible={'true' if eligible else 'false'}\n")
+              fh.write(f"branch={pr['headRefName']}\n")
+              fh.write(f"title={pr['title']}\n")
+              fh.write(f"reason={reason}\n")
+          PY
+
+      - name: Stop For Ineligible PR
+        if: steps.inspect.outputs.eligible != 'true'
+        run: |
+          echo "PR is not eligible for shepherding: ${{ steps.inspect.outputs.reason }}"
+          {
+            echo "## Jules PR Shepherd"
+            echo ""
+            echo "- PR: #${{ steps.target.outputs.pr_number }}"
+            echo "- Eligible: no"
+            echo "- Reason: ${{ steps.inspect.outputs.reason }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Count Prior Attempts
+        id: attempts
+        run: |
+          COMMENTS=$(gh api "repos/$GITHUB_REPOSITORY/issues/${{ steps.target.outputs.pr_number }}/comments")
+          COUNT=$(echo "$COMMENTS" | jq '[.[] | select(.body | contains("Jules PR Shepherd Attempt"))] | length')
+          LAST_TS=$(echo "$COMMENTS" | jq -r '[.[] | select(.body | contains("Jules PR Shepherd Attempt")) | .created_at] | last // ""')
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "last_ts=$LAST_TS" >> "$GITHUB_OUTPUT"
+
+      - name: Enforce Attempt Ceiling
+        if: steps.attempts.outputs.count != '' && fromJSON(steps.attempts.outputs.count) >= fromJSON(env.MAX_ATTEMPTS)
+        run: |
+          gh pr edit "${{ steps.target.outputs.pr_number }}" --repo "$GITHUB_REPOSITORY" --add-label "jules:needs-human" || true
+          gh pr comment "${{ steps.target.outputs.pr_number }}" --repo "$GITHUB_REPOSITORY" --body "Jules PR Shepherd stopped after reaching the configured repair-attempt ceiling."
+          {
+            echo "## Jules PR Shepherd"
+            echo ""
+            echo "- PR: #${{ steps.target.outputs.pr_number }}"
+            echo "- Eligible: yes"
+            echo "- Action: stopped"
+            echo "- Reason: reached repair-attempt ceiling"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Enforce Cooldown
+        id: cooldown
+        if: steps.attempts.outputs.last_ts != ''
+        run: |
+          python3 <<'PY'
+          import datetime as dt
+          import os
+          import sys
+          last_ts = os.environ["LAST_TS"]
+          cooldown = int(os.environ["COOLDOWN"])
+          last = dt.datetime.fromisoformat(last_ts.replace("Z", "+00:00"))
+          now = dt.datetime.now(dt.timezone.utc)
+          minutes = (now - last).total_seconds() / 60
+          if minutes < cooldown:
+              print(f"allowed=false", file=open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8"))
+              print(f"Cooldown active ({minutes:.1f}m < {cooldown}m).")
+              sys.exit(0)
+          print("allowed=true", file=open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8"))
+          PY
+        env:
+          LAST_TS: ${{ steps.attempts.outputs.last_ts }}
+          COOLDOWN: ${{ env.COOLDOWN_MINUTES }}
+
+      - name: Stop For Cooldown
+        if: steps.cooldown.outputs.allowed == 'false'
+        run: |
+          echo "Cooldown is active for this PR."
+          {
+            echo "## Jules PR Shepherd"
+            echo ""
+            echo "- PR: #${{ steps.target.outputs.pr_number }}"
+            echo "- Eligible: yes"
+            echo "- Action: skipped"
+            echo "- Reason: cooldown active"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Fetch Failed Logs
+        id: logs
+        run: |
+          RUN_ID="${{ steps.target.outputs.run_id }}"
+          if [ -z "$RUN_ID" ]; then
+            RUN_ID=$(gh run list --repo "$GITHUB_REPOSITORY" --branch "${{ steps.inspect.outputs.branch }}" --workflow "CI Standard" --json databaseId,conclusion --jq '[.[] | select(.conclusion=="failure")] | .[0].databaseId')
+          fi
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          if [ -n "$RUN_ID" ] && [ "$RUN_ID" != "null" ]; then
+            gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --log-failed > /tmp/jules_failed.log || true
+          else
+            touch /tmp/jules_failed.log
+          fi
+
+      - name: Classify Failure
+        id: classify
+        run: |
+          if grep -Eiq 'ruff|black|mypy|pytest|import|format|lint|type' /tmp/jules_failed.log; then
+            echo "automatable=true" >> "$GITHUB_OUTPUT"
+            echo "reason=matched common automatable failure signals" >> "$GITHUB_OUTPUT"
+          elif [ ! -s /tmp/jules_failed.log ]; then
+            echo "automatable=false" >> "$GITHUB_OUTPUT"
+            echo "reason=no failed log content available" >> "$GITHUB_OUTPUT"
+          else
+            echo "automatable=false" >> "$GITHUB_OUTPUT"
+            echo "reason=failed log did not match safe automatable patterns" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Escalate Non-automatable Failure
+        if: steps.classify.outputs.automatable != 'true'
+        run: |
+          gh pr edit "${{ steps.target.outputs.pr_number }}" --repo "$GITHUB_REPOSITORY" --add-label "jules:needs-human" || true
+          gh pr comment "${{ steps.target.outputs.pr_number }}" --repo "$GITHUB_REPOSITORY" --body "Jules PR Shepherd inspected CI failures but could not confidently classify them as safe for automated repair. Reason: ${{ steps.classify.outputs.reason }}."
+          {
+            echo "## Jules PR Shepherd"
+            echo ""
+            echo "- PR: #${{ steps.target.outputs.pr_number }}"
+            echo "- Eligible: yes"
+            echo "- Action: escalated"
+            echo "- Reason: ${{ steps.classify.outputs.reason }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Dry Run Summary
+        if: env.DRY_RUN == 'true'
+        run: |
+          echo "Would attempt repair on PR #${{ steps.target.outputs.pr_number }} using branch ${{ steps.inspect.outputs.branch }}"
+          {
+            echo "## Jules PR Shepherd Dry Run"
+            echo ""
+            echo "- PR: #${{ steps.target.outputs.pr_number }}"
+            echo "- Branch: \`${{ steps.inspect.outputs.branch }}\`"
+            echo "- Prior attempts: \`${{ steps.attempts.outputs.count || '0' }}\`"
+            echo "- Classification: \`${{ steps.classify.outputs.reason }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Repair PR With Jules
+        if: env.DRY_RUN != 'true'
+        run: |
+          npm install -g @google/jules
+          jules auth --token "${{ secrets.JULES_API_KEY }}"
+
+          LOG_CONTENT=$(cat /tmp/jules_failed.log)
+          ATTEMPT_COUNT="${{ steps.attempts.outputs.count }}"
+          [ -z "$ATTEMPT_COUNT" ] && ATTEMPT_COUNT=0
+          ATTEMPT=$((ATTEMPT_COUNT + 1))
+          PROMPT=$(cat <<EOF
+          Jules PR Shepherd Attempt $ATTEMPT
+
+          Repair the failing CI on PR #${{ steps.target.outputs.pr_number }}.
+          Branch: ${{ steps.inspect.outputs.branch }}
+
+          Requirements:
+          - Keep the fix minimal and focused on the failing checks.
+          - Do not create a new PR.
+          - Update the existing PR branch only.
+          - Stop at the smallest safe change that should restore CI.
+
+          Failed CI logs:
+          $LOG_CONTENT
+          EOF
+          )
+
+          jules task fix \
+            --branch "${{ steps.inspect.outputs.branch }}" \
+            --prompt "$PROMPT"
+
+      - name: Comment Repair Attempt
+        if: env.DRY_RUN != 'true'
+        run: |
+          ATTEMPT_COUNT="${{ steps.attempts.outputs.count }}"
+          [ -z "$ATTEMPT_COUNT" ] && ATTEMPT_COUNT=0
+          ATTEMPT=$((ATTEMPT_COUNT + 1))
+          gh pr edit "${{ steps.target.outputs.pr_number }}" --repo "$GITHUB_REPOSITORY" --remove-label "jules:repair-requested" || true
+          gh pr comment "${{ steps.target.outputs.pr_number }}" --repo "$GITHUB_REPOSITORY" --body "Jules PR Shepherd Attempt $ATTEMPT dispatched on branch \`${{ steps.inspect.outputs.branch }}\`."
+          {
+            echo "## Jules PR Shepherd"
+            echo ""
+            echo "- PR: #${{ steps.target.outputs.pr_number }}"
+            echo "- Branch: \`${{ steps.inspect.outputs.branch }}\`"
+            echo "- Attempt: \`${ATTEMPT}\`"
+            echo "- Classification: \`${{ steps.classify.outputs.reason }}\`"
+            echo "- Action: dispatched repair"
+          } >> "$GITHUB_STEP_SUMMARY"

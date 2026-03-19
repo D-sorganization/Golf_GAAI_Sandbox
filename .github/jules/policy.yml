@@ -1,0 +1,43 @@
+enabled: true
+paused: false
+
+defaults:
+  default_branch: main
+  require_ready_label: true
+  ready_label: "jules:ready"
+  queued_label: "jules:queued"
+  assigned_label: "jules:assigned"
+  blocked_label: "jules:blocked"
+  done_label: "jules:done"
+  needs_human_label: "jules:needs-human"
+  repair_requested_label: "jules:repair-requested"
+  comment_batch_label: "queue:batched"
+
+limits:
+  max_parallel_issues: 3
+  max_pr_repair_attempts: 3
+  repair_cooldown_minutes: 30
+
+triggers:
+  manual_issue_commands:
+    - "/jules-run"
+    - "/jules-retry"
+    - "/jules-pause"
+    - "/jules-resume"
+    - "/jules-status"
+  manual_pr_commands:
+    - "/jules-fix-ci"
+    - "/jules-address-comments"
+    - "/jules-stop"
+  schedules:
+    issue_queue_sweep: "*/30 * * * *"
+    pr_shepherd_sweep: "15 */2 * * *"
+
+branching:
+  issue_prefix: "jules/issue-"
+  ci_repair_prefix: "jules/ci-fix-"
+  comment_fix_prefix: "jules/review-fix-"
+
+pr:
+  default_label: "jules:managed"
+  draft_by_default: false

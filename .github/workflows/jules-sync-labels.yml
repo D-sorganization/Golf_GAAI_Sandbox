@@ -1,0 +1,82 @@
+name: Jules Sync Labels
+
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install Python Helpers
+        run: pip install pyyaml
+
+      - name: Sync Label Manifest
+        run: |
+          python3 <<'PY'
+          import subprocess
+          import yaml
+          import os
+
+          with open(".github/jules/labels.yml", "r", encoding="utf-8") as f:
+              labels = yaml.safe_load(f)["labels"]
+
+          created = 0
+          updated = 0
+          for label in labels:
+              name = label["name"]
+              color = label["color"]
+              description = label["description"]
+              print(f"Syncing label: {name}")
+              result = subprocess.run(
+                  [
+                      "gh",
+                      "label",
+                      "create",
+                      name,
+                      "--repo",
+                      "${{ github.repository }}",
+                      "--color",
+                      color,
+                      "--description",
+                      description,
+                  ],
+                  capture_output=True,
+                  text=True,
+              )
+              if result.returncode != 0:
+                  subprocess.run(
+                      [
+                          "gh",
+                          "label",
+                          "edit",
+                          name,
+                          "--repo",
+                          "${{ github.repository }}",
+                          "--color",
+                          color,
+                          "--description",
+                          description,
+                      ],
+                      check=True,
+                  )
+                  updated += 1
+              else:
+                  created += 1
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
+              fh.write("## Jules Label Sync\n\n")
+              fh.write(f"- Labels in manifest: `{len(labels)}`\n")
+              fh.write(f"- Created: `{created}`\n")
+              fh.write(f"- Updated: `{updated}`\n")
+          PY

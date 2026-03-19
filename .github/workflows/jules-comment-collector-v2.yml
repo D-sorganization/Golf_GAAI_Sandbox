@@ -1,0 +1,79 @@
+name: Jules Comment Collector V2
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  pull-requests: read
+
+concurrency:
+  group: jules-comment-collector-v2-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    if: |
+      (github.event_name == 'pull_request_review_comment') ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request != null)
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Filter Bots And Closed PRs
+        id: guard
+        run: |
+          ACTOR="${{ github.actor }}"
+          BOTS="copilot-pull-request-reviewer[bot] cursor[bot] dependabot[bot] github-actions[bot] renovate[bot] codecov[bot] sonarcloud[bot]"
+          for bot in $BOTS; do
+            if [ "$ACTOR" = "$bot" ]; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+
+          if [ "${{ github.event_name }}" = "pull_request_review_comment" ]; then
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+          else
+            PR_NUMBER="${{ github.event.issue.number }}"
+          fi
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
+          PR_STATE=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json state --jq '.state')
+          if [ "$PR_STATE" = "MERGED" ] || [ "$PR_STATE" = "CLOSED" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Classify Actionable Comment
+        if: steps.guard.outputs.skip != 'true'
+        id: classify
+        run: |
+          BODY=$(cat <<'EOF'
+          ${{ github.event.comment.body }}
+          EOF
+          )
+          BODY_LOWER=$(printf "%s" "$BODY" | tr '[:upper:]' '[:lower:]')
+          IS_ACTIONABLE=false
+          for word in "please" "should" "could you" "can you" "fix" "change" "update" "add" "remove" "consider" "suggest" "recommend"; do
+            if printf "%s" "$BODY_LOWER" | grep -q "$word"; then
+              IS_ACTIONABLE=true
+              break
+            fi
+          done
+          if printf "%s" "$BODY" | grep -q "?"; then
+            IS_ACTIONABLE=true
+          fi
+          echo "is_actionable=$IS_ACTIONABLE" >> "$GITHUB_OUTPUT"
+
+      - name: Mark PR For Batched Processing
+        if: steps.guard.outputs.skip != 'true' && steps.classify.outputs.is_actionable == 'true'
+        run: |
+          gh issue edit "${{ steps.guard.outputs.pr_number }}" --repo "$REPO" --add-label "queue:batched" || true
+          gh issue comment "${{ steps.guard.outputs.pr_number }}" --repo "$REPO" \
+            --body "Queued actionable review feedback for Jules batch processing."

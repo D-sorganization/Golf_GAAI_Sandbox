@@ -1,0 +1,92 @@
+name: Jules Task
+description: Structured issue template for Jules automation
+title: "[Jules Task]: "
+labels:
+  - jules:ready
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template when you want the issue to be eligible for Jules automation.
+        Fill in the required fields so routing, prompts, validation, and PR reuse stay predictable.
+  - type: dropdown
+    id: task_class
+    attributes:
+      label: Suggested Task Class
+      description: Choose the primary task class for orchestration.
+      options:
+        - jules:docs
+        - jules:cleanup
+        - jules:review-fix
+        - jules:ci-repair
+        - jules:refactor
+        - jules:test-gen
+        - jules:feature
+        - jules:triage
+    validations:
+      required: true
+  - type: dropdown
+    id: risk_level
+    attributes:
+      label: Risk Level
+      description: This drives whether the system should handle the task conservatively.
+      options:
+        - risk:low
+        - risk:medium
+        - risk:high
+    validations:
+      required: true
+  - type: dropdown
+    id: parallelism
+    attributes:
+      label: Parallelism
+      description: Mark whether this task can safely run in parallel.
+      options:
+        - parallel:allowed
+        - parallel:exclusive
+    validations:
+      required: true
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: State the concrete outcome expected from automation.
+      placeholder: Describe the exact change or result you want.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Bound the work as tightly as possible.
+      placeholder: List target files, directories, systems, or limits.
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out Of Scope
+      description: Clarify what the agent must not modify.
+      placeholder: List forbidden changes or unrelated areas.
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Give pass/fail conditions.
+      placeholder: Provide a checklist or outcome statements.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation
+      description: Provide commands or checks the worker should run.
+      placeholder: ruff check . && black --check . && pytest -q tests/path
+    validations:
+      required: true
+  - type: textarea
+    id: notes_for_jules
+    attributes:
+      label: Notes For Jules
+      description: Add prompt guidance, links, PR references, or context.
+      placeholder: Include related issues, PRs, CI runs, or handoff notes.
