@@ -76,8 +76,12 @@ items:
     epic: E02
     title: "Register live_simulation pytest marker and annotate candidate tests"
     priority: high
-    status: in_progress
+    status: done
     started_at: "2026-03-19T03:12:46Z"
+    completed_at: "2026-03-19T03:27:20Z"
+    pr_url: "https://github.com/D-sorganization/Golf_GAAI_Sandbox/pull/9"
+    pr_number: 9
+    pr_status: "open"
     github_issue: 1964
     artefact: .gaai/project/contexts/artefacts/stories/E02S01.story.md
     dependencies: []
