@@ -47,7 +47,8 @@ items:
     epic: E01
     title: "Remove duplicate Assessment_H CI/CD file from docs/assessments"
     priority: medium
-    status: refined
+    status: in_progress
+    started_at: "2026-03-19T03:40:58Z"
     github_issue: 1962
     artefact: .gaai/project/contexts/artefacts/stories/E01S03.story.md
     dependencies: []
