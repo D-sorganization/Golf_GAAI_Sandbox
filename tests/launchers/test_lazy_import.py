@@ -28,7 +28,9 @@ def test_golf_launcher_does_not_import_mujoco_at_load_time() -> None:
     modules_before = set(sys.modules.keys())
 
     # Remove any cached launcher so we get a fresh import
-    launcher_keys = [k for k in sys.modules if k.startswith("src.launchers.golf_launcher")]
+    launcher_keys = [
+        k for k in sys.modules if k.startswith("src.launchers.golf_launcher")
+    ]
     saved_launcher = {k: sys.modules.pop(k) for k in launcher_keys}
 
     try:
@@ -36,9 +38,9 @@ def test_golf_launcher_does_not_import_mujoco_at_load_time() -> None:
 
         # Only check for mujoco modules that were NOT present before the import
         mujoco_added = [
-            k for k in sys.modules
-            if (k == "mujoco" or k.startswith("mujoco."))
-            and k not in modules_before
+            k
+            for k in sys.modules
+            if (k == "mujoco" or k.startswith("mujoco.")) and k not in modules_before
         ]
         assert mujoco_added == [], (
             f"Eager mujoco import detected: {mujoco_added}. "
@@ -58,7 +60,9 @@ def test_golf_launcher_does_not_import_pinocchio_at_load_time() -> None:
     modules_before = set(sys.modules.keys())
 
     # Remove any cached launcher so we get a fresh import
-    launcher_keys = [k for k in sys.modules if k.startswith("src.launchers.golf_launcher")]
+    launcher_keys = [
+        k for k in sys.modules if k.startswith("src.launchers.golf_launcher")
+    ]
     saved_launcher = {k: sys.modules.pop(k) for k in launcher_keys}
 
     try:
@@ -66,7 +70,8 @@ def test_golf_launcher_does_not_import_pinocchio_at_load_time() -> None:
 
         # Only check for pinocchio modules that were NOT present before the import
         pinocchio_added = [
-            k for k in sys.modules
+            k
+            for k in sys.modules
             if (k == "pinocchio" or k.startswith("pinocchio."))
             and k not in modules_before
         ]
