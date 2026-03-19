@@ -1,0 +1,41 @@
+task_classes:
+  triage:
+    label: "jules:triage"
+    parallel: allowed
+    validation_profile: docs
+    prompt_style: bounded-analysis
+  docs:
+    label: "jules:docs"
+    parallel: allowed
+    validation_profile: docs
+    prompt_style: bounded-docs
+  review-fix:
+    label: "jules:review-fix"
+    parallel: allowed
+    validation_profile: cleanup
+    prompt_style: bounded-patch
+  cleanup:
+    label: "jules:cleanup"
+    parallel: allowed
+    validation_profile: cleanup
+    prompt_style: bounded-patch
+  ci-repair:
+    label: "jules:ci-repair"
+    parallel: exclusive
+    validation_profile: cleanup
+    prompt_style: ci-repair
+  refactor:
+    label: "jules:refactor"
+    parallel: exclusive
+    validation_profile: risky
+    prompt_style: scoped-refactor
+  test-gen:
+    label: "jules:test-gen"
+    parallel: allowed
+    validation_profile: cleanup
+    prompt_style: test-generation
+  feature:
+    label: "jules:feature"
+    parallel: exclusive
+    validation_profile: risky
+    prompt_style: implementation

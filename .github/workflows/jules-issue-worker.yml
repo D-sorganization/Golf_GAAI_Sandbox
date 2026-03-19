@@ -1,0 +1,275 @@
+name: Jules Issue Worker
+
+on:
+  workflow_call:
+    inputs:
+      issue_number:
+        required: true
+        type: string
+      dry_run:
+        required: false
+        type: boolean
+        default: false
+      force:
+        required: false
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Issue number to process"
+        required: true
+        type: string
+      dry_run:
+        description: "Report only"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: jules-issue-worker-${{ inputs.issue_number || github.event.inputs.issue_number || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  process-issue:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ISSUE_NUMBER: ${{ inputs.issue_number || github.event.inputs.issue_number }}
+      DRY_RUN: ${{ inputs.dry_run || github.event.inputs.dry_run || false }}
+      DEFAULT_BRANCH: ${{ vars.JULES_DEFAULT_BRANCH || 'main' }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
+      - name: Install Python Helpers
+        run: pip install pyyaml
+
+      - name: Gather Issue Context
+        id: gather
+        run: |
+          gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json number,title,body,labels,url > /tmp/jules_issue.json
+
+          python3 <<'PY'
+          import json
+          import os
+          import re
+          import yaml
+
+          issue = json.load(open("/tmp/jules_issue.json"))
+          labels = [label["name"] for label in issue.get("labels", [])]
+          with open(".github/jules/task_classes.yml", "r", encoding="utf-8") as f:
+              task_classes = yaml.safe_load(f)["task_classes"]
+
+          task_class = "triage"
+          validation_profile = "docs"
+          task_label = "jules:triage"
+          for name, config in task_classes.items():
+              label = config.get("label")
+              if label in labels:
+                  task_class = name
+                  task_label = label
+                  validation_profile = config.get("validation_profile", "docs")
+                  break
+
+          slug = re.sub(r"[^a-z0-9]+", "-", issue["title"].lower()).strip("-")[:40]
+          branch_prefix = f"jules/issue-{issue['number']}-"
+          output = os.environ["GITHUB_OUTPUT"]
+          with open(output, "a", encoding="utf-8") as fh:
+              fh.write(f"task_class={task_class}\n")
+              fh.write(f"task_label={task_label}\n")
+              fh.write(f"validation_profile={validation_profile}\n")
+              fh.write(f"slug={slug or 'task'}\n")
+              fh.write(f"branch_prefix={branch_prefix}\n")
+          PY
+
+      - name: Find Existing PR Or Branch
+        id: branch
+        run: |
+          EXISTING=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --json number,headRefName,title,body \
+            --jq '[.[] | select(.headRefName | startswith("${{ steps.gather.outputs.branch_prefix }}"))] | .[0]')
+
+          if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
+            BRANCH_NAME=$(echo "$EXISTING" | jq -r '.headRefName')
+            PR_NUMBER=$(echo "$EXISTING" | jq -r '.number')
+            echo "reused=true" >> "$GITHUB_OUTPUT"
+            echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          else
+            BRANCH_NAME="${{ steps.gather.outputs.branch_prefix }}${{ steps.gather.outputs.slug }}"
+            echo "reused=false" >> "$GITHUB_OUTPUT"
+            echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+            echo "pr_number=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Mark Issue Assigned
+        if: env.DRY_RUN != 'true'
+        run: |
+          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --add-label "jules:assigned" \
+            --remove-label "jules:queued" || true
+
+      - name: Dry Run Summary
+        if: env.DRY_RUN == 'true'
+        run: |
+          echo "Issue #$ISSUE_NUMBER"
+          echo "Task class: ${{ steps.gather.outputs.task_class }}"
+          echo "Validation profile: ${{ steps.gather.outputs.validation_profile }}"
+          echo "Branch: ${{ steps.branch.outputs.branch_name }}"
+          echo "Existing PR: ${{ steps.branch.outputs.pr_number }}"
+
+      - name: Create Working Branch
+        if: env.DRY_RUN != 'true' && steps.branch.outputs.reused != 'true'
+        run: |
+          git checkout "$DEFAULT_BRANCH"
+          git pull origin "$DEFAULT_BRANCH"
+          git checkout -b "${{ steps.branch.outputs.branch_name }}"
+          git push -u origin "${{ steps.branch.outputs.branch_name }}"
+
+      - name: Authenticate Jules
+        if: env.DRY_RUN != 'true'
+        run: |
+          npm install -g @google/jules
+          jules auth --token "${{ secrets.JULES_API_KEY }}"
+
+      - name: Dispatch Jules Session
+        if: env.DRY_RUN != 'true'
+        run: |
+          ISSUE_BODY=$(gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json body --jq '.body')
+          PROMPT=$(cat <<EOF
+          You are working issue #$ISSUE_NUMBER in repository $GITHUB_REPOSITORY.
+
+          Task class: ${{ steps.gather.outputs.task_class }}
+          Validation profile: ${{ steps.gather.outputs.validation_profile }}
+          Branch: ${{ steps.branch.outputs.branch_name }}
+
+          Requirements:
+          - Keep changes tightly scoped to the issue.
+          - Reuse the existing branch and PR if one already exists.
+          - Do not make unrelated refactors.
+          - Update or create a PR that references "Closes #$ISSUE_NUMBER" only if the issue is fully addressed.
+          - If blocked, leave the branch in a reviewable state and document the blocker.
+
+          Issue body:
+          $ISSUE_BODY
+          EOF
+          )
+
+          jules task fix \
+            --branch "${{ steps.branch.outputs.branch_name }}" \
+            --prompt "$PROMPT"
+
+      - name: Refresh Branch After Jules
+        if: env.DRY_RUN != 'true'
+        run: |
+          git fetch origin "${{ steps.branch.outputs.branch_name }}"
+          git checkout -B "${{ steps.branch.outputs.branch_name }}" "origin/${{ steps.branch.outputs.branch_name }}"
+
+      - name: Run Validation Profile
+        if: env.DRY_RUN != 'true'
+        id: validation
+        run: |
+          python3 <<'PY' >/tmp/jules_validation_commands.txt
+          import yaml
+          profile = "${{ steps.gather.outputs.validation_profile }}"
+          with open(".github/jules/validation_profiles.yml", "r", encoding="utf-8") as f:
+              data = yaml.safe_load(f)["validation_profiles"]
+          for command in data.get(profile, {}).get("commands", []):
+              print(command)
+          PY
+
+          set +e
+          VALIDATION_OK=0
+          while IFS= read -r command; do
+            [ -z "$command" ] && continue
+            echo "Running: $command"
+            bash -lc "$command"
+            status=$?
+            if [ $status -ne 0 ]; then
+              VALIDATION_OK=1
+              break
+            fi
+          done < /tmp/jules_validation_commands.txt
+          set -e
+
+          if [ $VALIDATION_OK -eq 0 ]; then
+            echo "status=passed" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Or Update PR
+        if: env.DRY_RUN != 'true'
+        run: |
+          PR_NUMBER="${{ steps.branch.outputs.pr_number }}"
+          BRANCH_NAME="${{ steps.branch.outputs.branch_name }}"
+          TASK_LABEL="${{ steps.gather.outputs.task_label }}"
+          TITLE="[Jules] issue #$ISSUE_NUMBER: $(gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json title --jq '.title')"
+          BODY=$(cat <<EOF
+          ## Jules Issue Worker
+
+          Source issue: #$ISSUE_NUMBER
+          Task class: ${{ steps.gather.outputs.task_class }}
+          Validation profile: ${{ steps.gather.outputs.validation_profile }}
+          Validation status: ${{ steps.validation.outputs.status }}
+
+          This PR was created or updated by the Jules issue worker.
+          EOF
+          )
+
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$BODY"
+            gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --add-label "jules:managed" --add-label "$TASK_LABEL" || true
+          else
+            gh pr create \
+              --repo "$GITHUB_REPOSITORY" \
+              --base "$DEFAULT_BRANCH" \
+              --head "$BRANCH_NAME" \
+              --title "$TITLE" \
+              --body "$BODY" \
+              --label "jules:managed" \
+              --label "$TASK_LABEL" || true
+
+            PR_NUMBER=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --json number,headRefName \
+              --jq '[.[] | select(.headRefName == "'"$BRANCH_NAME"'")] | .[0].number')
+          fi
+
+          echo "PR_NUMBER=$PR_NUMBER" >> "$GITHUB_ENV"
+
+      - name: Report Back To Issue
+        if: env.DRY_RUN != 'true'
+        run: |
+          if [ "${{ steps.validation.outputs.status }}" = "passed" ]; then
+            FINAL_LABEL="jules:done"
+          else
+            FINAL_LABEL="jules:blocked"
+          fi
+
+          gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --remove-label "jules:assigned" \
+            --add-label "$FINAL_LABEL" || true
+
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$(cat <<EOF
+          Jules issue worker completed a run.
+
+          - Branch: \`${{ steps.branch.outputs.branch_name }}\`
+          - PR: #${PR_NUMBER:-${{ steps.branch.outputs.pr_number }}}
+          - Task class: \`${{ steps.gather.outputs.task_class }}\`
+          - Validation profile: \`${{ steps.gather.outputs.validation_profile }}\`
+          - Validation status: \`${{ steps.validation.outputs.status }}\`
+          EOF
+          )"
