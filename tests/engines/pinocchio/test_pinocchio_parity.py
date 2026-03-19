@@ -7,6 +7,7 @@ All tests require pinocchio to be installed; they skip gracefully otherwise.
 All tests are marked @pytest.mark.live_simulation to route them to the
 heavy-integration-tests workflow.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -50,7 +51,9 @@ def loaded_engine() -> PinocchioPhysicsEngine:
 
 
 @pytest.mark.live_simulation
-def test_forward_kinematics_matches_analytical(loaded_engine: PinocchioPhysicsEngine) -> None:
+def test_forward_kinematics_matches_analytical(
+    loaded_engine: PinocchioPhysicsEngine,
+) -> None:
     """Forward kinematics must return valid state arrays of correct shapes.
 
     AC1 — parity test: forward kinematics shape and finiteness.
@@ -64,14 +67,20 @@ def test_forward_kinematics_matches_analytical(loaded_engine: PinocchioPhysicsEn
     eng.forward()
 
     q, v = eng.get_state()
-    assert q.shape == (eng.model.nq,), f"Expected q shape ({eng.model.nq},), got {q.shape}"
-    assert v.shape == (eng.model.nv,), f"Expected v shape ({eng.model.nv},), got {v.shape}"
+    assert q.shape == (eng.model.nq,), (
+        f"Expected q shape ({eng.model.nq},), got {q.shape}"
+    )
+    assert v.shape == (eng.model.nv,), (
+        f"Expected v shape ({eng.model.nv},), got {v.shape}"
+    )
     assert np.all(np.isfinite(q)), "q contains non-finite values"
     assert np.all(np.isfinite(v)), "v contains non-finite values"
 
 
 @pytest.mark.live_simulation
-def test_inverse_kinematics_jacobian_shape(loaded_engine: PinocchioPhysicsEngine) -> None:
+def test_inverse_kinematics_jacobian_shape(
+    loaded_engine: PinocchioPhysicsEngine,
+) -> None:
     """Jacobian must have linear (3, nv), angular (3, nv), spatial (6, nv) keys.
 
     AC2 — parity test: Jacobian shape matches Drake/MuJoCo protocol.
@@ -87,9 +96,15 @@ def test_inverse_kinematics_jacobian_shape(loaded_engine: PinocchioPhysicsEngine
     assert "spatial" in J, "Jacobian dict missing 'spatial' key"
 
     nv = eng.model.nv
-    assert J["linear"].shape == (3, nv), f"linear shape: expected (3, {nv}), got {J['linear'].shape}"
-    assert J["angular"].shape == (3, nv), f"angular shape: expected (3, {nv}), got {J['angular'].shape}"
-    assert J["spatial"].shape == (6, nv), f"spatial shape: expected (6, {nv}), got {J['spatial'].shape}"
+    assert J["linear"].shape == (3, nv), (
+        f"linear shape: expected (3, {nv}), got {J['linear'].shape}"
+    )
+    assert J["angular"].shape == (3, nv), (
+        f"angular shape: expected (3, {nv}), got {J['angular'].shape}"
+    )
+    assert J["spatial"].shape == (6, nv), (
+        f"spatial shape: expected (6, {nv}), got {J['spatial'].shape}"
+    )
 
 
 @pytest.mark.live_simulation
@@ -105,7 +120,9 @@ def test_screw_axis_kinematics_ztcf(loaded_engine: PinocchioPhysicsEngine) -> No
 
     result = eng.compute_ztcf(q, v)
 
-    assert result.shape == (eng.model.nv,), f"Expected shape ({eng.model.nv},), got {result.shape}"
+    assert result.shape == (eng.model.nv,), (
+        f"Expected shape ({eng.model.nv},), got {result.shape}"
+    )
     assert np.all(np.isfinite(result)), "compute_ztcf returned non-finite values"
 
 
@@ -120,10 +137,14 @@ def test_mass_matrix_symmetry(loaded_engine: PinocchioPhysicsEngine) -> None:
 
     assert M.ndim == 2, "Mass matrix must be 2D"
     assert M.shape[0] == M.shape[1], "Mass matrix must be square"
-    np.testing.assert_array_almost_equal(M, M.T, decimal=10, err_msg="Mass matrix must be symmetric")
+    np.testing.assert_array_almost_equal(
+        M, M.T, decimal=10, err_msg="Mass matrix must be symmetric"
+    )
 
     eigenvalues = np.linalg.eigvalsh(M)
-    assert np.all(eigenvalues > 0), f"Mass matrix must be positive-definite; eigenvalues: {eigenvalues}"
+    assert np.all(eigenvalues > 0), (
+        f"Mass matrix must be positive-definite; eigenvalues: {eigenvalues}"
+    )
 
 
 @pytest.mark.live_simulation
@@ -160,7 +181,9 @@ def test_drift_control_superposition(loaded_engine: PinocchioPhysicsEngine) -> N
 
 
 @pytest.mark.live_simulation
-def test_contact_forces_returns_zero_vector(loaded_engine: PinocchioPhysicsEngine) -> None:
+def test_contact_forces_returns_zero_vector(
+    loaded_engine: PinocchioPhysicsEngine,
+) -> None:
     """compute_contact_forces must return np.zeros(3) — Pinocchio has no contact solver.
 
     AC2 — parity test: contact forces protocol compliance.
@@ -168,7 +191,9 @@ def test_contact_forces_returns_zero_vector(loaded_engine: PinocchioPhysicsEngin
     eng = loaded_engine
     result = eng.compute_contact_forces()
 
-    assert isinstance(result, np.ndarray), "compute_contact_forces must return np.ndarray"
+    assert isinstance(result, np.ndarray), (
+        "compute_contact_forces must return np.ndarray"
+    )
     assert result.shape == (3,), f"Expected shape (3,), got {result.shape}"
     np.testing.assert_array_equal(result, np.zeros(3))
 
@@ -195,12 +220,18 @@ def test_compute_affine_drift_alias(loaded_engine: PinocchioPhysicsEngine) -> No
     result = eng.compute_affine_drift()
 
     assert isinstance(result, np.ndarray), "compute_affine_drift must return np.ndarray"
-    assert result.shape == (eng.model.nv,), f"Expected shape ({eng.model.nv},), got {result.shape}"
-    assert np.all(np.isfinite(result)), "compute_affine_drift returned non-finite values"
+    assert result.shape == (eng.model.nv,), (
+        f"Expected shape ({eng.model.nv},), got {result.shape}"
+    )
+    assert np.all(np.isfinite(result)), (
+        "compute_affine_drift returned non-finite values"
+    )
 
 
 @pytest.mark.live_simulation
-def test_dbc_preconditions_raise_on_uninitialised(engine: PinocchioPhysicsEngine) -> None:
+def test_dbc_preconditions_raise_on_uninitialised(
+    engine: PinocchioPhysicsEngine,
+) -> None:
     """Calling methods before load() must raise an exception.
 
     AC5 — DbC precondition tests: engine raises StateError/PreconditionError
