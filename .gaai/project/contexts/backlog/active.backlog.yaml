@@ -111,7 +111,8 @@ items:
     epic: E03
     title: "Replace print() calls with logging in source code"
     priority: high
-    status: refined
+    status: in_progress
+    started_at: "2026-03-19T03:17:15Z"
     github_issue: 1950
     artefact: .gaai/project/contexts/artefacts/stories/E03S01.story.md
     dependencies: []
