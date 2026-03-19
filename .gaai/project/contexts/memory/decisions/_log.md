@@ -35,9 +35,9 @@ updated_at: 2026-03-18
 ### DEC-2026-03-18-01 — GAAI Sandbox Strategy
 
 **Context:** Need to test autonomous AI-driven development against an active project overnight without risk to the main repo.
-**Decision:** Fork Golf_Modeling_Suite into Golf_GAAI_Sandbox and install GAAI framework. All autonomous work happens on `staging`; PRs are created but NOT auto-merged. Human reviews PRs.
+**Decision:** Fork UpstreamDrift into Golf_GAAI_Sandbox and install GAAI framework. All autonomous work happens on `staging`; PRs are created but NOT auto-merged. Human reviews PRs.
 **Rationale:** Sandboxed fork isolates risk. GAAI's "AI creates PRs, humans merge" model is appropriate for first overnight run.
-**Impact:** All story branches target staging in Golf_GAAI_Sandbox, not Golf_Modeling_Suite.
+**Impact:** All story branches target staging in Golf_GAAI_Sandbox, not UpstreamDrift.
 **Date:** 2026-03-18
 
 ### DEC-2026-03-18-02 — Issue-to-Story Conversion

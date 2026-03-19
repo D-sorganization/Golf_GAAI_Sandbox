@@ -10,13 +10,13 @@ created_at: 2026-03-18
 updated_at: 2026-03-18
 ---
 
-# Golf Modeling Suite — Project Context
+# UpstreamDrift — Project Context
 
 ## Project Overview
 
-**Name:** Golf Modeling Suite (GAAI Sandbox)
+**Name:** UpstreamDrift (GAAI Sandbox)
 
-**Purpose:** A multi-engine golf biomechanics and physics simulation platform that models golf swings, ball flight, and robot motion planning using multiple physics backends (MuJoCo, Drake, Pinocchio, OpenSim, MyoSuite). Used for research, biomechanics analysis, and autonomous robotics development. This repo is a sandboxed GAAI-driven fork of `D-sorganization/Golf_Modeling_Suite`.
+**Purpose:** A multi-engine golf biomechanics and physics simulation platform that models golf swings, ball flight, and robot motion planning using multiple physics backends (MuJoCo, Drake, Pinocchio, OpenSim, MyoSuite). Used for research, biomechanics analysis, and autonomous robotics development. This repo is a sandboxed GAAI-driven fork of `D-sorganization/UpstreamDrift`.
 
 **Target Users:** Researchers, engineers, and automated AI development agents working on golf physics simulation and robot planning.
 
@@ -24,7 +24,7 @@ updated_at: 2026-03-18
 
 ## Repository Info
 
-- **Upstream:** `D-sorganization/Golf_Modeling_Suite`
+- **Upstream:** `D-sorganization/UpstreamDrift`
 - **This sandbox:** `D-sorganization/Golf_GAAI_Sandbox`
 - **GAAI branch:** `staging` (AI works here; PRs target staging; main is protected)
 - **Local path:** `/c/Users/diete/Repositories/Golf_GAAI_Sandbox_local`
@@ -88,6 +88,6 @@ updated_at: 2026-03-18
 ## Out of Scope (Permanent)
 
 - Changes to `main` branch directly
-- Modifications to upstream `Golf_Modeling_Suite` from this sandbox
+- Modifications to upstream `UpstreamDrift` from this sandbox
 - Any MATLAB model changes (legacy, read-only)
 - New physics engine integrations beyond the current five

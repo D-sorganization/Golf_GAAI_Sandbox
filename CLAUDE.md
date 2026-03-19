@@ -37,9 +37,9 @@ Read the active agent definition before acting:
 
 ---
 
-## Project: Golf Modeling Suite (GAAI Sandbox)
+## Project: UpstreamDrift (GAAI Sandbox)
 
-This is a sandboxed fork of `D-sorganization/Golf_Modeling_Suite` for autonomous GAAI-driven development.
+This is a sandboxed fork of `D-sorganization/UpstreamDrift` for autonomous GAAI-driven development.
 
 **Primary goals (overnight run):**
 1. Fix CI/infrastructure issues (E01)
@@ -50,7 +50,7 @@ This is a sandboxed fork of `D-sorganization/Golf_Modeling_Suite` for autonomous
 **Constraints:**
 - All work happens on `staging` branch; PRs target `staging`
 - Never push directly to `main`
-- Sandbox: changes here do not affect the upstream `Golf_Modeling_Suite` repo
+- Sandbox: changes here do not affect the upstream `UpstreamDrift` repo
 - Follow existing AGENTS.md coding standards (TDD, DbC, DRY, no print(), no type:ignore)
 
 ---

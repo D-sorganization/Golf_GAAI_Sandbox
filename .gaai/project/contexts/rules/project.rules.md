@@ -52,4 +52,4 @@ These rules extend and override base GAAI rules for this specific project.
 
 ## Upstream Reference
 
-15. This sandbox is forked from `D-sorganization/Golf_Modeling_Suite`. Do NOT open PRs against the upstream repo — only against `D-sorganization/Golf_GAAI_Sandbox`.
+15. This sandbox is forked from `D-sorganization/UpstreamDrift`. Do NOT open PRs against the upstream repo — only against `D-sorganization/Golf_GAAI_Sandbox`.
