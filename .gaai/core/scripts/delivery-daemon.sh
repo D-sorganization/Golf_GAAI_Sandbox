@@ -387,7 +387,7 @@ active_count() {
   local count=0
   for lock in "$LOCK_DIR"/*.lock; do
     [[ -f "$lock" ]] || continue
-    ((count++))
+    count=$((count + 1))
   done
   echo "$count"
 }
@@ -1158,7 +1158,7 @@ while true; do
 
     if $DRY_RUN; then
       log "${YELLOW}[DRY RUN] Would launch: $story_id (retry $(get_retry_count "$story_id")/$MAX_RETRIES)${NC}"
-      ((launched++))
+      launched=$((launched + 1))
       continue
     fi
 
@@ -1177,7 +1177,7 @@ while true; do
 
     increment_retry "$story_id"
     launch_delivery "$story_id"
-    ((launched++))
+    launched=$((launched + 1))
 
   done <<< "$ready_stories"
 
