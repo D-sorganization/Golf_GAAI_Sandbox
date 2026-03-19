@@ -146,7 +146,8 @@ items:
     epic: E03
     title: "Upgrade example notebooks and scripts to current architecture"
     priority: medium
-    status: refined
+    status: in_progress
+    started_at: "2026-03-19T04:27:37Z"
     github_issue: 1957
     artefact: .gaai/project/contexts/artefacts/stories/E03S02.story.md
     dependencies: []
