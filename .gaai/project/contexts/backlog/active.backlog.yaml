@@ -48,11 +48,12 @@ items:
     title: "Remove duplicate Assessment_H CI/CD file from docs/assessments"
     priority: medium
     status: done
-    started_at: "2026-03-19T03:40:58Z"
-    completed_at: "2026-03-19T03:43:28Z"
+    started_at: "2026-03-18T20:40:58-07:00"
+    completed_at: "2026-03-18T20:43:35-07:00"
     pr_url: "https://github.com/D-sorganization/Golf_GAAI_Sandbox/pull/11"
     pr_number: 11
     pr_status: "open"
+    cost_usd: 0.5037
     github_issue: 1962
     artefact: .gaai/project/contexts/artefacts/stories/E01S03.story.md
     dependencies: []
