@@ -176,7 +176,8 @@ items:
     epic: E04
     title: "Bring Pinocchio engine to parity with MuJoCo and Drake (TDD, DRY, DbC)"
     priority: high
-    status: refined
+    status: in_progress
+    started_at: "2026-03-19T04:46:27Z"
     github_issue: 1955
     artefact: .gaai/project/contexts/artefacts/stories/E04S02.story.md
     dependencies: [E02S01]
