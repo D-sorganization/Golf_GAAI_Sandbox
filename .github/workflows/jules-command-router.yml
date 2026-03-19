@@ -75,6 +75,7 @@ jobs:
             /jules-address-comments)
               if [ "$IS_PR" = "true" ]; then
                 gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "queue:batched" || true
+                gh workflow run jules-comment-batch-processor.yml --repo "$REPO" -f pr_number="$ISSUE_NUMBER" -f dry_run=false
               fi
               ;;
             /jules-stop)

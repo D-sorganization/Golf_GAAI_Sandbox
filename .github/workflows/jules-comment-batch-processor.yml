@@ -1,0 +1,228 @@
+name: Jules Comment Batch Processor
+
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        required: false
+        type: string
+      dry_run:
+        required: false
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Optional PR number to process"
+        required: false
+        type: string
+      dry_run:
+        description: "Report only"
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    - cron: "0 */4 * * *"
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: jules-comment-batch-processor-${{ inputs.pr_number || github.event.inputs.pr_number || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      INPUT_PR: ${{ inputs.pr_number || github.event.inputs.pr_number || '' }}
+      DRY_RUN: ${{ inputs.dry_run || github.event.inputs.dry_run || false }}
+      DEFAULT_BRANCH: ${{ vars.JULES_DEFAULT_BRANCH || 'main' }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
+      - name: Resolve Target PR
+        id: target
+        run: |
+          PR_NUMBER="$INPUT_PR"
+          if [ -z "$PR_NUMBER" ]; then
+            PR_NUMBER=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --search "label:queue:batched" --json number --jq '.[0].number')
+          fi
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Skip If No PR
+        if: steps.target.outputs.pr_number == ''
+        run: |
+          echo "No queued PR found."
+          exit 0
+
+      - name: Gather PR Metadata
+        id: pr
+        run: |
+          gh pr view "${{ steps.target.outputs.pr_number }}" --repo "$GITHUB_REPOSITORY" \
+            --json number,title,headRefName,isDraft,state,labels,url > /tmp/jules_batch_pr.json
+
+          python3 <<'PY'
+          import json
+          import os
+
+          pr = json.load(open("/tmp/jules_batch_pr.json"))
+          labels = {label["name"] for label in pr.get("labels", [])}
+          eligible = (
+              pr.get("state") == "OPEN"
+              and not pr.get("isDraft")
+              and "jules:blocked" not in labels
+              and "jules:needs-human" not in labels
+          )
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"eligible={'true' if eligible else 'false'}\n")
+              fh.write(f"branch={pr['headRefName']}\n")
+              fh.write(f"title={pr['title']}\n")
+          PY
+
+      - name: Stop For Ineligible PR
+        if: steps.pr.outputs.eligible != 'true'
+        run: |
+          echo "PR is not eligible for comment batching."
+          exit 0
+
+      - name: Collect Actionable Comments From GitHub
+        id: comments
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/pulls/${{ steps.target.outputs.pr_number }}/comments?per_page=100" > /tmp/jules_review_comments.json
+          gh api "repos/$GITHUB_REPOSITORY/issues/${{ steps.target.outputs.pr_number }}/comments?per_page=100" > /tmp/jules_issue_comments.json
+
+          python3 <<'PY'
+          import json
+          import os
+          from collections import defaultdict
+
+          actionable_terms = [
+              "please", "should", "could you", "can you", "fix",
+              "change", "update", "add", "remove", "consider",
+              "suggest", "recommend"
+          ]
+          ignored_authors = {
+              "copilot-pull-request-reviewer[bot]",
+              "cursor[bot]",
+              "dependabot[bot]",
+              "github-actions[bot]",
+              "renovate[bot]",
+              "codecov[bot]",
+              "sonarcloud[bot]",
+          }
+
+          def is_actionable(body: str) -> bool:
+              text = (body or "").lower()
+              return any(term in text for term in actionable_terms) or "?" in text
+
+          comments = []
+          for source, path in [("review", "/tmp/jules_review_comments.json"), ("pr", "/tmp/jules_issue_comments.json")]:
+              for item in json.load(open(path)):
+                  author = item.get("user", {}).get("login", "")
+                  body = item.get("body", "")
+                  if author in ignored_authors:
+                      continue
+                  if not is_actionable(body):
+                      continue
+                  comments.append({
+                      "comment_id": item.get("id"),
+                      "author": author,
+                      "body": body,
+                      "type": source,
+                      "path": item.get("path"),
+                      "line": item.get("line"),
+                      "created_at": item.get("created_at"),
+                  })
+
+          seen = set()
+          deduped = []
+          for comment in comments:
+              snippet = (comment["body"] or "")[:120]
+              key = (comment["author"], comment["path"], comment["line"], snippet)
+              if key in seen:
+                  continue
+              seen.add(key)
+              deduped.append(comment)
+
+          grouped = defaultdict(list)
+          for comment in deduped:
+              grouped[comment.get("path") or "general"].append(comment)
+
+          payload = {
+              "pr_number": "${{ steps.target.outputs.pr_number }}",
+              "comment_count": len(deduped),
+              "comments": deduped,
+              "grouped_by_path": grouped,
+          }
+
+          with open("/tmp/jules_comment_batch.json", "w", encoding="utf-8") as fh:
+              json.dump(payload, fh, indent=2, default=list)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"count={len(deduped)}\n")
+          PY
+
+      - name: Stop If Nothing To Process
+        if: steps.comments.outputs.count == '0'
+        run: |
+          gh issue edit "${{ steps.target.outputs.pr_number }}" --repo "$GITHUB_REPOSITORY" --remove-label "queue:batched" || true
+          echo "No actionable comments found."
+          exit 0
+
+      - name: Dry Run Summary
+        if: env.DRY_RUN == 'true'
+        run: |
+          echo "PR #${{ steps.target.outputs.pr_number }}"
+          echo "Branch: ${{ steps.pr.outputs.branch }}"
+          echo "Actionable deduplicated comments: ${{ steps.comments.outputs.count }}"
+          cat /tmp/jules_comment_batch.json
+
+      - name: Authenticate Jules
+        if: env.DRY_RUN != 'true'
+        run: |
+          npm install -g @google/jules
+          jules auth --token "${{ secrets.JULES_API_KEY }}"
+
+      - name: Dispatch Jules Batch Update
+        if: env.DRY_RUN != 'true'
+        run: |
+          COMMENTS_JSON=$(cat /tmp/jules_comment_batch.json)
+          PROMPT=$(cat <<EOF
+          You are addressing batched review comments on PR #${{ steps.target.outputs.pr_number }}.
+          Branch: ${{ steps.pr.outputs.branch }}
+
+          Requirements:
+          - Update the existing PR branch only.
+          - Do not create a new PR.
+          - Keep changes tightly scoped to the comments.
+          - Do not make unrelated refactors.
+          - Prefer grouping related fixes in the same files.
+
+          Batched comments:
+          $COMMENTS_JSON
+          EOF
+          )
+
+          jules task fix \
+            --branch "${{ steps.pr.outputs.branch }}" \
+            --prompt "$PROMPT"
+
+      - name: Comment Summary And Clear Queue Label
+        if: env.DRY_RUN != 'true'
+        run: |
+          gh issue edit "${{ steps.target.outputs.pr_number }}" --repo "$GITHUB_REPOSITORY" --remove-label "queue:batched" || true
+          gh pr comment "${{ steps.target.outputs.pr_number }}" --repo "$GITHUB_REPOSITORY" --body "Jules processed a batch of ${{ steps.comments.outputs.count }} deduplicated actionable comments on branch \`${{ steps.pr.outputs.branch }}\`."
