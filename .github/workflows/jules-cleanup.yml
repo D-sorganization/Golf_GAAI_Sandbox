@@ -1,0 +1,343 @@
+name: Jules Cleanup
+
+on:
+  workflow_call:
+    inputs:
+      dry_run:
+        required: false
+        type: boolean
+        default: true
+      reconcile_stale_issues:
+        required: false
+        type: boolean
+        default: true
+      mark_stale_prs:
+        required: false
+        type: boolean
+        default: true
+      delete_stale_branches:
+        required: false
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Report only"
+        required: false
+        default: true
+        type: boolean
+      reconcile_stale_issues:
+        description: "Reconcile stale issue labels"
+        required: false
+        default: true
+        type: boolean
+      mark_stale_prs:
+        description: "Comment on and label stale Jules PRs"
+        required: false
+        default: true
+        type: boolean
+      delete_stale_branches:
+        description: "Delete stale Jules branches with no open PR"
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    - cron: "30 3 * * 1"
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: jules-cleanup-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      EVENT_NAME: ${{ github.event_name }}
+      INPUT_DRY_RUN: ${{ inputs.dry_run }}
+      DISPATCH_DRY_RUN: ${{ github.event.inputs.dry_run || '' }}
+      INPUT_RECONCILE_STALE_ISSUES: ${{ inputs.reconcile_stale_issues }}
+      DISPATCH_RECONCILE_STALE_ISSUES: ${{ github.event.inputs.reconcile_stale_issues || '' }}
+      INPUT_MARK_STALE_PRS: ${{ inputs.mark_stale_prs }}
+      DISPATCH_MARK_STALE_PRS: ${{ github.event.inputs.mark_stale_prs || '' }}
+      INPUT_DELETE_STALE_BRANCHES: ${{ inputs.delete_stale_branches }}
+      DISPATCH_DELETE_STALE_BRANCHES: ${{ github.event.inputs.delete_stale_branches || '' }}
+      STALE_BRANCH_DAYS: ${{ vars.JULES_STALE_BRANCH_DAYS || '14' }}
+      STALE_PR_DAYS: ${{ vars.JULES_STALE_PR_DAYS || '14' }}
+      STALE_ISSUE_DAYS: ${{ vars.JULES_STALE_ISSUE_DAYS || '7' }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Fetch Remote State
+        run: git fetch origin --prune
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Analyze And Reconcile Jules Cleanup Targets
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          python3 <<'PY'
+          import datetime as dt
+          import json
+          import os
+          import subprocess
+
+          repo = os.environ["REPO"]
+
+          def resolve_bool(name: str, default: bool) -> bool:
+              event_name = os.environ["EVENT_NAME"]
+              if event_name == "workflow_call":
+                  raw = os.environ.get(f"INPUT_{name}", "")
+              else:
+                  raw = os.environ.get(f"DISPATCH_{name}", "")
+              if raw == "":
+                  return default
+              return raw.lower() == "true"
+
+          dry_run = resolve_bool("DRY_RUN", True)
+          reconcile_stale_issues = resolve_bool("RECONCILE_STALE_ISSUES", True)
+          mark_stale_prs = resolve_bool("MARK_STALE_PRS", True)
+          delete_stale_branches = resolve_bool("DELETE_STALE_BRANCHES", False)
+          stale_branch_days = int(os.environ["STALE_BRANCH_DAYS"])
+          stale_pr_days = int(os.environ["STALE_PR_DAYS"])
+          stale_issue_days = int(os.environ["STALE_ISSUE_DAYS"])
+          now = dt.datetime.now(dt.timezone.utc)
+
+          def run_json(command: list[str]) -> object:
+              result = subprocess.run(command, check=True, capture_output=True, text=True)
+              return json.loads(result.stdout)
+
+          def age_days(iso_value: str) -> int:
+              value = dt.datetime.fromisoformat(iso_value.replace("Z", "+00:00"))
+              return int((now - value).total_seconds() // 86400)
+
+          prs = run_json(
+              [
+                  "gh",
+                  "pr",
+                  "list",
+                  "--repo",
+                  repo,
+                  "--state",
+                  "open",
+                  "--limit",
+                  "100",
+                  "--json",
+                  "number,title,headRefName,updatedAt,labels,url",
+              ]
+          )
+          open_pr_heads = {pr["headRefName"] for pr in prs}
+          stale_prs = []
+          for pr in prs:
+              labels = {label["name"] for label in pr.get("labels", [])}
+              if "jules:managed" not in labels:
+                  continue
+              pr_age = age_days(pr["updatedAt"])
+              if pr_age < stale_pr_days:
+                  continue
+              stale_prs.append(
+                  {
+                      "number": pr["number"],
+                      "title": pr["title"],
+                      "head": pr["headRefName"],
+                      "age_days": pr_age,
+                      "url": pr["url"],
+                      "labels": sorted(labels),
+                  }
+              )
+
+          issues = run_json(
+              [
+                  "gh",
+                  "issue",
+                  "list",
+                  "--repo",
+                  repo,
+                  "--state",
+                  "open",
+                  "--limit",
+                  "100",
+                  "--json",
+                  "number,title,updatedAt,labels,url",
+              ]
+          )
+          stale_issues = []
+          for issue in issues:
+              labels = {label["name"] for label in issue.get("labels", [])}
+              if not ({"jules:queued", "jules:assigned"} & labels):
+                  continue
+              issue_age = age_days(issue["updatedAt"])
+              if issue_age < stale_issue_days:
+                  continue
+              stale_issues.append(
+                  {
+                      "number": issue["number"],
+                      "title": issue["title"],
+                      "age_days": issue_age,
+                      "url": issue["url"],
+                      "labels": sorted(labels),
+                  }
+              )
+
+          result = subprocess.run(
+              [
+                  "git",
+                  "for-each-ref",
+                  "refs/remotes/origin/jules",
+                  "--format=%(refname:short)|%(committerdate:iso-strict)",
+              ],
+              check=True,
+              capture_output=True,
+              text=True,
+          )
+          stale_branches = []
+          for line in result.stdout.splitlines():
+              if not line.strip():
+                  continue
+              ref_name, commit_date = line.split("|", 1)
+              branch_name = ref_name.removeprefix("origin/")
+              if branch_name in open_pr_heads:
+                  continue
+              branch_age = age_days(commit_date)
+              if branch_age < stale_branch_days:
+                  continue
+              stale_branches.append(
+                  {
+                      "branch": branch_name,
+                      "age_days": branch_age,
+                  }
+              )
+
+          report = {
+              "dry_run": dry_run,
+              "stale_prs": stale_prs,
+              "stale_issues": stale_issues,
+              "stale_branches": stale_branches,
+              "actions": [],
+          }
+
+          if not dry_run and mark_stale_prs:
+              for pr in stale_prs:
+                  subprocess.run(
+                      [
+                          "gh",
+                          "pr",
+                          "edit",
+                          str(pr["number"]),
+                          "--repo",
+                          repo,
+                          "--add-label",
+                          "jules:needs-human",
+                      ],
+                      check=False,
+                  )
+                  subprocess.run(
+                      [
+                          "gh",
+                          "pr",
+                          "comment",
+                          str(pr["number"]),
+                          "--repo",
+                          repo,
+                          "--body",
+                          (
+                              "Jules cleanup marked this PR for human review because it has been idle "
+                              f"for {pr['age_days']} days while still labeled `jules:managed`."
+                          ),
+                      ],
+                      check=False,
+                  )
+                  report["actions"].append(f"Marked stale PR #{pr['number']} for human review")
+
+          if not dry_run and reconcile_stale_issues:
+              for issue in stale_issues:
+                  subprocess.run(
+                      [
+                          "gh",
+                          "issue",
+                          "edit",
+                          str(issue["number"]),
+                          "--repo",
+                          repo,
+                          "--remove-label",
+                          "jules:queued",
+                          "--remove-label",
+                          "jules:assigned",
+                          "--add-label",
+                          "jules:needs-human",
+                      ],
+                      check=False,
+                  )
+                  subprocess.run(
+                      [
+                          "gh",
+                          "issue",
+                          "comment",
+                          str(issue["number"]),
+                          "--repo",
+                          repo,
+                          "--body",
+                          (
+                              "Jules cleanup reconciled stale automation state after "
+                              f"{issue['age_days']} days without movement. "
+                              "The item now needs human review before more automation runs."
+                          ),
+                      ],
+                      check=False,
+                  )
+                  report["actions"].append(f"Reconciled stale issue #{issue['number']}")
+
+          if not dry_run and delete_stale_branches:
+              for branch in stale_branches:
+                  subprocess.run(
+                      ["git", "push", "origin", "--delete", branch["branch"]],
+                      check=False,
+                      capture_output=True,
+                      text=True,
+                  )
+                  report["actions"].append(f"Deleted stale branch {branch['branch']}")
+
+          with open("/tmp/jules_cleanup_report.json", "w", encoding="utf-8") as handle:
+              json.dump(report, handle, indent=2)
+          PY
+
+      - name: Write Cleanup Summary
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+
+          report = json.load(open("/tmp/jules_cleanup_report.json"))
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
+              fh.write("## Jules Cleanup\n\n")
+              fh.write(f"- Dry run: `{str(report['dry_run']).lower()}`\n")
+              fh.write(f"- Stale PRs: `{len(report['stale_prs'])}`\n")
+              fh.write(f"- Stale issues: `{len(report['stale_issues'])}`\n")
+              fh.write(f"- Stale branches: `{len(report['stale_branches'])}`\n")
+              if report["actions"]:
+                  fh.write("- Actions:\n")
+                  for action in report["actions"]:
+                      fh.write(f"  - {action}\n")
+              if report["stale_prs"]:
+                  fh.write("\n### Stale PRs\n\n")
+                  for pr in report["stale_prs"]:
+                      fh.write(f"- #{pr['number']} ({pr['age_days']}d): {pr['title']}\n")
+              if report["stale_issues"]:
+                  fh.write("\n### Stale Issues\n\n")
+                  for issue in report["stale_issues"]:
+                      fh.write(f"- #{issue['number']} ({issue['age_days']}d): {issue['title']}\n")
+              if report["stale_branches"]:
+                  fh.write("\n### Stale Branches\n\n")
+                  for branch in report["stale_branches"]:
+                      fh.write(f"- `{branch['branch']}` ({branch['age_days']}d)\n")
+          PY
