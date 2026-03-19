@@ -102,78 +102,17 @@ jobs:
       - name: Collect Actionable Comments From GitHub
         id: comments
         run: |
-          gh api "repos/$GITHUB_REPOSITORY/pulls/${{ steps.target.outputs.pr_number }}/comments?per_page=100" > /tmp/jules_review_comments.json
-          gh api "repos/$GITHUB_REPOSITORY/issues/${{ steps.target.outputs.pr_number }}/comments?per_page=100" > /tmp/jules_issue_comments.json
+          python3 .github/jules/scripts/gh_helpers.py collect-pr-comments \
+            --repo "$GITHUB_REPOSITORY" \
+            --pr-number "${{ steps.target.outputs.pr_number }}" \
+            > /tmp/jules_comment_batch.json
 
           python3 <<'PY'
           import json
           import os
-          from collections import defaultdict
-
-          actionable_terms = [
-              "please", "should", "could you", "can you", "fix",
-              "change", "update", "add", "remove", "consider",
-              "suggest", "recommend"
-          ]
-          ignored_authors = {
-              "copilot-pull-request-reviewer[bot]",
-              "cursor[bot]",
-              "dependabot[bot]",
-              "github-actions[bot]",
-              "renovate[bot]",
-              "codecov[bot]",
-              "sonarcloud[bot]",
-          }
-
-          def is_actionable(body: str) -> bool:
-              text = (body or "").lower()
-              return any(term in text for term in actionable_terms) or "?" in text
-
-          comments = []
-          for source, path in [("review", "/tmp/jules_review_comments.json"), ("pr", "/tmp/jules_issue_comments.json")]:
-              for item in json.load(open(path)):
-                  author = item.get("user", {}).get("login", "")
-                  body = item.get("body", "")
-                  if author in ignored_authors:
-                      continue
-                  if not is_actionable(body):
-                      continue
-                  comments.append({
-                      "comment_id": item.get("id"),
-                      "author": author,
-                      "body": body,
-                      "type": source,
-                      "path": item.get("path"),
-                      "line": item.get("line"),
-                      "created_at": item.get("created_at"),
-                  })
-
-          seen = set()
-          deduped = []
-          for comment in comments:
-              snippet = (comment["body"] or "")[:120]
-              key = (comment["author"], comment["path"], comment["line"], snippet)
-              if key in seen:
-                  continue
-              seen.add(key)
-              deduped.append(comment)
-
-          grouped = defaultdict(list)
-          for comment in deduped:
-              grouped[comment.get("path") or "general"].append(comment)
-
-          payload = {
-              "pr_number": "${{ steps.target.outputs.pr_number }}",
-              "comment_count": len(deduped),
-              "comments": deduped,
-              "grouped_by_path": grouped,
-          }
-
-          with open("/tmp/jules_comment_batch.json", "w", encoding="utf-8") as fh:
-              json.dump(payload, fh, indent=2, default=list)
-
+          payload = json.load(open("/tmp/jules_comment_batch.json"))
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
-              fh.write(f"count={len(deduped)}\n")
+              fh.write(f"count={payload['comment_count']}\n")
           PY
 
       - name: Stop If Nothing To Process
