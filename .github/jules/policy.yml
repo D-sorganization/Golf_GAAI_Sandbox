@@ -28,10 +28,13 @@ triggers:
   manual_pr_commands:
     - "/jules-fix-ci"
     - "/jules-address-comments"
+    - "/jules-compile"
     - "/jules-stop"
   schedules:
     issue_queue_sweep: "*/30 * * * *"
     pr_shepherd_sweep: "15 */2 * * *"
+    cleanup_sweep: "30 3 * * 1"
+    pr_compiler_sweep: "0 4 * * 1"
 
 branching:
   issue_prefix: "jules/issue-"
@@ -41,3 +44,22 @@ branching:
 pr:
   default_label: "jules:managed"
   draft_by_default: false
+
+cleanup:
+  stale_branch_days: 14
+  stale_pr_days: 14
+  stale_issue_days: 7
+  require_manual_branch_delete: true
+
+compiler:
+  compile_candidate_label: "queue:compile-candidate"
+  compiled_batch_label: "jules:compiled-batch"
+  max_batch_size: 3
+  allowed_task_labels:
+    - "jules:docs"
+    - "jules:cleanup"
+    - "jules:review-fix"
+    - "jules:test-gen"
+  required_parallel_label: "parallel:allowed"
+  branch_prefix: "jules/compile-"
+  draft_by_default: true

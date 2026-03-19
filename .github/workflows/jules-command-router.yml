@@ -76,6 +76,13 @@ jobs:
                 gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Queued this PR for Jules PR shepherd repair review."
               fi
               ;;
+            /jules-compile)
+              if [ "$IS_PR" = "true" ]; then
+                gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "queue:compile-candidate" || true
+                gh workflow run jules-pr-compiler.yml --repo "$REPO" -f seed_pr="$ISSUE_NUMBER" -f dry_run=false
+                gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Marked this PR as a compile candidate and queued a Jules PR compiler run."
+              fi
+              ;;
             /jules-address-comments|/jules-batch-now)
               if [ "$IS_PR" = "true" ]; then
                 gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "queue:batched" || true

@@ -21,12 +21,18 @@ on:
           - comment-batch
           - queue-sweep
           - pr-shepherd
+          - pr-compiler
+          - cleanup
       issue_number:
         description: "Issue number for manual issue dispatch"
         required: false
         type: string
       pr_number:
         description: "PR number for manual PR shepherd dispatch"
+        required: false
+        type: string
+      seed_pr:
+        description: "Seed PR number for manual PR compiler dispatch"
         required: false
         type: string
       dry_run:
@@ -53,6 +59,7 @@ jobs:
       target: ${{ steps.decide.outputs.target }}
       issue_number: ${{ steps.decide.outputs.issue_number }}
       pr_number: ${{ steps.decide.outputs.pr_number }}
+      seed_pr: ${{ steps.decide.outputs.seed_pr }}
       dry_run: ${{ steps.decide.outputs.dry_run }}
       reason: ${{ steps.decide.outputs.reason }}
     steps:
@@ -73,6 +80,7 @@ jobs:
               target: "none",
               issue_number: "",
               pr_number: "",
+              seed_pr: "",
               dry_run: dryRun,
               reason: "",
             };
@@ -94,6 +102,13 @@ jobs:
                 result.target = "pr-shepherd";
                 result.pr_number = `${context.payload.inputs.pr_number}`;
                 result.reason = "Manual PR shepherd dispatch.";
+              } else if (manualTarget === "pr-compiler") {
+                result.target = "pr-compiler";
+                result.seed_pr = `${context.payload.inputs?.seed_pr || ""}`;
+                result.reason = "Manual PR compiler dispatch.";
+              } else if (manualTarget === "cleanup") {
+                result.target = "cleanup";
+                result.reason = "Manual cleanup dispatch.";
               } else if (manualTarget === "queue-sweep" || manualTarget === "auto") {
                 result.target = "queue-sweep";
                 result.reason = "Manual queue sweep.";
@@ -143,6 +158,7 @@ jobs:
             echo "- Target: \`${{ steps.decide.outputs.target }}\`"
             echo "- Issue: \`${{ steps.decide.outputs.issue_number || 'n/a' }}\`"
             echo "- PR: \`${{ steps.decide.outputs.pr_number || 'n/a' }}\`"
+            echo "- Seed PR: \`${{ steps.decide.outputs.seed_pr || 'n/a' }}\`"
             echo "- Dry run: \`${{ steps.decide.outputs.dry_run }}\`"
             echo "- Reason: ${{ steps.decide.outputs.reason }}"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -173,6 +189,23 @@ jobs:
     uses: ./.github/workflows/jules-comment-batch-processor.yml
     with:
       pr_number: ${{ needs.triage.outputs.pr_number }}
+      dry_run: ${{ needs.triage.outputs.dry_run == 'true' }}
+    secrets: inherit
+
+  dispatch-pr-compiler:
+    needs: triage
+    if: needs.triage.outputs.target == 'pr-compiler'
+    uses: ./.github/workflows/jules-pr-compiler.yml
+    with:
+      seed_pr: ${{ needs.triage.outputs.seed_pr }}
+      dry_run: ${{ needs.triage.outputs.dry_run == 'true' }}
+    secrets: inherit
+
+  dispatch-cleanup:
+    needs: triage
+    if: needs.triage.outputs.target == 'cleanup'
+    uses: ./.github/workflows/jules-cleanup.yml
+    with:
       dry_run: ${{ needs.triage.outputs.dry_run == 'true' }}
     secrets: inherit
 
