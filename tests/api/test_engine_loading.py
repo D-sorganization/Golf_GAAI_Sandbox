@@ -180,7 +180,7 @@ class TestPuttingGreenEngine:
 
     @pytest.mark.skip(
         reason="Proper Putting Green implementation pending (Issue #1136)"
-        # TODO: Implement PuttingGreen simulation endpoint; see issue #1136
+        # DEFERRED: Implement PuttingGreen simulation endpoint; see issue #1136
     )
     def test_putting_green_simulation(self, client) -> None:
         """Test Putting Green simulation (will be implemented in #1136)."""

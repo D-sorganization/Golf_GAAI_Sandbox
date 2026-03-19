@@ -407,7 +407,7 @@ class TestCrossValidation:
         logger.info("Cross-validation: Placeholder for MyoSuite ↔ OpenSim comparison")
         pytest.skip(
             "Cross-validation test pending matching models"
-            # TODO: Implement MyoSuite ↔ OpenSim comparable models; enable test — see issue #1951
+            # DEFERRED: Implement MyoSuite ↔ OpenSim comparable models; enable test — see issue #1951
         )
 
     def test_grip_force_validation(self):
@@ -416,5 +416,5 @@ class TestCrossValidation:
         logger.info("Grip cross-validation: Placeholder")
         pytest.skip(
             "Pending multi-engine grip models"
-            # TODO: Add multi-engine grip model support; enable test — see issue #1951
+            # DEFERRED: Add multi-engine grip model support; enable test — see issue #1951
         )

@@ -157,7 +157,7 @@ class TestEnergyConservation:
         reason="MuJoCo mass matrix computation issue - ΔKE is 2x expected. "
         "Needs investigation of qM usage or motor modeling. "
         "Other energy conservation tests pass."
-        # TODO: Investigate MuJoCo mass matrix (qM) computation; fix ΔKE calculation — see issue #1951
+        # DEFERRED: Investigate MuJoCo mass matrix (qM) computation; fix ΔKE calculation — see issue #1951
     )
     def test_work_energy_theorem(
         self, simple_pendulum_model: tuple[mujoco.MjModel, mujoco.MjData]

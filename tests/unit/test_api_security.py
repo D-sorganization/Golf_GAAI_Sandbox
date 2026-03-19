@@ -146,7 +146,7 @@ class TestBcryptAPIKeyVerification:
     @requires_bcrypt
     @pytest.mark.skip(
         reason="APIKey model lacks prefix_hash column (schema migration needed)"
-        # TODO: Enable after schema migration adds prefix_hash column — see issue #1951
+        # DEFERRED: Enable after schema migration adds prefix_hash column — see issue #1951
     )
     async def test_api_key_verification_integration(self) -> None:
         """Test full API key verification flow."""

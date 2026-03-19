@@ -139,7 +139,7 @@ class TestBasicContactPhysics:
         """Verify Drake contact dissipates energy."""
         pytest.skip(
             "Drake contact model testing - implementation pending"
-            # TODO: Implement Drake contact energy test — see issue #1951
+            # DEFERRED: Implement Drake contact energy test — see issue #1951
         )
         # Expected behavior: Similar to MuJoCo but may use different contact model
 
@@ -298,7 +298,7 @@ class TestContactEnergyConservation:
         """
         pytest.skip(
             "Elastic collision test - requires custom contact parameters"
-            # TODO: Configure contact parameters, then enable — see issue #1951
+            # DEFERRED: Configure contact parameters, then enable — see issue #1951
         )
         # Verify E_before ≈ E_after (within tolerance)
 
@@ -306,7 +306,7 @@ class TestContactEnergyConservation:
         """Verify work-energy theorem holds during contact."""
         pytest.skip(
             "Work-energy validation - requires contact force measurement"
-            # TODO: Add contact force measurement capability, then enable — see issue #1951
+            # DEFERRED: Add contact force measurement capability, then enable — see issue #1951
         )
         # Verify: ΔKE = W_contact + W_gravity
 
@@ -318,7 +318,7 @@ class TestContactStability:
         """Verify stacked objects don't explode due to contact errors."""
         pytest.skip(
             "Stability test - requires multi-body contact URDF"
-            # TODO: Create multi-body contact URDF fixture, then enable — see issue #1951
+            # DEFERRED: Create multi-body contact URDF fixture, then enable — see issue #1951
         )
         # Simulate for extended time
         # Verify no explosive behavior (energy bounded)
@@ -332,7 +332,7 @@ class TestContactCrossValidation:
         """Compare energy dissipation across engines for same scenario."""
         pytest.skip(
             "Cross-engine comparison - requires all engines installed"
-            # TODO: Enable in heavy_integration lane when all engines available — see issue #1951
+            # DEFERRED: Enable in heavy_integration lane when all engines available — see issue #1951
         )
         # Document differences in energy dissipation
         # Ensure differences are within expected range (not catastrophic)
@@ -341,7 +341,7 @@ class TestContactCrossValidation:
         """Compare contact force magnitudes across engines."""
         pytest.skip(
             "Force comparison - requires contact force extraction"
-            # TODO: Add contact force extraction API, then enable — see issue #1951
+            # DEFERRED: Add contact force extraction API, then enable — see issue #1951
         )
         # Compare across engines
         # Document order-of-magnitude agreement

@@ -10,7 +10,7 @@ from src.shared.python.validation_pkg.statistical_analysis import StatisticalAna
 class TestAdvancedAnalysis:
     @pytest.mark.skip(
         reason="compute_poincare_map not yet implemented in StatisticalAnalyzer"
-        # TODO: Implement compute_poincare_map — see issue #1951
+        # DEFERRED: Implement compute_poincare_map — see issue #1951
     )
     def test_compute_poincare_map(self) -> None:
         # Create a simple periodic signal: sin(t), cos(t)
@@ -61,7 +61,7 @@ class TestAdvancedAnalysis:
 
     @pytest.mark.skip(
         reason="compute_lyapunov_divergence not yet implemented in StatisticalAnalyzer"
-        # TODO: Implement compute_lyapunov_divergence — see issue #1951
+        # DEFERRED: Implement compute_lyapunov_divergence — see issue #1951
     )
     def test_compute_lyapunov_divergence(self) -> None:
         # Generate some data

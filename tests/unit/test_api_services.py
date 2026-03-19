@@ -179,7 +179,7 @@ class TestAnalysisService:
 
     @pytest.mark.skip(
         reason="DbC @ensure postcondition breaks async: evaluates coroutine not result"
-        # TODO: Fix async DbC contract pattern; known limitation — see issue #1951
+        # DEFERRED: Fix async DbC contract pattern; known limitation — see issue #1951
     )
     @pytest.mark.asyncio
     async def test_analyze_biomechanics_basic(self, service: AnalysisService) -> None:
@@ -200,7 +200,7 @@ class TestAnalysisService:
 
     @pytest.mark.skip(
         reason="DbC @ensure postcondition breaks async: evaluates coroutine not result"
-        # TODO: Fix async DbC contract pattern; known limitation — see issue #1951
+        # DEFERRED: Fix async DbC contract pattern; known limitation — see issue #1951
     )
     @pytest.mark.asyncio
     async def test_analyze_biomechanics_missing_data(
@@ -232,7 +232,7 @@ class TestServiceIntegration:
 
     @pytest.mark.skip(
         reason="DbC @ensure postcondition breaks async: evaluates coroutine not result"
-        # TODO: Fix async DbC contract pattern; known limitation — see issue #1951
+        # DEFERRED: Fix async DbC contract pattern; known limitation — see issue #1951
     )
     @pytest.mark.asyncio
     async def test_simulation_to_analysis_flow(

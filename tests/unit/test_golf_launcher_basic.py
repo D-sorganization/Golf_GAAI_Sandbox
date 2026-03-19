@@ -180,21 +180,21 @@ class TestDockerThreads:
 
     @pytest.mark.skip(
         reason="DockerBuildThread moved to src.launchers.docker_manager"
-        # TODO: Move these tests to tests/unit/test_docker_manager.py — see issue #1951
+        # DEFERRED: Move these tests to tests/unit/test_docker_manager.py — see issue #1951
     )
     def test_docker_build_thread_success(self, mocked_launcher_module):
         """Test DockerBuildThread success (skipped: moved to docker_manager)."""
 
     @pytest.mark.skip(
         reason="DockerBuildThread moved to src.launchers.docker_manager"
-        # TODO: Move these tests to tests/unit/test_docker_manager.py — see issue #1951
+        # DEFERRED: Move these tests to tests/unit/test_docker_manager.py — see issue #1951
     )
     def test_docker_build_thread_failure(self, mocked_launcher_module):
         """Test DockerBuildThread failure (skipped: moved to docker_manager)."""
 
     @pytest.mark.skip(
         reason="DockerBuildThread moved to src.launchers.docker_manager"
-        # TODO: Move these tests to tests/unit/test_docker_manager.py — see issue #1951
+        # DEFERRED: Move these tests to tests/unit/test_docker_manager.py — see issue #1951
     )
     def test_docker_build_thread_missing_path(self, mocked_launcher_module):
         """Test DockerBuildThread with missing path (skipped: moved to docker_manager)."""

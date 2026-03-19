@@ -243,7 +243,7 @@ class TestConvertOsimToMujoco:
         # Skip test body if myoconverter not available
         pytest.skip(
             "Requires myoconverter - pending implementation"
-            # TODO: Implement MyoConverter pipeline; enable after myoconverter is available — see issue #1951
+            # DEFERRED: Implement MyoConverter pipeline; enable after myoconverter is available — see issue #1951
         )
 
     @skip_if_unavailable("myoconverter")
@@ -258,7 +258,7 @@ class TestConvertOsimToMujoco:
         # Skip test body if myoconverter not available
         pytest.skip(
             "Requires myoconverter - pending implementation"
-            # TODO: Implement MyoConverter pipeline; enable after myoconverter is available — see issue #1951
+            # DEFERRED: Implement MyoConverter pipeline; enable after myoconverter is available — see issue #1951
         )
 
 
@@ -498,7 +498,7 @@ class TestEdgeCases:
         # Skip test body if myoconverter not available
         pytest.skip(
             "Requires myoconverter - pending implementation"
-            # TODO: Implement MyoConverter pipeline; enable after myoconverter is available — see issue #1951
+            # DEFERRED: Implement MyoConverter pipeline; enable after myoconverter is available — see issue #1951
         )
 
     @patch(

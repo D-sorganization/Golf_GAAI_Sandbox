@@ -206,7 +206,7 @@ class TestDriftControlPhysics:
         """Test drift component matches energy-conserving motion."""
         pytest.skip(
             "Requires energy calculation utilities - implement in follow-up"
-            # TODO: Implement energy calculation utilities, then enable — see issue #1951
+            # DEFERRED: Implement energy calculation utilities, then enable — see issue #1951
         )
 
         # (modulo damping losses if present)
