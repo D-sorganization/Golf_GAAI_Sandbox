@@ -47,8 +47,12 @@ items:
     epic: E01
     title: "Remove duplicate Assessment_H CI/CD file from docs/assessments"
     priority: medium
-    status: in_progress
+    status: done
     started_at: "2026-03-19T03:40:58Z"
+    completed_at: "2026-03-19T03:43:28Z"
+    pr_url: "https://github.com/D-sorganization/Golf_GAAI_Sandbox/pull/11"
+    pr_number: 11
+    pr_status: "open"
     github_issue: 1962
     artefact: .gaai/project/contexts/artefacts/stories/E01S03.story.md
     dependencies: []
