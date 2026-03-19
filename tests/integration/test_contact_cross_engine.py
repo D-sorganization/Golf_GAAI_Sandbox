@@ -137,7 +137,10 @@ class TestBasicContactPhysics:
     @pytest.mark.slow
     def test_drake_ball_drop_energy_dissipation(self, ball_urdf):
         """Verify Drake contact dissipates energy."""
-        pytest.skip("Drake contact model testing - implementation pending")
+        pytest.skip(
+            "Drake contact model testing - implementation pending"
+            # TODO: Implement Drake contact energy test — see issue #1951
+        )
         # Expected behavior: Similar to MuJoCo but may use different contact model
 
     @pytest.mark.slow
@@ -293,12 +296,18 @@ class TestContactEnergyConservation:
 
         With high restitution coefficient, energy should be mostly conserved.
         """
-        pytest.skip("Elastic collision test - requires custom contact parameters")
+        pytest.skip(
+            "Elastic collision test - requires custom contact parameters"
+            # TODO: Configure contact parameters, then enable — see issue #1951
+        )
         # Verify E_before ≈ E_after (within tolerance)
 
     def test_contact_work_energy_theorem(self):
         """Verify work-energy theorem holds during contact."""
-        pytest.skip("Work-energy validation - requires contact force measurement")
+        pytest.skip(
+            "Work-energy validation - requires contact force measurement"
+            # TODO: Add contact force measurement capability, then enable — see issue #1951
+        )
         # Verify: ΔKE = W_contact + W_gravity
 
 
@@ -307,7 +316,10 @@ class TestContactStability:
 
     def test_mujoco_stacked_boxes_stability(self):
         """Verify stacked objects don't explode due to contact errors."""
-        pytest.skip("Stability test - requires multi-body contact URDF")
+        pytest.skip(
+            "Stability test - requires multi-body contact URDF"
+            # TODO: Create multi-body contact URDF fixture, then enable — see issue #1951
+        )
         # Simulate for extended time
         # Verify no explosive behavior (energy bounded)
 
@@ -318,13 +330,19 @@ class TestContactCrossValidation:
 
     def test_compare_energy_dissipation_rates(self, ball_urdf):
         """Compare energy dissipation across engines for same scenario."""
-        pytest.skip("Cross-engine comparison - requires all engines installed")
+        pytest.skip(
+            "Cross-engine comparison - requires all engines installed"
+            # TODO: Enable in heavy_integration lane when all engines available — see issue #1951
+        )
         # Document differences in energy dissipation
         # Ensure differences are within expected range (not catastrophic)
 
     def test_compare_contact_force_magnitudes(self):
         """Compare contact force magnitudes across engines."""
-        pytest.skip("Force comparison - requires contact force extraction")
+        pytest.skip(
+            "Force comparison - requires contact force extraction"
+            # TODO: Add contact force extraction API, then enable — see issue #1951
+        )
         # Compare across engines
         # Document order-of-magnitude agreement
 

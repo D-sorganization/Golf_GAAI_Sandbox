@@ -241,7 +241,10 @@ class TestConvertOsimToMujoco:
     ):
         """Test successful model conversion (requires myoconverter)."""
         # Skip test body if myoconverter not available
-        pytest.skip("Requires myoconverter - pending implementation")
+        pytest.skip(
+            "Requires myoconverter - pending implementation"
+            # TODO: Implement MyoConverter pipeline; enable after myoconverter is available — see issue #1951
+        )
 
     @skip_if_unavailable("myoconverter")
     @patch(
@@ -253,7 +256,10 @@ class TestConvertOsimToMujoco:
     ):
         """Test that custom configuration is passed to pipeline (requires myoconverter)."""
         # Skip test body if myoconverter not available
-        pytest.skip("Requires myoconverter - pending implementation")
+        pytest.skip(
+            "Requires myoconverter - pending implementation"
+            # TODO: Implement MyoConverter pipeline; enable after myoconverter is available — see issue #1951
+        )
 
 
 class TestHandleConversionError:
@@ -490,7 +496,10 @@ class TestEdgeCases:
     ):
         """Test error when conversion completes but no output file found."""
         # Skip test body if myoconverter not available
-        pytest.skip("Requires myoconverter - pending implementation")
+        pytest.skip(
+            "Requires myoconverter - pending implementation"
+            # TODO: Implement MyoConverter pipeline; enable after myoconverter is available — see issue #1951
+        )
 
     @patch(
         "src.shared.python.biomechanics.myoconverter_integration.MyoConverter._check_availability",

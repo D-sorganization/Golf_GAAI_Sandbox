@@ -85,6 +85,7 @@ class TestPythonBallFlightBaseline:
 
     @pytest.mark.skip(
         reason="upstream_physics is a mock stub on Windows, wait for Rust compilation"
+        # TODO: Enable after Rust upstream_physics compilation is resolved — see issue #1951
     )
     def test_gravity_only_matches_analytical(self) -> None:
         """With drag and lift zeroed, trajectory matches projectile motion."""
@@ -119,6 +120,7 @@ class TestPythonBallFlightBaseline:
 
     @pytest.mark.skip(
         reason="upstream_physics is a mock stub on Windows, wait for Rust compilation"
+        # TODO: Enable after Rust upstream_physics compilation is resolved — see issue #1951
     )
     def test_drag_reduces_range(self) -> None:
         """Adding drag must reduce carry distance compared to gravity-only."""

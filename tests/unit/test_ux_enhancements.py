@@ -149,6 +149,7 @@ def mocked_launcher_module():
 
 @pytest.mark.skip(
     reason="Theme colors are dynamic (QSettings-based), cannot validate in mocked env"
+    # TODO: Implement QSettings mock fixture to enable theme validation — see issue #1951
 )
 def test_status_info_contrast(mocked_launcher_module):
     """Test that _get_status_info returns appropriate text colors."""
@@ -200,7 +201,10 @@ def test_status_info_contrast(mocked_launcher_module):
         )
 
 
-@pytest.mark.skip(reason="QShortcut mocking with complex imports is flaky")
+@pytest.mark.skip(
+    reason="QShortcut mocking with complex imports is flaky"
+    # TODO: Stabilize QShortcut mock pattern before enabling — see issue #1951
+)
 def test_escape_shortcut_logic(mocked_launcher_module):
     """Test that GolfLauncher sets up the Escape shortcut."""
     with (

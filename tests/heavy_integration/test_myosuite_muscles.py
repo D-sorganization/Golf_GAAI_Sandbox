@@ -405,10 +405,16 @@ class TestCrossValidation:
         # This test requires both engines with comparable models
         # Placeholder for future cross-validation
         logger.info("Cross-validation: Placeholder for MyoSuite ↔ OpenSim comparison")
-        pytest.skip("Cross-validation test pending matching models")
+        pytest.skip(
+            "Cross-validation test pending matching models"
+            # TODO: Implement MyoSuite ↔ OpenSim comparable models; enable test — see issue #1951
+        )
 
     def test_grip_force_validation(self):
         """Section K1 + J1: Compare grip forces across engines."""
         # Grip force should agree within ±15% (Section K2)
         logger.info("Grip cross-validation: Placeholder")
-        pytest.skip("Pending multi-engine grip models")
+        pytest.skip(
+            "Pending multi-engine grip models"
+            # TODO: Add multi-engine grip model support; enable test — see issue #1951
+        )

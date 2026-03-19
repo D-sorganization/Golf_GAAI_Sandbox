@@ -10,4 +10,5 @@ def test_headless_plotting_import():
     pytest.skip(
         "src.shared.python.plotting_core was removed; "
         "plotting functionality has been reorganized"
+        # TODO: Rewrite test to cover new plotting module location, or delete — see issue #1951
     )

@@ -289,7 +289,10 @@ class TestScrewKinematicsPhysics:
         self, simple_pendulum: mujoco.MjModel
     ) -> None:
         """Test pitch calculation matches analytical helix motion."""
-        pytest.skip("Requires helical motion model - implement in follow-up")
+        pytest.skip(
+            "Requires helical motion model - implement in follow-up"
+            # TODO: Create helical motion model fixture; enable after implementation — see issue #1951
+        )
 
         # Verify computed pitch matches known pitch
 
@@ -297,6 +300,9 @@ class TestScrewKinematicsPhysics:
         self, simple_pendulum: mujoco.MjModel
     ) -> None:
         """Test screw axis for pure rotation lies on rotation axis."""
-        pytest.skip("Requires precise geometric validation - implement in follow-up")
+        pytest.skip(
+            "Requires precise geometric validation - implement in follow-up"
+            # TODO: Implement geometric validation; enable after implementation — see issue #1951
+        )
 
         # through the joint axis

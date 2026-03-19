@@ -351,7 +351,10 @@ class TestPowerFlowPhysics:
         self, simple_pendulum_model: mujoco.MjModel
     ) -> None:
         """Test energy conservation for passive swing."""
-        pytest.skip("Requires time history for dE/dt - implement in follow-up")
+        pytest.skip(
+            "Requires time history for dE/dt - implement in follow-up"
+            # TODO: Add time history integration; enable after implementation — see issue #1951
+        )
 
         # total mechanical energy remains constant
 
@@ -359,4 +362,7 @@ class TestPowerFlowPhysics:
         self, simple_pendulum_model: mujoco.MjModel
     ) -> None:
         """Test W = ΔE for simple case."""
-        pytest.skip("Requires time integration - implement in follow-up")
+        pytest.skip(
+            "Requires time integration - implement in follow-up"
+            # TODO: Implement time integration helper; enable after implementation — see issue #1951
+        )
