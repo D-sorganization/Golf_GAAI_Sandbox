@@ -172,11 +172,12 @@ items:
     title: "Consolidate GUI launcher with strict lazy-loading of engine dependencies"
     priority: medium
     status: done
-    started_at: "2026-03-19T04:57:23Z"
-    completed_at: "2026-03-19T05:13:26Z"
+    started_at: "2026-03-18T21:57:23-07:00"
+    completed_at: "2026-03-18T22:13:39-07:00"
     pr_url: "https://github.com/D-sorganization/Golf_GAAI_Sandbox/pull/16"
     pr_number: 16
     pr_status: "open"
+    cost_usd: 2.8519
     github_issue: 1956
     artefact: .gaai/project/contexts/artefacts/stories/E04S01.story.md
     dependencies: []
