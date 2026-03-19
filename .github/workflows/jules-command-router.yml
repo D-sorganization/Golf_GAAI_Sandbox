@@ -72,7 +72,7 @@ jobs:
                 gh workflow run jules-pr-shepherd.yml --repo "$REPO" -f pr_number="$ISSUE_NUMBER" -f dry_run=false
               fi
               ;;
-            /jules-address-comments)
+            /jules-address-comments|/jules-batch-now)
               if [ "$IS_PR" = "true" ]; then
                 gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "queue:batched" || true
                 gh workflow run jules-comment-batch-processor.yml --repo "$REPO" -f pr_number="$ISSUE_NUMBER" -f dry_run=false

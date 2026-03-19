@@ -18,6 +18,7 @@ on:
         options:
           - auto
           - issue-worker
+          - comment-batch
           - queue-sweep
           - pr-shepherd
       issue_number:
@@ -85,6 +86,10 @@ jobs:
                 result.target = "issue-worker";
                 result.issue_number = `${context.payload.inputs.issue_number}`;
                 result.reason = "Manual issue dispatch.";
+              } else if (manualTarget === "comment-batch" && context.payload.inputs?.pr_number) {
+                result.target = "comment-batch";
+                result.pr_number = `${context.payload.inputs.pr_number}`;
+                result.reason = "Manual comment batch dispatch.";
               } else if (manualTarget === "pr-shepherd" && context.payload.inputs?.pr_number) {
                 result.target = "pr-shepherd";
                 result.pr_number = `${context.payload.inputs.pr_number}`;
@@ -146,6 +151,15 @@ jobs:
     with:
       pr_number: ${{ needs.triage.outputs.pr_number }}
       run_id: ${{ github.event.workflow_run.id || '' }}
+      dry_run: ${{ needs.triage.outputs.dry_run == 'true' }}
+    secrets: inherit
+
+  dispatch-comment-batch:
+    needs: triage
+    if: needs.triage.outputs.target == 'comment-batch'
+    uses: ./.github/workflows/jules-comment-batch-processor.yml
+    with:
+      pr_number: ${{ needs.triage.outputs.pr_number }}
       dry_run: ${{ needs.triage.outputs.dry_run == 'true' }}
     secrets: inherit
 
