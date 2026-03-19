@@ -90,6 +90,7 @@ jobs:
           branch_prefix = f"jules/issue-{issue['number']}-"
           output = os.environ["GITHUB_OUTPUT"]
           with open(output, "a", encoding="utf-8") as fh:
+              fh.write(f"title={issue['title']}\n")
               fh.write(f"task_class={task_class}\n")
               fh.write(f"task_label={task_label}\n")
               fh.write(f"validation_profile={validation_profile}\n")
@@ -101,7 +102,7 @@ jobs:
         id: branch
         run: |
           EXISTING=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --json number,headRefName,title,body \
-            --jq '[.[] | select(.headRefName | startswith("${{ steps.gather.outputs.branch_prefix }}"))] | .[0]')
+            --jq '[.[] | select((.headRefName | startswith("${{ steps.gather.outputs.branch_prefix }}")) or (.body // "" | contains("#${{ env.ISSUE_NUMBER }}")) or (.title | contains("issue #${{ env.ISSUE_NUMBER }}")))][0]')
 
           if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
             BRANCH_NAME=$(echo "$EXISTING" | jq -r '.headRefName')
@@ -111,7 +112,11 @@ jobs:
             echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           else
             BRANCH_NAME="${{ steps.gather.outputs.branch_prefix }}${{ steps.gather.outputs.slug }}"
-            echo "reused=false" >> "$GITHUB_OUTPUT"
+            if git ls-remote --exit-code --heads origin "$BRANCH_NAME" >/dev/null 2>&1; then
+              echo "reused=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "reused=false" >> "$GITHUB_OUTPUT"
+            fi
             echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
             echo "pr_number=" >> "$GITHUB_OUTPUT"
           fi
@@ -127,10 +132,27 @@ jobs:
         if: env.DRY_RUN == 'true'
         run: |
           echo "Issue #$ISSUE_NUMBER"
+          echo "Title: ${{ steps.gather.outputs.title }}"
           echo "Task class: ${{ steps.gather.outputs.task_class }}"
           echo "Validation profile: ${{ steps.gather.outputs.validation_profile }}"
           echo "Branch: ${{ steps.branch.outputs.branch_name }}"
           echo "Existing PR: ${{ steps.branch.outputs.pr_number }}"
+          {
+            echo "## Jules Issue Worker Dry Run"
+            echo ""
+            echo "- Issue: #$ISSUE_NUMBER"
+            echo "- Title: ${{ steps.gather.outputs.title }}"
+            echo "- Task class: \`${{ steps.gather.outputs.task_class }}\`"
+            echo "- Validation profile: \`${{ steps.gather.outputs.validation_profile }}\`"
+            echo "- Branch: \`${{ steps.branch.outputs.branch_name }}\`"
+            echo "- Existing PR: \`${{ steps.branch.outputs.pr_number || 'none' }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Prepare Reused Branch
+        if: env.DRY_RUN != 'true' && steps.branch.outputs.reused == 'true'
+        run: |
+          git fetch origin "${{ steps.branch.outputs.branch_name }}"
+          git checkout -B "${{ steps.branch.outputs.branch_name }}" "origin/${{ steps.branch.outputs.branch_name }}"
 
       - name: Create Working Branch
         if: env.DRY_RUN != 'true' && steps.branch.outputs.reused != 'true'
@@ -194,6 +216,7 @@ jobs:
 
           set +e
           VALIDATION_OK=0
+          VALIDATION_STATUS="passed"
           while IFS= read -r command; do
             [ -z "$command" ] && continue
             echo "Running: $command"
@@ -201,6 +224,7 @@ jobs:
             status=$?
             if [ $status -ne 0 ]; then
               VALIDATION_OK=1
+              VALIDATION_STATUS="failed"
               break
             fi
           done < /tmp/jules_validation_commands.txt
@@ -211,6 +235,17 @@ jobs:
           else
             echo "status=failed" >> "$GITHUB_OUTPUT"
           fi
+
+          {
+            echo "## Jules Issue Worker"
+            echo ""
+            echo "- Issue: #$ISSUE_NUMBER"
+            echo "- Branch: \`${{ steps.branch.outputs.branch_name }}\`"
+            echo "- Existing PR: \`${{ steps.branch.outputs.pr_number || 'none' }}\`"
+            echo "- Task class: \`${{ steps.gather.outputs.task_class }}\`"
+            echo "- Validation profile: \`${{ steps.gather.outputs.validation_profile }}\`"
+            echo "- Validation status: \`${VALIDATION_STATUS}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Create Or Update PR
         if: env.DRY_RUN != 'true'
@@ -260,6 +295,8 @@ jobs:
           fi
 
           gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --remove-label "jules:blocked" \
+            --remove-label "jules:done" \
             --remove-label "jules:assigned" \
             --add-label "$FINAL_LABEL" || true
 
@@ -271,5 +308,6 @@ jobs:
           - Task class: \`${{ steps.gather.outputs.task_class }}\`
           - Validation profile: \`${{ steps.gather.outputs.validation_profile }}\`
           - Validation status: \`${{ steps.validation.outputs.status }}\`
+          - Result label: \`$FINAL_LABEL\`
           EOF
           )"
