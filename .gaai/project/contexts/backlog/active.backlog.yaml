@@ -100,11 +100,12 @@ items:
     title: "Add heavy-integration-tests.yml workflow for long-running tests"
     priority: medium
     status: done
-    started_at: "2026-03-19T03:45:26Z"
-    completed_at: "2026-03-19T03:52:22Z"
+    started_at: "2026-03-18T20:45:26-07:00"
+    completed_at: "2026-03-18T20:52:32-07:00"
     pr_url: "https://github.com/D-sorganization/Golf_GAAI_Sandbox/pull/12"
     pr_number: 12
     pr_status: "open"
+    cost_usd: 1.4029
     github_issue: 1963
     artefact: .gaai/project/contexts/artefacts/stories/E02S02.story.md
     dependencies: [E02S01]
