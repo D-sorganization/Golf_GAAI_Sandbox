@@ -71,7 +71,8 @@ items:
     epic: E02
     title: "Register live_simulation pytest marker and annotate candidate tests"
     priority: high
-    status: refined
+    status: in_progress
+    started_at: "2026-03-19T03:12:46Z"
     github_issue: 1964
     artefact: .gaai/project/contexts/artefacts/stories/E02S01.story.md
     dependencies: []
