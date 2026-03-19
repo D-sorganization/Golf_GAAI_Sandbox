@@ -1,0 +1,134 @@
+# GAAI Active Backlog
+# Execution queue — contains only Stories that are validated and ready for Delivery.
+# Rules:
+#   - One item = one Story
+#   - Must have a corresponding artefact with acceptance criteria
+#   - Keep under ~20 items; archive completed items to done/
+#   - Only Discovery may add items; only Delivery may update status
+
+items:
+
+  # ── Epic E01: CI & Infrastructure Fixes ──────────────────────────────────────
+  - id: E01S01
+    epic: E01
+    title: "Fix ruff I001 import ordering in pinocchio matlab_importer.py"
+    priority: high
+    status: refined
+    github_issue: 1960
+    artefact: .gaai/project/contexts/artefacts/stories/E01S01.story.md
+    dependencies: []
+    created_at: 2026-03-18
+    updated_at: 2026-03-18
+
+  - id: E01S02
+    epic: E01
+    title: "Remove stray debug files from repo root and update .gitignore"
+    priority: high
+    status: refined
+    github_issue: 1961
+    artefact: .gaai/project/contexts/artefacts/stories/E01S02.story.md
+    dependencies: []
+    created_at: 2026-03-18
+    updated_at: 2026-03-18
+
+  - id: E01S03
+    epic: E01
+    title: "Remove duplicate Assessment_H CI/CD file from docs/assessments"
+    priority: medium
+    status: refined
+    github_issue: 1962
+    artefact: .gaai/project/contexts/artefacts/stories/E01S03.story.md
+    dependencies: []
+    created_at: 2026-03-18
+    updated_at: 2026-03-18
+
+  - id: E01S04
+    epic: E01
+    title: "Audit and align CI workflow GitHub Actions version references"
+    priority: high
+    status: refined
+    github_issue: 1965
+    artefact: .gaai/project/contexts/artefacts/stories/E01S04.story.md
+    dependencies: []
+    created_at: 2026-03-18
+    updated_at: 2026-03-18
+
+  # ── Epic E02: Testing Infrastructure ─────────────────────────────────────────
+  - id: E02S01
+    epic: E02
+    title: "Register live_simulation pytest marker and annotate candidate tests"
+    priority: high
+    status: refined
+    github_issue: 1964
+    artefact: .gaai/project/contexts/artefacts/stories/E02S01.story.md
+    dependencies: []
+    created_at: 2026-03-18
+    updated_at: 2026-03-18
+
+  - id: E02S02
+    epic: E02
+    title: "Add heavy-integration-tests.yml workflow for long-running tests"
+    priority: medium
+    status: refined
+    github_issue: 1963
+    artefact: .gaai/project/contexts/artefacts/stories/E02S02.story.md
+    dependencies: [E02S01]
+    created_at: 2026-03-18
+    updated_at: 2026-03-18
+
+  - id: E02S03
+    epic: E02
+    title: "Audit 310 pytest.skip calls and convert genuine skips to live_simulation marker"
+    priority: medium
+    status: refined
+    github_issue: 1951
+    artefact: .gaai/project/contexts/artefacts/stories/E02S03.story.md
+    dependencies: [E02S01]
+    created_at: 2026-03-18
+    updated_at: 2026-03-18
+
+  # ── Epic E03: Code Quality Debt ───────────────────────────────────────────────
+  - id: E03S01
+    epic: E03
+    title: "Replace print() calls with logging in source code"
+    priority: high
+    status: refined
+    github_issue: 1950
+    artefact: .gaai/project/contexts/artefacts/stories/E03S01.story.md
+    dependencies: []
+    created_at: 2026-03-18
+    updated_at: 2026-03-18
+
+  - id: E03S02
+    epic: E03
+    title: "Upgrade example notebooks and scripts to current architecture"
+    priority: medium
+    status: refined
+    github_issue: 1957
+    artefact: .gaai/project/contexts/artefacts/stories/E03S02.story.md
+    dependencies: []
+    created_at: 2026-03-18
+    updated_at: 2026-03-18
+
+  # ── Epic E04: Engine Parity & Architecture ────────────────────────────────────
+  - id: E04S01
+    epic: E04
+    title: "Consolidate GUI launcher with strict lazy-loading of engine dependencies"
+    priority: medium
+    status: refined
+    github_issue: 1956
+    artefact: .gaai/project/contexts/artefacts/stories/E04S01.story.md
+    dependencies: []
+    created_at: 2026-03-18
+    updated_at: 2026-03-18
+
+  - id: E04S02
+    epic: E04
+    title: "Bring Pinocchio engine to parity with MuJoCo and Drake (TDD, DRY, DbC)"
+    priority: high
+    status: refined
+    github_issue: 1955
+    artefact: .gaai/project/contexts/artefacts/stories/E04S02.story.md
+    dependencies: [E02S01]
+    created_at: 2026-03-18
+    updated_at: 2026-03-18
