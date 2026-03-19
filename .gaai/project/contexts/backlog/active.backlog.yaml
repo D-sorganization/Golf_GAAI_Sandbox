@@ -77,11 +77,12 @@ items:
     title: "Register live_simulation pytest marker and annotate candidate tests"
     priority: high
     status: done
-    started_at: "2026-03-19T03:12:46Z"
-    completed_at: "2026-03-19T03:27:20Z"
+    started_at: "2026-03-18T20:12:47-07:00"
+    completed_at: "2026-03-18T20:27:20-07:00"
     pr_url: "https://github.com/D-sorganization/Golf_GAAI_Sandbox/pull/9"
     pr_number: 9
     pr_status: "open"
+    cost_usd: 1.7862
     github_issue: 1964
     artefact: .gaai/project/contexts/artefacts/stories/E02S01.story.md
     dependencies: []
