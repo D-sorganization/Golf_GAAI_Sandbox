@@ -116,7 +116,8 @@ items:
     epic: E02
     title: "Audit 310 pytest.skip calls and convert genuine skips to live_simulation marker"
     priority: medium
-    status: refined
+    status: in_progress
+    started_at: "2026-03-19T03:54:07Z"
     github_issue: 1951
     artefact: .gaai/project/contexts/artefacts/stories/E02S03.story.md
     dependencies: [E02S01]
