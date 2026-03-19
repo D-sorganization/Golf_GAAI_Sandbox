@@ -62,47 +62,31 @@ jobs:
       - name: Gather Issue Context
         id: gather
         run: |
-          gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json number,title,body,labels,url > /tmp/jules_issue.json
+          python3 .github/jules/scripts/gh_helpers.py issue-context \
+            --repo "$GITHUB_REPOSITORY" \
+            --issue-number "$ISSUE_NUMBER" \
+            --task-classes ".github/jules/task_classes.yml" \
+            > /tmp/jules_issue_context.json
 
           python3 <<'PY'
           import json
           import os
-          import re
-          import yaml
-
-          issue = json.load(open("/tmp/jules_issue.json"))
-          labels = [label["name"] for label in issue.get("labels", [])]
-          with open(".github/jules/task_classes.yml", "r", encoding="utf-8") as f:
-              task_classes = yaml.safe_load(f)["task_classes"]
-
-          task_class = "triage"
-          validation_profile = "docs"
-          task_label = "jules:triage"
-          for name, config in task_classes.items():
-              label = config.get("label")
-              if label in labels:
-                  task_class = name
-                  task_label = label
-                  validation_profile = config.get("validation_profile", "docs")
-                  break
-
-          slug = re.sub(r"[^a-z0-9]+", "-", issue["title"].lower()).strip("-")[:40]
-          branch_prefix = f"jules/issue-{issue['number']}-"
-          output = os.environ["GITHUB_OUTPUT"]
-          with open(output, "a", encoding="utf-8") as fh:
-              fh.write(f"title={issue['title']}\n")
-              fh.write(f"task_class={task_class}\n")
-              fh.write(f"task_label={task_label}\n")
-              fh.write(f"validation_profile={validation_profile}\n")
-              fh.write(f"slug={slug or 'task'}\n")
-              fh.write(f"branch_prefix={branch_prefix}\n")
+          payload = json.load(open("/tmp/jules_issue_context.json"))
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              for key, value in payload.items():
+                  fh.write(f"{key}={value}\n")
           PY
 
       - name: Find Existing PR Or Branch
         id: branch
         run: |
-          EXISTING=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --json number,headRefName,title,body \
-            --jq '[.[] | select((.headRefName | startswith("${{ steps.gather.outputs.branch_prefix }}")) or (.body // "" | contains("#${{ env.ISSUE_NUMBER }}")) or (.title | contains("issue #${{ env.ISSUE_NUMBER }}")))][0]')
+          python3 .github/jules/scripts/gh_helpers.py pr-lookup \
+            --repo "$GITHUB_REPOSITORY" \
+            --issue-number "$ISSUE_NUMBER" \
+            --branch-prefix "${{ steps.gather.outputs.branch_prefix }}" \
+            > /tmp/jules_pr_lookup.json
+
+          EXISTING=$(cat /tmp/jules_pr_lookup.json)
 
           if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
             BRANCH_NAME=$(echo "$EXISTING" | jq -r '.headRefName')
@@ -138,15 +122,16 @@ jobs:
           echo "Branch: ${{ steps.branch.outputs.branch_name }}"
           echo "Existing PR: ${{ steps.branch.outputs.pr_number }}"
           {
-            echo "## Jules Issue Worker Dry Run"
-            echo ""
-            echo "- Issue: #$ISSUE_NUMBER"
-            echo "- Title: ${{ steps.gather.outputs.title }}"
-            echo "- Task class: \`${{ steps.gather.outputs.task_class }}\`"
-            echo "- Validation profile: \`${{ steps.gather.outputs.validation_profile }}\`"
-            echo "- Branch: \`${{ steps.branch.outputs.branch_name }}\`"
-            echo "- Existing PR: \`${{ steps.branch.outputs.pr_number || 'none' }}\`"
-          } >> "$GITHUB_STEP_SUMMARY"
+            python3 .github/jules/scripts/gh_helpers.py write-summary \
+              --output "$GITHUB_STEP_SUMMARY" \
+              --title "Jules Issue Worker Dry Run" \
+              "Issue: #$ISSUE_NUMBER" \
+              "Title: ${{ steps.gather.outputs.title }}" \
+              "Task class: ${{ steps.gather.outputs.task_class }}" \
+              "Validation profile: ${{ steps.gather.outputs.validation_profile }}" \
+              "Branch: ${{ steps.branch.outputs.branch_name }}" \
+              "Existing PR: ${{ steps.branch.outputs.pr_number || 'none' }}"
+          }
 
       - name: Prepare Reused Branch
         if: env.DRY_RUN != 'true' && steps.branch.outputs.reused == 'true'
@@ -237,15 +222,16 @@ jobs:
           fi
 
           {
-            echo "## Jules Issue Worker"
-            echo ""
-            echo "- Issue: #$ISSUE_NUMBER"
-            echo "- Branch: \`${{ steps.branch.outputs.branch_name }}\`"
-            echo "- Existing PR: \`${{ steps.branch.outputs.pr_number || 'none' }}\`"
-            echo "- Task class: \`${{ steps.gather.outputs.task_class }}\`"
-            echo "- Validation profile: \`${{ steps.gather.outputs.validation_profile }}\`"
-            echo "- Validation status: \`${VALIDATION_STATUS}\`"
-          } >> "$GITHUB_STEP_SUMMARY"
+            python3 .github/jules/scripts/gh_helpers.py write-summary \
+              --output "$GITHUB_STEP_SUMMARY" \
+              --title "Jules Issue Worker" \
+              "Issue: #$ISSUE_NUMBER" \
+              "Branch: ${{ steps.branch.outputs.branch_name }}" \
+              "Existing PR: ${{ steps.branch.outputs.pr_number || 'none' }}" \
+              "Task class: ${{ steps.gather.outputs.task_class }}" \
+              "Validation profile: ${{ steps.gather.outputs.validation_profile }}" \
+              "Validation status: ${VALIDATION_STATUS}"
+          }
 
       - name: Create Or Update PR
         if: env.DRY_RUN != 'true'
