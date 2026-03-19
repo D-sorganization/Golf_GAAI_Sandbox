@@ -1,5 +1,9 @@
 """OpenSim tutorial: add prescribed motion to the Tug-of-War model."""
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # ----------------------------------------------------------------------- #
 # The OpenSim API is a toolkit for musculoskeletal modeling and           #
 # simulation. See http://opensim.stanford.edu and the NOTICE file         #
@@ -30,7 +34,7 @@
 # Get handle to current model in GUI.
 oldModel = getCurrentModel()
 if not oldModel:
-    print("ERROR: Need to load a model first!\\n")
+    logger.error("Need to load a model first!")
 
 # Create a fresh copy.
 newModel = modeling.Model(oldModel)
