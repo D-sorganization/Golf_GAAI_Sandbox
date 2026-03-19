@@ -166,7 +166,8 @@ items:
     epic: E04
     title: "Consolidate GUI launcher with strict lazy-loading of engine dependencies"
     priority: medium
-    status: refined
+    status: in_progress
+    started_at: "2026-03-19T04:57:23Z"
     github_issue: 1956
     artefact: .gaai/project/contexts/artefacts/stories/E04S01.story.md
     dependencies: []
