@@ -99,7 +99,8 @@ items:
     epic: E02
     title: "Add heavy-integration-tests.yml workflow for long-running tests"
     priority: medium
-    status: refined
+    status: in_progress
+    started_at: "2026-03-19T03:45:26Z"
     github_issue: 1963
     artefact: .gaai/project/contexts/artefacts/stories/E02S02.story.md
     dependencies: [E02S01]
