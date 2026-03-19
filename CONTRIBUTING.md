@@ -93,6 +93,47 @@ When adding engine-specific code:
 - Run `pytest` before submitting PR
 - Use existing test fixtures where possible
 
+### Test Markers
+
+The project uses pytest markers to categorize tests by their runtime requirements:
+
+| Marker | Description | When to use |
+|--------|-------------|-------------|
+| `live_simulation` | Tests that require a running physics simulation engine (MuJoCo, Drake, Pinocchio, etc.) | Any test that invokes a real physics engine, runs a simulation loop, or requires hardware-in-the-loop |
+| `slow` | Slow-running tests | Tests that take more than a few seconds |
+| `integration` | Integration tests | Tests that exercise multiple components together |
+| `requires_gl` | Tests needing OpenGL/display | Tests that require a graphics context |
+| `requires_network` | Tests needing network | Tests that make network calls |
+
+**`live_simulation` marker usage:**
+
+```python
+import pytest
+
+@pytest.mark.live_simulation
+def test_mujoco_physics_step():
+    """This test requires MuJoCo to be installed and functional."""
+    import mujoco
+    # ... test body
+```
+
+**Running and filtering:**
+
+```bash
+# Run only live_simulation tests (requires physics engines installed)
+pytest -m live_simulation
+
+# Exclude live_simulation tests (standard CI mode)
+pytest -m "not live_simulation"
+
+# Collect live_simulation tests without running them
+pytest --co -m live_simulation
+```
+
+**CI integration:**
+- Standard CI (`ci-standard.yml`) excludes `live_simulation` tests — they require native engine installations not available in the base CI environment.
+- Nightly cross-engine workflow (`nightly-cross-engine.yml`) explicitly includes and runs `live_simulation` tests on the fleet runner with full engine dependencies.
+
 ## 📝 Commit Messages
 
 Follow conventional commits:

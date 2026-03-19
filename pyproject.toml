@@ -276,7 +276,7 @@ norecursedirs = [
     "*.egg-info",
 ]
 markers = [
-    "live_simulation: tests requiring live physics/math engines",
+    "live_simulation: tests that require a running physics simulation engine (MuJoCo, Drake, Pinocchio, etc.)",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
     "unit: marks tests as unit tests",
