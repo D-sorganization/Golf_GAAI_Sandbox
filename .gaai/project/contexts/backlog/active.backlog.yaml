@@ -59,11 +59,12 @@ items:
     title: "Audit and align CI workflow GitHub Actions version references"
     priority: high
     status: done
-    started_at: "2026-03-19T03:10:25Z"
-    completed_at: "2026-03-19T03:15:16Z"
+    started_at: "2026-03-18T20:10:25-07:00"
+    completed_at: "2026-03-18T20:15:29-07:00"
     pr_url: "https://github.com/D-sorganization/Golf_GAAI_Sandbox/pull/8"
     pr_number: 8
     pr_status: "open"
+    cost_usd: 1.123
     github_issue: 1965
     artefact: .gaai/project/contexts/artefacts/stories/E01S04.story.md
     dependencies: []
