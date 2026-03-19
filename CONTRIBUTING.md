@@ -134,6 +134,10 @@ pytest --co -m live_simulation
 - Standard CI (`ci-standard.yml`) excludes `live_simulation` tests — they require native engine installations not available in the base CI environment.
 - Nightly cross-engine workflow (`nightly-cross-engine.yml`) explicitly includes and runs `live_simulation` tests on the fleet runner with full engine dependencies.
 
+### Heavy Integration Tests
+
+Long-running physics simulation tests are tagged with the `@pytest.mark.live_simulation` or `@pytest.mark.heavy_integration` markers and are excluded from the standard CI suite (`ci-standard.yml`) to keep feedback fast. These tests run automatically every Sunday at 02:00 UTC via the `Heavy Integration Tests` workflow (`.github/workflows/heavy-integration-tests.yml`). To trigger them manually, go to the **Actions** tab and run `Heavy Integration Tests` with `workflow_dispatch`. For PRs that touch core simulation or engine integration code, apply the `run-heavy-tests` label to the PR — this will automatically trigger the heavy integration workflow on your PR. Results are uploaded as a `pytest-results.xml` artifact in the workflow run for inspection.
+
 ## 📝 Commit Messages
 
 Follow conventional commits:

@@ -263,7 +263,7 @@ pythonpath = [
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
-addopts = "-ra -q --strict-markers --strict-config --durations=20 --benchmark-disable -n auto --dist loadscope -m \"not live_simulation\""
+addopts = "-ra -q --strict-markers --strict-config --durations=20 --benchmark-disable -n auto --dist loadscope -m \"not live_simulation and not heavy_integration\""
 asyncio_mode = "auto"
 # Prevent ImportPathMismatchError from conftest.py files in engine subdirectories
 norecursedirs = [
@@ -277,6 +277,7 @@ norecursedirs = [
 ]
 markers = [
     "live_simulation: tests that require a running physics simulation engine (MuJoCo, Drake, Pinocchio, etc.)",
+    "heavy_integration: marks tests as heavy integration tests (long-running, requires full engine stack)",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
     "unit: marks tests as unit tests",
