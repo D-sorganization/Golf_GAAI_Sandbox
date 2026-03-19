@@ -116,8 +116,12 @@ items:
     epic: E03
     title: "Replace print() calls with logging in source code"
     priority: high
-    status: in_progress
+    status: done
     started_at: "2026-03-19T03:17:15Z"
+    completed_at: "2026-03-19T03:39:01Z"
+    pr_url: "https://github.com/D-sorganization/Golf_GAAI_Sandbox/pull/10"
+    pr_number: 10
+    pr_status: "open"
     github_issue: 1950
     artefact: .gaai/project/contexts/artefacts/stories/E03S01.story.md
     dependencies: []
