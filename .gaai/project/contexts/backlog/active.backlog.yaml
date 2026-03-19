@@ -14,11 +14,12 @@ items:
     title: "Fix ruff I001 import ordering in pinocchio matlab_importer.py"
     priority: high
     status: done
-    started_at: "2026-03-19T03:05:45Z"
-    completed_at: "2026-03-19T03:09:05Z"
+    started_at: "2026-03-18T20:05:45-07:00"
+    completed_at: "2026-03-18T20:09:17-07:00"
     pr_url: "https://github.com/D-sorganization/Golf_GAAI_Sandbox/pull/6"
     pr_number: 6
     pr_status: "open"
+    cost_usd: 0.6733
     github_issue: 1960
     artefact: .gaai/project/contexts/artefacts/stories/E01S01.story.md
     dependencies: []
