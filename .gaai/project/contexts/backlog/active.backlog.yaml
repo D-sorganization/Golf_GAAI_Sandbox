@@ -31,11 +31,12 @@ items:
     title: "Remove stray debug files from repo root and update .gitignore"
     priority: high
     status: done
-    started_at: "2026-03-19T03:08:04Z"
-    completed_at: "2026-03-19T03:11:39Z"
+    started_at: "2026-03-18T20:08:04-07:00"
+    completed_at: "2026-03-18T20:11:58-07:00"
     pr_url: "https://github.com/D-sorganization/Golf_GAAI_Sandbox/pull/7"
     pr_number: 7
     pr_status: "open"
+    cost_usd: 0.6806
     github_issue: 1961
     artefact: .gaai/project/contexts/artefacts/stories/E01S02.story.md
     dependencies: []
