@@ -93,7 +93,6 @@ class PinocchioPhysicsEngine(BasePhysicsEngine):
             path: Validated path to URDF model file.
         """
         assert path is not None, "path must be provided"
-        assert path is not None, "path must be provided"
         if not path.endswith(".urdf"):
             logger.warning("Pinocchio loader expects URDF, got: %s", path)
 
@@ -115,7 +114,6 @@ class PinocchioPhysicsEngine(BasePhysicsEngine):
             content: Model definition string (URDF/XML).
             extension: File extension hint.
         """
-        assert content is not None, "content must be provided"
         assert content is not None, "content must be provided"
         if extension != "urdf":
             logger.warning("Pinocchio load_from_string mostly supports URDF.")
@@ -179,7 +177,6 @@ class PinocchioPhysicsEngine(BasePhysicsEngine):
     def set_state(self, q: np.ndarray, v: np.ndarray) -> None:
         """Set the current state."""
         assert q is not None, "q must be provided"
-        assert q is not None, "q must be provided"
         if self.model is None:
             return
 
@@ -190,7 +187,6 @@ class PinocchioPhysicsEngine(BasePhysicsEngine):
 
     def set_control(self, u: np.ndarray) -> None:
         """Apply control inputs (torques/forces)."""
-        assert u is not None, "u must be provided"
         assert u is not None, "u must be provided"
         if self.model is None:
             return
@@ -289,7 +285,6 @@ class PinocchioPhysicsEngine(BasePhysicsEngine):
     def compute_inverse_dynamics(self, qacc: np.ndarray) -> np.ndarray:
         """Compute inverse dynamics tau = ID(q, v, a)."""
         assert qacc is not None, "qacc must be provided"
-        assert qacc is not None, "qacc must be provided"
         if self.model is None or self.data is None:
             return np.array([])
 
@@ -315,17 +310,24 @@ class PinocchioPhysicsEngine(BasePhysicsEngine):
         return np.zeros(3)
 
     def compute_jacobian(self, body_name: str) -> dict[str, np.ndarray] | None:
-        """Compute spatial Jacobian for a specific body."""
-        assert body_name is not None, "body_name must be provided"
+        """Compute spatial Jacobian for a specific body.
+
+        Calls computeJointJacobians to ensure Jacobian data is current
+        even when compute_jacobian is invoked without a prior forward() call.
+        """
         assert body_name is not None, "body_name must be provided"
         if self.model is None or self.data is None:
             return None
 
         if not self.model.existFrame(body_name):
-            logger.warning(f"Body/Frame '{body_name}' not found in Pinocchio model.")
+            logger.warning("Body/Frame '%s' not found in Pinocchio model.", body_name)
             return None
 
         frame_id = self.model.getFrameId(body_name)
+
+        # Ensure Jacobian data is current (guard against stale data when
+        # compute_jacobian is called standalone without a prior forward()).
+        pin.computeJointJacobians(self.model, self.data, self.q)
 
         J = pin.getFrameJacobian(
             self.model,
@@ -382,7 +384,6 @@ class PinocchioPhysicsEngine(BasePhysicsEngine):
             q_ddot_control: Control acceleration vector (nv,)
         """
         assert tau is not None, "tau must be provided"
-        assert tau is not None, "tau must be provided"
         if self.model is None or self.data is None:
             return np.array([])
 
@@ -410,7 +411,6 @@ class PinocchioPhysicsEngine(BasePhysicsEngine):
             q_ddot_ZTCF: Acceleration under zero torque (n_v,)
         """
         assert q is not None, "q must be provided"
-        assert q is not None, "q must be provided"
         if self.model is None or self.data is None:
             return np.array([])
 
@@ -434,7 +434,6 @@ class PinocchioPhysicsEngine(BasePhysicsEngine):
             q_ddot_ZVCF: Acceleration with v=0 (n_v,)
         """
         assert q is not None, "q must be provided"
-        assert q is not None, "q must be provided"
         if self.model is None or self.data is None:
             return np.array([])
 
@@ -449,3 +448,29 @@ class PinocchioPhysicsEngine(BasePhysicsEngine):
         a_zvcf = pin.aba(self.model, self.data, q, v_zero, tau)
 
         return cast(np.ndarray, a_zvcf)
+
+    # -------- Section G: Protocol Parity Methods --------
+
+    def get_sensors(self) -> dict[str, Any]:
+        """Return sensor readings dictionary.
+
+        Notes:
+            Pinocchio has no native sensor API (unlike MuJoCo). Returns an
+            empty dict to maintain protocol parity with MuJoCo and Drake
+            adapters. Callers must handle the empty-dict case gracefully.
+
+        Returns:
+            sensors: Empty dict (Pinocchio provides no native sensor readouts).
+        """
+        return {}
+
+    def compute_affine_drift(self) -> np.ndarray:
+        """Compute passive (drift) acceleration — alias for compute_drift_acceleration.
+
+        Provided for API parity with MuJoCo adapter which exposes this name.
+        Delegates to compute_drift_acceleration() internally.
+
+        Returns:
+            q_ddot_drift: Drift acceleration vector (nv,) — finite values.
+        """
+        return self.compute_drift_acceleration()
