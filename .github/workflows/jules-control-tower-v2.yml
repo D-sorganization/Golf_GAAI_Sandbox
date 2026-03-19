@@ -134,6 +134,19 @@ jobs:
             }
             core.notice(`Target=${result.target}; reason=${result.reason}`);
 
+      - name: Write Triage Summary
+        run: |
+          {
+            echo "## Jules Control Tower V2"
+            echo ""
+            echo "- Event: \`${{ github.event_name }}\`"
+            echo "- Target: \`${{ steps.decide.outputs.target }}\`"
+            echo "- Issue: \`${{ steps.decide.outputs.issue_number || 'n/a' }}\`"
+            echo "- PR: \`${{ steps.decide.outputs.pr_number || 'n/a' }}\`"
+            echo "- Dry run: \`${{ steps.decide.outputs.dry_run }}\`"
+            echo "- Reason: ${{ steps.decide.outputs.reason }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   dispatch-issue-worker:
     needs: triage
     if: needs.triage.outputs.target == 'issue-worker'
@@ -179,6 +192,12 @@ jobs:
         if: vars.JULES_AUTOMATION_ENABLED == 'false' || vars.JULES_AUTOMATION_PAUSED == 'true'
         run: |
           echo "Jules automation is disabled or paused."
+          {
+            echo "## Jules Queue Sweep"
+            echo ""
+            echo "- Status: skipped"
+            echo "- Reason: automation disabled or paused"
+          } >> "$GITHUB_STEP_SUMMARY"
           exit 0
 
       - name: Dispatch Ready Issues
@@ -239,3 +258,14 @@ jobs:
                   check=True,
               )
           PY
+
+      - name: Write Queue Sweep Summary
+        if: always()
+        run: |
+          {
+            echo "## Jules Queue Sweep"
+            echo ""
+            echo "- Event: \`${{ github.event_name }}\`"
+            echo "- Max parallel issues: \`${{ env.MAX_PARALLEL }}\`"
+            echo "- Dry run: \`${{ env.DRY_RUN }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

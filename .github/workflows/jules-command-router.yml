@@ -44,13 +44,16 @@ jobs:
             /jules-run|/jules-retry)
               gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "jules:ready" || true
               gh workflow run jules-control-tower-v2.yml --repo "$REPO" -f target=issue-worker -f issue_number="$ISSUE_NUMBER" -f dry_run=false
+              gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Queued this item for Jules issue-worker dispatch."
               ;;
             /jules-pause)
               gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "jules:blocked" || true
+              gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Applied \`jules:blocked\` to pause automation on this item."
               ;;
             /jules-resume)
               gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --remove-label "jules:blocked" || true
               gh workflow run jules-control-tower-v2.yml --repo "$REPO" -f target=issue-worker -f issue_number="$ISSUE_NUMBER" -f dry_run=false
+              gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Removed \`jules:blocked\` and re-queued this item for Jules issue-worker dispatch."
               ;;
             /jules-status)
               gh issue view "$ISSUE_NUMBER" --repo "$REPO" --json title,labels,url > /tmp/jules_status.json
@@ -70,18 +73,32 @@ jobs:
               if [ "$IS_PR" = "true" ]; then
                 gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "jules:repair-requested" || true
                 gh workflow run jules-pr-shepherd.yml --repo "$REPO" -f pr_number="$ISSUE_NUMBER" -f dry_run=false
+                gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Queued this PR for Jules PR shepherd repair review."
               fi
               ;;
             /jules-address-comments|/jules-batch-now)
               if [ "$IS_PR" = "true" ]; then
                 gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "queue:batched" || true
                 gh workflow run jules-comment-batch-processor.yml --repo "$REPO" -f pr_number="$ISSUE_NUMBER" -f dry_run=false
+                gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Queued this PR for Jules batched comment processing."
               fi
               ;;
             /jules-stop)
               gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "jules:blocked" || true
+              gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Applied \`jules:blocked\` to stop automation on this item."
               ;;
             *)
               gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Unknown Jules command: \`$COMMAND_NAME\`"
               ;;
           esac
+
+      - name: Write Command Summary
+        if: always()
+        run: |
+          {
+            echo "## Jules Command Router"
+            echo ""
+            echo "- Issue or PR: \`${ISSUE_NUMBER}\`"
+            echo "- Command: \`${COMMAND}\`"
+            echo "- Authorized: \`${{ steps.authz.outputs.authorized }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
