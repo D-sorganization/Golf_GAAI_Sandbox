@@ -19,6 +19,8 @@ This directory contains implementation plans, roadmaps, and strategic documentat
 
 - [priority_improvements_jan_2026.md](priority_improvements_jan_2026.md) - High-priority improvements for January 2026
 - [IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md) - Implementation task checklist
+- [JULES_ONLY_GITHUB_ISSUE_ORCHESTRATION_PLAN_2026-03-19.md](JULES_ONLY_GITHUB_ISSUE_ORCHESTRATION_PLAN_2026-03-19.md) - GitHub-native Jules-only issue orchestration strategy
+- [JULES_ONLY_IMPLEMENTATION_GUIDE_2026-03-19.md](JULES_ONLY_IMPLEMENTATION_GUIDE_2026-03-19.md) - Detailed implementation instructions for Jules-only orchestration
 
 ## Reviews and Analysis
 
