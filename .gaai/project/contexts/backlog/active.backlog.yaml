@@ -171,8 +171,12 @@ items:
     epic: E04
     title: "Consolidate GUI launcher with strict lazy-loading of engine dependencies"
     priority: medium
-    status: in_progress
+    status: done
     started_at: "2026-03-19T04:57:23Z"
+    completed_at: "2026-03-19T05:13:26Z"
+    pr_url: "https://github.com/D-sorganization/Golf_GAAI_Sandbox/pull/16"
+    pr_number: 16
+    pr_status: "open"
     github_issue: 1956
     artefact: .gaai/project/contexts/artefacts/stories/E04S01.story.md
     dependencies: []
