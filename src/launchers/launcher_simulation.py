@@ -23,6 +23,7 @@ from src.launchers.launcher_constants import (
     REPOS_ROOT,
 )
 from src.shared.python.core.contracts import precondition
+from src.shared.python.engine_core.engine_availability import is_engine_available
 from src.shared.python.logging_pkg.logging_config import get_logger
 from src.shared.python.security.secure_subprocess import secure_popen
 from src.shared.python.theme.style_constants import Styles
@@ -269,8 +270,13 @@ except (RuntimeError, TypeError, AttributeError) as e:
         """Launch generic MJCF file in passive viewer."""
         assert path is not None, "path must be provided"
         assert path is not None, "path must be provided"
-        import mujoco
-        import mujoco.viewer
+        # Guard: use engine_availability.py to check before attempting import
+        if not is_engine_available("mujoco"):
+            raise RuntimeError(
+                "MuJoCo is not installed. Install it with: pip install mujoco"
+            )
+        import mujoco  # deferred — only when needed, guarded above
+        import mujoco.viewer  # deferred — only when needed, guarded above
 
         try:
             m = mujoco.MjModel.from_xml_path(str(path))

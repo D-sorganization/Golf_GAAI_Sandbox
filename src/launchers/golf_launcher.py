@@ -11,6 +11,41 @@ This module composes focused mixin classes into the GolfLauncher:
 - LauncherThemeMixin: Theme application, theme menus, plot theme
 - LauncherSimulationMixin: Simulation launching, dependency checking
 - LauncherDialogsMixin: Dialogs, settings, keyboard shortcuts, toast
+
+# ── E04S01 Import Audit ──────────────────────────────────────────────────────
+#
+# This audit documents all imports in src/launchers/ to enforce strict
+# lazy-loading of physics engine dependencies (mujoco, pinocchio, pydrake,
+# opensim, myosuite).  Engine packages must NEVER be imported at module
+# load time — they are optional and may not be installed.
+#
+# Engine imports in src/launchers/ (all are deferred/lazy):
+#
+#   launcher_simulation.py:
+#     - import mujoco         — inside _launch_generic_mjcf(), deferred
+#     - import mujoco.viewer  — inside _launch_generic_mjcf(), deferred
+#     Both are guarded by is_engine_available("mujoco") before use.
+#
+# Heavy module lazy-loading (verified compliant):
+#
+#   launcher_constants.py:
+#     - EngineManager / EngineType  via _lazy_load_engine_manager()
+#     - ModelRegistry               via _lazy_load_model_registry()
+#     Both use importlib and are cached — NOT imported at module level.
+#
+#   unified_launcher.py, golf_suite_launcher.py:
+#     - PYQT6_AVAILABLE from engine_availability — availability flag only,
+#       does NOT import the engine package itself.
+#
+#   launcher_diagnostics.py:
+#     - check_engine_availability() — uses is_engine_available() guard,
+#       does NOT import engine packages at module load time.
+#
+# Verification: importing src.launchers.golf_launcher must NOT cause
+# 'mujoco' or 'pinocchio' to appear in sys.modules.  This is tested in
+# tests/launchers/test_lazy_import.py (AC6).
+#
+# ─────────────────────────────────────────────────────────────────────────────
 """
 
 from __future__ import annotations
