@@ -93,6 +93,20 @@ jobs:
             --cov=shared/python/cross_engine_validator \
             --cov-report=xml:coverage/cross-engine-coverage.xml
 
+      - name: Run live_simulation marker tests
+        id: live_simulation
+        env:
+          UPSTREAM_DRIFT_STRICT_ENGINE_PROBES: "true"
+        run: |
+          # Explicitly run tests marked with live_simulation — tests requiring a
+          # running physics simulation engine (MuJoCo, Drake, Pinocchio, etc.)
+          # These tests are excluded from standard CI and run only in the nightly lane.
+          pytest tests/heavy_integration/ \
+            -m live_simulation \
+            -v \
+            --tb=short \
+            --junitxml=test-results/live-simulation-junit.xml
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
