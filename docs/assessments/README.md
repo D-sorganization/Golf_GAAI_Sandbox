@@ -245,3 +245,6 @@ In addition to the standard framework, specialized audits monitor specific quali
 ---
 
 _See individual Assessment_Prompt_X.md files for detailed prompts._
+
+## Update 2026-03-22
+Added newly generated comprehensive assessment reports for Categories A-O, Completist Audit, Pragmatic Programmer Review, and a comprehensive unified report.
