@@ -88,7 +88,11 @@ def pr_lookup(repo: str, issue_number: str, branch_prefix: str) -> int:
         body = pr.get("body") or ""
         title = pr.get("title") or ""
         head = pr.get("headRefName") or ""
-        if head.startswith(branch_prefix) or issue_ref in body or issue_title_ref in title.lower():
+        if (
+            head.startswith(branch_prefix)
+            or issue_ref in body
+            or issue_title_ref in title.lower()
+        ):
             match = pr
             break
     print(json.dumps(match or {}))
@@ -217,13 +221,13 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.command == "issue-context":
-      return issue_context(args.repo, args.issue_number, args.task_classes)
+        return issue_context(args.repo, args.issue_number, args.task_classes)
     if args.command == "pr-lookup":
-      return pr_lookup(args.repo, args.issue_number, args.branch_prefix)
+        return pr_lookup(args.repo, args.issue_number, args.branch_prefix)
     if args.command == "collect-pr-comments":
-      return collect_pr_comments(args.repo, args.pr_number)
+        return collect_pr_comments(args.repo, args.pr_number)
     if args.command == "write-summary":
-      return write_summary(args.output, args.title, args.items)
+        return write_summary(args.output, args.title, args.items)
     return 1
 
 
