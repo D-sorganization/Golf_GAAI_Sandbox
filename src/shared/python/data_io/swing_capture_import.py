@@ -724,8 +724,8 @@ class SwingCaptureImporter:
                 "impact": phases.impact,
                 "follow_through_end": phases.follow_through_end,
             }
-        except (RuntimeError, ValueError, AttributeError):
-            pass
+        except (RuntimeError, ValueError, AttributeError) as _e:
+            logger.debug("Non-critical failure: %s", _e)
 
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)

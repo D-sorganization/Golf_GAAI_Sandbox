@@ -51,6 +51,8 @@ import pandas as pd
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt
 
+logger = get_logger(__name__)
+
 
 # Centralized conversion factors for maintainability (DRY, Orthogonality)
 # Format: (from_unit, to_unit): factor
@@ -292,7 +294,7 @@ def get_shared_urdf_path() -> Path | None:
         if urdf_dir.exists():
             return urdf_dir
 
-    except (FileNotFoundError, OSError):
-        pass
+    except (FileNotFoundError, OSError) as _e:
+        logger.debug("Non-critical failure locating shared URDF path: %s", _e)
 
     return None
