@@ -173,7 +173,9 @@ class EngineManager(ContractChecker):
             ValueError: If factor is not in (0, 100].
         """
         if not (0.0 < factor <= 100.0):
-            raise ValueError(f"speed_factor must be in (0, 100], got {factor}")
+            raise ValueError(
+                f"speed_factor must be positive and at most 100, got {factor}"
+            )
         self._speed_factor = factor
 
     def start_recording(self) -> None:
@@ -199,7 +201,7 @@ class EngineManager(ContractChecker):
             RuntimeError: If no recording is currently active.
         """
         if not getattr(self, "_is_recording", False):
-            raise RuntimeError("Not currently recording. Call start_recording() first.")
+            raise RuntimeError("not recording: call start_recording() first.")
         self._is_recording = False
         return list(getattr(self, "_recorded_frames", []))
 
