@@ -29,6 +29,7 @@ with open('results.csv', 'w') as f:
 """
 
 import hashlib
+import logging
 import subprocess
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -36,6 +37,8 @@ from pathlib import Path
 from typing import Any, TextIO
 
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -121,8 +124,8 @@ class ProvenanceInfo:
             import mujoco
 
             mujoco_version = str(getattr(mujoco, "__version__", "unknown"))
-        except ImportError:
-            pass
+        except ImportError as _e:
+            logger.debug("mujoco unavailable — related features disabled: %s", _e)
 
         return cls(
             timestamp_utc=now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),

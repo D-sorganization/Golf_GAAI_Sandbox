@@ -81,7 +81,7 @@ except ImportError:
 
             np.random.seed(seed)
         except ImportError:
-            pass
+            _HAS_NUMPY = False  # numpy unavailable — related features disabled
 
     @contextmanager
     def log_execution_time(
