@@ -2,6 +2,7 @@
 Unit tests for EngineManager functionality.
 """
 
+import math
 import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -411,6 +412,14 @@ class TestEngineManagerRecordingAndSpeed:
     def test_set_speed_factor_rejects_negative(self, engine_manager):
         with pytest.raises(ValueError):
             engine_manager.set_speed_factor(-1.0)
+
+    def test_set_speed_factor_rejects_nan(self, engine_manager):
+        with pytest.raises(ValueError):
+            engine_manager.set_speed_factor(math.nan)
+
+    def test_set_speed_factor_rejects_infinity(self, engine_manager):
+        with pytest.raises(ValueError):
+            engine_manager.set_speed_factor(math.inf)
 
     def test_set_speed_factor_rejects_above_max(self, engine_manager):
         with pytest.raises(ValueError):

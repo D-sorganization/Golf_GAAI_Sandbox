@@ -210,11 +210,10 @@ class BasePhysicsEngine(ContractChecker, PhysicsEngine):
             self.model_path = path
             self._is_initialized = True
 
-        # Verify postconditions
-        assert self._is_initialized, (
-            "Postcondition: engine must be initialized after load"
-        )
-        assert self.model is not None, "Postcondition: model must be loaded"
+        if not self._is_initialized:
+            raise StateError("Postcondition violated: engine must be initialized")
+        if self.model is None:
+            raise StateError("Postcondition violated: model must be loaded")
 
         logger.info(f"Successfully loaded model: {self.model_name}")
 
@@ -250,11 +249,10 @@ class BasePhysicsEngine(ContractChecker, PhysicsEngine):
             self.model_path = None
             self._is_initialized = True
 
-        # Verify postconditions
-        assert self._is_initialized, (
-            "Postcondition: engine must be initialized after load"
-        )
-        assert self.model is not None, "Postcondition: model must be loaded"
+        if not self._is_initialized:
+            raise StateError("Postcondition violated: engine must be initialized")
+        if self.model is None:
+            raise StateError("Postcondition violated: model must be loaded")
 
         logger.info("Successfully loaded model from string")
 
