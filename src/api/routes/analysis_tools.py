@@ -28,8 +28,6 @@ from src.shared.python.logging_pkg.logging_config import (
 )
 
 from ..dependencies import get_engine_manager, get_logger
-
-_logger = _get_module_logger(__name__)
 from ..models.requests import (
     BodyPositionUpdateRequest,
     DataExportRequest,
@@ -48,6 +46,7 @@ if TYPE_CHECKING:
     from src.shared.python.engine_core.engine_manager import EngineManager
 
 router = APIRouter()
+_logger = _get_module_logger(__name__)
 
 
 def _collect_metrics(engine_manager: EngineManager) -> dict[str, Any]:
