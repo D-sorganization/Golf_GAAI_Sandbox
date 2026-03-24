@@ -90,6 +90,42 @@ CAMERA_PRESETS: dict[str, dict[str, list[float]]] = {
 }
 
 
+def _compute_potential_energy(engine: Any, q: Any) -> float | None:
+    """Best-effort potential energy extraction for heterogeneous engines."""
+    energy_method_names = ("get_potential_energy", "compute_potential_energy")
+    for method_name in energy_method_names:
+        energy_method = getattr(engine, method_name, None)
+        if callable(energy_method):
+            try:
+                return float(energy_method())
+            except TypeError:
+                try:
+                    return float(energy_method(q))
+                except (TypeError, ValueError, RuntimeError, AttributeError) as exc:
+                    _logger.warning(
+                        "%s unavailable for potential energy calculation: %s",
+                        method_name,
+                        exc,
+                    )
+            except (ValueError, RuntimeError, AttributeError) as exc:
+                _logger.warning(
+                    "%s unavailable for potential energy calculation: %s",
+                    method_name,
+                    exc,
+                )
+
+    energy_state = getattr(engine, "data", None)
+    if energy_state is not None:
+        energy_vector = getattr(energy_state, "energy", None)
+        if energy_vector is not None:
+            try:
+                return float(energy_vector[1])
+            except (IndexError, TypeError, ValueError) as exc:
+                _logger.warning("engine.data.energy unavailable: %s", exc)
+
+    return None
+
+
 @precondition(
     lambda engine_manager: engine_manager is not None,
     "Engine manager must not be None",
@@ -371,6 +407,7 @@ async def get_metrics(
                 kinetic_energy = float(0.5 * v @ M @ v)
             except (ValueError, RuntimeError, AttributeError) as exc:
                 _logger.warning("kinetic energy calculation unavailable: %s", exc)
+            potential_energy = _compute_potential_energy(engine, q)
         else:
             _logger.warning("numpy unavailable for kinetic energy calculation")
 
@@ -593,5 +630,6 @@ async def control_recording(
             export_path=None,
         )
 
-    # unreachable: Pydantic validator ensures action in {"start", "stop", "export"}
-    raise AssertionError(f"Unreachable: unexpected action '{action}'")
+    raise HTTPException(
+        status_code=400, detail=f"Unsupported recording action: {action}"
+    )

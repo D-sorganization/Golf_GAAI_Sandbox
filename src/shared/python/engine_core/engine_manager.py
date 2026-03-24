@@ -227,23 +227,21 @@ class EngineManager(ContractChecker):
     )
     def switch_engine(self, engine_type: EngineType) -> bool:
         """Switch to a different physics engine."""
-        if engine_type is None:
-            raise ValueError("engine_type must be provided")
         if engine_type not in self.engine_status:
-            logger.error(f"Unknown engine type: {engine_type}")
+            logger.error("Unknown engine type: %s", engine_type)
             return False
 
         if self.engine_status[engine_type] != EngineStatus.AVAILABLE:
-            logger.error(f"Engine {engine_type} is not available")
+            logger.error("Engine %s is not available", engine_type)
             return False
 
         try:
             self._load_engine(engine_type)
             self.current_engine = engine_type
-            logger.info(f"Successfully switched to engine: {engine_type.value}")
+            logger.info("Successfully switched to engine: %s", engine_type.value)
             return True
         except GolfModelingError as e:
-            logger.error(f"Failed to switch to engine {engine_type}: {e}")
+            logger.error("Failed to switch to engine %s: %s", engine_type, e)
             self.engine_status[engine_type] = EngineStatus.ERROR
             return False
 
@@ -269,8 +267,6 @@ class EngineManager(ContractChecker):
 
     def _load_engine(self, engine_type: EngineType) -> None:
         """Load a specific engine."""
-        if engine_type is None:
-            raise ValueError("engine_type must be provided")
         logger.info("engine_loading_started", engine=engine_type.value)
         self.engine_status[engine_type] = EngineStatus.LOADING
         self.active_physics_engine = None
