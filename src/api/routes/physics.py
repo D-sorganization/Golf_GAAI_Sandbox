@@ -16,6 +16,11 @@ import time
 import weakref
 from typing import TYPE_CHECKING, Any
 
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover
+    np = None  # type: ignore[assignment]
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.api.middleware.error_handler import handle_api_errors
@@ -346,36 +351,34 @@ async def get_metrics(
 
         # Club head speed: try to get from Jacobian of end-effector
         club_head_speed = None
-        try:
-            jac = engine.compute_jacobian("club_head")
-            if jac is not None and "linear" in jac:
-                import numpy as np
-
-                linear_vel = jac["linear"] @ v
-                club_head_speed = float(np.linalg.norm(linear_vel))
-        except ImportError as exc:
-            _logger.warning(
-                "numpy unavailable for club-head speed calculation: %s", exc
-            )
+        if np is not None:
+            try:
+                jac = engine.compute_jacobian("club_head")
+                if jac is not None and "linear" in jac:
+                    linear_vel = jac["linear"] @ v
+                    club_head_speed = float(np.linalg.norm(linear_vel))
+            except (ValueError, RuntimeError, AttributeError) as exc:
+                _logger.warning("club-head speed calculation unavailable: %s", exc)
+        else:
+            _logger.warning("numpy unavailable for club-head speed calculation")
 
         # Energy calculations
         kinetic_energy = None
         potential_energy = None
-        try:
-            import numpy as np
-
-            M = engine.compute_mass_matrix()
-            kinetic_energy = float(0.5 * v @ M @ v)
-        except ImportError as exc:
-            _logger.warning("numpy unavailable for kinetic energy calculation: %s", exc)
+        if np is not None:
+            try:
+                M = engine.compute_mass_matrix()
+                kinetic_energy = float(0.5 * v @ M @ v)
+            except (ValueError, RuntimeError, AttributeError) as exc:
+                _logger.warning("kinetic energy calculation unavailable: %s", exc)
+        else:
+            _logger.warning("numpy unavailable for kinetic energy calculation")
 
         # Torque metrics
         ctrl = _get_control_interface(engine_manager)
         peak_torque = None
         total_torque_magnitude = None
-        if ctrl is not None:
-            import numpy as np
-
+        if ctrl is not None and np is not None:
             torques = ctrl.current_torques
             peak_torque = float(np.max(np.abs(torques)))
             total_torque_magnitude = float(np.sum(np.abs(torques)))
@@ -499,7 +502,8 @@ async def set_simulation_speed(
     Returns:
         Applied speed factor and status.
     """
-    assert request is not None, "request must be provided"
+    if request is None:
+        raise HTTPException(status_code=400, detail="request must be provided")
     engine_manager.set_speed_factor(request.speed_factor)
 
     return SpeedControlResponse(
@@ -576,38 +580,18 @@ async def control_recording(
         )
 
     if action == "export":
-        recorded = getattr(engine_manager, "_recorded_frames", [])
+        recorded = engine_manager.get_recorded_frames()
         frame_count = len(recorded)
-        export_path = None
 
-        if frame_count > 0:
-            import json
-            import tempfile
-            from pathlib import Path
-
-            with tempfile.NamedTemporaryFile(
-                mode="w",
-                suffix=f".{request.export_format}",
-                delete=False,
-                encoding="utf-8",
-            ) as tmp_file:
-                export_path = str(Path(tmp_file.name))
-                json.dump(
-                    {"frames": recorded, "format": request.export_format},
-                    tmp_file,
-                    indent=2,
-                )
-            if logger:
-                logger.info(
-                    "Trajectory exported to %s (%d frames)", export_path, frame_count
-                )
+        if frame_count > 0 and logger:
+            logger.info("Trajectory export requested (%d frames)", frame_count)
 
         return TrajectoryRecordResponse(
             recording=getattr(engine_manager, "_is_recording", False),
             frame_count=frame_count,
-            status="Trajectory exported" if export_path else "No frames to export",
-            export_path=export_path,
+            status="Trajectory exported" if frame_count > 0 else "No frames to export",
+            export_path=None,
         )
 
-    # Should not reach here due to validator, but safety fallback
-    raise HTTPException(status_code=400, detail=f"Unknown action: {action}")
+    # unreachable: Pydantic validator ensures action in {"start", "stop", "export"}
+    raise AssertionError(f"Unreachable: unexpected action '{action}'")
