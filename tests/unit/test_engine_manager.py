@@ -6,11 +6,21 @@ import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from src.shared.python.engine_core.engine_manager import (
     EngineManager,
     EngineStatus,
     EngineType,
 )
+
+
+@pytest.fixture
+def engine_manager(tmp_path):
+    """Return an EngineManager backed by an empty temp directory."""
+    engines_dir = tmp_path / "engines"
+    engines_dir.mkdir()
+    return EngineManager(suite_root=tmp_path)
 
 
 class TestEngineManager:
@@ -385,3 +395,59 @@ class TestEngineManagerBehavior:
                 # State should remain consistent: no current engine
                 assert manager.current_engine is None
                 assert manager.get_current_engine() is None
+
+
+class TestEngineManagerRecordingAndSpeed:
+    """Unit tests for set_speed_factor, start_recording, and stop_recording."""
+
+    def test_set_speed_factor_stores_value(self, engine_manager):
+        engine_manager.set_speed_factor(2.5)
+        assert engine_manager._speed_factor == 2.5
+
+    def test_set_speed_factor_rejects_zero(self, engine_manager):
+        with pytest.raises(ValueError, match="positive"):
+            engine_manager.set_speed_factor(0.0)
+
+    def test_set_speed_factor_rejects_negative(self, engine_manager):
+        with pytest.raises(ValueError):
+            engine_manager.set_speed_factor(-1.0)
+
+    def test_set_speed_factor_rejects_above_max(self, engine_manager):
+        with pytest.raises(ValueError):
+            engine_manager.set_speed_factor(101.0)
+
+    def test_set_speed_factor_accepts_boundary(self, engine_manager):
+        engine_manager.set_speed_factor(100.0)
+        assert engine_manager._speed_factor == 100.0
+
+    def test_start_recording_sets_flag(self, engine_manager):
+        engine_manager.start_recording()
+        assert engine_manager._is_recording is True
+        assert engine_manager._recorded_frames == []
+
+    def test_start_recording_raises_if_already_recording(self, engine_manager):
+        engine_manager.start_recording()
+        with pytest.raises(RuntimeError, match="already in progress"):
+            engine_manager.start_recording()
+
+    def test_stop_recording_clears_flag(self, engine_manager):
+        engine_manager.start_recording()
+        frames = engine_manager.stop_recording()
+        assert engine_manager._is_recording is False
+        assert frames == []
+
+    def test_stop_recording_without_start_raises(self, engine_manager):
+        with pytest.raises(RuntimeError, match="not recording"):
+            engine_manager.stop_recording()
+
+    def test_get_recorded_frames_returns_copy(self, engine_manager):
+        engine_manager.start_recording()
+        engine_manager._recorded_frames.append({"t": 0.0})
+        frames = engine_manager.get_recorded_frames()
+        assert frames == [{"t": 0.0}]
+        # Modifying the returned copy must not affect internal state
+        frames.append({"t": 1.0})
+        assert len(engine_manager._recorded_frames) == 1
+
+    def test_get_recorded_frames_before_start_returns_empty(self, engine_manager):
+        assert engine_manager.get_recorded_frames() == []

@@ -167,12 +167,25 @@ class EngineManager(ContractChecker):
         """Set the simulation speed multiplier.
 
         Args:
-            factor: Speed multiplier to apply.
+            factor: Speed multiplier to apply. Must be in (0, 100].
+
+        Raises:
+            ValueError: If factor is not in (0, 100].
         """
+        if not (0.0 < factor <= 100.0):
+            raise ValueError(f"speed_factor must be in (0, 100], got {factor}")
         self._speed_factor = factor
 
     def start_recording(self) -> None:
-        """Begin buffering simulation frames for export."""
+        """Begin buffering simulation frames for export.
+
+        Raises:
+            RuntimeError: If a recording is already in progress.
+        """
+        if getattr(self, "_is_recording", False):
+            raise RuntimeError(
+                "Recording already in progress. Call stop_recording() first."
+            )
         self._is_recording = True
         self._recorded_frames: list = []
 
@@ -181,8 +194,21 @@ class EngineManager(ContractChecker):
 
         Returns:
             List of buffered simulation frames.
+
+        Raises:
+            RuntimeError: If no recording is currently active.
         """
+        if not getattr(self, "_is_recording", False):
+            raise RuntimeError("Not currently recording. Call start_recording() first.")
         self._is_recording = False
+        return list(getattr(self, "_recorded_frames", []))
+
+    def get_recorded_frames(self) -> list:
+        """Return a copy of the recorded frames buffer.
+
+        Returns:
+            Copy of buffered frames (empty list if not recording or no frames).
+        """
         return list(getattr(self, "_recorded_frames", []))
 
     def get_available_engines(self) -> list[EngineType]:

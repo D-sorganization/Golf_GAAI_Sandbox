@@ -27,6 +27,7 @@ from ..models.responses import (
     EngineStatusResponse,
 )
 from ..utils.path_validation import validate_model_path
+from .physics import _CONTROL_INTERFACE_CACHE, _FEATURES_REGISTRY_CACHE
 
 router = APIRouter()
 
@@ -151,6 +152,11 @@ async def load_engine(
             raise HTTPException(
                 status_code=400, detail=f"Failed to load engine: {engine_type}"
             )
+
+        # Invalidate stale ControlInterface / ControlFeaturesRegistry caches
+        # that were bound to the previous engine instance.
+        _CONTROL_INTERFACE_CACHE.pop(engine_manager, None)
+        _FEATURES_REGISTRY_CACHE.pop(engine_manager, None)
 
         engine = engine_manager.get_active_physics_engine()
 
