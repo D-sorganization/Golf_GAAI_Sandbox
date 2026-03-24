@@ -676,9 +676,9 @@ class OutputManager:
                             yield entry_path
                         elif entry.is_dir(follow_symlinks=False):
                             yield from _scan_recursive(entry_path, depth + 1)
-            except (OSError, PermissionError):
+            except (OSError, PermissionError) as _e:
                 # Skip directories we can't access
-                pass
+                logger.debug("Non-critical failure scanning directory: %s", _e)
 
         yield from _scan_recursive(directory)
 

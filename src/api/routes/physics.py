@@ -13,6 +13,7 @@ No module-level mutable state.
 from __future__ import annotations
 
 import time
+import weakref
 from typing import TYPE_CHECKING, Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -47,8 +48,8 @@ if TYPE_CHECKING:
 _logger = _get_module_logger(__name__)
 
 router = APIRouter()
-_CONTROL_INTERFACE_CACHE: dict[int, Any] = {}
-_FEATURES_REGISTRY_CACHE: dict[int, Any] = {}
+_CONTROL_INTERFACE_CACHE: weakref.WeakKeyDictionary = weakref.WeakKeyDictionary()
+_FEATURES_REGISTRY_CACHE: weakref.WeakKeyDictionary = weakref.WeakKeyDictionary()
 
 # Module-level state is stored in app.state via dependency injection.
 # These defaults are used when no simulation state exists yet.
@@ -101,15 +102,14 @@ def _get_control_interface(
         return None
 
     # Check if we already have a cached control interface
-    cache_key = id(engine_manager)
-    if cache_key in _CONTROL_INTERFACE_CACHE:
-        return _CONTROL_INTERFACE_CACHE[cache_key]
+    if engine_manager in _CONTROL_INTERFACE_CACHE:
+        return _CONTROL_INTERFACE_CACHE[engine_manager]
 
     try:
         from src.shared.python.control_interface import ControlInterface
 
         ctrl = ControlInterface(engine)
-        _CONTROL_INTERFACE_CACHE[cache_key] = ctrl
+        _CONTROL_INTERFACE_CACHE[engine_manager] = ctrl
         return ctrl
     except ImportError:
         return None
@@ -131,9 +131,8 @@ def _get_features_registry(
     if engine is None:
         return None
 
-    cache_key = id(engine_manager)
-    if cache_key in _FEATURES_REGISTRY_CACHE:
-        return _FEATURES_REGISTRY_CACHE[cache_key]
+    if engine_manager in _FEATURES_REGISTRY_CACHE:
+        return _FEATURES_REGISTRY_CACHE[engine_manager]
 
     try:
         from src.shared.python.control_features_registry import (
@@ -141,7 +140,7 @@ def _get_features_registry(
         )
 
         registry = ControlFeaturesRegistry(engine)
-        _FEATURES_REGISTRY_CACHE[cache_key] = registry
+        _FEATURES_REGISTRY_CACHE[engine_manager] = registry
         return registry
     except ImportError:
         return None
@@ -501,7 +500,7 @@ async def set_simulation_speed(
         Applied speed factor and status.
     """
     assert request is not None, "request must be provided"
-    engine_manager._speed_factor = request.speed_factor  # type: ignore[attr-defined]
+    engine_manager.set_speed_factor(request.speed_factor)
 
     return SpeedControlResponse(
         speed_factor=request.speed_factor,
@@ -560,8 +559,7 @@ async def control_recording(
     action = request.action
 
     if action == "start":
-        engine_manager._is_recording = True  # type: ignore[attr-defined]
-        engine_manager._recorded_frames = []  # type: ignore[attr-defined]
+        engine_manager.start_recording()
         return TrajectoryRecordResponse(  # type: ignore[call-arg]
             recording=True,
             frame_count=0,
@@ -569,8 +567,8 @@ async def control_recording(
         )
 
     if action == "stop":
-        engine_manager._is_recording = False  # type: ignore[attr-defined]
-        frame_count = len(getattr(engine_manager, "_recorded_frames", []))
+        recorded_frames = engine_manager.stop_recording()
+        frame_count = len(recorded_frames)
         return TrajectoryRecordResponse(  # type: ignore[call-arg]
             recording=False,
             frame_count=frame_count,
