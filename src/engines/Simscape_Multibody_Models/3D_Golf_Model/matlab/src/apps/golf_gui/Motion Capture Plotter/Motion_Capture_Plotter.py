@@ -387,8 +387,10 @@ class MotionCapturePlotter(QMainWindow):
 
     def on_data_source_changed(self, source) -> None:
         """Handle data source change."""
-        assert source is not None, "source must be provided"
-        assert source is not None, "source must be provided"
+        if not (source is not None):
+            raise ValueError("source must be provided")
+        if not (source is not None):
+            raise ValueError("source must be provided")
         self.current_data_source = source
         logger.info(f"Data source changed to: {source}")
 
@@ -427,8 +429,10 @@ class MotionCapturePlotter(QMainWindow):
 
     def _process_excel_sheet(self, filename, sheet_name) -> None:
         """Process a single Excel sheet and store parsed frames in swing_data."""
-        assert filename is not None, "filename must be provided"
-        assert filename is not None, "filename must be provided"
+        if not (filename is not None):
+            raise ValueError("filename must be provided")
+        if not (filename is not None):
+            raise ValueError("filename must be provided")
         result = process_excel_sheet(filename, sheet_name)
         if result is not None:
             self.swing_data[sheet_name] = result
@@ -474,11 +478,11 @@ class MotionCapturePlotter(QMainWindow):
             df = pd.read_csv(filename)
             logger.debug(
                 f"Successfully loaded CSV with {len(df)} rows "
-                f"and {len(df.columns)} columns"
+                f"and {len(df.columns)} columns"  # noqa: E501
             )
             logger.info(
                 f"Time range: {df['time'].min():.3f} to {df['time'].max():.3f} seconds"
-            )
+            )  # noqa: E501
 
             joint_positions = self._simscape_joint_position_definitions()
             available_joints = self._find_available_joints(joint_positions, df.columns)
@@ -519,7 +523,7 @@ class MotionCapturePlotter(QMainWindow):
             logger.error(f"Error loading Simscape CSV file: {str(e)}")
             QMessageBox.critical(
                 self, "Error", f"Failed to load Simscape CSV file: {str(e)}"
-            )
+            )  # noqa: E501
 
     def print_data_debug(self, sheet_name) -> None:
         """Print debug information about the loaded data."""
@@ -530,29 +534,29 @@ class MotionCapturePlotter(QMainWindow):
                 logger.info(f"Number of frames: {len(data)}")
                 logger.info(
                     f"Time range: {data['time'].min():.3f} to "
-                    f"{data['time'].max():.3f} seconds"
+                    f"{data['time'].max():.3f} seconds"  # noqa: E501
                 )
                 logger.info("Mid-Hands Position ranges:")
                 logger.info(
                     f"  X: {data['mid_X'].min():.3f} to {data['mid_X'].max():.3f}"
-                )
+                )  # noqa: E501
                 logger.info(
                     f"  Y: {data['mid_Y'].min():.3f} to {data['mid_Y'].max():.3f}"
-                )
+                )  # noqa: E501
                 logger.info(
                     f"  Z: {data['mid_Z'].min():.3f} to {data['mid_Z'].max():.3f}"
-                )
+                )  # noqa: E501
 
                 logger.info("Club Head Position ranges:")
                 logger.info(
                     f"  X: {data['club_X'].min():.3f} to {data['club_X'].max():.3f}"
-                )
+                )  # noqa: E501
                 logger.info(
                     f"  Y: {data['club_Y'].min():.3f} to {data['club_Y'].max():.3f}"
-                )
+                )  # noqa: E501
                 logger.info(
                     f"  Z: {data['club_Z'].min():.3f} to {data['club_Z'].max():.3f}"
-                )
+                )  # noqa: E501
 
                 # Calculate total position ranges
                 mid_range = np.max(
@@ -576,16 +580,16 @@ class MotionCapturePlotter(QMainWindow):
                 logger.info("Data Analysis:")
                 logger.info(
                     "  This data contains both mid-hands and club head positions"
-                )
+                )  # noqa: E501
                 logger.info(
                     "  Using actual measured positions instead of calculated ones"
-                )
+                )  # noqa: E501
                 logger.info(
                     "  Original data in inches, converted to meters for visualization"
-                )
+                )  # noqa: E501
                 logger.info(
                     "  Direction cosines (Xx, Xy, Xz, Yx, Yy, Yz, Zx, Zy, Zz) "
-                    "are unitless"
+                    "are unitless"  # noqa: E501
                 )
                 logger.info("  Motion scaling applied to make visualization clearer")
                 logger.info("=" * 40)
@@ -608,32 +612,40 @@ class MotionCapturePlotter(QMainWindow):
 
     def on_frame_change(self, frame) -> None:
         """Handle frame slider change."""
-        assert frame is not None, "frame must be provided"
-        assert frame is not None, "frame must be provided"
+        if not (frame is not None):
+            raise ValueError("frame must be provided")
+        if not (frame is not None):
+            raise ValueError("frame must be provided")
         self.current_frame = frame
         self.frame_label.setText(str(frame))
         self.update_visualization()
 
     def on_speed_change(self, speed) -> None:
         """Handle speed slider change."""
-        assert speed is not None, "speed must be provided"
-        assert speed is not None, "speed must be provided"
+        if not (speed is not None):
+            raise ValueError("speed must be provided")
+        if not (speed is not None):
+            raise ValueError("speed must be provided")
         self.speed_label.setText(str(speed))
         if self.is_playing:
             self.animation_timer.setInterval(1000 // speed)
 
     def on_scale_change(self, scale) -> None:
         """Handle motion scale change."""
-        assert scale is not None, "scale must be provided"
-        assert scale is not None, "scale must be provided"
+        if not (scale is not None):
+            raise ValueError("scale must be provided")
+        if not (scale is not None):
+            raise ValueError("scale must be provided")
         self.motion_scale = scale
         self.scale_label.setText(f"{scale}x")
         self.update_visualization()
 
     def on_club_length_change(self, length_cm) -> None:
         """Handle club length change."""
-        assert length_cm is not None, "length_cm must be provided"
-        assert length_cm is not None, "length_cm must be provided"
+        if not (length_cm is not None):
+            raise ValueError("length_cm must be provided")
+        if not (length_cm is not None):
+            raise ValueError("length_cm must be provided")
         self.shaft_length = length_cm / 100.0  # Convert cm to meters
         self.club_label.setText(f"{self.shaft_length:.1f}m")
         self.update_visualization()
@@ -731,7 +743,7 @@ class MotionCapturePlotter(QMainWindow):
             available_swings = list(self.swing_data.keys())
             if available_swings and self.current_frame < len(
                 self.swing_data[available_swings[0]]
-            ):
+            ):  # noqa: E501
                 motion_data = self.swing_data[available_swings[0]]
                 frame_data = motion_data.iloc[self.current_frame]
                 self.visualize_motion_capture_data(frame_data, motion_data)
@@ -750,7 +762,7 @@ class MotionCapturePlotter(QMainWindow):
         # Update info text with combined data
         self.update_info_text(
             None
-        )  # Pass None since we're handling multiple data sources
+        )  # Pass None since we're handling multiple data sources  # noqa: E501
 
         # Redraw canvas
         self.canvas.draw()
@@ -761,8 +773,10 @@ class MotionCapturePlotter(QMainWindow):
         Parameters:
             data: full DataFrame of all frames
         """
-        assert data is not None, "data must be provided"
-        assert data is not None, "data must be provided"
+        if not (data is not None):
+            raise ValueError("data must be provided")
+        if not (data is not None):
+            raise ValueError("data must be provided")
         if self.trajectory_check.isChecked() and len(data) > 1:
             # Mid-hands path (blue dashed) - flip X for right-handed swing
             trajectory = np.array(
@@ -811,12 +825,14 @@ class MotionCapturePlotter(QMainWindow):
         """Visualize motion capture data (Excel format)."""
         # Use actual mid-hands and club head positions from the data
         # For right-handed golfers: X should be flipped to show proper swing direction
-        assert frame_data is not None, "frame_data must be provided"
-        assert frame_data is not None, "frame_data must be provided"
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
         mid_hands = np.array(
             [
                 -frame_data["mid_X"]
-                * self.motion_scale,  # Flip X for right-handed swing
+                * self.motion_scale,  # Flip X for right-handed swing  # noqa: E501
                 frame_data["mid_Y"] * self.motion_scale,
                 frame_data["mid_Z"] * self.motion_scale,
             ]
@@ -825,7 +841,7 @@ class MotionCapturePlotter(QMainWindow):
         club_head = np.array(
             [
                 -frame_data["club_X"]
-                * self.motion_scale,  # Flip X for right-handed swing
+                * self.motion_scale,  # Flip X for right-handed swing  # noqa: E501
                 frame_data["club_Y"] * self.motion_scale,
                 frame_data["club_Z"] * self.motion_scale,
             ]
@@ -842,8 +858,10 @@ class MotionCapturePlotter(QMainWindow):
 
         Returns a dict mapping joint names to numpy position arrays.
         """
-        assert frame_data is not None, "frame_data must be provided"
-        assert frame_data is not None, "frame_data must be provided"
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
         joints = {}
         joint_names = [
             "club_head",
@@ -877,8 +895,10 @@ class MotionCapturePlotter(QMainWindow):
             grip_pos: numpy array of grip (left hand) position [x, y, z]
         """
         # Draw club shaft from grip to club head
-        assert club_head_pos is not None, "club_head_pos must be provided"
-        assert club_head_pos is not None, "club_head_pos must be provided"
+        if not (club_head_pos is not None):
+            raise ValueError("club_head_pos must be provided")
+        if not (club_head_pos is not None):
+            raise ValueError("club_head_pos must be provided")
         club_points = np.array([grip_pos, club_head_pos])
         self.ax.plot(
             club_points[:, 0],
@@ -899,7 +919,7 @@ class MotionCapturePlotter(QMainWindow):
         z_head = head_size * np.outer(np.ones(np.size(u)), np.cos(v)) + club_head_pos[2]
         self.ax.plot_surface(
             x_head, y_head, z_head, color="darkgray", alpha=0.9, label="Club Head"
-        )
+        )  # noqa: E501
 
         # Calculate and draw club face normal vector
         shaft_direction = club_head_pos - grip_pos
@@ -925,8 +945,10 @@ class MotionCapturePlotter(QMainWindow):
             face_normal: unit numpy array of face normal direction
         """
         # Draw face normal vector (red arrow) - longer and more visible
-        assert club_head_pos is not None, "club_head_pos must be provided"
-        assert club_head_pos is not None, "club_head_pos must be provided"
+        if not (club_head_pos is not None):
+            raise ValueError("club_head_pos must be provided")
+        if not (club_head_pos is not None):
+            raise ValueError("club_head_pos must be provided")
         normal_length = 0.25  # 25cm normal vector (longer)
         normal_end = club_head_pos + face_normal * normal_length
 
@@ -974,14 +996,14 @@ class MotionCapturePlotter(QMainWindow):
         v_ball = np.linspace(0, np.pi, 12)
         x_ball = (
             ball_radius * np.outer(np.cos(u_ball), np.sin(v_ball)) + ball_position[0]
-        )
+        )  # noqa: E501
         y_ball = (
             ball_radius * np.outer(np.sin(u_ball), np.sin(v_ball)) + ball_position[1]
-        )
+        )  # noqa: E501
         z_ball = (
             ball_radius * np.outer(np.ones(np.size(u_ball)), np.cos(v_ball))
             + ball_position[2]
-        )
+        )  # noqa: E501
         self.ax.plot_surface(
             x_ball,
             y_ball,
@@ -1001,8 +1023,10 @@ class MotionCapturePlotter(QMainWindow):
             segment_definitions: list of (start_joint, end_joint, color) tuples
         """
         # Draw body segments
-        assert joints is not None, "joints must be provided"
-        assert joints is not None, "joints must be provided"
+        if not (joints is not None):
+            raise ValueError("joints must be provided")
+        if not (joints is not None):
+            raise ValueError("joints must be provided")
         for start_joint, end_joint, color in segment_definitions:
             if start_joint in joints and end_joint in joints:
                 segment_points = np.array([joints[start_joint], joints[end_joint]])
@@ -1019,7 +1043,7 @@ class MotionCapturePlotter(QMainWindow):
         for _, position in joints.items():
             self.ax.scatter(
                 position[0], position[1], position[2], color="black", s=50, alpha=0.8
-            )
+            )  # noqa: E501
 
     def _draw_simscape_trajectory_paths(self, joints, data) -> None:
         """Draw club head and hands trajectory paths for Simscape data.
@@ -1029,18 +1053,20 @@ class MotionCapturePlotter(QMainWindow):
             data: full DataFrame of all frames
         """
         # Club head trajectory
-        assert joints is not None, "joints must be provided"
-        assert joints is not None, "joints must be provided"
+        if not (joints is not None):
+            raise ValueError("joints must be provided")
+        if not (joints is not None):
+            raise ValueError("joints must be provided")
         if (
             self.trajectory_check.isChecked()
             and len(data) > 1
             and "club_head" in joints
-        ):
+        ):  # noqa: E501
             club_trajectory = np.array(
                 [
                     [
                         -row["club_head_X"]
-                        * self.motion_scale,  # Flip X for right-handed swing
+                        * self.motion_scale,  # Flip X for right-handed swing  # noqa: E501
                         row["club_head_Y"] * self.motion_scale,
                         row["club_head_Z"] * self.motion_scale,
                     ]
@@ -1065,7 +1091,7 @@ class MotionCapturePlotter(QMainWindow):
                 [
                     [
                         -row["left_hand_X"]
-                        * self.motion_scale,  # Flip X for right-handed swing
+                        * self.motion_scale,  # Flip X for right-handed swing  # noqa: E501
                         row["left_hand_Y"] * self.motion_scale,
                         row["left_hand_Z"] * self.motion_scale,
                     ]
@@ -1091,8 +1117,10 @@ class MotionCapturePlotter(QMainWindow):
             frame_data: current frame's data row
             data: full DataFrame of all frames
         """
-        assert frame_data is not None, "frame_data must be provided"
-        assert frame_data is not None, "frame_data must be provided"
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
         trace_colors = {
             "club_head": "red",
             "left_hand": "blue",
@@ -1111,7 +1139,7 @@ class MotionCapturePlotter(QMainWindow):
                 checkbox.isChecked()
                 and f"{segment_key}_X" in frame_data
                 and len(data) > 1
-            ):
+            ):  # noqa: E501
                 # Create trajectory for this segment
                 segment_trajectory = np.array(
                     [
@@ -1141,8 +1169,10 @@ class MotionCapturePlotter(QMainWindow):
     def visualize_simscape_data(self, frame_data, data) -> None:
         """Visualize Simscape multibody data (CSV format)."""
         # Define colors for different body segments
-        assert frame_data is not None, "frame_data must be provided"
-        assert frame_data is not None, "frame_data must be provided"
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
         colors = {
             "club": "red",
             "hands": "blue",
@@ -1178,8 +1208,10 @@ class MotionCapturePlotter(QMainWindow):
 
     def update_info_text(self, frame_data) -> None:
         """Update the information text display."""
-        assert frame_data is not None, "frame_data must be provided"
-        assert frame_data is not None, "frame_data must be provided"
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
         info = f"Frame: {self.current_frame}\n"
         info += f"Data Source: {self.current_data_source}\n"
         info += f"Motion Scale: {self.motion_scale}x\n\n"
@@ -1189,7 +1221,7 @@ class MotionCapturePlotter(QMainWindow):
             available_swings = list(self.swing_data.keys())
             if available_swings and self.current_frame < len(
                 self.swing_data[available_swings[0]]
-            ):
+            ):  # noqa: E501
                 motion_data = self.swing_data[available_swings[0]]
                 motion_frame = motion_data.iloc[self.current_frame]
                 info += "Motion Capture Data:\n"
@@ -1240,8 +1272,10 @@ class MotionCapturePlotter(QMainWindow):
 
     def set_camera_view(self, view) -> None:
         """Set predefined camera views."""
-        assert view is not None, "view must be provided"
-        assert view is not None, "view must be provided"
+        if not (view is not None):
+            raise ValueError("view must be provided")
+        if not (view is not None):
+            raise ValueError("view must be provided")
         if view == "face_on":
             # Face-on view: looking at golfer from front (toward +X target line)
             self.ax.view_init(elev=15, azim=90)
@@ -1275,8 +1309,10 @@ class MotionCapturePlotter(QMainWindow):
 
     def on_scroll(self, event) -> None:
         """Handle mouse scroll for zooming."""
-        assert event is not None, "event must be provided"
-        assert event is not None, "event must be provided"
+        if not (event is not None):
+            raise ValueError("event must be provided")
+        if not (event is not None):
+            raise ValueError("event must be provided")
         if event.inaxes != self.ax:
             return
 
@@ -1310,8 +1346,10 @@ class MotionCapturePlotter(QMainWindow):
 
     def on_mouse_press(self, event) -> None:
         """Handle mouse button press for rotation/panning."""
-        assert event is not None, "event must be provided"
-        assert event is not None, "event must be provided"
+        if not (event is not None):
+            raise ValueError("event must be provided")
+        if not (event is not None):
+            raise ValueError("event must be provided")
         if event.inaxes != self.ax:
             return
         # Store initial position for rotation/panning (use screen coordinates)
@@ -1324,8 +1362,10 @@ class MotionCapturePlotter(QMainWindow):
 
     def on_mouse_move(self, event) -> None:
         """Handle mouse movement for rotation/panning."""
-        assert event is not None, "event must be provided"
-        assert event is not None, "event must be provided"
+        if not (event is not None):
+            raise ValueError("event must be provided")
+        if not (event is not None):
+            raise ValueError("event must be provided")
         if event.inaxes != self.ax or self._last_pos is None:
             return
 

@@ -165,8 +165,10 @@ class GeometryManager:
     """Fixed geometry management"""
 
     def __init__(self, ctx: mgl.Context) -> None:
-        assert ctx is not None, "ctx must be provided"
-        assert ctx is not None, "ctx must be provided"
+        if not (ctx is not None):
+            raise ValueError("ctx must be provided")
+        if not (ctx is not None):
+            raise ValueError("ctx must be provided")
         self.ctx = ctx
         self.geometry_objects: dict[str, GeometryObject] = {}
         self.mesh_library: dict[str, tuple[np.ndarray, np.ndarray, np.ndarray]] = {}
@@ -258,7 +260,7 @@ class GeometryManager:
             )
             logger.info(
                 "  [OK] Simple shader compiled: %s", type(self.programs["simple"])
-            )
+            )  # noqa: E501
 
             # Ground shader
             logger.info("  Compiling ground shader...")
@@ -268,7 +270,7 @@ class GeometryManager:
             )
             logger.info(
                 "  [OK] Ground shader compiled: %s", type(self.programs["ground"])
-            )
+            )  # noqa: E501
 
             logger.info("[OK] Compiled %s shader programs", len(self.programs))
 
@@ -302,7 +304,7 @@ class GeometryManager:
                 program,
                 [
                     (vertex_buffer, "3f 2f", 0, 1)
-                ],  # position at location 0, texCoord at location 1
+                ],  # position at location 0, texCoord at location 1  # noqa: E501
                 index_buffer,
             )
         else:
@@ -328,8 +330,10 @@ class GeometryManager:
         scale: float | np.ndarray,
     ) -> None:
         """Update object transformation efficiently"""
-        assert name is not None, "name must be provided"
-        assert name is not None, "name must be provided"
+        if not (name is not None):
+            raise ValueError("name must be provided")
+        if not (name is not None):
+            raise ValueError("name must be provided")
         if name not in self.geometry_objects:
             return
 
@@ -350,8 +354,10 @@ class GeometryManager:
     def get_model_matrix(self, obj: GeometryObject) -> np.ndarray:
         """Calculate model matrix for object"""
         # Translation matrix
-        assert obj is not None, "obj must be provided"
-        assert obj is not None, "obj must be provided"
+        if not (obj is not None):
+            raise ValueError("obj must be provided")
+        if not (obj is not None):
+            raise ValueError("obj must be provided")
         T = np.eye(4, dtype=np.float32)
         if obj.position is not None:
             T[:3, 3] = obj.position
@@ -409,8 +415,10 @@ class OpenGLRenderer:
 
     def initialize(self, ctx: mgl.Context) -> None:
         """Initialize OpenGL context and resources"""
-        assert ctx is not None, "ctx must be provided"
-        assert ctx is not None, "ctx must be provided"
+        if not (ctx is not None):
+            raise ValueError("ctx must be provided")
+        if not (ctx is not None):
+            raise ValueError("ctx must be provided")
         self.ctx = ctx
 
         # Setup OpenGL state
@@ -459,13 +467,15 @@ class OpenGLRenderer:
 
         logger.info(
             f"[OK] Created {len(self.geometry_manager.geometry_objects)} "
-            f"geometry objects"
+            f"geometry objects"  # noqa: E501
         )
 
     def set_viewport(self, width: int, height: int) -> None:
         """Set viewport size"""
-        assert width is not None, "width must be provided"
-        assert width is not None, "width must be provided"
+        if not (width is not None):
+            raise ValueError("width must be provided")
+        if not (width is not None):
+            raise ValueError("width must be provided")
         self.viewport_size = (width, height)
         if self.ctx:
             self.ctx.viewport = (0, 0, width, height)
@@ -480,8 +490,10 @@ class OpenGLRenderer:
         view_position: np.ndarray,
     ) -> None:
         """Render complete frame with all elements"""
-        assert frame_data is not None, "frame_data must be provided"
-        assert frame_data is not None, "frame_data must be provided"
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
         if not self.ctx or not self.geometry_manager:
             return
         start_time = time.time()
@@ -506,7 +518,7 @@ class OpenGLRenderer:
         if render_config.show_club:
             self._render_club(
                 frame_data, render_config, view_matrix, proj_matrix, view_position
-            )
+            )  # noqa: E501
 
         # Update performance stats
         self.render_stats["render_time_ms"] = (time.time() - start_time) * 1000
@@ -518,8 +530,10 @@ class OpenGLRenderer:
         view_position: np.ndarray,
     ) -> None:
         """Render ground plane at proper level with golf grid"""
-        assert view_matrix is not None, "view_matrix must be provided"
-        assert view_matrix is not None, "view_matrix must be provided"
+        if not (view_matrix is not None):
+            raise ValueError("view_matrix must be provided")
+        if not (view_matrix is not None):
+            raise ValueError("view_matrix must be provided")
         if not self.geometry_manager:
             return
 
@@ -536,10 +550,10 @@ class OpenGLRenderer:
             program["projection"].write(proj_matrix.astype(np.float32).tobytes())
             program["grassColor"].write(
                 np.array([0.2, 0.6, 0.2], dtype=np.float32).tobytes()
-            )
+            )  # noqa: E501
             program["gridColor"].write(
                 np.array([0.3, 0.3, 0.3], dtype=np.float32).tobytes()
-            )
+            )  # noqa: E501
             program["gridSpacing"].value = 0.5  # 50cm grid spacing
         except (PermissionError, OSError) as e:
             logger.error("[WARN] Ground uniform error: %s", e)
@@ -584,10 +598,10 @@ class OpenGLRenderer:
             program["projection"].write(proj_matrix.astype(np.float32).tobytes())
             program["lightPosition"].write(
                 np.array([2.0, 4.0, 1.0], dtype=np.float32).tobytes()
-            )
+            )  # noqa: E501
             program["lightColor"].write(
                 np.array([1.0, 1.0, 1.0], dtype=np.float32).tobytes()
-            )
+            )  # noqa: E501
             program["viewPosition"].write(view_position.astype(np.float32).tobytes())
             return True
         except (PermissionError, OSError) as e:
@@ -660,8 +674,10 @@ class OpenGLRenderer:
         view_position: np.ndarray,
     ) -> None:
         """Render all body segments"""
-        assert frame_data is not None, "frame_data must be provided"
-        assert frame_data is not None, "frame_data must be provided"
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
         if not self.geometry_manager:
             return
 
@@ -674,7 +690,7 @@ class OpenGLRenderer:
 
         if not self._set_common_uniforms(
             program, view_matrix, proj_matrix, view_position
-        ):
+        ):  # noqa: E501
             return
 
         segments = self._build_body_segment_definitions(frame_data)
@@ -729,8 +745,10 @@ class OpenGLRenderer:
         program: mgl.Program,
     ) -> None:
         """Render cylinder between two 3D points"""
-        assert obj_name is not None, "obj_name must be provided"
-        assert obj_name is not None, "obj_name must be provided"
+        if not (obj_name is not None):
+            raise ValueError("obj_name must be provided")
+        if not (obj_name is not None):
+            raise ValueError("obj_name must be provided")
         if not self.geometry_manager:
             return
 
@@ -755,7 +773,7 @@ class OpenGLRenderer:
         elif np.allclose(direction_normalized, -y_axis):
             rotation_matrix = np.array(
                 [[-1, 0, 0], [0, -1, 0], [0, 0, 1]], dtype=np.float32
-            )
+            )  # noqa: E501
         else:
             # Use Rodrigues rotation formula
             from golf_data_core import GeometryUtils
@@ -799,8 +817,10 @@ class OpenGLRenderer:
         program: mgl.Program,
     ) -> None:
         """Render sphere at specific point"""
-        assert obj_name is not None, "obj_name must be provided"
-        assert obj_name is not None, "obj_name must be provided"
+        if not (obj_name is not None):
+            raise ValueError("obj_name must be provided")
+        if not (obj_name is not None):
+            raise ValueError("obj_name must be provided")
         if not self.geometry_manager:
             return
 
@@ -844,7 +864,7 @@ class OpenGLRenderer:
         # (this is simplified - real clubs have loft)
         face_normal = np.cross(
             shaft_direction, np.array([0, 1, 0])
-        )  # Cross with up vector
+        )  # Cross with up vector  # noqa: E501
         if np.linalg.norm(face_normal) < 1e-6:
             face_normal = np.cross(shaft_direction, np.array([1, 0, 0]))  # Fallback
         face_normal = face_normal / np.linalg.norm(face_normal)
@@ -853,8 +873,10 @@ class OpenGLRenderer:
 
     def _render_club_face_normal(self, frame_data, face_normal, program) -> None:
         """Render the club face normal vector arrow."""
-        assert frame_data is not None, "frame_data must be provided"
-        assert frame_data is not None, "frame_data must be provided"
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
         normal_length = 0.1  # 10cm normal vector
         normal_end = frame_data.clubhead + face_normal * normal_length
         normal_color = [1.0, 0.0, 0.0]  # Red for face normal
@@ -872,12 +894,14 @@ class OpenGLRenderer:
         # Add arrowhead to normal vector
         self._render_sphere_at_point(
             "normal_arrow", normal_end, 0.005, normal_color, 0.8, program
-        )
+        )  # noqa: E501
 
     def _render_club_ball(self, frame_data, face_normal, program) -> None:
         """Render the golf ball positioned for center strike."""
-        assert frame_data is not None, "frame_data must be provided"
-        assert frame_data is not None, "frame_data must be provided"
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
         ball_offset = face_normal * 0.05  # 5cm in front of face
         ball_position = frame_data.clubhead + ball_offset
         ball_color = [1.0, 1.0, 1.0]  # White ball
@@ -885,7 +909,7 @@ class OpenGLRenderer:
 
         self._render_sphere_at_point(
             "ball", ball_position, ball_radius, ball_color, 1.0, program
-        )
+        )  # noqa: E501
 
     def _render_club(
         self,
@@ -896,8 +920,10 @@ class OpenGLRenderer:
         view_position: np.ndarray,
     ) -> None:
         """Render golf club with improved geometry and face normal"""
-        assert frame_data is not None, "frame_data must be provided"
-        assert frame_data is not None, "frame_data must be provided"
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
         if not self.geometry_manager:
             return
 
@@ -910,7 +936,7 @@ class OpenGLRenderer:
 
         if not self._set_common_uniforms(
             program, view_matrix, proj_matrix, view_position
-        ):
+        ):  # noqa: E501
             return
 
         # Render shaft with realistic proportions
@@ -946,7 +972,7 @@ class OpenGLRenderer:
         if (
             hasattr(render_config, "show_face_normal")
             and render_config.show_face_normal
-        ):
+        ):  # noqa: E501
             self._render_club_face_normal(frame_data, face_normal, program)
 
         # Render ball at center strike position
@@ -975,7 +1001,7 @@ if __name__ == "__main__":
         fragment_shader = ShaderLibrary.get_simple_fragment_shader()
         logger.info(
             f"   Simple shaders: {len(vertex_shader)} + "
-            f"{len(fragment_shader)} characters"
+            f"{len(fragment_shader)} characters"  # noqa: E501
         )
 
         logger.info("[OK] Shader compilation test passed")

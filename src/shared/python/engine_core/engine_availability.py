@@ -106,7 +106,7 @@ def _probe_engine(
     except ImportError as e:
         _engine_status_cache[name] = EngineStatus.NOT_INSTALLED
         _engine_error_cache[name] = e
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         # Any other exception during load means it's broken
         if is_broken_check is None or is_broken_check(e):
             _engine_status_cache[name] = EngineStatus.BROKEN
@@ -275,7 +275,8 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 def require_engine(engine_name: str, reason: str | None = None) -> Callable[[F], F]:
     """Decorator to skip test/function if engine is not available."""
-    assert engine_name is not None, "engine_name must be provided"
+    if not (engine_name is not None):
+        raise ValueError("engine_name must be provided")
 
     def decorator(func: F) -> F:
         @functools.wraps(func)

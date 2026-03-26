@@ -141,7 +141,7 @@ class SimCameraMixin:
 
                 self.camera.lookat[:] += (
                     -dx * sensitivity * right + dy * sensitivity * up
-                )
+                )  # noqa: E501
                 self._render_once()
 
             self.last_mouse_pos = (x, y)
@@ -237,8 +237,10 @@ class SimCameraMixin:
 
     def show_context_menu(self: Any, global_pos: QtCore.QPoint, body_id: int) -> None:
         """Display a right-click context menu for a selected body."""
-        assert global_pos is not None, "global_pos must be provided"
-        assert global_pos is not None, "global_pos must be provided"
+        if not (global_pos is not None):
+            raise ValueError("global_pos must be provided")
+        if not (global_pos is not None):
+            raise ValueError("global_pos must be provided")
         if self.manipulator is None:
             return
 
@@ -257,7 +259,7 @@ class SimCameraMixin:
             action_frame.setChecked(body_id in self.visible_frames)
             action_frame.triggered.connect(
                 lambda: self.toggle_frame_visibility(body_id)
-            )
+            )  # noqa: E501
 
         action_com = menu.addAction("Show Center of Mass")
         if action_com is not None:
@@ -269,8 +271,10 @@ class SimCameraMixin:
 
     def toggle_frame_visibility(self: Any, body_id: int) -> None:
         """Toggle coordinate frame overlay for a body."""
-        assert body_id is not None, "body_id must be provided"
-        assert body_id is not None, "body_id must be provided"
+        if not (body_id is not None):
+            raise ValueError("body_id must be provided")
+        if not (body_id is not None):
+            raise ValueError("body_id must be provided")
         if body_id in self.visible_frames:
             self.visible_frames.remove(body_id)
         else:
@@ -279,8 +283,10 @@ class SimCameraMixin:
 
     def toggle_com_visibility(self: Any, body_id: int) -> None:
         """Toggle center-of-mass overlay for a body."""
-        assert body_id is not None, "body_id must be provided"
-        assert body_id is not None, "body_id must be provided"
+        if not (body_id is not None):
+            raise ValueError("body_id must be provided")
+        if not (body_id is not None):
+            raise ValueError("body_id must be provided")
         if body_id in self.visible_coms:
             self.visible_coms.remove(body_id)
         else:

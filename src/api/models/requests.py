@@ -1,6 +1,6 @@
 """Request models for Golf Modeling Suite API."""
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -274,7 +274,9 @@ class TrajectoryRecordRequest(BaseModel):
     """
 
     action: str = Field(..., description="Recording action: start, stop, or export")
-    export_format: str = Field("json", description="Export format for trajectory data")
+    export_format: Literal["json", "csv"] = Field(
+        "json", description="Export format for trajectory data (json or csv)"
+    )
 
     @field_validator("action")
     @classmethod
@@ -405,7 +407,8 @@ class ForceOverlayRequest(BaseModel):
     @classmethod
     def validate_force_types(cls, v: list[str]) -> list[str]:
         """Precondition: all force types must be recognized."""
-        assert v is not None, "v must be provided"
+        if v is None:
+            raise ValueError("force_types must be provided")
         normalized = [ft.lower().strip() for ft in v]
         for ft in normalized:
             if ft not in VALID_FORCE_TYPES:

@@ -15,9 +15,13 @@ Tests cover:
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock
+
+import numpy as np
 import pytest
 from pydantic import ValidationError
 
+from src.api.dependencies import get_engine_manager, get_logger
 from src.api.models.requests import (
     VALID_CAMERA_PRESETS,
     VALID_CONTROL_STRATEGIES,
@@ -38,11 +42,17 @@ from src.api.models.responses import (
     SpeedControlResponse,
     TrajectoryRecordResponse,
 )
+from src.api.routes.physics import (
+    _CONTROL_INTERFACE_CACHE,
+    _FEATURES_REGISTRY_CACHE,
+)
 
 try:
+    from fastapi import FastAPI
     from fastapi.testclient import TestClient
 
-    from src.api.server import app
+    from src.api.routes.engines import router as engines_router
+    from src.api.routes.physics import router as physics_router
 
     HAS_FASTAPI = True
 except ImportError:
@@ -174,6 +184,11 @@ class TestTrajectoryRecordRequestContract:
         req = TrajectoryRecordRequest(action="export")
         assert req.export_format == "json"
 
+    def test_invalid_export_format_rejected(self) -> None:
+        """Unsupported export formats are rejected."""
+        with pytest.raises(ValidationError):
+            TrajectoryRecordRequest(action="export", export_format="yaml")
+
 
 # ──────────────────────────────────────────────────────────────
 #  Response Model Tests
@@ -287,8 +302,70 @@ def client():
     """Create test client."""
     if not HAS_FASTAPI:
         pytest.skip("FastAPI not available")
-    with TestClient(app) as c:
-        yield c
+    app = FastAPI()
+    app.include_router(physics_router)
+    app.include_router(engines_router)
+
+    mock_logger = MagicMock(spec=["info", "warning", "error", "debug"])
+    mock_engine_manager = MagicMock(
+        spec=[
+            "get_active_physics_engine",
+            "get_current_engine",
+            "get_engine_status",
+            "get_available_engines",
+            "set_speed_factor",
+            "switch_engine",
+            "start_recording",
+            "stop_recording",
+            "get_recorded_frames",
+        ]
+    )
+    mock_engine_manager.get_active_physics_engine.return_value = None
+    mock_engine_manager.get_current_engine.return_value = None
+    mock_engine_manager.get_available_engines.return_value = []
+    mock_engine_manager.get_recorded_frames.return_value = []
+
+    app.dependency_overrides[get_engine_manager] = lambda: mock_engine_manager
+    app.dependency_overrides[get_logger] = lambda: mock_logger
+    try:
+        with TestClient(app) as c:
+            yield c
+    finally:
+        app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def physics_test_app():
+    """Create a test client with physics-route dependencies overridden."""
+    if not HAS_FASTAPI:
+        pytest.skip("FastAPI not available")
+    test_app = FastAPI()
+    test_app.include_router(physics_router)
+    test_app.include_router(engines_router)
+
+    mock_logger = MagicMock(spec=["info", "warning", "error", "debug"])
+    mock_engine_manager = MagicMock(
+        spec=[
+            "get_active_physics_engine",
+            "get_current_engine",
+            "set_speed_factor",
+            "switch_engine",
+            "start_recording",
+            "stop_recording",
+            "get_recorded_frames",
+        ]
+    )
+    mock_engine_manager.get_active_physics_engine.return_value = None
+    mock_engine_manager.get_current_engine.return_value = None
+    mock_engine_manager.get_recorded_frames.return_value = []
+
+    test_app.dependency_overrides[get_engine_manager] = lambda: mock_engine_manager
+    test_app.dependency_overrides[get_logger] = lambda: mock_logger
+    try:
+        with TestClient(test_app) as overridden_client:
+            yield overridden_client, mock_engine_manager, mock_logger
+    finally:
+        test_app.dependency_overrides.clear()
 
 
 class TestCameraPresetAPI:
@@ -375,6 +452,7 @@ class TestRecordingAPI:
         assert resp.status_code == 200
         data = resp.json()
         assert "No frames" in data["status"] or data["frame_count"] == 0
+        assert data["export_path"] is None
 
 
 class TestSimulationStatsAPI:
@@ -463,3 +541,158 @@ class TestControlFeaturesEndpoints:
         """GET /simulation/control-features returns 400 when no engine loaded."""
         resp = client.get("/simulation/control-features")
         assert resp.status_code == 400
+
+
+class TestPhysicsHappyPathEndpoints:
+    """Test happy paths for physics endpoints with injected dependencies."""
+
+    def test_get_actuator_state_returns_live_control_state(
+        self, physics_test_app
+    ) -> None:
+        client, mock_engine_manager, _ = physics_test_app
+        mock_engine_manager.get_active_physics_engine.return_value = MagicMock()
+
+        with pytest.MonkeyPatch.context() as monkeypatch:
+            ctrl = MagicMock()
+            ctrl.get_state.return_value = {
+                "strategy": "pd",
+                "n_joints": 2,
+                "joint_names": ["shoulder", "elbow"],
+                "torques": [1.0, -2.0],
+                "kp": [100.0, 120.0],
+                "kd": [10.0, 12.0],
+                "ki": [0.0, 0.0],
+                "joints": [],
+            }
+            ctrl.get_available_strategies.return_value = [
+                {"name": "pd", "description": "PD control"}
+            ]
+            monkeypatch.setattr(
+                "src.api.routes.physics._get_control_interface", lambda _: ctrl
+            )
+
+            resp = client.get("/simulation/actuators")
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["strategy"] == "pd"
+        assert data["torques"] == [1.0, -2.0]
+        assert data["available_strategies"][0]["name"] == "pd"
+
+    def test_get_forces_returns_engine_vectors(self, physics_test_app) -> None:
+        client, mock_engine_manager, _ = physics_test_app
+
+        mock_engine = MagicMock()
+        mock_engine.time = 1.25
+        mock_engine.compute_gravity_forces.return_value = np.array([9.0, 8.0])
+        mock_engine.compute_contact_forces.return_value = np.array([1.0, 2.0])
+        mock_engine.compute_bias_forces.return_value = np.array([3.0, 4.0])
+        mock_engine_manager.get_active_physics_engine.return_value = mock_engine
+
+        with pytest.MonkeyPatch.context() as monkeypatch:
+            ctrl = MagicMock()
+            ctrl.current_torques = np.array([5.0, -6.0])
+            monkeypatch.setattr(
+                "src.api.routes.physics._get_control_interface", lambda _: ctrl
+            )
+
+            resp = client.get("/simulation/forces")
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["sim_time"] == 1.25
+        assert data["gravity_forces"] == [9.0, 8.0]
+        assert data["contact_forces"] == [1.0, 2.0]
+        assert data["applied_torques"] == [5.0, -6.0]
+        assert data["bias_forces"] == [3.0, 4.0]
+
+    def test_get_metrics_returns_energy_speed_and_torque_metrics(
+        self, physics_test_app
+    ) -> None:
+        client, mock_engine_manager, _ = physics_test_app
+
+        mock_engine = MagicMock()
+        mock_engine.time = 2.5
+        q = np.array([0.1, 0.2])
+        v = np.array([3.0, 4.0])
+        mock_engine.get_state.return_value = (q, v)
+        mock_engine.compute_jacobian.return_value = {
+            "linear": np.array([[1.0, 0.0], [0.0, 2.0]])
+        }
+        mock_engine.compute_mass_matrix.return_value = np.eye(2)
+        mock_engine.get_potential_energy.return_value = 12.5
+        mock_engine_manager.get_active_physics_engine.return_value = mock_engine
+
+        with pytest.MonkeyPatch.context() as monkeypatch:
+            ctrl = MagicMock()
+            ctrl.current_torques = np.array([5.0, -6.0])
+            monkeypatch.setattr(
+                "src.api.routes.physics._get_control_interface", lambda _: ctrl
+            )
+
+            resp = client.get("/simulation/metrics")
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["sim_time"] == 2.5
+        assert data["club_head_speed"] == pytest.approx((3.0**2 + 8.0**2) ** 0.5)
+        assert data["kinetic_energy"] == pytest.approx(12.5)
+        assert data["potential_energy"] == pytest.approx(12.5)
+        assert data["joint_positions"] == [0.1, 0.2]
+        assert data["joint_velocities"] == [3.0, 4.0]
+        assert data["peak_torque"] == pytest.approx(6.0)
+        assert data["total_torque_magnitude"] == pytest.approx(11.0)
+
+    def test_get_control_features_returns_registry_summary(
+        self, physics_test_app
+    ) -> None:
+        client, mock_engine_manager, _ = physics_test_app
+        mock_engine_manager.get_active_physics_engine.return_value = MagicMock()
+
+        with pytest.MonkeyPatch.context() as monkeypatch:
+            registry = MagicMock()
+            registry.get_summary.return_value = {
+                "engine": "PendulumPhysicsEngine",
+                "total_features": 3,
+                "available_features": 2,
+                "categories": [{"name": "counterfactuals", "count": 2}],
+            }
+            registry.list_features.return_value = [
+                {
+                    "name": "ztcf",
+                    "category": "counterfactuals",
+                    "available": True,
+                    "description": "Zero torque counterfactual",
+                }
+            ]
+            monkeypatch.setattr(
+                "src.api.routes.physics._get_features_registry", lambda _: registry
+            )
+
+            resp = client.get("/simulation/control-features?available_only=true")
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["engine"] == "PendulumPhysicsEngine"
+        assert data["total_features"] == 3
+        assert data["available_features"] == 2
+        assert data["features"][0]["name"] == "ztcf"
+
+    def test_load_engine_clears_route_caches(self, physics_test_app) -> None:
+        client, mock_engine_manager, _ = physics_test_app
+
+        mock_engine_manager.switch_engine = MagicMock(return_value=True)
+        mock_engine_manager.get_active_physics_engine.return_value = MagicMock()
+        _CONTROL_INTERFACE_CACHE[mock_engine_manager] = object()
+        _FEATURES_REGISTRY_CACHE[mock_engine_manager] = object()
+
+        try:
+            resp = client.post("/engines/pendulum/load")
+        finally:
+            _CONTROL_INTERFACE_CACHE.pop(mock_engine_manager, None)
+            _FEATURES_REGISTRY_CACHE.pop(mock_engine_manager, None)
+
+        assert resp.status_code == 200
+        assert mock_engine_manager.switch_engine.called
+        assert mock_engine_manager not in _CONTROL_INTERFACE_CACHE
+        assert mock_engine_manager not in _FEATURES_REGISTRY_CACHE

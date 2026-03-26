@@ -425,7 +425,7 @@ class TestContractViolationErrorHierarchy:
             raise error_cls("test")
         except ContractViolationError:
             pass  # Expected
-        except Exception:
+        except Exception:  # noqa: BLE001
             pytest.fail(
                 f"{error_cls.__name__} was not caught as ContractViolationError"
             )

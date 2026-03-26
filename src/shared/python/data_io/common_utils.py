@@ -51,6 +51,8 @@ import pandas as pd
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt
 
+logger = get_logger(__name__)
+
 
 # Centralized conversion factors for maintainability (DRY, Orthogonality)
 # Format: (from_unit, to_unit): factor
@@ -87,8 +89,10 @@ def ensure_output_dir(engine_name: str, subdir: str | None = None) -> Path:
     Returns:
         Path to the output directory
     """
-    assert engine_name is not None, "engine_name must be provided"
-    assert engine_name is not None, "engine_name must be provided"
+    if not (engine_name is not None):
+        raise ValueError("engine_name must be provided")
+    if not (engine_name is not None):
+        raise ValueError("engine_name must be provided")
     output_path = OUTPUT_ROOT / engine_name
     if subdir:
         output_path = output_path / subdir
@@ -132,8 +136,10 @@ def save_golf_data(
         output_path: Output file path
         format: Output format ('csv', 'excel', 'json')
     """
-    assert data is not None, "data must be provided"
-    assert data is not None, "data must be provided"
+    if not (data is not None):
+        raise ValueError("data must be provided")
+    if not (data is not None):
+        raise ValueError("data must be provided")
     output_path = Path(output_path)
     format = format.lower()
 
@@ -157,8 +163,10 @@ def normalize_z_score(data: np.ndarray, epsilon: float = 1e-9) -> np.ndarray:
     Returns:
         Normalized array
     """
-    assert data is not None, "data must be provided"
-    assert data is not None, "data must be provided"
+    if not (data is not None):
+        raise ValueError("data must be provided")
+    if not (data is not None):
+        raise ValueError("data must be provided")
     result = (data - np.mean(data)) / (np.std(data) + epsilon)
     return np.asarray(result)
 
@@ -178,8 +186,10 @@ def standardize_joint_angles(
     Returns:
         Standardized DataFrame with joint angles
     """
-    assert angles is not None, "angles must be provided"
-    assert angles is not None, "angles must be provided"
+    if not (angles is not None):
+        raise ValueError("angles must be provided")
+    if not (angles is not None):
+        raise ValueError("angles must be provided")
     if angle_names is None:
         angle_names = [f"joint_{i}" for i in range(angles.shape[1])]
 
@@ -206,8 +216,10 @@ def plot_joint_trajectories(
     Returns:
         Matplotlib figure
     """
-    assert data is not None, "data must be provided"
-    assert data is not None, "data must be provided"
+    if not (data is not None):
+        raise ValueError("data must be provided")
+    if not (data is not None):
+        raise ValueError("data must be provided")
     import matplotlib.pyplot as plt
 
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
@@ -250,8 +262,10 @@ def convert_units(value: float, from_unit: str, to_unit: str) -> float:
     Raises:
         ValueError: If conversion is not supported
     """
-    assert value is not None, "value must be provided"
-    assert value is not None, "value must be provided"
+    if not (value is not None):
+        raise ValueError("value must be provided")
+    if not (value is not None):
+        raise ValueError("value must be provided")
     if from_unit == to_unit:
         return value
 
@@ -292,7 +306,7 @@ def get_shared_urdf_path() -> Path | None:
         if urdf_dir.exists():
             return urdf_dir
 
-    except (FileNotFoundError, OSError):
-        pass
+    except (FileNotFoundError, OSError) as _e:
+        logger.debug("Non-critical failure locating shared URDF path: %s", _e)
 
     return None

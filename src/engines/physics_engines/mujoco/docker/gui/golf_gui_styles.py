@@ -51,8 +51,10 @@ class StyleMixin:
 
     @staticmethod
     def _configure_notebook_styles(style: ttk.Style, colors: dict[str, str]) -> None:
-        assert style is not None, "style must be provided"
-        assert style is not None, "style must be provided"
+        if not (style is not None):
+            raise ValueError("style must be provided")
+        if not (style is not None):
+            raise ValueError("style must be provided")
         style.configure("Modern.TNotebook", background=colors["bg"], borderwidth=0)
         style.configure(
             "Modern.TNotebook.Tab",
@@ -86,12 +88,14 @@ class StyleMixin:
         style.configure("Modern.TFrame", background=colors["bg"])
         style.configure(
             "Card.TFrame", background=colors["select_bg"], relief="flat", borderwidth=1
-        )
+        )  # noqa: E501
 
     @staticmethod
     def _configure_label_styles(style: ttk.Style, colors: dict[str, str]) -> None:
-        assert style is not None, "style must be provided"
-        assert style is not None, "style must be provided"
+        if not (style is not None):
+            raise ValueError("style must be provided")
+        if not (style is not None):
+            raise ValueError("style must be provided")
         style.configure(
             "Modern.TLabel",
             background=colors["bg"],
@@ -116,19 +120,21 @@ class StyleMixin:
         style.configure("Modern.TButton", font=("Segoe UI", 10), padding=[15, 8])
         style.configure(
             "Primary.TButton", font=("Segoe UI", 11, "bold"), padding=[20, 10]
-        )
+        )  # noqa: E501
         style.configure(
             "Success.TButton", font=("Segoe UI", 11, "bold"), padding=[20, 10]
-        )
+        )  # noqa: E501
         style.configure("Warning.TButton", font=("Segoe UI", 10), padding=[15, 8])
         style.configure(
             "Danger.TButton", font=("Segoe UI", 11, "bold"), padding=[15, 8]
-        )
+        )  # noqa: E501
 
     @staticmethod
     def _configure_widget_styles(style: ttk.Style, colors: dict[str, str]) -> None:
-        assert style is not None, "style must be provided"
-        assert style is not None, "style must be provided"
+        if not (style is not None):
+            raise ValueError("style must be provided")
+        if not (style is not None):
+            raise ValueError("style must be provided")
         style.configure(
             "Modern.TCombobox",
             fieldbackground=colors["select_bg"],

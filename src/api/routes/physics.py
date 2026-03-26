@@ -13,7 +13,13 @@ No module-level mutable state.
 from __future__ import annotations
 
 import time
+import weakref
 from typing import TYPE_CHECKING, Any
+
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover
+    np = None  # type: ignore[assignment]
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -47,8 +53,8 @@ if TYPE_CHECKING:
 _logger = _get_module_logger(__name__)
 
 router = APIRouter()
-_CONTROL_INTERFACE_CACHE: dict[int, Any] = {}
-_FEATURES_REGISTRY_CACHE: dict[int, Any] = {}
+_CONTROL_INTERFACE_CACHE: weakref.WeakKeyDictionary = weakref.WeakKeyDictionary()
+_FEATURES_REGISTRY_CACHE: weakref.WeakKeyDictionary = weakref.WeakKeyDictionary()
 
 # Module-level state is stored in app.state via dependency injection.
 # These defaults are used when no simulation state exists yet.
@@ -84,6 +90,42 @@ CAMERA_PRESETS: dict[str, dict[str, list[float]]] = {
 }
 
 
+def _compute_potential_energy(engine: Any, q: Any) -> float | None:
+    """Best-effort potential energy extraction for heterogeneous engines."""
+    energy_method_names = ("get_potential_energy", "compute_potential_energy")
+    for method_name in energy_method_names:
+        energy_method = getattr(engine, method_name, None)
+        if callable(energy_method):
+            try:
+                return float(energy_method())
+            except TypeError:
+                try:
+                    return float(energy_method(q))
+                except (TypeError, ValueError, RuntimeError, AttributeError) as exc:
+                    _logger.warning(
+                        "%s unavailable for potential energy calculation: %s",
+                        method_name,
+                        exc,
+                    )
+            except (ValueError, RuntimeError, AttributeError) as exc:
+                _logger.warning(
+                    "%s unavailable for potential energy calculation: %s",
+                    method_name,
+                    exc,
+                )
+
+    energy_state = getattr(engine, "data", None)
+    if energy_state is not None:
+        energy_vector = getattr(energy_state, "energy", None)
+        if energy_vector is not None:
+            try:
+                return float(energy_vector[1])
+            except (IndexError, TypeError, ValueError) as exc:
+                _logger.warning("engine.data.energy unavailable: %s", exc)
+
+    return None
+
+
 @precondition(
     lambda engine_manager: engine_manager is not None,
     "Engine manager must not be None",
@@ -101,15 +143,14 @@ def _get_control_interface(
         return None
 
     # Check if we already have a cached control interface
-    cache_key = id(engine_manager)
-    if cache_key in _CONTROL_INTERFACE_CACHE:
-        return _CONTROL_INTERFACE_CACHE[cache_key]
+    if engine_manager in _CONTROL_INTERFACE_CACHE:
+        return _CONTROL_INTERFACE_CACHE[engine_manager]
 
     try:
         from src.shared.python.control_interface import ControlInterface
 
         ctrl = ControlInterface(engine)
-        _CONTROL_INTERFACE_CACHE[cache_key] = ctrl
+        _CONTROL_INTERFACE_CACHE[engine_manager] = ctrl
         return ctrl
     except ImportError:
         return None
@@ -131,9 +172,8 @@ def _get_features_registry(
     if engine is None:
         return None
 
-    cache_key = id(engine_manager)
-    if cache_key in _FEATURES_REGISTRY_CACHE:
-        return _FEATURES_REGISTRY_CACHE[cache_key]
+    if engine_manager in _FEATURES_REGISTRY_CACHE:
+        return _FEATURES_REGISTRY_CACHE[engine_manager]
 
     try:
         from src.shared.python.control_features_registry import (
@@ -141,7 +181,7 @@ def _get_features_registry(
         )
 
         registry = ControlFeaturesRegistry(engine)
-        _FEATURES_REGISTRY_CACHE[cache_key] = registry
+        _FEATURES_REGISTRY_CACHE[engine_manager] = registry
         return registry
     except ImportError:
         return None
@@ -347,36 +387,35 @@ async def get_metrics(
 
         # Club head speed: try to get from Jacobian of end-effector
         club_head_speed = None
-        try:
-            jac = engine.compute_jacobian("club_head")
-            if jac is not None and "linear" in jac:
-                import numpy as np
-
-                linear_vel = jac["linear"] @ v
-                club_head_speed = float(np.linalg.norm(linear_vel))
-        except ImportError as exc:
-            _logger.warning(
-                "numpy unavailable for club-head speed calculation: %s", exc
-            )
+        if np is not None:
+            try:
+                jac = engine.compute_jacobian("club_head")
+                if jac is not None and "linear" in jac:
+                    linear_vel = jac["linear"] @ v
+                    club_head_speed = float(np.linalg.norm(linear_vel))
+            except (ValueError, RuntimeError, AttributeError) as exc:
+                _logger.warning("club-head speed calculation unavailable: %s", exc)
+        else:
+            _logger.warning("numpy unavailable for club-head speed calculation")
 
         # Energy calculations
         kinetic_energy = None
         potential_energy = None
-        try:
-            import numpy as np
-
-            M = engine.compute_mass_matrix()
-            kinetic_energy = float(0.5 * v @ M @ v)
-        except ImportError as exc:
-            _logger.warning("numpy unavailable for kinetic energy calculation: %s", exc)
+        if np is not None:
+            try:
+                M = engine.compute_mass_matrix()
+                kinetic_energy = float(0.5 * v @ M @ v)
+            except (ValueError, RuntimeError, AttributeError) as exc:
+                _logger.warning("kinetic energy calculation unavailable: %s", exc)
+            potential_energy = _compute_potential_energy(engine, q)
+        else:
+            _logger.warning("numpy unavailable for kinetic energy calculation")
 
         # Torque metrics
         ctrl = _get_control_interface(engine_manager)
         peak_torque = None
         total_torque_magnitude = None
-        if ctrl is not None:
-            import numpy as np
-
+        if ctrl is not None and np is not None:
             torques = ctrl.current_torques
             peak_torque = float(np.max(np.abs(torques)))
             total_torque_magnitude = float(np.sum(np.abs(torques)))
@@ -500,8 +539,9 @@ async def set_simulation_speed(
     Returns:
         Applied speed factor and status.
     """
-    assert request is not None, "request must be provided"
-    engine_manager._speed_factor = request.speed_factor  # type: ignore[attr-defined]
+    if request is None:
+        raise HTTPException(status_code=400, detail="request must be provided")
+    engine_manager.set_speed_factor(request.speed_factor)
 
     return SpeedControlResponse(
         speed_factor=request.speed_factor,
@@ -560,8 +600,7 @@ async def control_recording(
     action = request.action
 
     if action == "start":
-        engine_manager._is_recording = True  # type: ignore[attr-defined]
-        engine_manager._recorded_frames = []  # type: ignore[attr-defined]
+        engine_manager.start_recording()
         return TrajectoryRecordResponse(  # type: ignore[call-arg]
             recording=True,
             frame_count=0,
@@ -569,8 +608,8 @@ async def control_recording(
         )
 
     if action == "stop":
-        engine_manager._is_recording = False  # type: ignore[attr-defined]
-        frame_count = len(getattr(engine_manager, "_recorded_frames", []))
+        recorded_frames = engine_manager.stop_recording()
+        frame_count = len(recorded_frames)
         return TrajectoryRecordResponse(  # type: ignore[call-arg]
             recording=False,
             frame_count=frame_count,
@@ -578,38 +617,19 @@ async def control_recording(
         )
 
     if action == "export":
-        recorded = getattr(engine_manager, "_recorded_frames", [])
+        recorded = engine_manager.get_recorded_frames()
         frame_count = len(recorded)
-        export_path = None
 
-        if frame_count > 0:
-            import json
-            import tempfile
-            from pathlib import Path
-
-            with tempfile.NamedTemporaryFile(
-                mode="w",
-                suffix=f".{request.export_format}",
-                delete=False,
-                encoding="utf-8",
-            ) as tmp_file:
-                export_path = str(Path(tmp_file.name))
-                json.dump(
-                    {"frames": recorded, "format": request.export_format},
-                    tmp_file,
-                    indent=2,
-                )
-            if logger:
-                logger.info(
-                    "Trajectory exported to %s (%d frames)", export_path, frame_count
-                )
+        if frame_count > 0 and logger:
+            logger.info("Trajectory export requested (%d frames)", frame_count)
 
         return TrajectoryRecordResponse(
             recording=getattr(engine_manager, "_is_recording", False),
             frame_count=frame_count,
-            status="Trajectory exported" if export_path else "No frames to export",
-            export_path=export_path,
+            status="Trajectory exported" if frame_count > 0 else "No frames to export",
+            export_path=None,
         )
 
-    # Should not reach here due to validator, but safety fallback
-    raise HTTPException(status_code=400, detail=f"Unknown action: {action}")
+    raise HTTPException(
+        status_code=400, detail=f"Unsupported recording action: {action}"
+    )

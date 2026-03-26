@@ -150,7 +150,7 @@ class MotionDataLoader:
 
         raise FileNotFoundError(
             "Wiffle_ProV1 Excel file not found in any expected location"
-        )
+        )  # noqa: E501
 
     def load_from_file(self, filepath: str) -> dict[str, pd.DataFrame]:
         """
@@ -184,10 +184,10 @@ class MotionDataLoader:
             # Read both sheets
             prov1_data = pd.read_excel(
                 filepath_path, sheet_name=self.config.prov1_sheet
-            )
+            )  # noqa: E501
             wiffle_data = pd.read_excel(
                 filepath_path, sheet_name=self.config.wiffle_sheet
-            )
+            )  # noqa: E501
 
             logger.info("[OK] Loaded ProV1 data: %s", prov1_data.shape)
             logger.info("[OK] Loaded Wiffle data: %s", wiffle_data.shape)
@@ -206,15 +206,17 @@ class MotionDataLoader:
 
         Returns a pandas Series for the time column.
         """
-        assert data_df is not None, "data_df must be provided"
-        assert data_df is not None, "data_df must be provided"
+        if not (data_df is not None):
+            raise ValueError("data_df must be provided")
+        if not (data_df is not None):
+            raise ValueError("data_df must be provided")
         if len(data_df.columns) >= 2:
             logger.info("[OK] Extracted time data from column 1 for %s", sheet_name)
             return pd.to_numeric(data_df.iloc[:, 1], errors="coerce")
 
         logger.info(
             "[WARN] No Time column found in %s, creating linear time", sheet_name
-        )
+        )  # noqa: E501
         return pd.Series(np.linspace(0, 1, len(data_df)))
 
     def _extract_clubhead_position(self, data_df, processed_data, sheet_name) -> None:
@@ -227,22 +229,22 @@ class MotionDataLoader:
             # Use the first set of X, Y, Z (columns 2, 3, 4)
             processed_data["clubhead_x"] = pd.to_numeric(
                 data_df.iloc[:, 2], errors="coerce"
-            )
+            )  # noqa: E501
             processed_data["clubhead_y"] = pd.to_numeric(
                 data_df.iloc[:, 3], errors="coerce"
-            )
+            )  # noqa: E501
             processed_data["clubhead_z"] = pd.to_numeric(
                 data_df.iloc[:, 4], errors="coerce"
-            )
+            )  # noqa: E501
 
             logger.info(
                 f"[OK] Extracted position data from columns 2-4 (Mid-hands) "
-                f"for {sheet_name}"
+                f"for {sheet_name}"  # noqa: E501
             )
         else:
             logger.info(
                 f"[WARN] Insufficient columns in {sheet_name}, "
-                f"using first 3 numeric columns"
+                f"using first 3 numeric columns"  # noqa: E501
             )
             numeric_cols = data_df.select_dtypes(include=[np.number]).columns
             if len(numeric_cols) >= 3:
@@ -258,7 +260,7 @@ class MotionDataLoader:
             else:
                 logger.info(
                     f"[WARN] Insufficient numeric columns in {sheet_name}, "
-                    f"creating dummy data"
+                    f"creating dummy data"  # noqa: E501
                 )
                 processed_data["clubhead_x"] = np.linspace(0, 1, len(processed_data))
                 processed_data["clubhead_y"] = np.linspace(0, 1, len(processed_data))
@@ -270,8 +272,10 @@ class MotionDataLoader:
         Returns the post-processed DataFrame.
         """
         # Convert to numeric and handle errors
-        assert processed_data is not None, "processed_data must be provided"
-        assert processed_data is not None, "processed_data must be provided"
+        if not (processed_data is not None):
+            raise ValueError("processed_data must be provided")
+        if not (processed_data is not None):
+            raise ValueError("processed_data must be provided")
         numeric_columns = [col for col in processed_data.columns if col != "time"]
         for col in numeric_columns:
             processed_data[col] = pd.to_numeric(processed_data[col], errors="coerce")
@@ -280,7 +284,9 @@ class MotionDataLoader:
         if self.config.normalize_time:
             processed_data["time"] = (
                 processed_data["time"] - processed_data["time"].min()
-            ) / (processed_data["time"].max() - processed_data["time"].min())
+            ) / (  # noqa: E501
+                processed_data["time"].max() - processed_data["time"].min()
+            )
 
         # Filter noise if requested
         if self.config.filter_noise:
@@ -294,8 +300,10 @@ class MotionDataLoader:
 
     def _process_sheet_data(self, df: pd.DataFrame, sheet_name: str) -> pd.DataFrame:
         """Process and clean sheet data"""
-        assert df is not None, "df must be provided"
-        assert df is not None, "df must be provided"
+        if not (df is not None):
+            raise ValueError("df must be provided")
+        if not (df is not None):
+            raise ValueError("df must be provided")
         logger.info("[PROC] Processing %s data...", sheet_name)
 
         # Based on the analysis, the structure is:
@@ -308,7 +316,7 @@ class MotionDataLoader:
         if len(df) < 3:
             logger.info(
                 "[WARN] Insufficient rows in %s, creating dummy data", sheet_name
-            )
+            )  # noqa: E501
             return self._create_dummy_data(100)
 
         # Extract headers from row 2 (index 2)
@@ -339,15 +347,17 @@ class MotionDataLoader:
 
     def _create_body_part_estimates(
         self, processed_data: pd.DataFrame, sheet_name: str
-    ) -> None:
+    ) -> None:  # noqa: E501
         """Create reasonable estimates for body parts based on clubhead position"""
         # This is a simplified biomechanical model
         # In a real application, you'd want more sophisticated modeling
         # based on actual motion capture data
 
         # Get clubhead position
-        assert processed_data is not None, "processed_data must be provided"
-        assert processed_data is not None, "processed_data must be provided"
+        if not (processed_data is not None):
+            raise ValueError("processed_data must be provided")
+        if not (processed_data is not None):
+            raise ValueError("processed_data must be provided")
         ch_x = processed_data["clubhead_x"].values
         ch_y = processed_data["clubhead_y"].values
         ch_z = processed_data["clubhead_z"].values
@@ -407,13 +417,15 @@ class MotionDataLoader:
 
         logger.info(
             f"[CALC] Created body part estimates for {sheet_name} "
-            f"based on clubhead position"
+            f"based on clubhead position"  # noqa: E501
         )
 
     def _create_dummy_data(self, num_frames: int) -> pd.DataFrame:
         """Create dummy data for testing purposes"""
-        assert num_frames is not None, "num_frames must be provided"
-        assert num_frames is not None, "num_frames must be provided"
+        if not (num_frames is not None):
+            raise ValueError("num_frames must be provided")
+        if not (num_frames is not None):
+            raise ValueError("num_frames must be provided")
         processed_data = pd.DataFrame()
         processed_data["time"] = np.linspace(0, 1, num_frames)
 
@@ -437,20 +449,28 @@ class MotionDataLoader:
         ]:
             processed_data[f"{pos}_x"] = processed_data[
                 "clubhead_x"
-            ] + np.random.normal(0, 0.1, num_frames)
+            ] + np.random.normal(  # noqa: E501
+                0, 0.1, num_frames
+            )
             processed_data[f"{pos}_y"] = processed_data[
                 "clubhead_y"
-            ] + np.random.normal(0, 0.1, num_frames)
+            ] + np.random.normal(  # noqa: E501
+                0, 0.1, num_frames
+            )
             processed_data[f"{pos}_z"] = processed_data[
                 "clubhead_z"
-            ] + np.random.normal(0, 0.1, num_frames)
+            ] + np.random.normal(  # noqa: E501
+                0, 0.1, num_frames
+            )
 
         return processed_data
 
     def _apply_noise_filtering(self, df: pd.DataFrame) -> pd.DataFrame:
         """Apply noise filtering to position data"""
-        assert df is not None, "df must be provided"
-        assert df is not None, "df must be provided"
+        if not (df is not None):
+            raise ValueError("df must be provided")
+        if not (df is not None):
+            raise ValueError("df must be provided")
         from scipy.signal import savgol_filter
 
         # Apply Savitzky-Golay filter to position columns
@@ -476,8 +496,10 @@ class MotionDataLoader:
     def _interpolate_missing_values(self, df: pd.DataFrame) -> pd.DataFrame:
         """Interpolate missing values in the dataset"""
         # Interpolate missing values for position columns
-        assert df is not None, "df must be provided"
-        assert df is not None, "df must be provided"
+        if not (df is not None):
+            raise ValueError("df must be provided")
+        if not (df is not None):
+            raise ValueError("df must be provided")
         position_columns = [
             col for col in df.columns if any(axis in col for axis in ["_x", "_y", "_z"])
         ]
@@ -501,8 +523,10 @@ class MotionDataLoader:
         Returns:
             Tuple of (BASEQ, ZTCFQ, DELTAQ) DataFrames for GUI compatibility
         """
-        assert excel_data is not None, "excel_data must be provided"
-        assert excel_data is not None, "excel_data must be provided"
+        if not (excel_data is not None):
+            raise ValueError("excel_data must be provided")
+        if not (excel_data is not None):
+            raise ValueError("excel_data must be provided")
         logger.info("[CONV] Converting to GUI format...")
 
         # Use ProV1 data as the primary dataset (BASEQ equivalent)
@@ -528,8 +552,10 @@ class MotionDataLoader:
     def _create_baseq_format(self, df: pd.DataFrame) -> pd.DataFrame:
         """Create BASEQ format DataFrame from position data"""
         # Create a DataFrame with the structure expected by the GUI
-        assert df is not None, "df must be provided"
-        assert df is not None, "df must be provided"
+        if not (df is not None):
+            raise ValueError("df must be provided")
+        if not (df is not None):
+            raise ValueError("df must be provided")
         baseq_data = pd.DataFrame()
 
         # Add time column
@@ -582,8 +608,10 @@ class MotionDataLoader:
     ) -> pd.DataFrame:
         """Create DELTAQ format showing differences between ProV1 and Wiffle"""
         # Align the dataframes by time
-        assert prov1_df is not None, "prov1_df must be provided"
-        assert prov1_df is not None, "prov1_df must be provided"
+        if not (prov1_df is not None):
+            raise ValueError("prov1_df must be provided")
+        if not (prov1_df is not None):
+            raise ValueError("prov1_df must be provided")
         common_time = _to_numpy(prov1_df["time"])
 
         deltaq_data = pd.DataFrame()
@@ -612,18 +640,18 @@ class MotionDataLoader:
                     # Interpolate wiffle data to match prov1 time points
                     wiffle_interp = np.interp(
                         common_time, wiffle_df["time"], wiffle_df[wiffle_col]
-                    )
+                    )  # noqa: E501
                     diff = _to_numpy(prov1_df[prov1_col]) - wiffle_interp
 
                     # Store in DELTAQ format
                     gui_col = (
-                        f"{component.upper().replace('_', '')[:2]}{axis[-1].upper()}"
+                        f"{component.upper().replace('_', '')[:2]}{axis[-1].upper()}"  # noqa: E501
                     )
                     deltaq_data[gui_col] = diff
                 else:
                     deltaq_data[
                         f"{component.upper().replace('_', '')[:2]}{axis[-1].upper()}"
-                    ] = 0.0
+                    ] = 0.0  # noqa: E501
 
         return deltaq_data
 

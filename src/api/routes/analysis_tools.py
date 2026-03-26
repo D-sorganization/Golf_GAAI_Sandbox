@@ -23,6 +23,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
 from src.shared.python.core.contracts import precondition
+from src.shared.python.logging_pkg.logging_config import (
+    get_logger as _get_module_logger,
+)
 
 from ..dependencies import get_engine_manager, get_logger
 from ..models.requests import (
@@ -43,6 +46,7 @@ if TYPE_CHECKING:
     from src.shared.python.engine_core.engine_manager import EngineManager
 
 router = APIRouter()
+_logger = _get_module_logger(__name__)
 
 
 def _collect_metrics(engine_manager: EngineManager) -> dict[str, Any]:
@@ -74,8 +78,8 @@ def _collect_metrics(engine_manager: EngineManager) -> dict[str, Any]:
 
             metrics["max_velocity"] = float(np.max(np.abs(v)))
             metrics["rms_velocity"] = float(np.sqrt(np.mean(v**2)))
-    except ImportError:
-        pass
+    except ImportError as _e:
+        _logger.debug("numpy unavailable — related features disabled: %s", _e)
 
     # Energy
     try:
@@ -85,8 +89,8 @@ def _collect_metrics(engine_manager: EngineManager) -> dict[str, Any]:
 
             q, v = engine.get_state()
             metrics["kinetic_energy"] = float(0.5 * v @ M @ v)
-    except ImportError:
-        pass
+    except ImportError as _e:
+        _logger.debug("numpy unavailable — related features disabled: %s", _e)
 
     # Club head speed
     try:
@@ -97,8 +101,8 @@ def _collect_metrics(engine_manager: EngineManager) -> dict[str, Any]:
             _, v = engine.get_state()
             linear_vel = jac["linear"] @ v
             metrics["club_head_speed"] = float(np.linalg.norm(linear_vel))
-    except ImportError:
-        pass
+    except ImportError as _e:
+        _logger.debug("numpy unavailable — related features disabled: %s", _e)
 
     return metrics
 
@@ -123,7 +127,8 @@ def _store_metric_snapshot(
         engine_manager: Engine manager instance.
         metrics: Current metrics snapshot.
     """
-    assert engine_manager is not None, "engine_manager must be provided"
+    if not (engine_manager is not None):
+        raise ValueError("engine_manager must be provided")
     max_history = 500
     if not hasattr(engine_manager, "_metric_history"):
         engine_manager._metric_history = []  # type: ignore[attr-defined]

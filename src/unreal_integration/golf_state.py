@@ -89,8 +89,10 @@ class ClubState:
         Returns:
             New ClubState instance.
         """
-        assert d is not None, "d must be provided"
-        assert d is not None, "d must be provided"
+        if not (d is not None):
+            raise ValueError("d must be provided")
+        if not (d is not None):
+            raise ValueError("d must be provided")
         return cls(
             head_position=Vector3.from_dict(d["head_position"]),
             head_velocity=Vector3.from_dict(d["head_velocity"]),
@@ -176,8 +178,10 @@ class SwingMetrics:
         Returns:
             New SwingMetrics instance.
         """
-        assert d is not None, "d must be provided"
-        assert d is not None, "d must be provided"
+        if not (d is not None):
+            raise ValueError("d must be provided")
+        if not (d is not None):
+            raise ValueError("d must be provided")
         return cls(
             club_head_speed=d.get("club_head_speed"),
             x_factor=d.get("x_factor"),
@@ -261,8 +265,10 @@ class BallState:
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> BallState:
         """Create BallState from dictionary."""
-        assert d is not None, "d must be provided"
-        assert d is not None, "d must be provided"
+        if not (d is not None):
+            raise ValueError("d must be provided")
+        if not (d is not None):
+            raise ValueError("d must be provided")
         return cls(
             position=Vector3.from_dict(d["position"]),
             velocity=Vector3.from_dict(d["velocity"]),
@@ -310,8 +316,10 @@ class TrajectoryPoint:
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> TrajectoryPoint:
         """Create TrajectoryPoint from dictionary."""
-        assert d is not None, "d must be provided"
-        assert d is not None, "d must be provided"
+        if not (d is not None):
+            raise ValueError("d must be provided")
+        if not (d is not None):
+            raise ValueError("d must be provided")
         color = tuple(d["color"]) if "color" in d else None
         return cls(
             time=float(d["time"]),
@@ -330,8 +338,8 @@ class EnvironmentState:
         temperature: Air temperature in Celsius.
         humidity: Relative humidity (0-1).
         altitude: Altitude in meters.
-        air_density: Air density in kg/m^3.
         pressure: Atmospheric pressure in hPa.
+        air_density: Air density in kg/m^3 (dynamically computed if not provided).
 
     Example:
         >>> env = EnvironmentState.default()
@@ -343,8 +351,29 @@ class EnvironmentState:
     temperature: float = 20.0
     humidity: float = 0.5
     altitude: float = 0.0
-    air_density: float = 1.225
     pressure: float = 1013.25
+    air_density: float | None = None
+
+    def __post_init__(self) -> None:
+        """Dynamically compute air density using Tetens equation and Ideal Gas Law."""
+        if self.air_density is None or self.air_density == 1.225:
+            # Tetens formula for saturation vapor pressure (hPa)
+            temp_c = self.temperature
+            p_sat = 6.1078 * math.exp(17.27 * temp_c / (temp_c + 237.3))
+
+            # Actual vapor pressure
+            p_v = self.humidity * p_sat
+
+            # Dry air pressure in Pascal
+            p_dry_pa = (self.pressure - p_v) * 100.0
+            p_v_pa = p_v * 100.0
+
+            temp_k = temp_c + 273.15
+            R_d = 287.058  # Specific gas constant for dry air, J/(kg·K)
+            R_v = 461.495  # Specific gas constant for water vapor, J/(kg·K)
+
+            # Precise humid air density
+            self.air_density = (p_dry_pa / (R_d * temp_k)) + (p_v_pa / (R_v * temp_k))
 
     @classmethod
     def default(cls) -> EnvironmentState:
@@ -353,21 +382,17 @@ class EnvironmentState:
         Returns:
             EnvironmentState with standard conditions.
         """
-        return cls(
+        env = cls(
             wind_velocity=Vector3.zero(),
             temperature=20.0,
             humidity=0.5,
             altitude=0.0,
-            air_density=1.225,
             pressure=1013.25,
         )
+        return env
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary.
-
-        Returns:
-            Dictionary representation.
-        """
+        """Convert to dictionary."""
         return {
             "wind_velocity": self.wind_velocity.to_dict(),
             "temperature": self.temperature,
@@ -380,13 +405,15 @@ class EnvironmentState:
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> EnvironmentState:
         """Create EnvironmentState from dictionary."""
-        assert d is not None, "d must be provided"
-        assert d is not None, "d must be provided"
-        return cls(
+        if not (d is not None):
+            raise ValueError("d must be provided")
+        env = cls(
             wind_velocity=Vector3.from_dict(d["wind_velocity"]),
             temperature=d.get("temperature", 20.0),
             humidity=d.get("humidity", 0.5),
             altitude=d.get("altitude", 0.0),
-            air_density=d.get("air_density", 1.225),
             pressure=d.get("pressure", 1013.25),
         )
+        if "air_density" in d:
+            env.air_density = d["air_density"]
+        return env
