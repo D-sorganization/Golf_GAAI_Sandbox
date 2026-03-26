@@ -89,7 +89,11 @@ def pr_lookup(repo: str, issue_number: str, branch_prefix: str) -> int:
         body = pr.get("body") or ""
         title = pr.get("title") or ""
         head = pr.get("headRefName") or ""
-        if head.startswith(branch_prefix) or issue_ref in body or issue_title_ref in title.lower():
+        if (
+            head.startswith(branch_prefix)
+            or issue_ref in body
+            or issue_title_ref in title.lower()
+        ):
             match = pr
             break
     print(json.dumps(match or {}))  # noqa: T201

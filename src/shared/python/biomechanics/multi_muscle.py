@@ -169,8 +169,12 @@ class AntagonistPair:
         """
         assert agonist_activations is not None, "agonist_activations must be provided"
         assert agonist_activations is not None, "agonist_activations must be provided"
-        tau_agonist = self.agonist.compute_net_torque(agonist_activations, muscle_states)
-        tau_antagonist = self.antagonist.compute_net_torque(antagonist_activations, muscle_states)
+        tau_agonist = self.agonist.compute_net_torque(
+            agonist_activations, muscle_states
+        )
+        tau_antagonist = self.antagonist.compute_net_torque(
+            antagonist_activations, muscle_states
+        )
 
         # Antagonist moment arms are typically negative, so torque adds up correctly
         # if defined that way. Here we assume compute_net_torque handles signs via moment arms.
@@ -198,7 +202,9 @@ def create_elbow_muscle_system() -> AntagonistPair:
 
     # Brachialis (synergist)
     brachialis_params = MuscleParameters(F_max=800.0, l_opt=0.12, l_slack=0.10)
-    flexors.add_muscle("brachialis", HillMuscleModel(brachialis_params), moment_arm=0.03)
+    flexors.add_muscle(
+        "brachialis", HillMuscleModel(brachialis_params), moment_arm=0.03
+    )
 
     # Extensors (Triceps)
     extensors = MuscleGroup("Elbow Extensors")

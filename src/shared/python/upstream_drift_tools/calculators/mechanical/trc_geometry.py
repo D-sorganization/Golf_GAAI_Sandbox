@@ -143,12 +143,16 @@ def _calculate_layer_surface_area(
     assert current_radius is not None, "current_radius must be provided"
     area = 0.0
     if display_cylinder:
-        area += 2.0 * _PI * current_radius * cylinder_height * _SQUARE_INCHES_TO_SQUARE_FEET
+        area += (
+            2.0 * _PI * current_radius * cylinder_height * _SQUARE_INCHES_TO_SQUARE_FEET
+        )
     if display_cone:
         bottom_r = max(cone_bottom_radius - radius_offset, interior_hole_radius)
         radius_diff = current_radius - bottom_r
         slant = math.sqrt(cone_height * cone_height + radius_diff * radius_diff)
-        area += _PI * (current_radius + bottom_r) * slant * _SQUARE_INCHES_TO_SQUARE_FEET
+        area += (
+            _PI * (current_radius + bottom_r) * slant * _SQUARE_INCHES_TO_SQUARE_FEET
+        )
     return area
 
 
@@ -174,7 +178,9 @@ def _calculate_interior_void(
         total_thickness = half_cylinder_diameter - last_inner_radius
         void_bottom_r = max(cone_bottom_radius - total_thickness, interior_hole_radius)
         void_bottom_sq = void_bottom_r * void_bottom_r
-        void_cone = cone_height_factor * (r_sq + last_inner_radius * void_bottom_r + void_bottom_sq)
+        void_cone = cone_height_factor * (
+            r_sq + last_inner_radius * void_bottom_r + void_bottom_sq
+        )
     else:
         void_cone = 0.0
 
@@ -302,12 +308,12 @@ class TRCGeometryEngine:
             VesselGeometryResult containing detailed calculations
         """
         # DbC preconditions
-        assert (
-            dimensions.cylinder_diameter > 0
-        ), f"cylinder_diameter must be positive, got {dimensions.cylinder_diameter}"
-        assert (
-            dimensions.cylinder_height > 0
-        ), f"cylinder_height must be positive, got {dimensions.cylinder_height}"
+        assert dimensions.cylinder_diameter > 0, (
+            f"cylinder_diameter must be positive, got {dimensions.cylinder_diameter}"
+        )
+        assert dimensions.cylinder_height > 0, (
+            f"cylinder_height must be positive, got {dimensions.cylinder_height}"
+        )
 
         results = VesselGeometryResult()
         if not layers:
@@ -366,7 +372,9 @@ class TRCGeometryEngine:
 
         return results
 
-    def calculate_residence_time(self, volume_ft3: float, gas_flow_acfm: float) -> float:
+    def calculate_residence_time(
+        self, volume_ft3: float, gas_flow_acfm: float
+    ) -> float:
         """
         Calculate residence time in seconds.
 

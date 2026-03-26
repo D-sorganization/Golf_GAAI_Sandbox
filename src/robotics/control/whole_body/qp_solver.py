@@ -290,8 +290,16 @@ class ScipyQPSolver(QPSolver):
     ) -> None:
         assert constraints is not None, "constraints must be provided"
         assert constraints is not None, "constraints must be provided"
-        lb = problem.lb_ineq if problem.lb_ineq is not None else -np.inf * np.ones(problem.n_ineq)
-        ub = problem.ub_ineq if problem.ub_ineq is not None else np.inf * np.ones(problem.n_ineq)
+        lb = (
+            problem.lb_ineq
+            if problem.lb_ineq is not None
+            else -np.inf * np.ones(problem.n_ineq)
+        )
+        ub = (
+            problem.ub_ineq
+            if problem.ub_ineq is not None
+            else np.inf * np.ones(problem.n_ineq)
+        )
 
         for i in range(problem.n_ineq):
             if lb[i] > -1e10:

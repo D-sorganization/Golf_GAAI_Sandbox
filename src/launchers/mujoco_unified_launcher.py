@@ -61,7 +61,9 @@ class MujocoUnifiedLauncher(BaseLauncher):
         except (FileNotFoundError, PermissionError, OSError) as e:
             self.show_error("Launch Error", str(e))
 
-    def _launch_python_module(self, module_name: str, cwd_suffix: str | None = None) -> None:
+    def _launch_python_module(
+        self, module_name: str, cwd_suffix: str | None = None
+    ) -> None:
         """Launch a Python module in a new process.
 
         Args:

@@ -190,7 +190,9 @@ class TestTerrainContactModel:
         # Object moving in +X direction
         velocity = np.array([1.0, 0.0, 0.0])
 
-        friction = contact.compute_friction_force(50.0, 50.0, z=0.0, radius=0.02, velocity=velocity)
+        friction = contact.compute_friction_force(
+            50.0, 50.0, z=0.0, radius=0.02, velocity=velocity
+        )
 
         # Friction should oppose motion (be in -X direction)
         assert friction[0] < 0
@@ -399,7 +401,9 @@ class TestCompressibleTurf:
         from src.shared.python.physics.terrain_engine import CompressibleTurfModel
 
         # Fairway should have good lie
-        fairway_terrain = create_flat_terrain("Fairway", 100.0, 100.0, TerrainType.FAIRWAY)
+        fairway_terrain = create_flat_terrain(
+            "Fairway", 100.0, 100.0, TerrainType.FAIRWAY
+        )
         fairway_turf = CompressibleTurfModel(fairway_terrain)
         fairway_lie = fairway_turf.compute_lie_quality(50.0, 50.0)
 
@@ -437,7 +441,9 @@ class TestCompressibleTurf:
         green_turf = CompressibleTurfModel(green_terrain)
         green_energy = green_turf.compute_energy_absorption(50.0, 50.0, impact_velocity)
 
-        assert energy["energy_absorption_ratio"] > green_energy["energy_absorption_ratio"]
+        assert (
+            energy["energy_absorption_ratio"] > green_energy["energy_absorption_ratio"]
+        )
 
     def test_soft_turf_material(self) -> None:
         """Test soft turf material for wet conditions."""

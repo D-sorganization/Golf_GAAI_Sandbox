@@ -112,7 +112,9 @@ def _get_metric_history(engine_manager: EngineManager) -> list[dict[str, Any]]:
     return getattr(engine_manager, "_metric_history", [])
 
 
-def _store_metric_snapshot(engine_manager: EngineManager, metrics: dict[str, Any]) -> None:
+def _store_metric_snapshot(
+    engine_manager: EngineManager, metrics: dict[str, Any]
+) -> None:
     """Store a metric snapshot in the engine manager history.
 
     Keeps a bounded buffer of metrics for statistics computation.
@@ -318,7 +320,9 @@ async def export_analysis_data(
             return StreamingResponse(
                 io.BytesIO(content.encode("utf-8")),
                 media_type="text/csv",
-                headers={"Content-Disposition": "attachment; filename=analysis_export.csv"},
+                headers={
+                    "Content-Disposition": "attachment; filename=analysis_export.csv"
+                },
             )
         # JSON export
         export_data = {
@@ -330,12 +334,16 @@ async def export_analysis_data(
         return StreamingResponse(
             io.BytesIO(content.encode("utf-8")),
             media_type="application/json",
-            headers={"Content-Disposition": "attachment; filename=analysis_export.json"},
+            headers={
+                "Content-Disposition": "attachment; filename=analysis_export.json"
+            },
         )
     except ImportError as exc:
         if logger:
             logger.error("Export error: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(exc)}") from exc
+        raise HTTPException(
+            status_code=500, detail=f"Export failed: {str(exc)}"
+        ) from exc
 
 
 # ──────────────────────────────────────────────────────────────
@@ -394,11 +402,15 @@ async def set_body_position(
             status=f"Position set for {request.body_name}",
         )
     except ValueError as exc:
-        raise HTTPException(status_code=404, detail=f"Body not found: {str(exc)}") from exc
+        raise HTTPException(
+            status_code=404, detail=f"Body not found: {str(exc)}"
+        ) from exc
     except ImportError as exc:
         if logger:
             logger.error("Body positioning error: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Positioning failed: {str(exc)}") from exc
+        raise HTTPException(
+            status_code=500, detail=f"Positioning failed: {str(exc)}"
+        ) from exc
 
 
 # ──────────────────────────────────────────────────────────────
@@ -470,7 +482,9 @@ async def measure_distance(
     except (ValueError, RuntimeError, AttributeError) as exc:
         if logger:
             logger.error("Measurement error: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Measurement failed: {str(exc)}") from exc
+        raise HTTPException(
+            status_code=500, detail=f"Measurement failed: {str(exc)}"
+        ) from exc
 
 
 @router.get("/simulation/measurements", response_model=MeasurementToolsResponse)
