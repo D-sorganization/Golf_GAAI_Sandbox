@@ -35,12 +35,11 @@ def issue_context(repo: str, issue_number: str, task_classes_path: str) -> int:
         ]
     )
 
-    import re
-
+    import re  # noqa: I001
     import yaml
 
     labels = [label["name"] for label in issue.get("labels", [])]
-    with open(task_classes_path, encoding="utf-8") as handle:
+    with open(task_classes_path, "r", encoding="utf-8") as handle:  # noqa: UP015
         task_classes = yaml.safe_load(handle)["task_classes"]
 
     task_class = "triage"
