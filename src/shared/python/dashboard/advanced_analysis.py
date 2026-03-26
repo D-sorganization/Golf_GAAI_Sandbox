@@ -63,8 +63,10 @@ class SpectrogramTab(QtWidgets.QWidget):
     def __init__(
         self, recorder: RecorderInterface, initial_key: str = "joint_positions"
     ) -> None:
-        assert recorder is not None, "recorder must be provided"
-        assert recorder is not None, "recorder must be provided"
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
         super().__init__()
         self.recorder = recorder
         self.current_key = initial_key
@@ -166,8 +168,10 @@ class WaveletTab(QtWidgets.QWidget):
     def __init__(
         self, recorder: RecorderInterface, initial_key: str = "joint_velocities"
     ) -> None:
-        assert recorder is not None, "recorder must be provided"
-        assert recorder is not None, "recorder must be provided"
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
         super().__init__()
         self.recorder = recorder
         self.current_key = initial_key
@@ -268,8 +272,10 @@ class SwingPlaneTab(QtWidgets.QWidget):
     """Tab for Swing Plane Analysis (3D)."""
 
     def __init__(self, recorder: RecorderInterface) -> None:
-        assert recorder is not None, "recorder must be provided"
-        assert recorder is not None, "recorder must be provided"
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
         super().__init__()
         self.recorder = recorder
         self.analyzer = SwingPlaneAnalyzer()
@@ -372,8 +378,10 @@ class CorrelationTab(QtWidgets.QWidget):
     """Tab for Correlation Heatmap of scalar metrics."""
 
     def __init__(self, recorder: RecorderInterface) -> None:
-        assert recorder is not None, "recorder must be provided"
-        assert recorder is not None, "recorder must be provided"
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
         super().__init__()
         self.recorder = recorder
 
@@ -477,8 +485,10 @@ class PhasePlaneTab(QtWidgets.QWidget):
     """Tab for Phase Plane Analysis (Position vs Velocity)."""
 
     def __init__(self, recorder: RecorderInterface) -> None:
-        assert recorder is not None, "recorder must be provided"
-        assert recorder is not None, "recorder must be provided"
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
         super().__init__()
         self.recorder = recorder
 
@@ -571,8 +581,10 @@ class CoherenceTab(QtWidgets.QWidget):
         key1: str = "joint_positions",
         key2: str = "joint_torques",
     ) -> None:
-        assert recorder is not None, "recorder must be provided"
-        assert recorder is not None, "recorder must be provided"
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
         super().__init__()
         self.recorder = recorder
 
@@ -692,8 +704,10 @@ class AdvancedAnalysisDialog(QtWidgets.QDialog):
         current_key: str = "joint_positions",
         comparison_key: str | None = None,
     ) -> None:
-        assert recorder is not None, "recorder must be provided"
-        assert recorder is not None, "recorder must be provided"
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
+        if not (recorder is not None):
+            raise ValueError("recorder must be provided")
         super().__init__(parent)
         self.setWindowTitle("Advanced Analysis Tools")
         self.resize(1000, 800)  # Increased size for more tabs

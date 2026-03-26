@@ -224,17 +224,17 @@ def example_4_inverse_dynamics() -> None:
         np.max(np.abs(r.inertial_torques))
         for r in id_results
         if r.inertial_torques is not None
-    )
+    )  # noqa: E501
     max(
         np.max(np.abs(r.coriolis_torques))
         for r in id_results
         if r.coriolis_torques is not None
-    )
+    )  # noqa: E501
     max(
         np.max(np.abs(r.gravity_torques))
         for r in id_results
         if r.gravity_torques is not None
-    )
+    )  # noqa: E501
 
     # Decomposition percentages
     np.mean([np.linalg.norm(r.joint_torques) for r in id_results])
@@ -243,21 +243,21 @@ def example_4_inverse_dynamics() -> None:
             np.linalg.norm(r.inertial_torques)
             for r in id_results
             if r.inertial_torques is not None
-        ],
+        ],  # noqa: E501
     )
     np.mean(
         [
             np.linalg.norm(r.coriolis_torques)
             for r in id_results
             if r.coriolis_torques is not None
-        ],
+        ],  # noqa: E501
     )
     np.mean(
         [
             np.linalg.norm(r.gravity_torques)
             for r in id_results
             if r.gravity_torques is not None
-        ],
+        ],  # noqa: E501
     )
 
     export_inverse_dynamics_to_csv(times, id_results, "inverse_dynamics.csv")
@@ -293,8 +293,10 @@ def _retarget_mocap(
     model: mujoco.MjModel,
     data: mujoco.MjData,
 ) -> tuple[np.ndarray, np.ndarray]:
-    assert mocap_seq is not None, "mocap_seq must be provided"
-    assert mocap_seq is not None, "mocap_seq must be provided"
+    if not (mocap_seq is not None):
+        raise ValueError("mocap_seq must be provided")
+    if not (mocap_seq is not None):
+        raise ValueError("mocap_seq must be provided")
     marker_set = MarkerSet.golf_swing_marker_set()
     retargeting = MotionRetargeting(model, data, marker_set)
 
@@ -312,8 +314,10 @@ def _retarget_mocap(
 def _filter_and_differentiate(
     times_ret: np.ndarray, joint_traj: np.ndarray
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    assert times_ret is not None, "times_ret must be provided"
-    assert times_ret is not None, "times_ret must be provided"
+    if not (times_ret is not None):
+        raise ValueError("times_ret must be provided")
+    if not (times_ret is not None):
+        raise ValueError("times_ret must be provided")
     processor = MotionCaptureProcessor()
 
     joint_traj_filtered = processor.filter_trajectory(

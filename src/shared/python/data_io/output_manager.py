@@ -208,8 +208,10 @@ class OutputManager:
         Returns:
             Path to saved file
         """
-        assert results is not None, "results must be provided"
-        assert results is not None, "results must be provided"
+        if not (results is not None):
+            raise ValueError("results must be provided")
+        if not (results is not None):
+            raise ValueError("results must be provided")
         engine_dir = self.directories["simulations"] / engine
         engine_dir.mkdir(parents=True, exist_ok=True)
 
@@ -245,8 +247,10 @@ class OutputManager:
             raise
 
     def _sanitize_filename(self, filename, format_type):
-        assert filename is not None, "filename must be provided"
-        assert filename is not None, "filename must be provided"
+        if not (filename is not None):
+            raise ValueError("filename must be provided")
+        if not (filename is not None):
+            raise ValueError("filename must be provided")
         if "OutputFormat." in filename:
             filename = filename.split(".")[-1]
             filename = "test_format"
@@ -282,8 +286,10 @@ class OutputManager:
         provenance: ProvenanceInfo,
     ) -> None:
         """Save results in CSV format with provenance header."""
-        assert results is not None, "results must be provided"
-        assert results is not None, "results must be provided"
+        if not (results is not None):
+            raise ValueError("results must be provided")
+        if not (results is not None):
+            raise ValueError("results must be provided")
         is_df = False
         try:
             if isinstance(results, pd.DataFrame):
@@ -310,8 +316,10 @@ class OutputManager:
     ) -> None:
         """Save results in JSON format with provenance and metadata."""
 
-        assert results is not None, "results must be provided"
-        assert results is not None, "results must be provided"
+        if not (results is not None):
+            raise ValueError("results must be provided")
+        if not (results is not None):
+            raise ValueError("results must be provided")
 
         def json_serializer(obj: Any) -> Any:
             """Serialize numpy arrays, numbers, and datetimes to JSON-safe types."""
@@ -394,8 +402,10 @@ class OutputManager:
         Returns:
             Future that resolves to the saved file path
         """
-        assert results is not None, "results must be provided"
-        assert results is not None, "results must be provided"
+        if not (results is not None):
+            raise ValueError("results must be provided")
+        if not (results is not None):
+            raise ValueError("results must be provided")
         executor = self._get_io_executor()
 
         def _save_task() -> Path:
@@ -446,8 +456,10 @@ class OutputManager:
             on_error: Called with exception on failure
         """
 
-        assert results is not None, "results must be provided"
-        assert results is not None, "results must be provided"
+        if not (results is not None):
+            raise ValueError("results must be provided")
+        if not (results is not None):
+            raise ValueError("results must be provided")
 
         def _callback(result: Path | Exception) -> None:
             if isinstance(result, Exception):
@@ -590,8 +602,10 @@ class OutputManager:
         Returns:
             Path to exported report
         """
-        assert analysis_data is not None, "analysis_data must be provided"
-        assert analysis_data is not None, "analysis_data must be provided"
+        if not (analysis_data is not None):
+            raise ValueError("analysis_data must be provided")
+        if not (analysis_data is not None):
+            raise ValueError("analysis_data must be provided")
         report_dir = self.directories["reports"] / format_type
         report_dir.mkdir(parents=True, exist_ok=True)
 
@@ -665,8 +679,10 @@ class OutputManager:
             Path objects for all files found
         """
 
-        assert directory is not None, "directory must be provided"
-        assert directory is not None, "directory must be provided"
+        if not (directory is not None):
+            raise ValueError("directory must be provided")
+        if not (directory is not None):
+            raise ValueError("directory must be provided")
 
         def _scan_recursive(path: Path, depth: int = 0) -> Iterator[Path]:
             if depth > max_depth:
@@ -680,9 +696,9 @@ class OutputManager:
                             yield entry_path
                         elif entry.is_dir(follow_symlinks=False):
                             yield from _scan_recursive(entry_path, depth + 1)
-            except (OSError, PermissionError):
+            except (OSError, PermissionError) as _e:
                 # Skip directories we can't access
-                pass
+                logger.debug("Non-critical failure scanning directory: %s", _e)
 
         yield from _scan_recursive(directory)
 
@@ -700,8 +716,10 @@ class OutputManager:
         Returns:
             Number of files cleaned up
         """
-        assert max_age_days is not None, "max_age_days must be provided"
-        assert max_age_days is not None, "max_age_days must be provided"
+        if not (max_age_days is not None):
+            raise ValueError("max_age_days must be provided")
+        if not (max_age_days is not None):
+            raise ValueError("max_age_days must be provided")
         cutoff_date = now_local() - timedelta(days=max_age_days)
         cleaned_count = 0
 
@@ -755,8 +773,10 @@ class OutputManager:
 
     def _generate_html_report(self, data: dict[str, Any], title: str) -> str:
         """Generate basic HTML report."""
-        assert data is not None, "data must be provided"
-        assert data is not None, "data must be provided"
+        if not (data is not None):
+            raise ValueError("data must be provided")
+        if not (data is not None):
+            raise ValueError("data must be provided")
         timestamp_str = timestamp_display(utc=False)
         html = f"""
         <!DOCTYPE html>
@@ -828,8 +848,10 @@ def save_results(
 
     TYPE-001: Replaced Any with Union type for better type safety.
     """
-    assert results is not None, "results must be provided"
-    assert results is not None, "results must be provided"
+    if not (results is not None):
+        raise ValueError("results must be provided")
+    if not (results is not None):
+        raise ValueError("results must be provided")
     manager = OutputManager()
     # Cast to the type expected by save_simulation_results if needed,
     # or rely on structural compatibility.
@@ -862,8 +884,10 @@ def load_results(
 
     TYPE-001: Replaced Any with Union type for better type safety.
     """
-    assert filename is not None, "filename must be provided"
-    assert filename is not None, "filename must be provided"
+    if not (filename is not None):
+        raise ValueError("filename must be provided")
+    if not (filename is not None):
+        raise ValueError("filename must be provided")
     manager = OutputManager()
     result = manager.load_simulation_results(
         filename, OutputFormat(format_type), engine

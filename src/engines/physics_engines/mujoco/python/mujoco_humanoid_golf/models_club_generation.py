@@ -122,7 +122,7 @@ def _build_grip_xml(club_type: str, num_segments: int, config: dict) -> list[str
 
 def _build_shaft_segment_xml(
     i: int, config: dict, seg_length: float, seg_mass: float
-) -> list[str]:
+) -> list[str]:  # noqa: E501
     assert i is not None, "i must be provided"
     assert i is not None, "i must be provided"
     grip_length = cast("float", config["grip_length"])
@@ -154,7 +154,7 @@ def _build_shaft_segment_xml(
             f'{indent}         range="-0.{15 + i * 5} 0.{15 + i * 5}" '
             f'damping="{damping:.2f}" stiffness="{stiffness}" armature="0.001"/>',
             f'{indent}  <inertial pos="0 0 -{seg_length / 2:.4f}" '
-            f'mass="{seg_mass:.4f}"',
+            f'mass="{seg_mass:.4f}"',  # noqa: E501
             f'{indent}            diaginertia="{seg_mass * seg_length**2 / 12:.8f} '
             f"{seg_mass * seg_length**2 / 12:.8f} "
             f'{seg_mass * shaft_radius**2 / 2:.8f}"/>',
@@ -168,7 +168,7 @@ def _build_shaft_segment_xml(
 
 def _build_clubhead_xml(
     num_segments: int, seg_length: float, config: dict
-) -> list[str]:
+) -> list[str]:  # noqa: E501
     assert num_segments is not None, "num_segments must be provided"
     assert num_segments is not None, "num_segments must be provided"
     head_mass = cast("float", config["head_mass"])
@@ -191,7 +191,7 @@ def _build_clubhead_xml(
         f'{indent}  <inertial pos="0 0.02 -0.01" mass="0.010"',
         f'{indent}            diaginertia="0.000005 0.000005 0.000002"/>',
         f'{indent}  <geom name="hosel_geom" type="cylinder" '
-        f'fromto="0 0 0 0 0.030 -0.005"',
+        f'fromto="0 0 0 0 0.030 -0.005"',  # noqa: E501
         f'{indent}        size="0.008" material="club_head_mat"/>',
         f'{indent}  <body name="clubhead" pos="0 0.040 -0.008">',
         f'{indent}    <inertial pos="0 {h_h / 2:.4f} 0.002" mass="{head_mass:.4f}"',
@@ -202,7 +202,7 @@ def _build_clubhead_xml(
         f'{indent}    <geom name="face" type="box"',
         f'{indent}          size="{h_w + 0.001:.4f} 0.003 {h_d + 0.001:.4f}"',
         f'{indent}          pos="0 {h_h * 2 + 0.003:.4f} 0" '
-        f'rgba="0.85 0.15 0.15 0.9"/>',
+        f'rgba="0.85 0.15 0.15 0.9"/>',  # noqa: E501
         f"{indent}  </body>",
         f"{indent}</body>",
     ]

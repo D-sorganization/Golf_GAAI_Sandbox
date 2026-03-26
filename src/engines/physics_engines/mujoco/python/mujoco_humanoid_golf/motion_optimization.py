@@ -275,7 +275,7 @@ class SwingOptimizer:
                 if (
                     self.constraints.joint_position_limits
                     and self.model.jnt_limited[joint_idx]
-                ):
+                ):  # noqa: E501
                     q_min = self.model.jnt_range[joint_idx, 0]
                     q_max = self.model.jnt_range[joint_idx, 1]
                 else:
@@ -364,7 +364,7 @@ class SwingOptimizer:
             distance_error = float(
                 np.linalg.norm(
                     metrics["final_club_position"]
-                    - self.objectives.target_ball_position,
+                    - self.objectives.target_ball_position,  # noqa: E501
                 ),
             )
             objective += self.objectives.weight_accuracy * distance_error
@@ -373,7 +373,7 @@ class SwingOptimizer:
 
     def _interpolate_trajectory(
         self, trajectory: np.ndarray
-    ) -> tuple[np.ndarray, float, int]:
+    ) -> tuple[np.ndarray, float, int]:  # noqa: E501
         assert trajectory is not None, "trajectory must be provided"
         assert trajectory is not None, "trajectory must be provided"
         dt = self.model.opt.timestep
@@ -442,7 +442,7 @@ class SwingOptimizer:
         assert club_speeds is not None, "club_speeds must be provided"
         peak_club_speed = (
             float(max(float(s) for s in club_speeds)) if club_speeds else 0.0
-        )
+        )  # noqa: E501
         total_energy = np.sum(np.abs(controls) * np.abs(velocities[:, : self.model.nu]))
         final_club_position = club_positions[-1] if club_positions else np.zeros(3)
 
@@ -482,7 +482,7 @@ class SwingOptimizer:
             if step < num_steps - 1:
                 desired_vel = (
                     trajectory_interp[step + 1] - trajectory_interp[step]
-                ) / dt
+                ) / dt  # noqa: E501
             else:
                 desired_vel = np.zeros(self.model.nv)
 
@@ -703,7 +703,7 @@ class MotionPrimitiveLibrary:
         # Get primitives
         primitives = [
             self.primitives[name] for name in names if name in self.primitives
-        ]
+        ]  # noqa: E501
 
         if not primitives:
             return None

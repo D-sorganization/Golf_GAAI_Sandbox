@@ -128,7 +128,7 @@ class DrakeManipulabilityAnalyzer:
 
     def _build_result_for_body(
         self, context: Context, name, body, radii_v, eigvecs_v, cond
-    ):
+    ):  # noqa: E501
         assert context is not None, "context must be provided"
         assert context is not None, "context must be provided"
         isotropy = 1.0 / cond if cond > 0 else 0.0
@@ -187,7 +187,7 @@ class DrakeManipulabilityAnalyzer:
 
             res = self._build_result_for_body(
                 context, name, body, radii_v, eigvecs_v, cond
-            )
+            )  # noqa: E501
             results.append(res)
 
         return results

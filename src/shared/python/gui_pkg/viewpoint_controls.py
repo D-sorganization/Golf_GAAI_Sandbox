@@ -121,8 +121,10 @@ def spherical_to_cartesian(
     Returns:
         Camera position in world frame [m] (3,)
     """
-    assert azimuth_deg is not None, "azimuth_deg must be provided"
-    assert azimuth_deg is not None, "azimuth_deg must be provided"
+    if not (azimuth_deg is not None):
+        raise ValueError("azimuth_deg must be provided")
+    if not (azimuth_deg is not None):
+        raise ValueError("azimuth_deg must be provided")
     az = np.radians(azimuth_deg)
     el = np.radians(elevation_deg)
 
@@ -151,8 +153,10 @@ def get_preset_camera_params(
     Returns:
         Tuple of (azimuth_deg, elevation_deg, look_at_point)
     """
-    assert preset is not None, "preset must be provided"
-    assert preset is not None, "preset must be provided"
+    if not (preset is not None):
+        raise ValueError("preset must be provided")
+    if not (preset is not None):
+        raise ValueError("preset must be provided")
     if golfer_position is None:
         golfer_position = DEFAULT_GOLFER_POSITION.copy()
     if target_direction is None:
@@ -219,8 +223,10 @@ def create_camera_from_preset(
     Returns:
         CameraState configured for the preset
     """
-    assert preset is not None, "preset must be provided"
-    assert preset is not None, "preset must be provided"
+    if not (preset is not None):
+        raise ValueError("preset must be provided")
+    if not (preset is not None):
+        raise ValueError("preset must be provided")
     azimuth, elevation, look_at = get_preset_camera_params(
         preset, golfer_position, target_direction, distance
     )
@@ -255,8 +261,10 @@ def create_custom_camera(
     Returns:
         CameraState with custom configuration
     """
-    assert azimuth_deg is not None, "azimuth_deg must be provided"
-    assert azimuth_deg is not None, "azimuth_deg must be provided"
+    if not (azimuth_deg is not None):
+        raise ValueError("azimuth_deg must be provided")
+    if not (azimuth_deg is not None):
+        raise ValueError("azimuth_deg must be provided")
     position = spherical_to_cartesian(azimuth_deg, elevation_deg, distance, look_at)
 
     return CameraState(
@@ -283,8 +291,10 @@ def interpolate_camera_states(
     Returns:
         Interpolated camera state
     """
-    assert start is not None, "start must be provided"
-    assert start is not None, "start must be provided"
+    if not (start is not None):
+        raise ValueError("start must be provided")
+    if not (start is not None):
+        raise ValueError("start must be provided")
     t = np.clip(t, 0.0, 1.0)
 
     # Smooth step for nicer transitions
@@ -322,8 +332,10 @@ def create_transition_sequence(
     Returns:
         List of interpolated camera states
     """
-    assert start is not None, "start must be provided"
-    assert start is not None, "start must be provided"
+    if not (start is not None):
+        raise ValueError("start must be provided")
+    if not (start is not None):
+        raise ValueError("start must be provided")
     if num_frames < 2:
         return [end]
 
@@ -358,8 +370,10 @@ def compute_tracking_look_at(
     Returns:
         Look-at point [m] (3,)
     """
-    assert target is not None, "target must be provided"
-    assert target is not None, "target must be provided"
+    if not (target is not None):
+        raise ValueError("target must be provided")
+    if not (target is not None):
+        raise ValueError("target must be provided")
     if target == TrackingTarget.CLUBHEAD and clubhead_position is not None:
         return clubhead_position.copy()
     if target == TrackingTarget.BALL and ball_position is not None:
@@ -396,8 +410,10 @@ def create_multiview_layout(
     Returns:
         ViewportLayout with camera states
     """
-    assert presets is not None, "presets must be provided"
-    assert presets is not None, "presets must be provided"
+    if not (presets is not None):
+        raise ValueError("presets must be provided")
+    if not (presets is not None):
+        raise ValueError("presets must be provided")
     n = len(presets)
 
     # Determine grid size
@@ -507,8 +523,10 @@ class ViewpointController:
         Returns:
             New camera state (or first frame of transition)
         """
-        assert preset is not None, "preset must be provided"
-        assert preset is not None, "preset must be provided"
+        if not (preset is not None):
+            raise ValueError("preset must be provided")
+        if not (preset is not None):
+            raise ValueError("preset must be provided")
         target_camera = create_camera_from_preset(
             preset, self.golfer_position, self.target_direction, distance
         )
@@ -542,8 +560,10 @@ class ViewpointController:
         Returns:
             New camera state
         """
-        assert azimuth_deg is not None, "azimuth_deg must be provided"
-        assert azimuth_deg is not None, "azimuth_deg must be provided"
+        if not (azimuth_deg is not None):
+            raise ValueError("azimuth_deg must be provided")
+        if not (azimuth_deg is not None):
+            raise ValueError("azimuth_deg must be provided")
         if look_at is None:
             look_at = self.golfer_position + np.array([0.0, 0.0, 1.0])
 

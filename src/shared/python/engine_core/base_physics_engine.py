@@ -56,8 +56,10 @@ class EngineState:
             nq: Number of position coordinates
             nv: Number of velocity coordinates
         """
-        assert nq is not None, "nq must be provided"
-        assert nq is not None, "nq must be provided"
+        if nq is None:
+            raise ValueError("nq must be provided")
+        if nv is None:
+            raise ValueError("nv must be provided")
         self.q: np.ndarray = np.zeros(nq)  # Positions
         self.v: np.ndarray = np.zeros(nv)  # Velocities
         self.a: np.ndarray = np.zeros(nv)  # Accelerations
@@ -208,11 +210,10 @@ class BasePhysicsEngine(ContractChecker, PhysicsEngine):
             self.model_path = path
             self._is_initialized = True
 
-        # Verify postconditions
-        assert self._is_initialized, (
-            "Postcondition: engine must be initialized after load"
-        )
-        assert self.model is not None, "Postcondition: model must be loaded"
+        if not self._is_initialized:
+            raise StateError("Postcondition violated: engine must be initialized")
+        if self.model is None:
+            raise StateError("Postcondition violated: model must be loaded")
 
         logger.info(f"Successfully loaded model: {self.model_name}")
 
@@ -248,11 +249,10 @@ class BasePhysicsEngine(ContractChecker, PhysicsEngine):
             self.model_path = None
             self._is_initialized = True
 
-        # Verify postconditions
-        assert self._is_initialized, (
-            "Postcondition: engine must be initialized after load"
-        )
-        assert self.model is not None, "Postcondition: model must be loaded"
+        if not self._is_initialized:
+            raise StateError("Postcondition violated: engine must be initialized")
+        if self.model is None:
+            raise StateError("Postcondition violated: model must be loaded")
 
         logger.info("Successfully loaded model from string")
 
@@ -401,8 +401,8 @@ class BasePhysicsEngine(ContractChecker, PhysicsEngine):
                     "v": v,
                     "t": timestamp,
                 }
-            except (NotImplementedError, AttributeError):
-                pass
+            except (NotImplementedError, AttributeError) as _e:
+                logger.debug("Non-critical failure: %s", _e)
 
         # Allow subclasses to add engine-specific checkpoint data
         extra = self._get_extra_checkpoint_state()
@@ -438,8 +438,8 @@ class BasePhysicsEngine(ContractChecker, PhysicsEngine):
         Args:
             checkpoint: Checkpoint to restore from.
         """
-        assert checkpoint is not None, "checkpoint must be provided"
-        assert checkpoint is not None, "checkpoint must be provided"
+        if checkpoint is None:
+            raise ValueError("checkpoint must be provided")
         if not checkpoint.engine_state:
             return
 
@@ -549,7 +549,7 @@ class SimulationMixin:
         Args:
             dt: Time step size
         """
-        assert dt is not None, "dt must be provided"
-        assert dt is not None, "dt must be provided"
+        if dt is None:
+            raise ValueError("dt must be provided")
         self._simulation_time += dt
         self._step_count += 1

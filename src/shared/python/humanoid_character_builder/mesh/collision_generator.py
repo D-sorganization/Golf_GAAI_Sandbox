@@ -148,15 +148,15 @@ class CollisionGeometryGenerator:
 
             if hasattr(trimesh.interfaces, "vhacd"):
                 return True
-        except ImportError:
-            pass
+        except ImportError as _e:
+            logger.debug("trimesh unavailable — related features disabled: %s", _e)
 
         try:
             import pybullet  # noqa: F401
 
             return True
-        except ImportError:
-            pass
+        except ImportError as _e:
+            logger.debug("pybullet unavailable — related features disabled: %s", _e)
 
         logger.warning("VHACD not available - using fallback decomposition")
         return False
@@ -186,8 +186,10 @@ class CollisionGeometryGenerator:
             CollisionGeometryResult with generated geometry
         """
         # Convert string enum values
-        assert method is not None, "method must be provided"
-        assert method is not None, "method must be provided"
+        if not (method is not None):
+            raise ValueError("method must be provided")
+        if not (method is not None):
+            raise ValueError("method must be provided")
         if isinstance(method, str):
             method = SimplificationMethod[method.upper()]
         if isinstance(target_complexity, str):
@@ -297,8 +299,10 @@ class CollisionGeometryGenerator:
 
         Based on mesh complexity and shape characteristics.
         """
-        assert max_primitives is not None, "max_primitives must be provided"
-        assert max_primitives is not None, "max_primitives must be provided"
+        if not (max_primitives is not None):
+            raise ValueError("max_primitives must be provided")
+        if not (max_primitives is not None):
+            raise ValueError("max_primitives must be provided")
         n_faces = len(mesh.faces) if hasattr(mesh, "faces") else 0
 
         # Simple meshes: single convex hull
@@ -331,8 +335,10 @@ class CollisionGeometryGenerator:
 
     def _primitives_would_fit(self, mesh: Any, max_primitives: int) -> bool:
         """Estimate if primitive fitting would work well."""
-        assert max_primitives is not None, "max_primitives must be provided"
-        assert max_primitives is not None, "max_primitives must be provided"
+        if not (max_primitives is not None):
+            raise ValueError("max_primitives must be provided")
+        if not (max_primitives is not None):
+            raise ValueError("max_primitives must be provided")
         try:
             extents = mesh.extents
             aspect_ratios = extents / extents.min()
@@ -348,8 +354,8 @@ class CollisionGeometryGenerator:
                 estimated_primitives = int(1 / fill_ratio)
                 return estimated_primitives <= max_primitives
 
-        except (ValueError, ZeroDivisionError, OverflowError, TypeError):
-            pass
+        except (ValueError, ZeroDivisionError, OverflowError, TypeError) as _e:
+            logger.debug("Non-critical failure: %s", _e)
 
         return False
 
@@ -360,8 +366,10 @@ class CollisionGeometryGenerator:
         vhacd_params: VHACDParameters | None,
     ) -> CollisionGeometryResult:
         """Generate collision geometry using VHACD."""
-        assert max_hulls is not None, "max_hulls must be provided"
-        assert max_hulls is not None, "max_hulls must be provided"
+        if not (max_hulls is not None):
+            raise ValueError("max_hulls must be provided")
+        if not (max_hulls is not None):
+            raise ValueError("max_hulls must be provided")
         import trimesh
 
         params = vhacd_params or VHACDParameters(max_hulls=max_hulls)
@@ -402,8 +410,10 @@ class CollisionGeometryGenerator:
         params: VHACDParameters,
     ) -> list[Any]:
         """Use pybullet for VHACD decomposition."""
-        assert params is not None, "params must be provided"
-        assert params is not None, "params must be provided"
+        if not (params is not None):
+            raise ValueError("params must be provided")
+        if not (params is not None):
+            raise ValueError("params must be provided")
         import os
         import tempfile
 
@@ -439,8 +449,10 @@ class CollisionGeometryGenerator:
         max_primitives: int,
     ) -> CollisionGeometryResult:
         """Generate collision geometry using fitted primitives."""
-        assert max_primitives is not None, "max_primitives must be provided"
-        assert max_primitives is not None, "max_primitives must be provided"
+        if not (max_primitives is not None):
+            raise ValueError("max_primitives must be provided")
+        if not (max_primitives is not None):
+            raise ValueError("max_primitives must be provided")
         primitives = []
         primitive_fits = []
 
@@ -590,8 +602,10 @@ class CollisionGeometryGenerator:
 
     def _primitive_to_mesh(self, fit: PrimitiveFit) -> Any:
         """Convert primitive fit to mesh."""
-        assert fit is not None, "fit must be provided"
-        assert fit is not None, "fit must be provided"
+        if not (fit is not None):
+            raise ValueError("fit must be provided")
+        if not (fit is not None):
+            raise ValueError("fit must be provided")
         import trimesh
 
         if fit.primitive_type == "box":
@@ -623,8 +637,10 @@ class CollisionGeometryGenerator:
         max_triangles: int,
     ) -> CollisionGeometryResult:
         """Generate collision geometry via mesh decimation."""
-        assert max_triangles is not None, "max_triangles must be provided"
-        assert max_triangles is not None, "max_triangles must be provided"
+        if not (max_triangles is not None):
+            raise ValueError("max_triangles must be provided")
+        if not (max_triangles is not None):
+            raise ValueError("max_triangles must be provided")
         if len(mesh.faces) <= max_triangles:
             return CollisionGeometryResult(
                 success=True,
@@ -686,8 +702,10 @@ class CollisionGeometryGenerator:
     ) -> CollisionGeometryResult:
         """Combine primitives and mesh decimation."""
         # Start with primitive fitting
-        assert max_primitives is not None, "max_primitives must be provided"
-        assert max_primitives is not None, "max_primitives must be provided"
+        if not (max_primitives is not None):
+            raise ValueError("max_primitives must be provided")
+        if not (max_primitives is not None):
+            raise ValueError("max_primitives must be provided")
         prim_result = self._generate_primitives(mesh, max_primitives)
 
         # If primitives fit well, use them
@@ -702,8 +720,10 @@ class CollisionGeometryGenerator:
 
     def _count_triangles(self, components: list[Any]) -> int:
         """Count total triangles in components."""
-        assert components is not None, "components must be provided"
-        assert components is not None, "components must be provided"
+        if not (components is not None):
+            raise ValueError("components must be provided")
+        if not (components is not None):
+            raise ValueError("components must be provided")
         total = 0
         for comp in components:
             if hasattr(comp, "faces"):
@@ -717,8 +737,10 @@ class CollisionGeometryGenerator:
         original_volume: float,
     ) -> float:
         """Compute volume preservation ratio."""
-        assert components is not None, "components must be provided"
-        assert components is not None, "components must be provided"
+        if not (components is not None):
+            raise ValueError("components must be provided")
+        if not (components is not None):
+            raise ValueError("components must be provided")
         if original_volume <= 0:
             return 1.0
 

@@ -179,7 +179,8 @@ def _build_putting_green(
     width: float, length: float, slope: float, direction: float
 ) -> Terrain:
     """Build a putting green environment."""
-    assert width is not None, "width must be provided"
+    if not (width is not None):
+        raise ValueError("width must be provided")
     elevation = ElevationMap.sloped(
         width=width,
         length=length,
@@ -199,7 +200,8 @@ def _build_fairway(
     width: float, length: float, slope: float, direction: float
 ) -> Terrain:
     """Build a fairway environment."""
-    assert width is not None, "width must be provided"
+    if not (width is not None):
+        raise ValueError("width must be provided")
     elevation = ElevationMap.sloped(
         width=width,
         length=length,
@@ -228,7 +230,8 @@ def _build_driving_range(
     width: float, length: float, slope: float, direction: float
 ) -> Terrain:
     """Build a driving range environment."""
-    assert width is not None, "width must be provided"
+    if not (width is not None):
+        raise ValueError("width must be provided")
     elevation = ElevationMap.flat(width=width, length=length, resolution=2.0)
     patches = [
         TerrainPatch(TerrainType.TEE, 0, width, 0, 5.0),
@@ -243,7 +246,8 @@ def _build_bunker(
     width: float, length: float, slope: float, direction: float
 ) -> Terrain:
     """Build a bunker practice environment."""
-    assert width is not None, "width must be provided"
+    if not (width is not None):
+        raise ValueError("width must be provided")
     elevation = ElevationMap.flat(width=width, length=length, resolution=0.5)
     patches = [
         TerrainPatch(TerrainType.GREEN, 0, width, length / 2, length),
@@ -265,7 +269,8 @@ def _build_rough(
     width: float, length: float, slope: float, direction: float
 ) -> Terrain:
     """Build a rough practice environment."""
-    assert width is not None, "width must be provided"
+    if not (width is not None):
+        raise ValueError("width must be provided")
     elevation = ElevationMap.sloped(
         width=width,
         length=length,
@@ -289,7 +294,8 @@ def _build_full_hole(
     width: float, length: float, slope: float, direction: float
 ) -> Terrain:
     """Build a complete golf hole (par 4)."""
-    assert width is not None, "width must be provided"
+    if not (width is not None):
+        raise ValueError("width must be provided")
     elevation = ElevationMap.sloped(
         width=width,
         length=length,

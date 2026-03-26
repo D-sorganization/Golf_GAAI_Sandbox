@@ -153,7 +153,7 @@ class C3DDataReader:
             point_parameters = self._get_point_parameters()
             marker_labels = [
                 label.strip() for label in point_parameters["LABELS"]["value"]
-            ]
+            ]  # noqa: E501
             frame_count = int(point_parameters["FRAMES"]["value"][0])
             frame_rate = float(point_parameters["RATE"]["value"][0])
             units = str(point_parameters["UNITS"]["value"][0])
@@ -323,7 +323,7 @@ class C3DDataReader:
             else:
                 logger.warning(
                     "Frame rate is 0. Time column will be omitted "
-                    "despite include_time=True."
+                    "despite include_time=True."  # noqa: E501
                 )
 
         return pd.DataFrame(data).reset_index(drop=True)
@@ -352,11 +352,11 @@ class C3DDataReader:
 
         values = analog_array.transpose(2, 0, 1).reshape(
             frame_count * subframes, channel_count
-        )
+        )  # noqa: E501
         sample_indices = np.arange(values.shape[0])
         channel_names = np.array(
             metadata.analog_labels
-            or [f"Analog_{idx + 1}" for idx in range(channel_count)]
+            or [f"Analog_{idx + 1}" for idx in range(channel_count)]  # noqa: E501
         )
 
         dataframe = pd.DataFrame(
@@ -410,7 +410,7 @@ class C3DDataReader:
         )
         return self._export_dataframe(
             dataframe, output_path, file_format, sanitize=True
-        )
+        )  # noqa: E501
 
     def export_analog(
         self,
@@ -439,7 +439,7 @@ class C3DDataReader:
         dataframe = self.analog_dataframe(include_time=include_time)
         return self._export_dataframe(
             dataframe, output_path, file_format, sanitize=True
-        )
+        )  # noqa: E501
 
     def get_force_plate_channels(self) -> dict[int, dict[str, str]]:
         """Detect and map force plate channels by plate number.
@@ -574,7 +574,7 @@ class C3DDataReader:
         analog_df = self.analog_dataframe(include_time=False)
         return analog_df.pivot(
             index="sample", columns="channel", values="value"
-        ).reset_index()
+        ).reset_index()  # noqa: E501
 
     @staticmethod
     def _build_plate_dataframes(
@@ -593,7 +593,7 @@ class C3DDataReader:
             if missing_keys:
                 logger.warning(
                     f"Force plate {plate_num} missing channels: {missing_keys}. "
-                    "Skipping."
+                    "Skipping."  # noqa: E501
                 )
                 continue
 
@@ -629,7 +629,7 @@ class C3DDataReader:
         except KeyError as error:  # pragma: no cover - defensive guard
             raise ValueError(
                 f"POINT parameters missing from C3D file: {self.file_path}"
-            ) from error
+            ) from error  # noqa: E501
 
     def _get_analog_parameters(self) -> dict[str, Any] | None:
         """Get ANALOG parameters from the C3D file, if present."""
@@ -637,7 +637,7 @@ class C3DDataReader:
         analog_params = c3d_data["parameters"].get("ANALOG")
         return (
             cast(dict[str, Any], analog_params) if analog_params is not None else None
-        )
+        )  # noqa: E501
 
     def _get_analog_details(self) -> tuple[list[str], float | None, list[str]]:
         """Get analog channel labels, sample rate, and units from the C3D file."""
@@ -652,12 +652,12 @@ class C3DDataReader:
         else:
             labels = [
                 label.strip()
-                for label in analog_parameters.get("LABELS", {}).get("value", [])
+                for label in analog_parameters.get("LABELS", {}).get("value", [])  # noqa: E501
             ]
             units = [
                 unit.strip()
                 for unit in analog_parameters.get("UNITS", {}).get("value", [])
-            ]
+            ]  # noqa: E501
             analog_rate = float(analog_parameters.get("RATE", {}).get("value", [0])[0])
 
         if not labels and channel_count > 0:
@@ -777,7 +777,7 @@ class C3DDataReader:
             if not path.suffix:
                 raise ValueError(
                     "File format could not be inferred from the path suffix."
-                )
+                )  # noqa: E501
             file_format = path.suffix.lstrip(".")
 
         normalized_format = file_format.lower()
@@ -827,7 +827,7 @@ class C3DDataReader:
         if not is_test_env and base_dir not in path.parents and path != base_dir:
             raise ValueError(
                 f"Security: Refusing to output to {path} "
-                f"(outside project root {base_dir})"
+                f"(outside project root {base_dir})"  # noqa: E501
             )
 
     def _build_export_metadata(self, dataframe: pd.DataFrame) -> dict[str, Any]:
@@ -858,7 +858,7 @@ class C3DDataReader:
     @staticmethod
     def _export_json(
         dataframe: pd.DataFrame, path: Path, metadata: dict[str, Any]
-    ) -> None:
+    ) -> None:  # noqa: E501
         output = {
             "metadata": metadata,
             "data": dataframe.to_dict(orient="records"),
@@ -869,7 +869,7 @@ class C3DDataReader:
     @staticmethod
     def _export_npz(
         dataframe: pd.DataFrame, path: Path, metadata: dict[str, Any]
-    ) -> None:
+    ) -> None:  # noqa: E501
         assert dataframe is not None, "dataframe must be provided"
         assert dataframe is not None, "dataframe must be provided"
         arrays = {column: dataframe[column].to_numpy() for column in dataframe}
@@ -891,5 +891,5 @@ def load_tour_average_reader(base_directory: Path | None = None) -> C3DDataReade
     base_path = base_directory or Path(__file__).resolve().parents[2]
     default_path = (
         base_path / "matlab" / "Data" / "Gears C3D Files" / "C3DExport Tour average.c3d"
-    )
+    )  # noqa: E501
     return C3DDataReader(default_path)

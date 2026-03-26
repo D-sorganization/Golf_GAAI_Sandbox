@@ -158,8 +158,10 @@ class OllamaAdapter(BaseAgentAdapter):
             AITimeoutError: If request times out.
             AIProviderError: For other Ollama errors.
         """
-        assert message is not None, "message must be provided"
-        assert message is not None, "message must be provided"
+        if not (message is not None):
+            raise ValueError("message must be provided")
+        if not (message is not None):
+            raise ValueError("message must be provided")
         client = self._get_client()
 
         # Format messages for Ollama
@@ -180,7 +182,7 @@ class OllamaAdapter(BaseAgentAdapter):
             )
             response.raise_for_status()
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             import httpx
 
             if isinstance(e, httpx.ConnectError):
@@ -220,8 +222,10 @@ class OllamaAdapter(BaseAgentAdapter):
         Yields:
             AgentChunk instances as they arrive.
         """
-        assert message is not None, "message must be provided"
-        assert message is not None, "message must be provided"
+        if not (message is not None):
+            raise ValueError("message must be provided")
+        if not (message is not None):
+            raise ValueError("message must be provided")
         client = self._get_client()
         messages = self._format_messages(context, message, tools)
 
@@ -329,7 +333,7 @@ class OllamaAdapter(BaseAgentAdapter):
 
         except AIProviderError:
             return False, ("httpx not installed. Install with: pip install httpx")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             import httpx
 
             if isinstance(e, httpx.ConnectError):
@@ -355,8 +359,10 @@ class OllamaAdapter(BaseAgentAdapter):
         Returns:
             List of message dicts for Ollama.
         """
-        assert context is not None, "context must be provided"
-        assert context is not None, "context must be provided"
+        if not (context is not None):
+            raise ValueError("context must be provided")
+        if not (context is not None):
+            raise ValueError("context must be provided")
         messages: list[dict[str, str]] = []
 
         # Add system prompt
@@ -399,8 +405,10 @@ class OllamaAdapter(BaseAgentAdapter):
         Returns:
             Parsed AgentResponse.
         """
-        assert data is not None, "data must be provided"
-        assert data is not None, "data must be provided"
+        if not (data is not None):
+            raise ValueError("data must be provided")
+        if not (data is not None):
+            raise ValueError("data must be provided")
         message = data.get("message", {})
         content = message.get("content", "")
 
@@ -451,7 +459,7 @@ class OllamaAdapter(BaseAgentAdapter):
             data = response.json()
             return [m.get("name", "") for m in data.get("models", [])]
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             raise AIConnectionError(
                 f"Cannot list Ollama models: {e}",
                 provider="ollama",

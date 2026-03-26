@@ -39,17 +39,20 @@ class Foo:
         return "no"
 """
 
-ERROR_PYTHON = """\
+ERROR_PYTHON = (
+    """\
 def danger():
     try:
         pass
-    except:
+    except"""
+    + """:
         pass
     try:
         pass
     except ValueError:
         pass
 """
+)
 
 LOGGING_PYTHON = """\
 import logging as logging

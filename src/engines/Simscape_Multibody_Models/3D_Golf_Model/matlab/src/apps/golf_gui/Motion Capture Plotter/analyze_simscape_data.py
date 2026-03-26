@@ -22,7 +22,7 @@ def _load_csv_data(csv_file) -> pd.DataFrame | None:
         df = pd.read_csv(csv_file)
         logger.info(
             f"Successfully loaded CSV with {len(df)} rows and {len(df.columns)} columns"
-        )
+        )  # noqa: E501
         logger.info("Time range: %s to %s seconds", df["time"].min(), df["time"].max())
         logger.info("")
         return df
@@ -230,8 +230,10 @@ def _check_segment_availability(segments, columns) -> dict:
 
     Returns a dict of available segment names to their column lists.
     """
-    assert segments is not None, "segments must be provided"
-    assert segments is not None, "segments must be provided"
+    if not (segments is not None):
+        raise ValueError("segments must be provided")
+    if not (segments is not None):
+        raise ValueError("segments must be provided")
     available_segments = {}
     for segment_name, required_cols in segments.items():
         available_cols = [col for col in required_cols if col in columns]
@@ -249,8 +251,10 @@ def _check_segment_availability(segments, columns) -> dict:
 
 def _log_data_sample(df, available_segments) -> None:
     """Log a sample of data from the available segments."""
-    assert df is not None, "df must be provided"
-    assert df is not None, "df must be provided"
+    if not (df is not None):
+        raise ValueError("df must be provided")
+    if not (df is not None):
+        raise ValueError("df must be provided")
     logger.info("%s", "\n" + "=" * 80)
     logger.info("DATA SAMPLE (first 3 rows):")
     logger.info("%s", "-" * 40)
@@ -260,7 +264,7 @@ def _log_data_sample(df, available_segments) -> None:
         for segment_cols in available_segments.values():
             sample_cols.extend(
                 segment_cols[:3]
-            )  # Take first 3 columns from each segment
+            )  # Take first 3 columns from each segment  # noqa: E501
 
         # Remove duplicates and limit to reasonable number
         sample_cols = list(set(sample_cols))[:15]

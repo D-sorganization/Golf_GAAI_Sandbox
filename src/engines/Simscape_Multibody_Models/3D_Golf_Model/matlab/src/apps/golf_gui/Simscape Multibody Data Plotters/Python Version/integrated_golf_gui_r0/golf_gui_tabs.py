@@ -31,8 +31,10 @@ class MotionCaptureTab(QWidget):
     """Tab for motion capture data visualization with smooth playback."""
 
     def __init__(self, parent=None) -> None:
-        assert parent is not None, "parent must be provided"
-        assert parent is not None, "parent must be provided"
+        if not (parent is not None):
+            raise ValueError("parent must be provided")
+        if not (parent is not None):
+            raise ValueError("parent must be provided")
         super().__init__(parent)
         self.parent = parent
         self.frame_processor = None
@@ -129,13 +131,13 @@ class MotionCaptureTab(QWidget):
             excel_data = loader.load_data()  # Load the Excel data first
             baseq_data, ztcfq_data, deltaq_data = loader.convert_to_gui_format(
                 excel_data
-            )
+            )  # noqa: E501
 
             # Create frame processor with config
             config = RenderConfig()
             self.frame_processor = FrameProcessor(
                 (baseq_data, ztcfq_data, deltaq_data), config
-            )
+            )  # noqa: E501
 
             # Load into smooth playback controller
             self.playback_controller.load_frame_processor(self.frame_processor)
@@ -148,7 +150,7 @@ class MotionCaptureTab(QWidget):
             # Initialize visualization
             self.opengl_widget.load_data_from_dataframes(
                 (baseq_data, ztcfq_data, deltaq_data)
-            )
+            )  # noqa: E501
 
             self.status_label.setText(
                 f"Loaded {swing_type} data successfully - Smooth playback ready!"
@@ -182,11 +184,13 @@ class MotionCaptureTab(QWidget):
 
     def _on_position_changed(self, position: float) -> None:
         """Update UI when playback position changes."""
-        assert position is not None, "position must be provided"
-        assert position is not None, "position must be provided"
+        if not (position is not None):
+            raise ValueError("position must be provided")
+        if not (position is not None):
+            raise ValueError("position must be provided")
         total_frames = (
             len(self.frame_processor.time_vector) if self.frame_processor else 0
-        )
+        )  # noqa: E501
 
         # Update frame label with fractional position for smooth display
         self.frame_label.setText(f"Frame: {position:.1f}/{total_frames}")
@@ -198,8 +202,10 @@ class MotionCaptureTab(QWidget):
 
     def _on_smooth_frame_updated(self, frame_data: FrameData) -> None:
         """Called on every interpolated frame update (60+ FPS!)."""
-        assert frame_data is not None, "frame_data must be provided"
-        assert frame_data is not None, "frame_data must be provided"
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
         if not self.opengl_widget.renderer:
             return
 
@@ -228,8 +234,10 @@ class SimulinkModelTab(QWidget):
     """Tab for Simulink model data visualization."""
 
     def __init__(self, parent=None) -> None:
-        assert parent is not None, "parent must be provided"
-        assert parent is not None, "parent must be provided"
+        if not (parent is not None):
+            raise ValueError("parent must be provided")
+        if not (parent is not None):
+            raise ValueError("parent must be provided")
         super().__init__(parent)
         self.parent = parent
         self.frame_processor = None
@@ -270,7 +278,7 @@ class SimulinkModelTab(QWidget):
         self.model_combo = QComboBox()
         self.model_combo.addItems(
             ["Simscape Multibody", "MuJoCo", "Drake", "Pinocchio"]
-        )
+        )  # noqa: E501
         layout.addWidget(self.model_combo, 0, 1)
 
         # Load button
@@ -327,13 +335,13 @@ class SimulinkModelTab(QWidget):
             excel_data = loader.load_data()
             baseq_data, ztcfq_data, deltaq_data = loader.convert_to_gui_format(
                 excel_data
-            )
+            )  # noqa: E501
 
             # Create frame processor with config
             config = RenderConfig()
             self.frame_processor = FrameProcessor(
                 (baseq_data, ztcfq_data, deltaq_data), config
-            )
+            )  # noqa: E501
 
             # Load into smooth playback controller
             self.playback_controller.load_frame_processor(self.frame_processor)
@@ -346,7 +354,7 @@ class SimulinkModelTab(QWidget):
             # Initialize visualization
             self.opengl_widget.load_data_from_dataframes(
                 (baseq_data, ztcfq_data, deltaq_data)
-            )
+            )  # noqa: E501
 
             self.status_label.setText(f"Loaded {model_source} data successfully")
 
@@ -372,11 +380,13 @@ class SimulinkModelTab(QWidget):
 
     def _on_position_changed(self, position: float) -> None:
         """Update UI when playback position changes."""
-        assert position is not None, "position must be provided"
-        assert position is not None, "position must be provided"
+        if not (position is not None):
+            raise ValueError("position must be provided")
+        if not (position is not None):
+            raise ValueError("position must be provided")
         total_frames = (
             len(self.frame_processor.time_vector) if self.frame_processor else 0
-        )
+        )  # noqa: E501
         self.frame_label.setText(f"Frame: {position:.1f}/{total_frames}")
         self.frame_slider.blockSignals(True)
         self.frame_slider.setValue(int(position))
@@ -384,8 +394,10 @@ class SimulinkModelTab(QWidget):
 
     def _on_smooth_frame_updated(self, frame_data: FrameData) -> None:
         """Called on every interpolated frame update."""
-        assert frame_data is not None, "frame_data must be provided"
-        assert frame_data is not None, "frame_data must be provided"
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
+        if not (frame_data is not None):
+            raise ValueError("frame_data must be provided")
         if not self.opengl_widget.renderer:
             return
 
@@ -413,8 +425,10 @@ class ComparisonTab(QWidget):
     """Tab for comparing motion capture vs Simulink model data."""
 
     def __init__(self, parent=None) -> None:
-        assert parent is not None, "parent must be provided"
-        assert parent is not None, "parent must be provided"
+        if not (parent is not None):
+            raise ValueError("parent must be provided")
+        if not (parent is not None):
+            raise ValueError("parent must be provided")
         super().__init__(parent)
         self.parent = parent
         self.frame_processor_mocap = None
@@ -455,7 +469,7 @@ class ComparisonTab(QWidget):
         self.metrics_label = QLabel("Comparison Metrics: Load data to begin analysis")
         self.metrics_label.setStyleSheet(
             "font-weight: bold; color: #333; padding: 5px;"
-        )
+        )  # noqa: E501
         layout.addWidget(self.metrics_label)
 
         self.setLayout(layout)
@@ -502,7 +516,7 @@ class ComparisonTab(QWidget):
             config1 = RenderConfig()
             self.frame_processor_mocap = FrameProcessor(
                 (baseq1, ztcfq1, deltaq1), config1
-            )
+            )  # noqa: E501
 
             # Load Data 2 (Model) - Reusing same loader for prototype
             loader2 = MotionDataLoader()
@@ -511,7 +525,7 @@ class ComparisonTab(QWidget):
             config2 = RenderConfig()
             self.frame_processor_model = FrameProcessor(
                 (baseq2, ztcfq2, deltaq2), config2
-            )
+            )  # noqa: E501
 
             # Initialize visualizers
             self.mocap_widget.load_data_from_dataframes((baseq1, ztcfq1, deltaq1))
@@ -542,8 +556,10 @@ class ComparisonTab(QWidget):
         self.playback_controller.seek(float(value))
 
     def _on_position_changed(self, position: float) -> None:
-        assert position is not None, "position must be provided"
-        assert position is not None, "position must be provided"
+        if not (position is not None):
+            raise ValueError("position must be provided")
+        if not (position is not None):
+            raise ValueError("position must be provided")
         if self.frame_processor_mocap:
             total_frames = len(self.frame_processor_mocap.time_vector)
         else:
@@ -555,8 +571,10 @@ class ComparisonTab(QWidget):
 
     def _on_smooth_frame_updated(self, frame_data_mocap: FrameData) -> None:
         """Update both visualizers and metrics."""
-        assert frame_data_mocap is not None, "frame_data_mocap must be provided"
-        assert frame_data_mocap is not None, "frame_data_mocap must be provided"
+        if not (frame_data_mocap is not None):
+            raise ValueError("frame_data_mocap must be provided")
+        if not (frame_data_mocap is not None):
+            raise ValueError("frame_data_mocap must be provided")
         if not self.frame_processor_model:
             return
 
@@ -576,7 +594,7 @@ class ComparisonTab(QWidget):
         frame_high = self.frame_processor_model.get_frame_data(high_idx)
         frame_data_model = SmoothPlaybackController._lerp_frame_data(
             frame_low, frame_high, t
-        )
+        )  # noqa: E501
 
         # Update Model View
         if self.model_widget.renderer:
@@ -589,4 +607,4 @@ class ComparisonTab(QWidget):
             dist = np.linalg.norm(mp1 - mp2)
             self.metrics_label.setText(
                 f"Comparison Metrics | Midpoint Error: {dist:.4f} m"
-            )
+            )  # noqa: E501
