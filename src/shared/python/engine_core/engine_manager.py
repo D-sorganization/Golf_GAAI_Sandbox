@@ -49,23 +49,15 @@ class EngineManager(ContractChecker):
         """Define class invariants for EngineManager."""
         return [
             (
-                lambda: (
-                    self.engine_status is not None
-                    and isinstance(self.engine_status, dict)
-                ),
+                lambda: (self.engine_status is not None and isinstance(self.engine_status, dict)),
                 "engine_status must be a non-None dict",
             ),
             (
-                lambda: (
-                    self.engine_paths is not None
-                    and isinstance(self.engine_paths, dict)
-                ),
+                lambda: (self.engine_paths is not None and isinstance(self.engine_paths, dict)),
                 "engine_paths must be a non-None dict",
             ),
             (
-                lambda: (
-                    self.suite_root is not None and isinstance(self.suite_root, Path)
-                ),
+                lambda: (self.suite_root is not None and isinstance(self.suite_root, Path)),
                 "suite_root must be a valid Path",
             ),
         ]
@@ -99,12 +91,8 @@ class EngineManager(ContractChecker):
                 self.engines_root / "Simscape_Multibody_Models" / "3D_Golf_Model"
             ),
             EngineType.PENDULUM: self.engines_root / "pendulum_models",
-            EngineType.GOLF_SWING_PENDULUM: (
-                self.engines_root / "physics_engines" / "pendulum"
-            ),
-            EngineType.PUTTING_GREEN: (
-                self.engines_root / "physics_engines" / "putting_green"
-            ),
+            EngineType.GOLF_SWING_PENDULUM: (self.engines_root / "physics_engines" / "pendulum"),
+            EngineType.PUTTING_GREEN: (self.engines_root / "physics_engines" / "putting_green"),
         }
 
         # Initialize probes
@@ -144,9 +132,7 @@ class EngineManager(ContractChecker):
                     factory=factory,
                     registration_path=self.engine_paths.get(engine_type),
                     probe_class=(
-                        type(self.probes.get(engine_type))
-                        if engine_type in self.probes
-                        else None
+                        type(self.probes.get(engine_type)) if engine_type in self.probes else None
                     ),
                 )
             )
@@ -280,9 +266,7 @@ class EngineManager(ContractChecker):
 
             model_dir = self.engine_paths[engine_type] / "matlab"
             if not model_dir.exists():
-                raise GolfModelingError(
-                    f"MATLAB model directory not found: {model_dir}"
-                )
+                raise GolfModelingError(f"MATLAB model directory not found: {model_dir}")
 
             engine.addpath(str(model_dir), nargout=0)
             self._matlab_engine = engine
@@ -308,9 +292,7 @@ class EngineManager(ContractChecker):
                 self._matlab_engine.quit()
                 logger.info("matlab_engine_shutdown", status="success")
             except (RuntimeError, OSError) as e:
-                logger.warning(
-                    "matlab_engine_shutdown_failed", error=str(e), exc_info=True
-                )
+                logger.warning("matlab_engine_shutdown_failed", error=str(e), exc_info=True)
             self._matlab_engine = None
 
         self.active_physics_engine = None
@@ -328,9 +310,7 @@ class EngineManager(ContractChecker):
     def get_engine_info(self) -> dict[str, Any]:
         """Return a summary dict of current engine, available engines, and statuses."""
         return {
-            "current_engine": (
-                self.current_engine.value if self.current_engine else None
-            ),
+            "current_engine": (self.current_engine.value if self.current_engine else None),
             "available_engines": [e.value for e in self.get_available_engines()],
             "engine_status": {e.value: s.value for e, s in self.engine_status.items()},
         }

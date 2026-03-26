@@ -113,12 +113,8 @@ class MediaPipeEstimator(PoseEstimator):
             min_tracking_confidence: Minimum confidence for pose tracking
             enable_temporal_smoothing: Whether to apply Kalman filtering
         """
-        assert min_detection_confidence is not None, (
-            "min_detection_confidence must be provided"
-        )
-        assert min_detection_confidence is not None, (
-            "min_detection_confidence must be provided"
-        )
+        assert min_detection_confidence is not None, "min_detection_confidence must be provided"
+        assert min_detection_confidence is not None, "min_detection_confidence must be provided"
         self.pose_detector: Any | None = None
         self.min_detection_confidence = min_detection_confidence
         self.min_tracking_confidence = min_tracking_confidence
@@ -130,9 +126,7 @@ class MediaPipeEstimator(PoseEstimator):
         self.kalman_filters: dict[str, KalmanFilter] = {}
 
         if not MEDIAPIPE_AVAILABLE:
-            logger.warning(
-                "MediaPipe library not found. MediaPipeEstimator will not function."
-            )
+            logger.warning("MediaPipe library not found. MediaPipeEstimator will not function.")
 
     def load_model(self, model_path: Path | None = None) -> None:
         """Initialize the MediaPipe Pose model.
@@ -331,9 +325,7 @@ class MediaPipeEstimator(PoseEstimator):
 
         return smoothed
 
-    def _keypoints_to_joint_angles(
-        self, keypoints_3d: dict[str, np.ndarray]
-    ) -> dict[str, float]:
+    def _keypoints_to_joint_angles(self, keypoints_3d: dict[str, np.ndarray]) -> dict[str, float]:
         """Convert 3D keypoints to joint angles for biomechanical analysis.
 
         Computes elbow, shoulder, hip, and knee flexion angles plus

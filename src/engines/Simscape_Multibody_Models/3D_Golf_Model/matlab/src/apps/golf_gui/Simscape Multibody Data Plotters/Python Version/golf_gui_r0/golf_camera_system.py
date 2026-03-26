@@ -49,12 +49,8 @@ class CameraState:
     position: np.ndarray = field(
         default_factory=lambda: np.array([3.0, 2.0, 3.0], dtype=np.float32)
     )
-    target: np.ndarray = field(
-        default_factory=lambda: np.array([0.0, 0.0, 0.0], dtype=np.float32)
-    )
-    up: np.ndarray = field(
-        default_factory=lambda: np.array([0.0, 1.0, 0.0], dtype=np.float32)
-    )
+    target: np.ndarray = field(default_factory=lambda: np.array([0.0, 0.0, 0.0], dtype=np.float32))
+    up: np.ndarray = field(default_factory=lambda: np.array([0.0, 1.0, 0.0], dtype=np.float32))
     fov: float = 45.0
     near_plane: float = 0.1
     far_plane: float = 100.0
@@ -231,15 +227,11 @@ class CameraController(QObject):
     def _setup_presets(self) -> None:
         """Setup predefined camera presets"""
         self.presets = {
-            CameraPreset.DEFAULT: CameraState(
-                distance=5.0, azimuth=45.0, elevation=20.0, fov=45.0
-            ),
+            CameraPreset.DEFAULT: CameraState(distance=5.0, azimuth=45.0, elevation=20.0, fov=45.0),
             CameraPreset.SIDE_VIEW: CameraState(
                 distance=4.0, azimuth=90.0, elevation=0.0, fov=50.0
             ),
-            CameraPreset.TOP_DOWN: CameraState(
-                distance=3.0, azimuth=0.0, elevation=89.0, fov=60.0
-            ),
+            CameraPreset.TOP_DOWN: CameraState(distance=3.0, azimuth=0.0, elevation=89.0, fov=60.0),
             CameraPreset.FRONT_VIEW: CameraState(
                 distance=4.0, azimuth=0.0, elevation=0.0, fov=50.0
             ),
@@ -291,9 +283,7 @@ class CameraController(QObject):
 
         return self.current_state.target + np.array([x, y, z], dtype=np.float32)
 
-    def _cartesian_to_spherical(
-        self, position: np.ndarray
-    ) -> tuple[float, float, float]:
+    def _cartesian_to_spherical(self, position: np.ndarray) -> tuple[float, float, float]:
         """Convert Cartesian position to spherical coordinates"""
         assert position is not None, "position must be provided"
         assert position is not None, "position must be provided"
@@ -313,9 +303,7 @@ class CameraController(QObject):
         return distance, azimuth, elevation
 
     @staticmethod
-    def _create_look_at_matrix(
-        eye: np.ndarray, target: np.ndarray, up: np.ndarray
-    ) -> np.ndarray:
+    def _create_look_at_matrix(eye: np.ndarray, target: np.ndarray, up: np.ndarray) -> np.ndarray:
         """Create look-at view matrix"""
         assert eye is not None, "eye must be provided"
         assert eye is not None, "eye must be provided"
@@ -491,9 +479,7 @@ class CameraController(QObject):
     # CAMERA PRESETS AND ANIMATION
     # ========================================================================
 
-    def set_preset(
-        self, preset: CameraPreset, animate: bool = True, duration: float = 1.0
-    ) -> None:
+    def set_preset(self, preset: CameraPreset, animate: bool = True, duration: float = 1.0) -> None:
         """Set camera to predefined preset"""
         assert preset is not None, "preset must be provided"
         assert preset is not None, "preset must be provided"
@@ -570,9 +556,7 @@ class CameraController(QObject):
             new_distance,
             new_azimuth,
             new_elevation,
-        ) = SmoothAnimator.spherical_interpolation(
-            start_spherical, end_spherical, eased_progress
-        )
+        ) = SmoothAnimator.spherical_interpolation(start_spherical, end_spherical, eased_progress)
 
         self.current_state.distance = new_distance
         self.current_state.azimuth = new_azimuth
@@ -648,9 +632,7 @@ class CameraController(QObject):
         self.keyframes.clear()
         logger.info("📷 Cleared all keyframes")
 
-    def start_cinematic_playback(
-        self, duration: float | None = None, loop: bool = False
-    ) -> None:
+    def start_cinematic_playback(self, duration: float | None = None, loop: bool = False) -> None:
         """Start cinematic camera playback"""
         assert loop is not None, "loop must be provided"
         assert loop is not None, "loop must be provided"
@@ -797,8 +779,7 @@ class CameraController(QObject):
 
         self.cameraChanged.emit()
         logger.info(
-            f"📷 Auto-framed data: center={center}, "
-            f"distance={self.current_state.distance:.2f}"
+            f"📷 Auto-framed data: center={center}, " f"distance={self.current_state.distance:.2f}"
         )
 
     def follow_point(self, point: np.ndarray, smooth_factor: float = 0.1) -> None:
@@ -818,9 +799,7 @@ class CameraController(QObject):
         self.current_state.target = new_target.astype(np.float32)
         self.cameraChanged.emit()
 
-    def look_at_point(
-        self, point: np.ndarray, animate: bool = True, duration: float = 0.5
-    ) -> None:
+    def look_at_point(self, point: np.ndarray, animate: bool = True, duration: float = 0.5) -> None:
         """Look at a specific point"""
         assert point is not None, "point must be provided"
         assert point is not None, "point must be provided"
@@ -866,9 +845,7 @@ class CameraController(QObject):
         # Position bounds (if set)
         if self.constraints.position_bounds:
             min_bounds, max_bounds = self.constraints.position_bounds
-            self.current_state.target = np.clip(
-                self.current_state.target, min_bounds, max_bounds
-            )
+            self.current_state.target = np.clip(self.current_state.target, min_bounds, max_bounds)
 
     def set_mode(self, mode: CameraMode) -> None:
         """Set camera operation mode"""
@@ -898,12 +875,8 @@ class CameraController(QObject):
         assert state_dict is not None, "state_dict must be provided"
         assert state_dict is not None, "state_dict must be provided"
         target_state = CameraState()
-        target_state.position = np.array(
-            state_dict.get("position", [0, 0, 0]), dtype=np.float32
-        )
-        target_state.target = np.array(
-            state_dict.get("target", [0, 0, 0]), dtype=np.float32
-        )
+        target_state.position = np.array(state_dict.get("position", [0, 0, 0]), dtype=np.float32)
+        target_state.target = np.array(state_dict.get("target", [0, 0, 0]), dtype=np.float32)
         target_state.distance = state_dict.get("distance", 5.0)
         target_state.azimuth = state_dict.get("azimuth", 45.0)
         target_state.elevation = state_dict.get("elevation", 20.0)
@@ -945,9 +918,7 @@ if __name__ == "__main__":
     proj_matrix = camera.get_projection_matrix(16 / 9)
     position = camera.get_camera_position()
 
-    logger.info(
-        f"   Camera position: [{position[0]:.2f}, {position[1]:.2f}, {position[2]:.2f}]"
-    )
+    logger.info(f"   Camera position: [{position[0]:.2f}, {position[1]:.2f}, {position[2]:.2f}]")
     logger.info(f"   View matrix shape: {view_matrix.shape}")
     logger.info(f"   Projection matrix shape: {proj_matrix.shape}")
 
@@ -957,20 +928,15 @@ if __name__ == "__main__":
 
     start_vec = np.array([0, 0, 0])
     end_vec = np.array([1, 1, 1])
-    mid_vec = animator.interpolate_vectors(
-        start_vec, end_vec, 0.5, animator.ease_in_out_cubic
-    )
+    mid_vec = animator.interpolate_vectors(start_vec, end_vec, 0.5, animator.ease_in_out_cubic)
     logger.info(f"   Interpolation test: {start_vec} -> {mid_vec} -> {end_vec}")
 
     # Test spherical interpolation
     start_spherical = (5.0, 45.0, 20.0)
     end_spherical = (3.0, 135.0, -10.0)
-    mid_spherical = animator.spherical_interpolation(
-        start_spherical, end_spherical, 0.5
-    )
+    mid_spherical = animator.spherical_interpolation(start_spherical, end_spherical, 0.5)
     logger.info(
-        f"   Spherical interpolation: {start_spherical} -> "
-        f"{mid_spherical} -> {end_spherical}"
+        f"   Spherical interpolation: {start_spherical} -> " f"{mid_spherical} -> {end_spherical}"
     )
 
     logger.info("\n🎉 Camera system ready for integration!")

@@ -242,9 +242,7 @@ class BaseAgentAdapter(ABC):
         """
         assert tools is not None, "tools must be provided"
         assert tools is not None, "tools must be provided"
-        tool_descriptions = "\n".join(
-            f"- {tool.name}: {tool.description}" for tool in tools
-        )
+        tool_descriptions = "\n".join(f"- {tool.name}: {tool.description}" for tool in tools)
 
         return (
             f"You are an AI assistant for the Golf Modeling Suite, a research-grade "

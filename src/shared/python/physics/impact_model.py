@@ -190,9 +190,7 @@ class RigidBodyImpactModel(ImpactModel):
         assert v_rel is not None, "v_rel must be provided"
         assert v_rel is not None, "v_rel must be provided"
         v_approach = np.dot(v_rel, n)
-        m_eff = (GOLF_BALL_MASS * m_club_effective) / (
-            GOLF_BALL_MASS + m_club_effective
-        )
+        m_eff = (GOLF_BALL_MASS * m_club_effective) / (GOLF_BALL_MASS + m_club_effective)
         j = (1 + cor) * m_eff * v_approach
         return j, v_approach
 
@@ -271,9 +269,7 @@ class RigidBodyImpactModel(ImpactModel):
         assert pre_state is not None, "pre_state must be provided"
         m_club_effective = self._compute_effective_club_mass(pre_state)
 
-        n = pre_state.clubhead_orientation / np.linalg.norm(
-            pre_state.clubhead_orientation
-        )
+        n = pre_state.clubhead_orientation / np.linalg.norm(pre_state.clubhead_orientation)
         v_rel = pre_state.clubhead_velocity - pre_state.ball_velocity
 
         j, v_approach = self._compute_impulse(v_rel, n, m_club_effective, params.cor)
@@ -295,9 +291,7 @@ class RigidBodyImpactModel(ImpactModel):
         )
 
         impact_loc = (
-            pre_state.impact_offset.copy()
-            if pre_state.impact_offset is not None
-            else np.zeros(2)
+            pre_state.impact_offset.copy() if pre_state.impact_offset is not None else np.zeros(2)
         )
 
         return PostImpactState(
@@ -378,9 +372,7 @@ class SpringDamperImpactModel(ImpactModel):
         m_ball = GOLF_BALL_MASS
         m_club = pre_state.clubhead_mass
 
-        n = pre_state.clubhead_orientation / np.linalg.norm(
-            pre_state.clubhead_orientation
-        )
+        n = pre_state.clubhead_orientation / np.linalg.norm(pre_state.clubhead_orientation)
 
         # Initial state - place ball at contact
         x_ball = GOLF_BALL_RADIUS * n  # Ball surface at origin
@@ -440,9 +432,7 @@ class SpringDamperImpactModel(ImpactModel):
                     continue
 
         # Energy calculation
-        ke_ball_pre = (
-            0.5 * m_ball * np.dot(pre_state.ball_velocity, pre_state.ball_velocity)
-        )
+        ke_ball_pre = 0.5 * m_ball * np.dot(pre_state.ball_velocity, pre_state.ball_velocity)
         ke_ball_post = 0.5 * m_ball * np.dot(v_ball, v_ball)
         energy_transfer = ke_ball_post - ke_ball_pre
 
@@ -501,12 +491,9 @@ class FiniteTimeImpactModel(ImpactModel):
 
 
 @precondition(
-    lambda impact_offset,
-    clubhead_velocity,
-    clubface_normal,
-    gear_factor=0.5,
-    h_scale=100.0,
-    v_scale=50.0: (0 <= gear_factor <= 1),
+    lambda impact_offset, clubhead_velocity, clubface_normal, gear_factor=0.5, h_scale=100.0, v_scale=50.0: (
+        0 <= gear_factor <= 1
+    ),
     "Gear effect factor must be between 0 and 1",
 )
 def compute_gear_effect_spin(
@@ -588,33 +575,19 @@ def validate_energy_balance(
     I_ball = GOLF_BALL_MOMENT_INERTIA
 
     # Pre-impact kinetic energy
-    ke_ball_pre = (
-        0.5 * m_ball * np.dot(pre_state.ball_velocity, pre_state.ball_velocity)
-    )
+    ke_ball_pre = 0.5 * m_ball * np.dot(pre_state.ball_velocity, pre_state.ball_velocity)
     ke_ball_rot_pre = (
-        0.5
-        * I_ball
-        * np.dot(pre_state.ball_angular_velocity, pre_state.ball_angular_velocity)
+        0.5 * I_ball * np.dot(pre_state.ball_angular_velocity, pre_state.ball_angular_velocity)
     )
-    ke_club_pre = (
-        0.5 * m_club * np.dot(pre_state.clubhead_velocity, pre_state.clubhead_velocity)
-    )
+    ke_club_pre = 0.5 * m_club * np.dot(pre_state.clubhead_velocity, pre_state.clubhead_velocity)
     total_ke_pre = ke_ball_pre + ke_ball_rot_pre + ke_club_pre
 
     # Post-impact kinetic energy
-    ke_ball_post = (
-        0.5 * m_ball * np.dot(post_state.ball_velocity, post_state.ball_velocity)
-    )
+    ke_ball_post = 0.5 * m_ball * np.dot(post_state.ball_velocity, post_state.ball_velocity)
     ke_ball_rot_post = (
-        0.5
-        * I_ball
-        * np.dot(post_state.ball_angular_velocity, post_state.ball_angular_velocity)
+        0.5 * I_ball * np.dot(post_state.ball_angular_velocity, post_state.ball_angular_velocity)
     )
-    ke_club_post = (
-        0.5
-        * m_club
-        * np.dot(post_state.clubhead_velocity, post_state.clubhead_velocity)
-    )
+    ke_club_post = 0.5 * m_club * np.dot(post_state.clubhead_velocity, post_state.clubhead_velocity)
     total_ke_post = ke_ball_post + ke_ball_rot_post + ke_club_post
 
     # Energy loss
@@ -625,9 +598,7 @@ def validate_energy_balance(
         "total_ke_pre": float(total_ke_pre),
         "total_ke_post": float(total_ke_post),
         "energy_lost": float(energy_lost),
-        "energy_loss_ratio": (
-            float(energy_lost / total_ke_pre) if total_ke_pre > 0 else 0
-        ),
+        "energy_loss_ratio": (float(energy_lost / total_ke_pre) if total_ke_pre > 0 else 0),
         "expected_loss_factor": expected_loss_factor,
         "ball_ke_post": float(ke_ball_post),
         "ball_launch_speed": float(np.linalg.norm(post_state.ball_velocity)),
@@ -826,25 +797,15 @@ class ImpactSolverAPI:
         self.recorder = ImpactRecorder()
 
     @precondition(
-        lambda self,
-        timestamp,
-        clubhead_velocity,
-        clubhead_orientation,
-        ball_velocity=None,
-        ball_angular_velocity=None,
-        clubhead_mass=0.200,
-        record=True: (clubhead_mass > 0),
+        lambda self, timestamp, clubhead_velocity, clubhead_orientation, ball_velocity=None, ball_angular_velocity=None, clubhead_mass=0.200, record=True: (
+            clubhead_mass > 0
+        ),
         "Clubhead mass must be positive",
     )
     @precondition(
-        lambda self,
-        timestamp,
-        clubhead_velocity,
-        clubhead_orientation,
-        ball_velocity=None,
-        ball_angular_velocity=None,
-        clubhead_mass=0.200,
-        record=True: (timestamp >= 0),
+        lambda self, timestamp, clubhead_velocity, clubhead_orientation, ball_velocity=None, ball_angular_velocity=None, clubhead_mass=0.200, record=True: (
+            timestamp >= 0
+        ),
         "Timestamp must be non-negative",
     )
     def solve_impact(
@@ -964,9 +925,7 @@ class ImpactSolverAPI:
                 clubhead_orientation=np.asarray(clubhead_orientation),
                 ball_position=np.zeros(3),
                 ball_velocity=(
-                    np.asarray(ball_velocity)
-                    if ball_velocity is not None
-                    else np.zeros(3)
+                    np.asarray(ball_velocity) if ball_velocity is not None else np.zeros(3)
                 ),
                 ball_angular_velocity=np.zeros(3),
                 clubhead_mass=clubhead_mass,
@@ -1016,9 +975,7 @@ class ImpactSolverAPI:
             ),
         }
 
-    def validate_cor_behavior(
-        self, tolerance: float = 0.05
-    ) -> dict[str, bool | float | str | int]:
+    def validate_cor_behavior(self, tolerance: float = 0.05) -> dict[str, bool | float | str | int]:
         """Validate COR behavior across recorded impacts.
 
         Issue #758: Tests validate COR and spin behavior within tolerance.

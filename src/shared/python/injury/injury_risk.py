@@ -165,9 +165,7 @@ class InjuryRiskScorer:
 
         return report
 
-    def _score_spinal_risks(
-        self, spinal_result: object, report: InjuryRiskReport
-    ) -> None:
+    def _score_spinal_risks(self, spinal_result: object, report: InjuryRiskReport) -> None:
         """Score spinal-related risk factors."""
         # Compression risk
 
@@ -307,9 +305,7 @@ class InjuryRiskScorer:
         if wrist_scores:
             report.region_scores[InjuryType.WRIST] = np.mean(wrist_scores)
 
-    def _score_technique_risks(
-        self, swing_metrics: dict, report: InjuryRiskReport
-    ) -> None:
+    def _score_technique_risks(self, swing_metrics: dict, report: InjuryRiskReport) -> None:
         """Score technique-related risk factors."""
         # Kinematic sequence timing
         assert swing_metrics is not None, "swing_metrics must be provided"
@@ -345,9 +341,7 @@ class InjuryRiskScorer:
                     description="Backswing:downswing tempo ratio",
                 )
             )
-            report.technique_risk_score += (
-                self._value_to_score(tempo_error, 0.5, 1.5) * 0.4
-            )
+            report.technique_risk_score += self._value_to_score(tempo_error, 0.5, 1.5) * 0.4
 
         # Early extension
         if "early_extension" in swing_metrics:
@@ -363,13 +357,9 @@ class InjuryRiskScorer:
                     description="Pelvis movement toward ball in downswing (cm)",
                 )
             )
-            report.technique_risk_score += (
-                self._value_to_score(extension, 5.0, 15.0) * 0.6
-            )
+            report.technique_risk_score += self._value_to_score(extension, 5.0, 15.0) * 0.6
 
-    def _score_training_load_risks(
-        self, training_load: dict, report: InjuryRiskReport
-    ) -> None:
+    def _score_training_load_risks(self, training_load: dict, report: InjuryRiskReport) -> None:
         """Score training load-related risk factors."""
         # Acute:Chronic Workload Ratio
         assert training_load is not None, "training_load must be provided"
@@ -455,9 +445,7 @@ class InjuryRiskScorer:
         # Identify top risks
         sorted_factors = sorted(
             self.risk_factors,
-            key=lambda f: self._value_to_score(
-                f.value, f.threshold_safe, f.threshold_high
-            ),
+            key=lambda f: self._value_to_score(f.value, f.threshold_safe, f.threshold_high),
             reverse=True,
         )
         report.top_risks = [f.name for f in sorted_factors[:3]]
@@ -470,9 +458,7 @@ class InjuryRiskScorer:
 
         # Find high-risk modifiable factors
         for factor in self.risk_factors:
-            score = self._value_to_score(
-                factor.value, factor.threshold_safe, factor.threshold_high
-            )
+            score = self._value_to_score(factor.value, factor.threshold_safe, factor.threshold_high)
             if score > 50 and factor.modifiable:
                 if "compression" in factor.name:
                     recommendations.append(

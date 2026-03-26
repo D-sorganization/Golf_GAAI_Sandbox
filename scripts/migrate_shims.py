@@ -179,9 +179,7 @@ def process_shim(shim_path: Path, dry_run: bool = False) -> dict:
         if rewrite_import(fpath, shim_name, real_subpath):
             changed_files.add(fpath)
 
-    result["files_changed"] = [
-        str(f.relative_to(REPO_ROOT)) for f in sorted(changed_files)
-    ]
+    result["files_changed"] = [str(f.relative_to(REPO_ROOT)) for f in sorted(changed_files)]
 
     # Delete shim file
     shim_path.unlink()
@@ -222,9 +220,7 @@ def main() -> None:
         importers = find_importers(shim_path.stem, search_dirs, shim_path)
         if len(importers) > max_imports:
             if dry_run:
-                print(
-                    f"SKIP {shim_path.stem} ({len(importers)} imports > {max_imports})"
-                )
+                print(f"SKIP {shim_path.stem} ({len(importers)} imports > {max_imports})")
             continue
 
         result = process_shim(shim_path, dry_run=dry_run)

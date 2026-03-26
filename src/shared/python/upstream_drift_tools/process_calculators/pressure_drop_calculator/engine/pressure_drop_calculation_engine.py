@@ -149,9 +149,7 @@ def friction_factor_colebrook(
     return f
 
 
-def friction_factor_swamee_jain(
-    reynolds_number: float, relative_roughness: float
-) -> float:
+def friction_factor_swamee_jain(reynolds_number: float, relative_roughness: float) -> float:
     """Calculate friction factor using Swamee-Jain explicit approximation.
 
     f = 0.25 / [log10(ε/(3.7D) + 5.74/Re^0.9)]²
@@ -185,15 +183,11 @@ def friction_factor_swamee_jain(
 
     f = 0.25 / (math.log10(term1 + term2) ** 2)
 
-    logger.debug(
-        f"Swamee-Jain: Re={reynolds_number:.0f}, ε/D={relative_roughness:.6f}, f={f:.6f}"
-    )
+    logger.debug(f"Swamee-Jain: Re={reynolds_number:.0f}, ε/D={relative_roughness:.6f}, f={f:.6f}")
     return f
 
 
-def friction_factor_churchill(
-    reynolds_number: float, relative_roughness: float
-) -> float:
+def friction_factor_churchill(reynolds_number: float, relative_roughness: float) -> float:
     """Calculate friction factor using Churchill explicit correlation.
 
     Works for all Reynolds numbers (laminar, transitional, turbulent).
@@ -299,9 +293,7 @@ def select_friction_factor_method(
     if method == "haaland":
         return friction_factor_haaland(reynolds_number, relative_roughness)
     available = ["colebrook", "swamee-jain", "churchill", "haaland"]
-    raise ValueError(
-        f"Unknown friction factor method '{method}'. Available: {available}"
-    )
+    raise ValueError(f"Unknown friction factor method '{method}'. Available: {available}")
 
 
 # ============================================================================
@@ -322,18 +314,16 @@ def calculate_flow_properties(inputs: PressureDropInputs) -> FlowProperties:
         ValueError: If calculations fail
     """
     # DbC preconditions
-    assert inputs.pipe_diameter > 0, (
-        f"Pipe diameter must be positive, got {inputs.pipe_diameter}"
-    )
-    assert inputs.mass_flow_rate > 0, (
-        f"Mass flow rate must be positive, got {inputs.mass_flow_rate}"
-    )
-    assert inputs.inlet_temperature > 0, (
-        f"Inlet temperature must be positive (K), got {inputs.inlet_temperature}"
-    )
-    assert inputs.inlet_pressure > 0, (
-        f"Inlet pressure must be positive, got {inputs.inlet_pressure}"
-    )
+    assert inputs.pipe_diameter > 0, f"Pipe diameter must be positive, got {inputs.pipe_diameter}"
+    assert (
+        inputs.mass_flow_rate > 0
+    ), f"Mass flow rate must be positive, got {inputs.mass_flow_rate}"
+    assert (
+        inputs.inlet_temperature > 0
+    ), f"Inlet temperature must be positive (K), got {inputs.inlet_temperature}"
+    assert (
+        inputs.inlet_pressure > 0
+    ), f"Inlet pressure must be positive, got {inputs.inlet_pressure}"
 
     # Calculate gas mixture properties (now includes gamma and speed of sound)
     gas_props = calculate_gas_properties(
@@ -383,15 +373,13 @@ def calculate_flow_properties(inputs: PressureDropInputs) -> FlowProperties:
     )
 
     # DbC postconditions
-    assert flow_props.velocity > 0, (
-        f"Flow velocity must be positive, got {flow_props.velocity}"
-    )
-    assert flow_props.reynolds_number > 0, (
-        f"Reynolds number must be positive, got {flow_props.reynolds_number}"
-    )
-    assert 0 <= flow_props.mach_number < 50, (
-        f"Mach number out of physical range, got {flow_props.mach_number}"
-    )
+    assert flow_props.velocity > 0, f"Flow velocity must be positive, got {flow_props.velocity}"
+    assert (
+        flow_props.reynolds_number > 0
+    ), f"Reynolds number must be positive, got {flow_props.reynolds_number}"
+    assert (
+        0 <= flow_props.mach_number < 50
+    ), f"Mach number out of physical range, got {flow_props.mach_number}"
 
     logger.info("Flow properties calculated:")
     logger.info(f"  Velocity: {velocity:.2f} m/s")
@@ -455,9 +443,7 @@ def calculate_frictional_pressure_drop(
         Darcy, H. (1857), Weisbach, J. (1845): Pipe flow friction equation
     """
     # DbC preconditions
-    assert friction_factor > 0, (
-        f"friction_factor must be positive, got {friction_factor}"
-    )
+    assert friction_factor > 0, f"friction_factor must be positive, got {friction_factor}"
     assert length > 0, f"length must be positive, got {length}"
     assert diameter > 0, f"diameter must be positive, got {diameter}"
     assert density > 0, f"density must be positive, got {density}"
@@ -510,19 +496,13 @@ def calculate_fitting_pressure_drop(
 
         try:
             # Use Two-K method for better accuracy
-            k_factor = calculate_two_k_factor(
-                fitting_type_2k, reynolds_number, diameter_inches
-            )
-            logger.debug(
-                f"Using Two-K method for {fitting.fitting_type}: K = {k_factor:.3f}"
-            )
+            k_factor = calculate_two_k_factor(fitting_type_2k, reynolds_number, diameter_inches)
+            logger.debug(f"Using Two-K method for {fitting.fitting_type}: K = {k_factor:.3f}")
         except (ValueError, KeyError):
             # Fall back to standard K-factor
             try:
                 k_factor = get_fitting_k_factor(fitting.fitting_type)
-                logger.debug(
-                    f"Using standard K for {fitting.fitting_type}: K = {k_factor:.3f}"
-                )
+                logger.debug(f"Using standard K for {fitting.fitting_type}: K = {k_factor:.3f}")
             except ValueError:
                 # Use provided K-factor
                 k_factor = fitting.k_factor
@@ -598,9 +578,7 @@ def _iterate_compressible_pressure(
         P2_squared = P1**2 - rhs
 
         if P2_squared <= 0:
-            logger.warning(
-                "Compressible flow calculation indicates choked flow condition"
-            )
+            logger.warning("Compressible flow calculation indicates choked flow condition")
             return P2, True
 
         P2 = math.sqrt(P2_squared)
@@ -654,17 +632,13 @@ def calculate_compressible_flow_correction(
     # DbC preconditions
     assert diameter > 0, f"diameter must be positive, got {diameter}"
     assert temperature > 0, f"temperature must be positive (K), got {temperature}"
-    assert molecular_weight > 0, (
-        f"molecular_weight must be positive, got {molecular_weight}"
-    )
+    assert molecular_weight > 0, f"molecular_weight must be positive, got {molecular_weight}"
 
     area = PI * (diameter**2) / 4.0
     G = mass_flow_rate / area
     resistance = friction_factor * (length / diameter) + total_k_factor
 
-    coeff = (
-        (G**2) * (compressibility_factor * R_UNIVERSAL * temperature) / molecular_weight
-    )
+    coeff = (G**2) * (compressibility_factor * R_UNIVERSAL * temperature) / molecular_weight
 
     P2, is_choked = _iterate_compressible_pressure(
         inlet_pressure,
@@ -771,9 +745,7 @@ def calculate_expansion_factor(
 # ============================================================================
 
 
-def calculate_erosional_velocity(
-    density: float, service_type: str = "continuous"
-) -> float:
+def calculate_erosional_velocity(density: float, service_type: str = "continuous") -> float:
     """Calculate erosional velocity limit using API RP 14E correlation.
 
     V_erosion = C / √ρ
@@ -812,9 +784,7 @@ def calculate_erosional_velocity(
     # Conversion: C_si ≈ C × 0.0458 for density in kg/m³
     # C_si = C * 0.0458 / (3.281**0.5)  # Approximate conversion (unused)
 
-    V_erosion = C / math.sqrt(
-        density * KG_M3_TO_LB_FT3
-    )  # Convert kg/m³ to lb/ft³ first
+    V_erosion = C / math.sqrt(density * KG_M3_TO_LB_FT3)  # Convert kg/m³ to lb/ft³ first
     V_erosion_si = V_erosion * FT_S_TO_M_S  # Convert ft/s to m/s
 
     logger.debug(f"Erosional velocity: {V_erosion_si:.2f} m/s (C={C})")
@@ -927,12 +897,8 @@ class PressureDropCalculationEngine:
 
         # Negative outlet pressure → choked flow
         if outlet_pressure < 0:
-            logger.error(
-                f"Calculated negative outlet pressure: {outlet_pressure:.1f} Pa"
-            )
-            warnings_list.append(
-                "Negative outlet pressure calculated - flow may be choked"
-            )
+            logger.error(f"Calculated negative outlet pressure: {outlet_pressure:.1f} Pa")
+            warnings_list.append("Negative outlet pressure calculated - flow may be choked")
             outlet_pressure = 0.0
             total_dp = inputs.inlet_pressure
 
@@ -962,15 +928,11 @@ class PressureDropCalculationEngine:
         warnings_list: list[str],
     ) -> PressureDropResults:
         """Construct the results object and perform final safety checks."""
-        erosional_velocity = calculate_erosional_velocity(
-            flow_props.density, "continuous"
-        )
+        erosional_velocity = calculate_erosional_velocity(flow_props.density, "continuous")
         erosion_ratio = flow_props.velocity / erosional_velocity
 
         if erosion_ratio > 0.5:
-            warnings_list.append(
-                f"Velocity is {erosion_ratio * 100:.0f}% of erosional limit"
-            )
+            warnings_list.append(f"Velocity is {erosion_ratio * 100:.0f}% of erosional limit")
         if erosion_ratio > 1.0:
             warnings_list.append(
                 "WARNING: Velocity exceeds erosional limit - risk of pipe erosion!"
@@ -1000,15 +962,9 @@ class PressureDropCalculationEngine:
         logger.info("=" * 80)
         logger.info("RESULTS SUMMARY")
         logger.info("=" * 80)
-        logger.info(
-            f"Total pressure drop: {total_dp / 1e5:.4f} bar ({total_dp:.1f} Pa)"
-        )
-        logger.info(
-            f"  Friction: {dp_friction:.1f} Pa ({dp_friction / total_dp * 100:.1f}%)"
-        )
-        logger.info(
-            f"  Fittings: {dp_fittings:.1f} Pa ({dp_fittings / total_dp * 100:.1f}%)"
-        )
+        logger.info(f"Total pressure drop: {total_dp / 1e5:.4f} bar ({total_dp:.1f} Pa)")
+        logger.info(f"  Friction: {dp_friction:.1f} Pa ({dp_friction / total_dp * 100:.1f}%)")
+        logger.info(f"  Fittings: {dp_fittings:.1f} Pa ({dp_fittings / total_dp * 100:.1f}%)")
         logger.info(f"  Elevation: {dp_elevation:.1f} Pa")
         logger.info(f"Outlet pressure: {outlet_pressure / 1e5:.4f} bar")
         logger.info(f"Erosion ratio: {erosion_ratio * 100:.1f}%")
@@ -1044,18 +1000,14 @@ class PressureDropCalculationEngine:
         # Step 1: Flow properties & regime
         flow_props = calculate_flow_properties(inputs)
         flow_regime = classify_flow_regime(flow_props.reynolds_number)
-        logger.info(
-            f"Flow regime: {flow_regime} (Re = {flow_props.reynolds_number:.0f})"
-        )
+        logger.info(f"Flow regime: {flow_regime} (Re = {flow_props.reynolds_number:.0f})")
 
         # Step 2: Friction factor
         relative_roughness = inputs.pipe_roughness / inputs.pipe_diameter
         friction_factor = select_friction_factor_method(
             inputs.friction_method, flow_props.reynolds_number, relative_roughness
         )
-        logger.info(
-            f"Friction factor ({inputs.friction_method}): f = {friction_factor:.6f}"
-        )
+        logger.info(f"Friction factor ({inputs.friction_method}): f = {friction_factor:.6f}")
 
         # Step 3: Incompressible ΔP components
         dp_friction, dp_fittings, dp_elevation, total_k_factor = (
@@ -1064,14 +1016,12 @@ class PressureDropCalculationEngine:
         dp_incompressible = dp_friction + dp_fittings + dp_elevation
 
         # Step 4: Compressibility correction (if applicable)
-        total_dp, outlet_pressure, dp_acceleration, warnings_list = (
-            self._apply_compressibility(
-                inputs,
-                flow_props,
-                friction_factor,
-                dp_incompressible,
-                total_k_factor,
-            )
+        total_dp, outlet_pressure, dp_acceleration, warnings_list = self._apply_compressibility(
+            inputs,
+            flow_props,
+            friction_factor,
+            dp_incompressible,
+            total_k_factor,
         )
 
         # Step 5: Build result object

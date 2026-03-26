@@ -192,9 +192,7 @@ class BallRollPhysics:
             rolling_spin = np.dot(state.spin, spin_axis)
 
             # Check if close to pure rolling
-            spin_error = abs(rolling_spin - expected_spin) / (
-                abs(expected_spin) + 1e-10
-            )
+            spin_error = abs(rolling_spin - expected_spin) / (abs(expected_spin) + 1e-10)
 
             if spin_error < self.SPIN_VELOCITY_RATIO_TOLERANCE:
                 return RollMode.ROLLING
@@ -284,9 +282,7 @@ class BallRollPhysics:
 
         return self.green.get_gravitational_acceleration(position)
 
-    def compute_spin_decay(
-        self, state: BallState, dt: float, mode: RollMode
-    ) -> np.ndarray:
+    def compute_spin_decay(self, state: BallState, dt: float, mode: RollMode) -> np.ndarray:
         """Compute spin decay over time step.
 
         During sliding, spin changes rapidly to approach pure rolling.
@@ -326,9 +322,7 @@ class BallRollPhysics:
         target_spin = -spin_axis * (speed / self.ball_radius)
 
         # Exponential approach to target (with friction-dependent rate)
-        decay_rate = (
-            self.turf.effective_friction * GRAVITY_M_S2 / self.ball_radius * 5.0
-        )
+        decay_rate = self.turf.effective_friction * GRAVITY_M_S2 / self.ball_radius * 5.0
         alpha = 1.0 - np.exp(-decay_rate * dt)
 
         new_spin = state.spin + alpha * (target_spin - state.spin)
@@ -460,9 +454,7 @@ class BallRollPhysics:
         assert state is not None, "state must be provided"
         assert state is not None, "state must be provided"
 
-        def derivatives(
-            pos: np.ndarray, vel: np.ndarray
-        ) -> tuple[np.ndarray, np.ndarray]:
+        def derivatives(pos: np.ndarray, vel: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
             """Compute velocity and acceleration for the given state."""
             assert pos is not None, "pos must be provided"
             assert pos is not None, "pos must be provided"

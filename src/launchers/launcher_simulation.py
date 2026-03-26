@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 """Simulation launching mixin for GolfLauncher.
 
 Contains methods for launching simulations, MJCF viewers, Docker containers,
@@ -88,13 +92,13 @@ import sys
 import os
 try:
     import {module_name}
-    print("OK")
+    logger.info("OK")
 except ImportError as e:
-    print(f"ImportError: {{e}}")
+    logger.info(f"ImportError: {{e}}")
 except OSError as e:
-    print(f"OSError: {{e}}")
+    logger.info(f"OSError: {{e}}")
 except (RuntimeError, TypeError, AttributeError) as e:
-    print(f"Error: {{type(e).__name__}}: {{e}}")
+    logger.info(f"Error: {{type(e).__name__}}: {{e}}")
 """
         try:
             result = subprocess.run(
@@ -189,8 +193,7 @@ except (RuntimeError, TypeError, AttributeError) as e:
             response = QMessageBox.question(
                 self,
                 "Local Dependencies Missing",
-                f"{deps_error}\n\n"
-                "Would you like to try launching in Docker mode instead?",
+                f"{deps_error}\n\n" "Would you like to try launching in Docker mode instead?",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             )
             if response == QMessageBox.StandardButton.Yes:
@@ -293,9 +296,7 @@ except (RuntimeError, TypeError, AttributeError) as e:
                     raise RuntimeError("ProcessManager returned None")
                 self.show_toast("Launched Passive Viewer", "success")
             else:
-                self.show_toast(
-                    "Viewer script missing, attempting direct launch...", "warning"
-                )
+                self.show_toast("Viewer script missing, attempting direct launch...", "warning")
                 mujoco.viewer.launch(m, d)
 
         except (RuntimeError, TypeError, ValueError) as e:
@@ -399,9 +400,7 @@ except (RuntimeError, TypeError, AttributeError) as e:
                 self.lbl_status.setStyleSheet(Styles.STATUS_SUCCESS)
                 self.show_toast(f"{name} Launched in WSL", "success")
             else:
-                QMessageBox.critical(
-                    self, "Launch Error", f"Failed to launch {name} in WSL"
-                )
+                QMessageBox.critical(self, "Launch Error", f"Failed to launch {name} in WSL")
             return
 
         # Delegate to ProcessManager with keep_terminal_open=True for error visibility
@@ -444,9 +443,7 @@ except (RuntimeError, TypeError, AttributeError) as e:
                 self.lbl_status.setStyleSheet(Styles.STATUS_SUCCESS)
                 self.show_toast(f"{name} Launched in WSL", "success")
             else:
-                QMessageBox.critical(
-                    self, "Launch Error", f"Failed to launch {name} in WSL"
-                )
+                QMessageBox.critical(self, "Launch Error", f"Failed to launch {name} in WSL")
             return
 
         # Delegate to ProcessManager with keep_terminal_open=True for error visibility
@@ -481,9 +478,7 @@ except (RuntimeError, TypeError, AttributeError) as e:
         try:
             logger.info("Launching URDF Generator: %s", script_path)
 
-            process = self.process_manager.launch_script(
-                "urdf_generator", script_path, REPOS_ROOT
-            )
+            process = self.process_manager.launch_script("urdf_generator", script_path, REPOS_ROOT)
             if not process:
                 raise RuntimeError("ProcessManager returned None")
             self.show_toast("URDF Generator launched.", "success")

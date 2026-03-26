@@ -59,10 +59,7 @@ def main() -> None:
     print(f"{'Time(s)':>8}  {'X(m)':>8}  {'Z(m)':>8}  {'Speed(m/s)':>10}")
     print("-" * 42)
     for pt in trajectory[::10]:
-        print(
-            f"{pt.time:8.2f}  {pt.position[0]:8.1f}  {pt.position[2]:8.1f}"
-            f"  {pt.speed:10.2f}"
-        )
+        print(f"{pt.time:8.2f}  {pt.position[0]:8.1f}  {pt.position[2]:8.1f}" f"  {pt.speed:10.2f}")
 
     # --- Carry distance: last point before height < 0 ---
     landing_pts = [p for p in trajectory if p.height <= 0.0]

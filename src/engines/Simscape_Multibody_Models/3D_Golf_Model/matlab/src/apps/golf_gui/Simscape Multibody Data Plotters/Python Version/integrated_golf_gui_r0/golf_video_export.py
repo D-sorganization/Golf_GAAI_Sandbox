@@ -80,9 +80,7 @@ class VideoExporter(QObject):
         try:
             # Validate ffmpeg is available
             if not self._check_ffmpeg():
-                self.error.emit(
-                    "ffmpeg not found. Please install: sudo apt install ffmpeg"
-                )
+                self.error.emit("ffmpeg not found. Please install: sudo apt install ffmpeg")
                 return
 
             # Get frame range
@@ -91,9 +89,7 @@ class VideoExporter(QObject):
             end_frame = min(total_frames, config.end_frame or total_frames)
             frames_to_export = range(start_frame, end_frame)
 
-            logger.info(
-                f"🎬 Exporting {len(frames_to_export)} frames to {config.output_path}"
-            )
+            logger.info(f"🎬 Exporting {len(frames_to_export)} frames to {config.output_path}")
             logger.info(f"   Resolution: {config.resolution[0]}x{config.resolution[1]}")
             logger.info(f"   FPS: {config.fps}")
             logger.info(f"   Quality: {config.quality}")
@@ -107,9 +103,7 @@ class VideoExporter(QObject):
                 frame_data = self.frame_processor.get_frame_data(frame_idx)
 
                 # Render to buffer
-                frame_buffer = self._render_frame_to_buffer(
-                    frame_data, config.resolution
-                )
+                frame_buffer = self._render_frame_to_buffer(frame_data, config.resolution)
 
                 # Write to ffmpeg
                 ffmpeg_process.stdin.write(frame_buffer.tobytes())
@@ -118,9 +112,7 @@ class VideoExporter(QObject):
                 self.progress.emit(i + 1, len(frames_to_export))
 
                 if (i + 1) % 10 == 0:
-                    logger.info(
-                        f"   Rendered {i + 1}/{len(frames_to_export)} frames..."
-                    )
+                    logger.info(f"   Rendered {i + 1}/{len(frames_to_export)} frames...")
 
             # Finalize video
             ffmpeg_process.stdin.close()
@@ -130,9 +122,7 @@ class VideoExporter(QObject):
                 logger.info(f"✅ Video exported successfully to {config.output_path}")
                 self.finished.emit(config.output_path)
             else:
-                error_msg = (
-                    f"ffmpeg failed with return code {ffmpeg_process.returncode}"
-                )
+                error_msg = f"ffmpeg failed with return code {ffmpeg_process.returncode}"
                 logger.error(f"❌ {error_msg}")
                 self.error.emit(error_msg)
 
@@ -193,8 +183,7 @@ class VideoExporter(QObject):
         ]
 
         logger.info(
-            f"   Running ffmpeg with preset '{settings['preset']}', "
-            f"CRF {settings['crf']}"
+            f"   Running ffmpeg with preset '{settings['preset']}', " f"CRF {settings['crf']}"
         )
 
         return subprocess.Popen(
@@ -204,9 +193,7 @@ class VideoExporter(QObject):
             stderr=subprocess.PIPE,
         )
 
-    def _render_frame_to_buffer(
-        self, frame_data, resolution: tuple[int, int]
-    ) -> np.ndarray:
+    def _render_frame_to_buffer(self, frame_data, resolution: tuple[int, int]) -> np.ndarray:
         """
         Render frame to RGB buffer
 
@@ -529,17 +516,13 @@ class VideoExportDialog(QDialog):
         self.accept()
 
         # Show progress dialog
-        progress_dialog = QProgressDialog(
-            "Exporting video...", "Cancel", 0, 100, self.parent()
-        )
+        progress_dialog = QProgressDialog("Exporting video...", "Cancel", 0, 100, self.parent())
         progress_dialog.setWindowTitle("Video Export")
         progress_dialog.setWindowModality(2)  # Application modal
         progress_dialog.setMinimumDuration(0)  # Show immediately
 
         # Start export thread
-        self.export_thread = VideoExportThread(
-            self.renderer, self.frame_processor, config
-        )
+        self.export_thread = VideoExportThread(self.renderer, self.frame_processor, config)
 
         # Connect signals
         self.export_thread.progress.connect(
@@ -548,9 +531,7 @@ class VideoExportDialog(QDialog):
         self.export_thread.finished.connect(
             lambda path: self._on_export_finished(progress_dialog, path)
         )
-        self.export_thread.error.connect(
-            lambda err: self._on_export_error(progress_dialog, err)
-        )
+        self.export_thread.error.connect(lambda err: self._on_export_error(progress_dialog, err))
 
         # Handle cancel
         progress_dialog.canceled.connect(

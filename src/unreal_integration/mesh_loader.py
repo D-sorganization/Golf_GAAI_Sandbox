@@ -23,8 +23,8 @@ Usage:
     mesh = loader.load("character.gltf")
 
     # Access mesh data
-    print(f"Vertices: {mesh.vertex_count}")
-    print(f"Has skeleton: {mesh.has_skeleton}")
+    logger.info(f"Vertices: {mesh.vertex_count}")
+    logger.info(f"Has skeleton: {mesh.has_skeleton}")
 """
 
 from __future__ import annotations
@@ -352,9 +352,7 @@ class LoadedMesh:
         """
         if not self.has_normals:
             return None
-        return np.array(
-            [v.normal if v.normal is not None else [0, 0, 0] for v in self.vertices]
-        )
+        return np.array([v.normal if v.normal is not None else [0, 0, 0] for v in self.vertices])
 
     def get_uvs_array(self) -> np.ndarray | None:
         """Get UVs as numpy array.
@@ -523,13 +521,9 @@ class MeshLoader:
                     continue
 
                 if parts[0] == "v":  # Vertex position
-                    positions.append(
-                        np.array([float(parts[1]), float(parts[2]), float(parts[3])])
-                    )
+                    positions.append(np.array([float(parts[1]), float(parts[2]), float(parts[3])]))
                 elif parts[0] == "vn":  # Vertex normal
-                    normals.append(
-                        np.array([float(parts[1]), float(parts[2]), float(parts[3])])
-                    )
+                    normals.append(np.array([float(parts[1]), float(parts[2]), float(parts[3])]))
                 elif parts[0] == "vt":  # Texture coordinate
                     uvs.append(np.array([float(parts[1]), float(parts[2])]))
                 elif parts[0] == "f":  # Face
@@ -554,11 +548,7 @@ class MeshLoader:
                                 if vn_idx is not None and vn_idx < len(normals)
                                 else None
                             ),
-                            uv=(
-                                uvs[vt_idx]
-                                if vt_idx is not None and vt_idx < len(uvs)
-                                else None
-                            ),
+                            uv=(uvs[vt_idx] if vt_idx is not None and vt_idx < len(uvs) else None),
                         )
                         vertices.append(vertex)
                         face_indices.append(len(vertices) - 1)
@@ -754,9 +744,7 @@ class MeshLoader:
                 mesh = meshes[0]
 
             assert isinstance(mesh, trimesh.Trimesh)
-            vertices = [
-                MeshVertex(position=mesh.vertices[i]) for i in range(len(mesh.vertices))
-            ]
+            vertices = [MeshVertex(position=mesh.vertices[i]) for i in range(len(mesh.vertices))]
 
             faces = [MeshFace(indices=face) for face in mesh.faces]
 
@@ -793,9 +781,7 @@ class MeshLoader:
                 mesh = meshes[0]
 
             assert isinstance(mesh, trimesh.Trimesh)
-            vertices = [
-                MeshVertex(position=mesh.vertices[i]) for i in range(len(mesh.vertices))
-            ]
+            vertices = [MeshVertex(position=mesh.vertices[i]) for i in range(len(mesh.vertices))]
 
             faces = [MeshFace(indices=face) for face in mesh.faces]
 
@@ -806,9 +792,7 @@ class MeshLoader:
             )
 
         except ImportError as e:
-            raise MeshLoadError(
-                "COLLADA loading requires trimesh library", str(path)
-            ) from e
+            raise MeshLoadError("COLLADA loading requires trimesh library", str(path)) from e
 
     def _load_ply(self, path: Path) -> LoadedMesh:
         """Load PLY format mesh.
@@ -825,9 +809,7 @@ class MeshLoader:
             mesh = trimesh.load(str(path))
             assert isinstance(mesh, trimesh.Trimesh)
 
-            vertices = [
-                MeshVertex(position=mesh.vertices[i]) for i in range(len(mesh.vertices))
-            ]
+            vertices = [MeshVertex(position=mesh.vertices[i]) for i in range(len(mesh.vertices))]
 
             faces = [MeshFace(indices=face) for face in mesh.faces]
 
@@ -838,6 +820,4 @@ class MeshLoader:
             )
 
         except ImportError as e:
-            raise MeshLoadError(
-                "PLY loading requires trimesh library", str(path)
-            ) from e
+            raise MeshLoadError("PLY loading requires trimesh library", str(path)) from e

@@ -36,10 +36,11 @@ def issue_context(repo: str, issue_number: str, task_classes_path: str) -> int:
     )
 
     import re
+
     import yaml
 
     labels = [label["name"] for label in issue.get("labels", [])]
-    with open(task_classes_path, "r", encoding="utf-8") as handle:
+    with open(task_classes_path, encoding="utf-8") as handle:
         task_classes = yaml.safe_load(handle)["task_classes"]
 
     task_class = "triage"
@@ -217,13 +218,13 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.command == "issue-context":
-      return issue_context(args.repo, args.issue_number, args.task_classes)
+        return issue_context(args.repo, args.issue_number, args.task_classes)
     if args.command == "pr-lookup":
-      return pr_lookup(args.repo, args.issue_number, args.branch_prefix)
+        return pr_lookup(args.repo, args.issue_number, args.branch_prefix)
     if args.command == "collect-pr-comments":
-      return collect_pr_comments(args.repo, args.pr_number)
+        return collect_pr_comments(args.repo, args.pr_number)
     if args.command == "write-summary":
-      return write_summary(args.output, args.title, args.items)
+        return write_summary(args.output, args.title, args.items)
     return 1
 
 
