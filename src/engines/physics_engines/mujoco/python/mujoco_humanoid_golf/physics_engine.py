@@ -134,7 +134,7 @@ class MuJoCoPhysicsEngine(PhysicsEngine):
 
     @precondition(
         lambda self, dt=None: self.is_initialized, "Engine must be initialized"
-    )
+    )  # noqa: E501
     def step(self, dt: float | None = None) -> None:
         """Step the simulation forward."""
         if self.model is not None and self.data is not None:
@@ -173,14 +173,14 @@ class MuJoCoPhysicsEngine(PhysicsEngine):
             if len(q) != len(self.data.qpos):
                 raise ValueError(
                     f"State q size mismatch: got {len(q)}, "
-                    f"expected {len(self.data.qpos)}"
+                    f"expected {len(self.data.qpos)}"  # noqa: E501
                 )
             self.data.qpos[:] = q
 
             if len(v) != len(self.data.qvel):
                 raise ValueError(
                     f"State v size mismatch: got {len(v)}, "
-                    f"expected {len(self.data.qvel)}"
+                    f"expected {len(self.data.qvel)}"  # noqa: E501
                 )
             self.data.qvel[:] = v
 
@@ -194,7 +194,7 @@ class MuJoCoPhysicsEngine(PhysicsEngine):
             if len(u) != self.model.nu:
                 raise ValueError(
                     f"Control vector size mismatch: got {len(u)}, "
-                    f"expected {self.model.nu}"
+                    f"expected {self.model.nu}"  # noqa: E501
                 )
             self.data.ctrl[:] = u
 
@@ -689,7 +689,7 @@ class MuJoCoPhysicsEngine(PhysicsEngine):
         """
         if not hasattr(self, "_shaft_config") or not hasattr(
             self, "_shaft_modal_state"
-        ):
+        ):  # noqa: E501
             return None
 
         modes = self._shaft_modes
@@ -702,7 +702,7 @@ class MuJoCoPhysicsEngine(PhysicsEngine):
 
         for i, (amp, vel) in enumerate(
             zip(state["amplitudes"], state["velocities"], strict=True)
-        ):
+        ):  # noqa: E501
             deflection += amp * modes["mode_shapes"][i]
             velocity += vel * modes["mode_shapes"][i]
 

@@ -114,10 +114,10 @@ class DrakeUIMixin:
         self.mode_combo.addItems(["Dynamic (Physics)", "Kinematic (Pose)"])
         self.mode_combo.setToolTip(
             "Select between physics simulation or manual pose control"
-        )
+        )  # noqa: E501
         self.mode_combo.setStatusTip(
             "Select between physics simulation or manual pose control"
-        )
+        )  # noqa: E501
         self.mode_combo.currentTextChanged.connect(self._on_mode_changed)
         mode_layout.addWidget(QtWidgets.QLabel("Mode:"))
         mode_layout.addWidget(self.mode_combo)
@@ -169,7 +169,7 @@ class DrakeUIMixin:
         self.btn_reset.setToolTip("Reset the simulation to the initial state (Ctrl+R)")
         self.btn_reset.setStatusTip(
             "Reset the simulation to the initial state (Ctrl+R)"
-        )
+        )  # noqa: E501
         self.btn_reset.setShortcut(QtGui.QKeySequence("Ctrl+R"))
         self.btn_reset.clicked.connect(self._reset_simulation)
         dyn_layout.addWidget(self.btn_reset)
@@ -208,7 +208,7 @@ class DrakeUIMixin:
 
         self.btn_counterfactuals = QtWidgets.QPushButton(
             "Show Counterfactuals (ZTCF/ZVCF)"
-        )
+        )  # noqa: E501
         self.btn_counterfactuals.setToolTip(
             "Show Zero Torque (ZTCF) and Zero Velocity (ZVCF) analysis"
         )
@@ -225,7 +225,7 @@ class DrakeUIMixin:
         self.btn_advanced_plots = QtWidgets.QPushButton("Show Advanced Plots")
         self.btn_advanced_plots.setToolTip(
             "Show Radar Chart, CoP Field, and Power Flow"
-        )
+        )  # noqa: E501
         self.btn_advanced_plots.clicked.connect(self._show_advanced_plots)
         self.btn_advanced_plots.setEnabled(HAS_MATPLOTLIB)
         analysis_layout.addWidget(self.btn_advanced_plots)
@@ -260,10 +260,10 @@ class DrakeUIMixin:
         self.btn_overlays = QtWidgets.QPushButton("Manage Body Overlays")
         self.btn_overlays.setToolTip(
             "Toggle visibility of reference frames and centers of mass"
-        )
+        )  # noqa: E501
         self.btn_overlays.setStatusTip(
             "Toggle visibility of reference frames and centers of mass"
-        )
+        )  # noqa: E501
         self.btn_overlays.clicked.connect(self._show_overlay_dialog)
         vis_layout.addWidget(self.btn_overlays)
 
@@ -289,7 +289,7 @@ class DrakeUIMixin:
         self.chk_live_analysis = QtWidgets.QCheckBox("Live Analysis (Induced/CF)")
         self.chk_live_analysis.setToolTip(
             "Compute Induced Accelerations and Counterfactuals in real-time "
-            "(Can slow down sim)"
+            "(Can slow down sim)"  # noqa: E501
         )
         vis_layout.addWidget(self.chk_live_analysis)
 
@@ -409,7 +409,7 @@ class DrakeUIMixin:
 
             slider.setToolTip(
                 f"Adjust angle for {joint.name()} (radians, "
-                f"{joint_min:.2f} to {joint_max:.2f})"
+                f"{joint_min:.2f} to {joint_max:.2f})"  # noqa: E501
             )
 
             # Spinbox
@@ -576,7 +576,7 @@ class DrakeUIMixin:
             self.btn_record.setText("Record")
             self._update_status(
                 f"Recording stopped. Total Frames: {len(self.recorder.times)}"
-            )
+            )  # noqa: E501
 
     def _show_overlay_dialog(self: Any) -> None:  # noqa: PLR0915
         """Show dialog to toggle overlays for specific bodies."""

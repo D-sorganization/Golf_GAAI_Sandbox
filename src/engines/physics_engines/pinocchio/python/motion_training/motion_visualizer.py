@@ -189,7 +189,7 @@ class MotionVisualizer:
         self.viewer[f"{name}/x"].set_object(x_cyl, x_mat)
         self.viewer[f"{name}/x"].set_transform(
             mctf.rotation_matrix(np.pi / 2, [0, 1, 0])
-            @ mctf.translation_matrix([size / 2, 0, 0])
+            @ mctf.translation_matrix([size / 2, 0, 0])  # noqa: E501
         )
 
         # Y axis (green)
@@ -198,7 +198,7 @@ class MotionVisualizer:
         self.viewer[f"{name}/y"].set_object(y_cyl, y_mat)
         self.viewer[f"{name}/y"].set_transform(
             mctf.rotation_matrix(-np.pi / 2, [1, 0, 0])
-            @ mctf.translation_matrix([0, size / 2, 0])
+            @ mctf.translation_matrix([0, size / 2, 0])  # noqa: E501
         )
 
         # Z axis (blue)
@@ -207,7 +207,7 @@ class MotionVisualizer:
         self.viewer[f"{name}/z"].set_object(z_cyl, z_mat)
         self.viewer[f"{name}/z"].set_transform(
             mctf.translation_matrix([0, 0, size / 2])
-        )
+        )  # noqa: E501
 
         if transform is not None:
             self.viewer[name].set_transform(transform)
@@ -399,7 +399,7 @@ class MotionVisualizer:
 
         logger.info(
             "Playing %s frames at %sx speed", trajectory.num_frames, s.playback_speed
-        )
+        )  # noqa: E501
         logger.info("Press Ctrl+C to stop")
 
         try:
@@ -461,7 +461,7 @@ class MotionVisualizer:
         else:
             indices = np.linspace(
                 0, trajectory.num_frames - 1, num_frames_to_show
-            ).astype(int)
+            ).astype(int)  # noqa: E501
 
         for i, idx in enumerate(indices):
             frame = trajectory.frames[idx]
@@ -594,7 +594,7 @@ class MatplotlibVisualizer:
                     pos = frame.grip_position
                     ax.plot(
                         [pos[0]], [pos[1]], [pos[2]], marker, markersize=15, label=label
-                    )
+                    )  # noqa: E501
 
         ax.set_xlabel("X (m)")
         ax.set_ylabel("Y (m)")
@@ -653,7 +653,7 @@ class MatplotlibVisualizer:
         # Combined error
         combined = np.array(ik_result.left_hand_errors) + np.array(
             ik_result.right_hand_errors
-        )
+        )  # noqa: E501
         axes[1].plot(times, combined, "b-", label="Total Error")
         axes[1].set_xlabel("Time (s)")
         axes[1].set_ylabel("Combined Error (m)")

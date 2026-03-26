@@ -196,7 +196,7 @@ class DrakeMotionOptimizer:
 
     def _build_total_cost_function(
         self, traj_shape: tuple
-    ) -> Callable[[np.ndarray], float]:
+    ) -> Callable[[np.ndarray], float]:  # noqa: E501
         def total_cost(x: np.ndarray) -> float:
             """Combined weighted objective function."""
             traj = x.reshape(traj_shape)
@@ -223,7 +223,7 @@ class DrakeMotionOptimizer:
                         "type": "eq",
                         "fun": lambda x, c=con: c.constraint_function(
                             x.reshape(traj_shape)
-                        ),
+                        ),  # noqa: E501
                     }
                 )
             elif con.constraint_type == "inequality":
@@ -233,7 +233,7 @@ class DrakeMotionOptimizer:
                             "type": "ineq",
                             "fun": lambda x, c=con: (
                                 c.upper_bound
-                                - c.constraint_function(x.reshape(traj_shape))
+                                - c.constraint_function(x.reshape(traj_shape))  # noqa: E501
                             ),
                         }
                     )
@@ -243,7 +243,7 @@ class DrakeMotionOptimizer:
                             "type": "ineq",
                             "fun": lambda x, c=con: (
                                 c.constraint_function(x.reshape(traj_shape))
-                                - c.lower_bound
+                                - c.lower_bound  # noqa: E501
                             ),
                         }
                     )
@@ -455,7 +455,7 @@ class DrakeMotionOptimizer:
 
     def export_optimization_results(
         self, result: OptimizationResult, output_path: str
-    ) -> None:
+    ) -> None:  # noqa: E501
         """Export optimization results for analysis.
 
         Args:

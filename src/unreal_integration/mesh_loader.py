@@ -23,8 +23,8 @@ Usage:
     mesh = loader.load("character.gltf")
 
     # Access mesh data
-    print(f"Vertices: {mesh.vertex_count}")
-    print(f"Has skeleton: {mesh.has_skeleton}")
+    logger.info(f"Vertices: {mesh.vertex_count}")
+    logger.info(f"Has skeleton: {mesh.has_skeleton}")
 """
 
 from __future__ import annotations

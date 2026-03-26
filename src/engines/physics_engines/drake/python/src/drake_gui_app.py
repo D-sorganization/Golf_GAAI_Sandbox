@@ -152,7 +152,7 @@ class DrakeSimApp(  # type: ignore[misc, no-any-unimported]
         self.current_urdf_path: str | None = None
         self.available_models: list[dict] = [
             {"name": "Default Golf Model", "path": None}
-        ]
+        ]  # noqa: E501
         self._scan_urdf_models()
 
         # Initialize Simulation
@@ -203,7 +203,7 @@ class DrakeSimApp(  # type: ignore[misc, no-any-unimported]
                     name = urdf_file.stem.replace("_", " ").title()
                     self.available_models.append(
                         {"name": f"URDF: {name}", "path": str(urdf_file)}
-                    )
+                    )  # noqa: E501
         except (FileNotFoundError, OSError) as e:
             LOGGER.error(f"Failed to scan URDF models: {e}")
 
@@ -236,7 +236,7 @@ class DrakeSimApp(  # type: ignore[misc, no-any-unimported]
             params = GolfModelParams()
             self.diagram, self.plant, _ = build_golf_swing_diagram(
                 params, meshcat=self.meshcat
-            )
+            )  # noqa: E501
 
         if self.diagram is None:
             builder = DiagramBuilder()

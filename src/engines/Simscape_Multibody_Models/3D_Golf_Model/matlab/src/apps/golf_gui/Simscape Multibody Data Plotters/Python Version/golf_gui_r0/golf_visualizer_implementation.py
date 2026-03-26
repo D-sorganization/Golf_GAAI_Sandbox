@@ -158,22 +158,22 @@ class DataProcessor:
             midpoint=self._safe_extract_point(datasets["BASEQ"], frame_idx, "MidPoint"),
             left_wrist=self._safe_extract_point(
                 datasets["BASEQ"], frame_idx, "LeftWrist"
-            ),
+            ),  # noqa: E501
             left_elbow=self._safe_extract_point(
                 datasets["BASEQ"], frame_idx, "LeftElbow"
-            ),
+            ),  # noqa: E501
             left_shoulder=self._safe_extract_point(
                 datasets["BASEQ"], frame_idx, "LeftShoulder"
-            ),
+            ),  # noqa: E501
             right_wrist=self._safe_extract_point(
                 datasets["BASEQ"], frame_idx, "RightWrist"
-            ),
+            ),  # noqa: E501
             right_elbow=self._safe_extract_point(
                 datasets["BASEQ"], frame_idx, "RightElbow"
-            ),
+            ),  # noqa: E501
             right_shoulder=self._safe_extract_point(
                 datasets["BASEQ"], frame_idx, "RightShoulder"
-            ),
+            ),  # noqa: E501
             hub=self._safe_extract_point(datasets["BASEQ"], frame_idx, "Hub"),
             forces={
                 "BASEQ": self._safe_extract_vector(
@@ -203,7 +203,7 @@ class DataProcessor:
 
     def _safe_extract_point(
         self, dataset: np.ndarray, frame_idx: int, column: str
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: E501
         """Safely extract 3D point with fallbacks"""
         if not (dataset is not None):
             raise ValueError("dataset must be provided")
@@ -219,7 +219,7 @@ class DataProcessor:
 
     def _safe_extract_vector(
         self, dataset: np.ndarray, frame_idx: int, column: str
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: E501
         """Safely extract 3D vector with fallbacks"""
         if not (dataset is not None):
             raise ValueError("dataset must be provided")
@@ -782,7 +782,7 @@ class OpenGLRenderer:
             ):
                 scaled_force = (
                     force * config.vector_scale / self.max_force_magnitude * 0.3
-                )
+                )  # noqa: E501
                 self._render_arrow(
                     frame_data.midpoint,
                     scaled_force,
@@ -799,7 +799,7 @@ class OpenGLRenderer:
             ):
                 scaled_torque = (
                     torque * config.vector_scale / self.max_torque_magnitude * 0.2
-                )
+                )  # noqa: E501
                 torque_pos = frame_data.midpoint + np.array([0.1, 0, 0])
                 self._render_arrow(
                     torque_pos,
@@ -868,7 +868,7 @@ class OpenGLRenderer:
         if not (
             np.isfinite(frame_data.butt).all()
             and np.isfinite(frame_data.clubhead).all()
-        ):
+        ):  # noqa: E501
             return
         self._render_cylinder_between_points(
             frame_data.butt,
@@ -922,7 +922,7 @@ class OpenGLRenderer:
         )
         self._render_arrow_head(
             end_pos, vector, color, opacity, view_matrix, proj_matrix
-        )
+        )  # noqa: E501
 
     def _render_arrow_head(
         self,
@@ -1022,19 +1022,19 @@ class ModernGolfVisualizerWidget(QOpenGLWidget):
             return
         frame_data = self.data_processor.extract_frame_data(
             self.current_frame, self.datasets
-        )
+        )  # noqa: E501
         view_matrix = self._calculate_view_matrix()
         proj_matrix = self._calculate_projection_matrix()
         self.renderer.render_frame(
             frame_data, self.render_config, view_matrix, proj_matrix
-        )
+        )  # noqa: E501
         frame_time = time.time() - start_time
         self.frame_times.append(frame_time)
         if len(self.frame_times) > 60:
             self.frame_times.pop(0)
         self.fps = (
             len(self.frame_times) / sum(self.frame_times) if self.frame_times else 0
-        )
+        )  # noqa: E501
 
     def resizeGL(self, width, height) -> None:
         """Handle window resize"""
@@ -1045,7 +1045,7 @@ class ModernGolfVisualizerWidget(QOpenGLWidget):
         try:
             datasets = self.data_processor.load_matlab_data(
                 baseq_file, ztcfq_file, delta_file
-            )
+            )  # noqa: E501
             self.datasets = {
                 "BASEQ": datasets[0],
                 "ZTCFQ": datasets[1],
@@ -1192,7 +1192,7 @@ class ModernGolfVisualizerApp(QMainWindow):
             cb.setChecked(True)
             cb.stateChanged.connect(
                 lambda state, ds=dataset: self._toggle_forces(ds, state)
-            )
+            )  # noqa: E501
             forces_layout.addWidget(cb)
             self.force_checkboxes[dataset] = cb
         layout.addWidget(forces_group)

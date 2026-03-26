@@ -51,7 +51,7 @@ class SwingAnalyzer:
     Usage:
         analyzer = SwingAnalyzer()
         results = analyzer.analyze_video("swing.mp4")
-        print(f"Overall Score: {results.scores.overall}")
+        logger.info(f"Overall Score: {results.scores.overall}")
     """
 
     # Landmark indices (MediaPipe standard)

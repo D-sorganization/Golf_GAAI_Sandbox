@@ -360,7 +360,7 @@ class MuJoCoSimWidget(  # type: ignore[misc]
                 if (
                     first_joint_type == mujoco.mjtJoint.mjJNT_FREE
                     and len(self.data.qpos) >= 3
-                ):
+                ):  # noqa: E501
                     self.data.qpos[2] = 0.9
         elif self.model.nq >= 1:
             self.data.qpos[0] = 0.2
@@ -520,7 +520,7 @@ class MuJoCoSimWidget(  # type: ignore[misc]
 
     def set_state_and_forward(
         self, qpos: np.ndarray, qvel: np.ndarray, ctrl: np.ndarray
-    ) -> None:
+    ) -> None:  # noqa: E501
         """Set simulation state and run forward kinematics."""
         if not (qpos is not None):
             raise ValueError("qpos must be provided")
@@ -670,7 +670,7 @@ class MuJoCoSimWidget(  # type: ignore[misc]
 
     def set_torque_visualization(
         self, enabled: bool, scale: float | None = None
-    ) -> None:
+    ) -> None:  # noqa: E501
         """Toggle torque vector overlay and optionally set scale."""
         if not (enabled is not None):
             raise ValueError("enabled must be provided")
@@ -699,7 +699,7 @@ class MuJoCoSimWidget(  # type: ignore[misc]
 
     def set_force_visualization(
         self, enabled: bool, scale: float | None = None
-    ) -> None:
+    ) -> None:  # noqa: E501
         """Toggle force vector overlay and optionally set scale."""
         if not (enabled is not None):
             raise ValueError("enabled must be provided")
@@ -711,7 +711,7 @@ class MuJoCoSimWidget(  # type: ignore[misc]
 
     def set_ellipsoid_visualization(
         self, mobility_enabled: bool, force_enabled: bool
-    ) -> None:
+    ) -> None:  # noqa: E501
         """Toggle mobility and force ellipsoid overlays."""
         if not (mobility_enabled is not None):
             raise ValueError("mobility_enabled must be provided")
@@ -1061,7 +1061,7 @@ class MuJoCoSimWidget(  # type: ignore[misc]
 
             steps_per_frame = max(
                 1, int(1.0 / (self.fps * self._safe_model_timestep()))
-            )
+            )  # noqa: E501
 
             for _ in range(steps_per_frame):
                 if self.control_system is not None:
@@ -1071,7 +1071,7 @@ class MuJoCoSimWidget(  # type: ignore[misc]
                     nu = self._safe_model_nu()
                     velocities = (
                         self.data.qvel[:nu] if nu <= len(self.data.qvel) else None
-                    )
+                    )  # noqa: E501
                     control_torques = self.control_system.compute_control_vector(
                         velocities,
                     )

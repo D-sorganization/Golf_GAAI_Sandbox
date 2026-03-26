@@ -310,9 +310,7 @@ class VisualizationMixin:
         )
         J = J_spatial[3:, :]  # Translational
 
-        M = self.plant.CalcMassMatrixViaInverseDynamics(  # type: ignore[attr-defined]
-            plant_context
-        )
+        M = self.plant.CalcMassMatrixViaInverseDynamics(plant_context)  # type: ignore[attr-defined]
 
         try:
             s = np.linalg.svd(J, compute_uv=False)

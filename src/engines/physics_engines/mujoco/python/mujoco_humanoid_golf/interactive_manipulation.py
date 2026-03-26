@@ -703,7 +703,7 @@ class InteractiveManipulator:
             body_id
             for body_id, constraint in self.constraints.items()
             if constraint.active
-        ]
+        ]  # noqa: E501
 
     # -------- Pose Library --------
 

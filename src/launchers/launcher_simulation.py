@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 """Simulation launching mixin for GolfLauncher.
 
 Contains methods for launching simulations, MJCF viewers, Docker containers,
@@ -7,25 +11,25 @@ MATLAB apps, and dependency checking.
 
 # mypy: disable-error-code="attr-defined,arg-type"
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-import os
-import subprocess
-import sys
-from pathlib import Path
-from typing import Any
+import os  # noqa: E402
+import subprocess  # noqa: E402
+import sys  # noqa: E402
+from pathlib import Path  # noqa: E402
+from typing import Any  # noqa: E402
 
-from PyQt6.QtCore import QEventLoop
-from PyQt6.QtWidgets import QApplication, QMessageBox
+from PyQt6.QtCore import QEventLoop  # noqa: E402
+from PyQt6.QtWidgets import QApplication, QMessageBox  # noqa: E402
 
-from src.launchers.launcher_constants import (
+from src.launchers.launcher_constants import (  # noqa: E402
     CREATE_NO_WINDOW,
     REPOS_ROOT,
 )
-from src.shared.python.core.contracts import precondition
-from src.shared.python.logging_pkg.logging_config import get_logger
-from src.shared.python.security.secure_subprocess import secure_popen
-from src.shared.python.theme.style_constants import Styles
+from src.shared.python.core.contracts import precondition  # noqa: E402
+from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
+from src.shared.python.security.secure_subprocess import secure_popen  # noqa: E402
+from src.shared.python.theme.style_constants import Styles  # noqa: E402
 
 logger = get_logger(__name__)
 
@@ -90,13 +94,13 @@ import sys
 import os
 try:
     import {module_name}
-    print("OK")
+    logger.info("OK")
 except ImportError as e:
-    print(f"ImportError: {{e}}")
+    logger.info(f"ImportError: {{e}}")
 except OSError as e:
-    print(f"OSError: {{e}}")
+    logger.info(f"OSError: {{e}}")
 except (RuntimeError, TypeError, AttributeError) as e:
-    print(f"Error: {{type(e).__name__}}: {{e}}")
+    logger.info(f"Error: {{type(e).__name__}}: {{e}}")
 """
         try:
             result = subprocess.run(

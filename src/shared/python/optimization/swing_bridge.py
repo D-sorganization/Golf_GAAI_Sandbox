@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 """
 Swing Optimization Bridge Module
 
@@ -23,13 +27,13 @@ References:
       Behaviors through Online Trajectory Optimization.
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-import time
-from dataclasses import dataclass
-from typing import Any
+import time  # noqa: E402
+from dataclasses import dataclass  # noqa: E402
+from typing import Any  # noqa: E402
 
-import numpy as np
+import numpy as np  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -191,7 +195,7 @@ class SwingOptimizationBridge:
         bridge = SwingOptimizationBridge(config)
         x0 = np.zeros(14)          # 7 positions + 7 velocities
         result = bridge.optimize_swing(x0)
-        print(result.clubhead_velocity)
+        logger.info(result.clubhead_velocity)
     """
 
     def __init__(

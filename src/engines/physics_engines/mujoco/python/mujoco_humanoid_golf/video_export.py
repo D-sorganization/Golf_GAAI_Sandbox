@@ -213,7 +213,7 @@ class VideoExporter:
         camera_id: int | None = None,
         overlay_callback: (
             Callable[[np.ndarray, float, mj.MjData], np.ndarray] | None
-        ) = None,
+        ) = None,  # noqa: E501
         progress_callback: Callable[[int, int], None] | None = None,
     ) -> bool:
         """Export a complete simulation as video.

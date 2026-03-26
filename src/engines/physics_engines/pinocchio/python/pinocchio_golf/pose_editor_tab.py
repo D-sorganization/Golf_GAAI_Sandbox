@@ -188,7 +188,7 @@ class PinocchioPoseEditor(BasePoseEditor):
 
         logger.info(
             "Initialized %d joints for Pinocchio pose editing", len(self._joint_info)
-        )
+        )  # noqa: E501
 
     def _categorize_joint(self, name: str) -> str:
         """Categorize a joint into a group based on its name."""
@@ -200,7 +200,7 @@ class PinocchioPoseEditor(BasePoseEditor):
 
         if any(
             x in name_lower for x in ["shoulder", "humerus", "elbow", "wrist", "arm"]
-        ):
+        ):  # noqa: E501
             if "l" in name_lower[:2]:
                 return "Left Arm"
             else:
@@ -214,7 +214,7 @@ class PinocchioPoseEditor(BasePoseEditor):
 
         if any(
             x in name_lower
-            for x in ["spine", "back", "torso", "trunk", "lowerback", "upperback"]
+            for x in ["spine", "back", "torso", "trunk", "lowerback", "upperback"]  # noqa: E501
         ):
             return "Spine"
 
@@ -249,7 +249,7 @@ class PinocchioPoseEditor(BasePoseEditor):
                 else:
                     return self._q[
                         info.position_index : info.position_index + info.num_positions
-                    ]
+                    ]  # noqa: E501
 
         return 0.0
 
@@ -269,7 +269,7 @@ class PinocchioPoseEditor(BasePoseEditor):
                 else:
                     self._q[
                         info.position_index : info.position_index + info.num_positions
-                    ] = value
+                    ] = value  # noqa: E501
 
                 self._state.joint_positions = self._q.copy()
                 self._notify("pose_changed", self._q)

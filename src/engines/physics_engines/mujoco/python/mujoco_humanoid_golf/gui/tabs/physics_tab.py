@@ -196,7 +196,7 @@ class PhysicsTab(QtWidgets.QWidget):
             self._default_model_index = 5
             logger.info(
                 "dm_control not available; defaulting to advanced_biomech model"
-            )
+            )  # noqa: E501
 
     def _add_musculoskeletal_configs(self) -> None:
         """Add MyoSuite musculoskeletal model configs."""
@@ -326,7 +326,7 @@ class PhysicsTab(QtWidgets.QWidget):
         self.mode_combo = QtWidgets.QComboBox()
         self.mode_combo.addItems(
             ["Dynamic (Torque Control)", "Kinematic (Pose Adjustment)"]
-        )
+        )  # noqa: E501
         self.mode_combo.setToolTip(
             "Dynamic: Physics-driven simulation using torques.\n"
             "Kinematic: Direct control of joint positions (pose)."
@@ -353,17 +353,17 @@ class PhysicsTab(QtWidgets.QWidget):
             "full_body": ("Full body with leg drive and weight transfer."),
             "advanced_biomech": (
                 "Detailed golf model: scapulae, 3-DOF shoulders, flexible shaft."
-            ),
+            ),  # noqa: E501
             "humanoid_cm": (
                 "CMU Humanoid from DeepMind Control Suite. Original MuJoCo humanoid."
-            ),
+            ),  # noqa: E501
             "myoupperbody": ("Muscle-actuated upper body. Independent muscle control."),
             "myobody": (
                 "Complete musculoskeletal model. Very complex - for advanced users."
-            ),
+            ),  # noqa: E501
             "myoarm_simple": (
                 "Both arms with muscle actuation. Good for arm mechanics study."
-            ),
+            ),  # noqa: E501
         }
 
         # Names that should be categorized as golf/pendulum models
@@ -384,7 +384,7 @@ class PhysicsTab(QtWidgets.QWidget):
             elif config["name"] in desc_map:
                 prefix = "Golf" if config["name"] in golf_names else "Musculoskeletal"
                 display_name = (
-                    f"{prefix}: {display_name} ({len(config['actuators'])} DOF)"
+                    f"{prefix}: {display_name} ({len(config['actuators'])} DOF)"  # noqa: E501
                 )
 
             self.model_combo.addItem(display_name)
@@ -430,7 +430,7 @@ class PhysicsTab(QtWidgets.QWidget):
             if success:
                 self.main_window.statusBar().showMessage(
                     "Model loaded successfully.", 3000
-                )
+                )  # noqa: E501
             else:
                 self.main_window.statusBar().showMessage("Model load failed.", 5000)
 
@@ -478,7 +478,7 @@ class PhysicsTab(QtWidgets.QWidget):
                 if "xml_path" in config:
                     self.sim_widget.load_model_async(
                         str(config["xml_path"]), is_file=True
-                    )
+                    )  # noqa: E501
                 elif "xml" in config:
                     self.sim_widget.load_model_async(str(config["xml"]), is_file=False)
                 else:

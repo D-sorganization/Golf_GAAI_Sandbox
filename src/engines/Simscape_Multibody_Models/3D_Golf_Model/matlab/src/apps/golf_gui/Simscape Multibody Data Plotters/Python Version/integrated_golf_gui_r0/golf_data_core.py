@@ -43,22 +43,22 @@ class FrameData:
     midpoint: np.ndarray = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
     left_wrist: np.ndarray = field(
         default_factory=lambda: np.zeros(3, dtype=np.float32)
-    )
+    )  # noqa: E501
     left_elbow: np.ndarray = field(
         default_factory=lambda: np.zeros(3, dtype=np.float32)
-    )
+    )  # noqa: E501
     left_shoulder: np.ndarray = field(
         default_factory=lambda: np.zeros(3, dtype=np.float32)
-    )
+    )  # noqa: E501
     right_wrist: np.ndarray = field(
         default_factory=lambda: np.zeros(3, dtype=np.float32)
-    )
+    )  # noqa: E501
     right_elbow: np.ndarray = field(
         default_factory=lambda: np.zeros(3, dtype=np.float32)
-    )
+    )  # noqa: E501
     right_shoulder: np.ndarray = field(
         default_factory=lambda: np.zeros(3, dtype=np.float32)
-    )
+    )  # noqa: E501
     hub: np.ndarray = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
 
     # Force/torque vectors for each dataset
@@ -68,11 +68,11 @@ class FrameData:
     # Derived properties
     shaft_vector: np.ndarray = field(
         default_factory=lambda: np.zeros(3, dtype=np.float32)
-    )
+    )  # noqa: E501
     shaft_length: float = 0.0
     face_normal: np.ndarray = field(
         default_factory=lambda: np.array([1, 0, 0], dtype=np.float32)
-    )
+    )  # noqa: E501
 
     def __post_init__(self) -> None:
         """Calculate derived properties after initialization"""
@@ -241,7 +241,7 @@ class MatlabDataLoader:
             except (RuntimeError, TypeError, ValueError) as e:
                 raise RuntimeError(
                     f"[ERROR] Failed to load {name} from {filepath}: {e}"
-                ) from e
+                ) from e  # noqa: E501
 
         # Validate consistency between datasets
         self._validate_dataset_consistency(datasets)
@@ -294,12 +294,12 @@ class MatlabDataLoader:
         largest_var = max(user_vars.keys(), key=lambda k: user_vars[k].nbytes)
         warnings.warn(
             f"Using fallback variable '{largest_var}' for {dataset_name}", stacklevel=2
-        )
+        )  # noqa: E501
         return largest_var
 
     def _convert_to_dataframe(
         self, mat_table: np.ndarray, dataset_name: str
-    ) -> pd.DataFrame:
+    ) -> pd.DataFrame:  # noqa: E501
         """Convert MATLAB table to optimized pandas DataFrame"""
         if not hasattr(mat_table, "dtype") or mat_table.dtype.names is None:
             raise ValueError(f"Invalid MATLAB table structure in {dataset_name}")
@@ -417,7 +417,7 @@ class MatlabDataLoader:
         except (ValueError, TypeError, RuntimeError) as e:
             warnings.warn(
                 f"Error processing scalar column {col_name}: {e}", stacklevel=2
-            )
+            )  # noqa: E501
             return np.zeros(num_rows, dtype=np.float32)
 
     def _validate_dataframe(self, df: pd.DataFrame, dataset_name: str) -> None:
@@ -445,7 +445,7 @@ class MatlabDataLoader:
         if missing_columns:
             warnings.warn(
                 f"Missing columns in {dataset_name}: {missing_columns}", stacklevel=2
-            )
+            )  # noqa: E501
 
         if len(df) == 0:
             raise ValueError(f"No data rows in {dataset_name}")
@@ -552,7 +552,7 @@ class FrameProcessor:
             [
                 self.get_column_data(self.baseq_df, "Clubhead", i)
                 for i in range(self.num_frames)
-            ]
+            ]  # noqa: E501
         )
         # Placeholder for orientation data
         orientation_data = np.array([np.identity(3)] * self.num_frames)
@@ -608,17 +608,17 @@ class FrameProcessor:
             if "Force" in df.columns:
                 frame_data.forces[dataset_name] = self.get_column_data(
                     df, "Force", frame_idx
-                )
+                )  # noqa: E501
             if "Torque" in df.columns:
                 frame_data.torques[dataset_name] = self.get_column_data(
                     df, "Torque", frame_idx
-                )
+                )  # noqa: E501
 
         return frame_data
 
     def _get_position_vector(
         self, df: pd.DataFrame, prefix: str, row_idx: int
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: E501
         """Get 3D position vector from X, Y, Z columns with given prefix."""
         try:
             x_col = f"{prefix}x"
@@ -633,12 +633,12 @@ class FrameProcessor:
         except (ValueError, TypeError, RuntimeError) as e:
             logger.error(
                 f"Error extracting position vector for {prefix} from row {row_idx}: {e}"
-            )
+            )  # noqa: E501
             return np.zeros(3, dtype=np.float32)
 
     def get_column_data(
         self, df: pd.DataFrame, col_name: str, row_idx: int
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: E501
         """Extract column data as numpy array with error handling."""
         try:
             if col_name in df.columns:
@@ -774,7 +774,7 @@ class GeometryUtils:
 
         vx = np.array(
             [[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]], dtype=np.float32
-        )
+        )  # noqa: E501
 
         R = np.eye(3, dtype=np.float32) + vx + np.dot(vx, vx) * ((1 - c) / (s * s))
 
@@ -951,17 +951,17 @@ if __name__ == "__main__":
     vertices, normals, indices = GeometryUtils.create_cylinder_mesh()
     logger.info(
         f"   Cylinder: {len(vertices) // 3} vertices, {len(indices) // 3} triangles"
-    )
+    )  # noqa: E501
 
     vertices, normals, indices = GeometryUtils.create_sphere_mesh()
     logger.info(
         f"   Sphere: {len(vertices) // 3} vertices, {len(indices) // 3} triangles"
-    )
+    )  # noqa: E501
 
     vertices, normals, indices = GeometryUtils.create_arrow_mesh()
     logger.info(
         f"   Arrow: {len(vertices) // 3} vertices, {len(indices) // 3} triangles"
-    )
+    )  # noqa: E501
 
     # Test data structures
     logger.info("\n[TEST] Testing data structures...")
@@ -970,7 +970,7 @@ if __name__ == "__main__":
 
     logger.info(
         f"   RenderConfig created with {len(config.show_body_segments)} body segments"
-    )
+    )  # noqa: E501
     logger.info(f"   Vector scale: {config.vector_scale}")
 
     # If MATLAB files are available, test loading

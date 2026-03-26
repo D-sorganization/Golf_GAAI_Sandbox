@@ -84,7 +84,7 @@ class VideoExporter(QObject):
             if not self._check_ffmpeg():
                 self.error.emit(
                     "ffmpeg not found. Please install: sudo apt install ffmpeg"
-                )
+                )  # noqa: E501
                 return
 
             # Get frame range
@@ -95,7 +95,7 @@ class VideoExporter(QObject):
 
             logger.info(
                 f"🎬 Exporting {len(frames_to_export)} frames to {config.output_path}"
-            )
+            )  # noqa: E501
             logger.info(f"   Resolution: {config.resolution[0]}x{config.resolution[1]}")
             logger.info(f"   FPS: {config.fps}")
             logger.info(f"   Quality: {config.quality}")
@@ -111,7 +111,7 @@ class VideoExporter(QObject):
                 # Render to buffer
                 frame_buffer = self._render_frame_to_buffer(
                     frame_data, config.resolution
-                )
+                )  # noqa: E501
 
                 # Write to ffmpeg
                 ffmpeg_process.stdin.write(frame_buffer.tobytes())
@@ -122,7 +122,7 @@ class VideoExporter(QObject):
                 if (i + 1) % 10 == 0:
                     logger.info(
                         f"   Rendered {i + 1}/{len(frames_to_export)} frames..."
-                    )
+                    )  # noqa: E501
 
             # Finalize video
             ffmpeg_process.stdin.close()
@@ -133,7 +133,7 @@ class VideoExporter(QObject):
                 self.finished.emit(config.output_path)
             else:
                 error_msg = (
-                    f"ffmpeg failed with return code {ffmpeg_process.returncode}"
+                    f"ffmpeg failed with return code {ffmpeg_process.returncode}"  # noqa: E501
                 )
                 logger.error(f"❌ {error_msg}")
                 self.error.emit(error_msg)
@@ -198,7 +198,7 @@ class VideoExporter(QObject):
 
         logger.info(
             f"   Running ffmpeg with preset '{settings['preset']}', "
-            f"CRF {settings['crf']}"
+            f"CRF {settings['crf']}"  # noqa: E501
         )
 
         return subprocess.Popen(
@@ -210,7 +210,7 @@ class VideoExporter(QObject):
 
     def _render_frame_to_buffer(
         self, frame_data, resolution: tuple[int, int]
-    ) -> np.ndarray:
+    ) -> np.ndarray:  # noqa: E501
         """
         Render frame to RGB buffer
 
@@ -545,7 +545,7 @@ class VideoExportDialog(QDialog):
         # Show progress dialog
         progress_dialog = QProgressDialog(
             "Exporting video...", "Cancel", 0, 100, self.parent()
-        )
+        )  # noqa: E501
         progress_dialog.setWindowTitle("Video Export")
         progress_dialog.setWindowModality(2)  # Application modal
         progress_dialog.setMinimumDuration(0)  # Show immediately
@@ -553,7 +553,7 @@ class VideoExportDialog(QDialog):
         # Start export thread
         self.export_thread = VideoExportThread(
             self.renderer, self.frame_processor, config
-        )
+        )  # noqa: E501
 
         # Connect signals
         self.export_thread.progress.connect(
@@ -564,7 +564,7 @@ class VideoExportDialog(QDialog):
         )
         self.export_thread.error.connect(
             lambda err: self._on_export_error(progress_dialog, err)
-        )
+        )  # noqa: E501
 
         # Handle cancel
         progress_dialog.canceled.connect(

@@ -151,7 +151,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
                     self.enhance_face_var.set(data.get("enhance_face", False))
                     self.articulated_fingers_var.set(
                         data.get("articulated_fingers", False)
-                    )
+                    )  # noqa: E501
 
             except (FileNotFoundError, PermissionError, OSError) as e:
                 logger.error("Error loading config: %s", e)
@@ -202,7 +202,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
         title = ttk.Label(
             title_frame, text="Humanoid Golf Simulation", style="Title.TLabel"
-        )
+        )  # noqa: E501
         title.pack(anchor="center")
 
         subtitle = ttk.Label(
@@ -232,7 +232,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
         ttk.Label(control_frame, text="Control Mode:", style="Modern.TLabel").pack(
             side="left"
-        )
+        )  # noqa: E501
         control_combo = ttk.Combobox(
             control_frame,
             textvariable=self.control_mode_var,
@@ -262,7 +262,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
             raise ValueError("parent must be provided")
         state_card = ttk.LabelFrame(
             parent, text="State Management", style="Modern.TLabelframe"
-        )
+        )  # noqa: E501
         state_card.pack(fill="x", pady=(0, 15))
 
         state_inner = ttk.Frame(state_card, style="Modern.TFrame")
@@ -274,7 +274,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
         ttk.Label(load_frame, text="Load Initial State:", style="Modern.TLabel").pack(
             anchor="w"
-        )
+        )  # noqa: E501
         load_entry_frame = ttk.Frame(load_frame, style="Modern.TFrame")
         load_entry_frame.pack(fill="x", pady=(5, 0))
 
@@ -303,7 +303,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
         ttk.Label(save_frame, text="Save Final State:", style="Modern.TLabel").pack(
             anchor="w"
-        )
+        )  # noqa: E501
         save_entry_frame = ttk.Frame(save_frame, style="Modern.TFrame")
         save_entry_frame.pack(fill="x", pady=(5, 0))
 
@@ -334,7 +334,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
             raise ValueError("parent must be provided")
         action_card = ttk.LabelFrame(
             parent, text="Simulation Controls", style="Modern.TLabelframe"
-        )
+        )  # noqa: E501
         action_card.pack(fill="x", pady=(0, 15))
 
         action_inner = ttk.Frame(action_card, style="Modern.TFrame")
@@ -407,7 +407,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
         results_label = ttk.Label(
             secondary_frame, text="Results:", style="Modern.TLabel"
-        )
+        )  # noqa: E501
         results_label.pack(side="left", padx=(0, 10))
 
         self.btn_open_video = tk.Button(
@@ -450,7 +450,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
             raise ValueError("parent must be provided")
         log_card = ttk.LabelFrame(
             parent, text="Simulation Log", style="Modern.TLabelframe"
-        )
+        )  # noqa: E501
         log_card.pack(fill="both", expand=True)
 
         log_inner = ttk.Frame(log_card, style="Modern.TFrame")
@@ -556,7 +556,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
         ttk.Label(height_frame, text="Height (meters):", style="Modern.TLabel").pack(
             side="left"
-        )
+        )  # noqa: E501
         height_spinbox = tk.Spinbox(
             height_frame,
             from_=0.5,
@@ -587,7 +587,9 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
         ttk.Label(
             weight_label_frame, text="Weight (% of standard):", style="Modern.TLabel"
-        ).pack(side="left")
+        ).pack(  # noqa: E501
+            side="left"
+        )
         weight_value = ttk.Label(
             weight_label_frame, textvariable=self.weight_var, style="Modern.TLabel"
         )
@@ -617,7 +619,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
             raise ValueError("parent must be provided")
         colors_card = ttk.LabelFrame(
             parent, text="Body Colors", style="Modern.TLabelframe"
-        )
+        )  # noqa: E501
         colors_card.pack(fill="x", pady=(0, 20))
 
         colors_inner = ttk.Frame(colors_card, style="Modern.TFrame")
@@ -638,7 +640,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
     def _create_color_picker_row(
         self, parent: ttk.Frame, display_name: str, part_key: str
-    ) -> None:
+    ) -> None:  # noqa: E501
         """Create a single color picker row with label, swatch, and pick button."""
         if not (parent is not None):
             raise ValueError("parent must be provided")
@@ -650,7 +652,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         # Label
         ttk.Label(color_row, text=display_name, style="Modern.TLabel", width=12).pack(
             side="left"
-        )
+        )  # noqa: E501
 
         # Color swatch
         swatch_frame = ttk.Frame(color_row, style="Modern.TFrame")
@@ -732,7 +734,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
             raise ValueError("parent must be provided")
         club_card = ttk.LabelFrame(
             parent, text="Golf Club Parameters", style="Modern.TLabelframe"
-        )
+        )  # noqa: E501
         club_card.pack(fill="x", pady=(0, 20))
 
         club_inner = ttk.Frame(club_card, style="Modern.TFrame")
@@ -781,7 +783,7 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         ttk.Label(label_frame, text=label, style="Modern.TLabel").pack(side="left")
         ttk.Label(label_frame, textvariable=variable, style="Modern.TLabel").pack(
             side="right"
-        )
+        )  # noqa: E501
 
         tk.Scale(
             frame,

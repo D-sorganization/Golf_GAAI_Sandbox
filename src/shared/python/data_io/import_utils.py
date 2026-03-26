@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 """Import utilities for checking module availability and versions.
 
 This module provides reusable import patterns for dependency checking.
@@ -8,11 +12,11 @@ Usage:
     available = ensure_imports("numpy", "matplotlib")
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-from typing import Any
+from typing import Any  # noqa: E402
 
-from src.shared.python.logging_pkg.logging_config import get_logger
+from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
 
 logger = get_logger(__name__)
 
@@ -29,7 +33,7 @@ def ensure_imports(*modules: str) -> dict[str, bool]:
     Example:
         available = ensure_imports("numpy", "matplotlib", "torch")
         if not available["torch"]:
-            print("PyTorch not available")
+            logger.info("PyTorch not available")
     """
     results = {}
 
@@ -131,7 +135,7 @@ def get_module_version(module_name: str) -> str | None:
 
     Example:
         version = get_module_version("numpy")
-        print(f"NumPy version: {version}")
+        logger.info(f"NumPy version: {version}")
     """
     try:
         module = __import__(module_name)

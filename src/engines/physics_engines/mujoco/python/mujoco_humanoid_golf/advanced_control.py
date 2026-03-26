@@ -53,7 +53,7 @@ class ImpedanceParameters:
             raise ValueError("dim must be provided")
         k_matrix = (
             np.diag(self.stiffness) if self.stiffness.ndim == 1 else self.stiffness
-        )
+        )  # noqa: E501
 
         # Damping
         d_matrix = np.diag(self.damping) if self.damping.ndim == 1 else self.damping
@@ -196,7 +196,7 @@ class AdvancedController:
                 feedforward_torque
                 if feedforward_torque is not None
                 else np.zeros(self.model.nu)
-            )
+            )  # noqa: E501
 
         if self.mode == ControlMode.IMPEDANCE:
             return self._compute_impedance_control(target_position, target_velocity)
@@ -450,7 +450,7 @@ class AdvancedController:
             jacr_flat = np.zeros(3 * self.model.nv)
             mujoco.mj_jacBody(
                 self.model, self.data, jacp_flat, jacr_flat, self.club_head_id
-            )
+            )  # noqa: E501
             jacp = jacp_flat.reshape(3, self.model.nv)
 
         # Current end-effector state
@@ -644,7 +644,7 @@ class TrajectoryGenerator:
         # Interpolate
         positions = (
             start[np.newaxis, :] + (goal - start)[np.newaxis, :] * s[:, np.newaxis]
-        )
+        )  # noqa: E501
         velocities = (goal - start)[np.newaxis, :] * s_dot[:, np.newaxis]
         accelerations = (goal - start)[np.newaxis, :] * s_ddot[:, np.newaxis]
 

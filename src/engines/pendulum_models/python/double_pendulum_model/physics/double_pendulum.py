@@ -323,9 +323,8 @@ class DoublePendulumDynamics:
     def __init__(
         self,
         parameters: DoublePendulumParameters | None = None,
-        forcing_functions: (
-            tuple[Callable[[float, DoublePendulumState], float], ...] | None
-        ) = None,
+        forcing_functions: tuple[Callable[[float, DoublePendulumState], float], ...]
+        | None = None,
     ) -> None:
         self.parameters = parameters or DoublePendulumParameters.default()
         self._cache_parameters()

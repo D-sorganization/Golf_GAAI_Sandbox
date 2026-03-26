@@ -37,7 +37,7 @@ class SimulationMixin:
                     name = urdf_file.stem.replace("_", " ").title()
                     self.available_models.append(
                         {"name": f"URDF: {name}", "path": str(urdf_file)}
-                    )
+                    )  # noqa: E501
         except (RuntimeError, ValueError, OSError) as e:
             logger.error(f"Failed to scan URDF models: {e}")
 
@@ -166,10 +166,8 @@ class SimulationMixin:
 
     def _add_joint_control_widget(self: PinocchioGUI, i: int) -> None:
         """Add a single joint control row."""
-        if not (i is not None):
-            raise ValueError("i must be provided")
-        if not (i is not None):
-            raise ValueError("i must be provided")
+        assert i is not None, "i must be provided"
+        assert i is not None, "i must be provided"
         if self.model is None:
             return
 
@@ -204,7 +202,7 @@ class SimulationMixin:
 
         slider.valueChanged.connect(
             lambda val, s=spin, k=idx: self._on_slider(val, s, k)
-        )
+        )  # noqa: E501
         spin.valueChanged.connect(lambda val, s=slider, k=idx: self._on_spin(val, s, k))
 
         r_layout.addWidget(slider)
@@ -239,11 +237,9 @@ class SimulationMixin:
 
     def _on_slider(
         self: PinocchioGUI, val: int, spin: QtWidgets.QDoubleSpinBox, idx: int
-    ) -> None:
-        if not (val is not None):
-            raise ValueError("val must be provided")
-        if not (val is not None):
-            raise ValueError("val must be provided")
+    ) -> None:  # noqa: E501
+        assert val is not None, "val must be provided"
+        assert val is not None, "val must be provided"
         angle = val / SLIDER_SCALE
         with SignalBlocker(spin):
             spin.setValue(angle)
@@ -251,7 +247,7 @@ class SimulationMixin:
 
     def _on_spin(
         self: PinocchioGUI, val: float, slider: QtWidgets.QSlider, idx: int
-    ) -> None:
+    ) -> None:  # noqa: E501
         with SignalBlocker(slider):
             slider.setValue(int(val * SLIDER_SCALE))
         self._update_q(idx, val)
@@ -292,14 +288,10 @@ class SimulationMixin:
 
     def _record_frame(self: PinocchioGUI) -> None:
         """Capture and record a single frame of simulation state."""
-        if not (self.model is not None):
-            raise ValueError("DbC Blocked: Precondition failed.")
-        if not (self.data is not None):
-            raise ValueError("DbC Blocked: Precondition failed.")
-        if not (self.q is not None):
-            raise ValueError("DbC Blocked: Precondition failed.")
-        if not (self.v is not None):
-            raise ValueError("DbC Blocked: Precondition failed.")
+        assert self.model is not None
+        assert self.data is not None
+        assert self.q is not None
+        assert self.v is not None
         tau = np.zeros(self.model.nv)
 
         pin.computeKineticEnergy(self.model, self.data, self.q, self.v)
@@ -326,10 +318,8 @@ class SimulationMixin:
         self: PinocchioGUI,
     ) -> tuple[np.ndarray | None, np.ndarray | None]:
         """Resolve club head frame and return its pose/velocity."""
-        if not (self.model is not None):
-            raise ValueError("DbC Blocked: Precondition failed.")
-        if not (self.data is not None):
-            raise ValueError("DbC Blocked: Precondition failed.")
+        assert self.model is not None
+        assert self.data is not None
 
         club_id = -1
         for fid in range(self.model.nframes):
@@ -353,10 +343,8 @@ class SimulationMixin:
         self: PinocchioGUI, tau: np.ndarray
     ) -> tuple[dict[str, np.ndarray] | None, dict[str, np.ndarray] | None]:
         """Run real-time induced/counterfactual analysis if enabled."""
-        if not (tau is not None):
-            raise ValueError("tau must be provided")
-        if not (tau is not None):
-            raise ValueError("tau must be provided")
+        assert tau is not None, "tau must be provided"
+        assert tau is not None, "tau must be provided"
         if not self.chk_live_analysis.isChecked():
             return None, None
 

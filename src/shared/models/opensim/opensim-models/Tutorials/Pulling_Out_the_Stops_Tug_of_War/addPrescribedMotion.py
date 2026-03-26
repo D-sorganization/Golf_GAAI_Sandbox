@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 """OpenSim tutorial: add prescribed motion to the Tug-of-War model."""
 
 # ----------------------------------------------------------------------- #
@@ -30,7 +34,7 @@
 # Get handle to current model in GUI.
 oldModel = getCurrentModel()
 if not oldModel:
-    pass
+    logger.info("ERROR: Need to load a model first!\\n")
 
 # Create a fresh copy.
 newModel = modeling.Model(oldModel)
@@ -49,13 +53,13 @@ yintercept = 0.05
 myFunction = modeling.LinearFunction(slope, yintercept)
 
 # Assign PrescribedFunction to specify the motion of the block.
-prismaticJoint = newModel.getJointSet().get("ground_block").getCoordinateSet().get(0)
+prismaticJoint = newModel.getJointSet().get('ground_block').getCoordinateSet().get(0)
 prismaticJoint.set_prescribed_function(myFunction)
 prismaticJoint.set_prescribed(True)
 
 # Save new model.
 oldPathName = oldModel.getInputFileName()
-newPathName = oldPathName.replace(".osim", "_prescribedMotion.osim")
+newPathName = oldPathName.replace('.osim', '_prescribedMotion.osim')
 newModel.print(newPathName)
 
 # Add model to GUI.
