@@ -164,6 +164,8 @@ In addition to the standard framework, specialized audits monitor specific quali
 | 2026-03-15 | Completist Audit Report                  | `docs/assessments/completist/Completist_Report_2026-03-15.md`                 |
 | 2026-03-15 | Testing Improvement Action Plan          | `docs/assessments/TESTING_IMPROVEMENT_ACTION_PLAN_2026-03-15.md`              |
 | 2026-03-22 | Completist Audit Report                  | `docs/assessments/completist/Completist_Report_2026-03-22.md`                 |
+| 2026-03-26 | Comprehensive A-O Assessment             | `docs/assessments/Comprehensive_Assessment_2026-03-26.md`                     |
+| 2026-03-26 | Completist Audit Report                  | `docs/assessments/completist/Completist_Report_2026-03-26.md`                 |
 
 ---
 

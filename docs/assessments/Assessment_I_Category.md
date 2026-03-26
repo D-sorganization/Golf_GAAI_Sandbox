@@ -1,26 +1,31 @@
 # Category I: Security & Input Validation Assessment
 
 ## Overview
-This document contains the thorough assessment of the **Security & Input Validation** aspects of the repository.
+This section evaluates the application's security posture, including authentication, authorization, data protection, and vulnerability management.
 
 ## Critical Path Analysis
-Based on the comprehensive review, the following key findings define the current health of this category:
+Security practices require immediate remediation. Critical vulnerabilities include hardcoded API keys found in test_security.py and adapters, and the use of public constants for SECRET_KEY fallbacks. Additionally, the lack of rate limiting on authentication endpoints exposes the system to abuse.
 
-### Strengths
-- bcrypt with ROUNDS=12 used
-- JWT tokens type checked
+### Identified Strengths in Codebase
+- bcrypt with ROUNDS=12 used for passwords.
+- JWT tokens type checked securely.
+- RoleChecker with proper hierarchy.
 
-### Issues & Vulnerabilities
-- Hardcoded API keys in test_security.py and adapters
-- No rate limiting visible on auth endpoints
+### Critical Issues & Vulnerabilities
+- Hardcoded API keys in test_security.py and adapters.
+- No rate limiting visible on auth endpoints.
+- Token expiry is 30 days for refresh tokens (too long).
 
-## Findings Table
-| ID | Finding | Severity | Recommendation |
+## Comprehensive Findings Table
+
+| ID | Finding | Severity | Recommended Action |
 |---|---|---|---|
-| I-01 | Identified major issues | High | Move secrets to environment variables and implement rate limiting. |
+| I-01 | Hardcoded API keys | CRITICAL | Use environment variables or secrets manager |
+| I-02 | Missing rate limiting | MAJOR | Implement rate limiting middleware |
+| I-03 | Long-lived refresh tokens | MINOR | Reduce refresh token expiry to 7 days |
 
-## Score
-**Current Score:** 70/100
+## Assessment Score
+**Calculated Score:** 70/100
 
-## Conclusion
-The assessment of **Security & Input Validation** indicates significant remediation is required to align with production standards. See Comprehensive Report for unified rankings.
+## Strategic Conclusion & Next Steps
+Addressing hardcoded secrets and implementing rate limiting are urgent security priorities that must be resolved to protect the application and its users.

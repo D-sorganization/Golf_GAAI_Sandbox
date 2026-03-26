@@ -1,26 +1,31 @@
 # Category C: Documentation & Comments Assessment
 
 ## Overview
-This document contains the thorough assessment of the **Documentation & Comments** aspects of the repository.
+This section evaluates the comprehensiveness, accuracy, and usefulness of the documentation, including docstrings, inline comments, and external guides.
 
 ## Critical Path Analysis
-Based on the comprehensive review, the following key findings define the current health of this category:
+The documentation is inconsistent. While Protocol interfaces and the Aerodynamics module are well-documented (even including academic references), there are massive gaps elsewhere. The completist audit identified 520 documentation gaps, including 937 lines of abstract methods lacking docstrings. Furthermore, the stub methods completely lack implementation notes, leaving future developers without guidance.
 
-### Strengths
-- Good docstrings on Protocol interfaces
-- Detailed Design-by-Contract docs in interfaces.py
+### Identified Strengths in Codebase
+- Good docstrings on Protocol interfaces.
+- Detailed Design-by-Contract docs in interfaces.py.
+- Aerodynamics module has academic references.
 
-### Issues & Vulnerabilities
-- 520 documentation gaps per completist report
-- Stub methods have no implementation notes
+### Critical Issues & Vulnerabilities
+- 520 documentation gaps per completist report.
+- Stub methods have no implementation notes.
+- src/shared/python/calc_backend/ lacks API usage examples.
 
-## Findings Table
-| ID | Finding | Severity | Recommendation |
+## Comprehensive Findings Table
+
+| ID | Finding | Severity | Recommended Action |
 |---|---|---|---|
-| C-01 | Identified major issues | High | Document all 937 lines of abstract methods. |
+| C-01 | 520 documentation gaps across modules | MAJOR | Add docstrings to all undocumented classes and functions |
+| C-02 | Stub methods missing implementation notes | MAJOR | Add TODOs and explanations to stubs |
+| C-03 | Missing API usage examples | MINOR | Add examples to documentation |
 
-## Score
-**Current Score:** 55/100
+## Assessment Score
+**Calculated Score:** 55/100
 
-## Conclusion
-The assessment of **Documentation & Comments** indicates significant remediation is required to align with production standards. See Comprehensive Report for unified rankings.
+## Strategic Conclusion & Next Steps
+Significant investment is needed to close the documentation gaps, particularly for abstract methods and API usage examples, to facilitate developer onboarding and usage.

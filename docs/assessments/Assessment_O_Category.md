@@ -1,26 +1,31 @@
 # Category O: CI/CD & DevOps Assessment
 
 ## Overview
-This document contains the thorough assessment of the **CI/CD & DevOps** aspects of the repository.
+This section evaluates the continuous integration, continuous deployment, and overall DevOps practices employed in the repository.
 
 ## Critical Path Analysis
-Based on the comprehensive review, the following key findings define the current health of this category:
+CI/CD pipelines are currently unstable. The 'Backend Parity Reports' CI job consistently fails due to the missing vendor/ud-tools submodule, blocking merges. Additionally, the 'Quality-gate' CI fails due to the aforementioned 454 print statement violations. These failures indicate a lack of strict enforcement and maintenance of the CI infrastructure.
 
-### Strengths
-- GitHub Actions CI configured
-- Pre-commit hooks present
+### Identified Strengths in Codebase
+- GitHub Actions CI configured.
+- Pre-commit hooks present with ruff and bandit.
+- docker-compose.yml available for deployment.
 
-### Issues & Vulnerabilities
-- Backend Parity Reports CI job fails
-- Quality-gate CI fails with print violations
+### Critical Issues & Vulnerabilities
+- Backend Parity Reports CI job fails.
+- Quality-gate CI fails with print violations.
+- Scheduled workflows disabled.
 
-## Findings Table
-| ID | Finding | Severity | Recommendation |
+## Comprehensive Findings Table
+
+| ID | Finding | Severity | Recommended Action |
 |---|---|---|---|
-| O-01 | Identified major issues | High | Fix CI failures by resolving submodules and linting errors. |
+| O-01 | Backend Parity CI failure | BLOCKER | Fix the missing submodule causing the failure |
+| O-02 | Quality-gate CI failure | BLOCKER | Resolve the 454 print statement violations |
+| O-03 | Disabled scheduled workflows | MINOR | Re-enable workflows if necessary or clean them up |
 
-## Score
-**Current Score:** 55/100
+## Assessment Score
+**Calculated Score:** 55/100
 
-## Conclusion
-The assessment of **CI/CD & DevOps** indicates significant remediation is required to align with production standards. See Comprehensive Report for unified rankings.
+## Strategic Conclusion & Next Steps
+Restoring the stability of the CI pipelines by resolving the submodule and linting issues is a critical prerequisite for maintaining code quality and facilitating smooth deployments.
