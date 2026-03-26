@@ -101,8 +101,14 @@ class FlareCalculator:
             comp_fractions = {k: v / total_comp for k, v in gas_composition.items()}
 
         # Calculate mixture properties
-        mix_mw = sum(comp_fractions[gas] * self.gas_properties[gas]["mw"] for gas in comp_fractions)
-        mix_hv = sum(comp_fractions[gas] * self.gas_properties[gas]["hv"] for gas in comp_fractions)
+        mix_mw = sum(
+            comp_fractions[gas] * self.gas_properties[gas]["mw"]
+            for gas in comp_fractions
+        )
+        mix_hv = sum(
+            comp_fractions[gas] * self.gas_properties[gas]["hv"]
+            for gas in comp_fractions
+        )
 
         # Calculate heat release
         # kg/hr * kJ/kg * (1 hr / 3600 s) = kJ/s = kW
@@ -145,7 +151,9 @@ class FlareCalculator:
         # D = sqrt((tau * F * Q) / (4 * pi * K))
         # Here matching original logic: H = sqrt(em * Q / (4 * pi * I))
         if target_radiation > 0:
-            height = math.sqrt(emissivity * heat_release / (4 * math.pi * target_radiation))
+            height = math.sqrt(
+                emissivity * heat_release / (4 * math.pi * target_radiation)
+            )
         else:
             height = 0.0
 
@@ -160,10 +168,12 @@ class FlareCalculator:
             radiation_intensity=target_radiation,
         )
         # DbC postconditions
-        assert (
-            result.height >= FLARE_MIN_HEIGHT
-        ), f"Flare height must be >= minimum ({FLARE_MIN_HEIGHT}), got {result.height}"
-        assert result.diameter >= 0, f"Flare diameter must be non-negative, got {result.diameter}"
+        assert result.height >= FLARE_MIN_HEIGHT, (
+            f"Flare height must be >= minimum ({FLARE_MIN_HEIGHT}), got {result.height}"
+        )
+        assert result.diameter >= 0, (
+            f"Flare diameter must be non-negative, got {result.diameter}"
+        )
         return result
 
     def calculate_radiation_zones(self, flare_design: FlareDesign) -> dict[str, float]:

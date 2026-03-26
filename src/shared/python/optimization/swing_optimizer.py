@@ -125,7 +125,8 @@ class ClubModel:
         """Moment of inertia about grip end."""
         # Simplified calculation
         return (
-            self.head_mass * self.total_length**2 + self.shaft_mass * (self.shaft_length / 2) ** 2
+            self.head_mass * self.total_length**2
+            + self.shaft_mass * (self.shaft_length / 2) ** 2
         )
 
 
@@ -372,7 +373,9 @@ class SwingOptimizer(ContractChecker):
             return self._build_success_result(result, iteration_count, computation_time)
         return self._build_failure_result(result, iteration_count, computation_time)
 
-    def _prepare_initial_guess(self, initial_swing: SwingTrajectory | None) -> np.ndarray:
+    def _prepare_initial_guess(
+        self, initial_swing: SwingTrajectory | None
+    ) -> np.ndarray:
         """Build the initial decision-variable vector."""
         if initial_swing is not None:
             return self._trajectory_to_vector(initial_swing)
@@ -464,7 +467,9 @@ class SwingOptimizer(ContractChecker):
         "Number of Pareto points must be positive",
     )
     @postcondition(
-        lambda result: (result is not None and isinstance(result, list) and len(result) > 0),
+        lambda result: (
+            result is not None and isinstance(result, list) and len(result) > 0
+        ),
         "Pareto optimization must return at least one result",
     )
     def optimize_pareto(
@@ -622,7 +627,9 @@ class SwingOptimizer(ContractChecker):
             total_angle = trunk_rot + shoulder_h + wrist
 
             # Position in swing plane
-            position[i, 0] = (arm_length + club_length) * np.sin(total_angle)  # x (forward)
+            position[i, 0] = (arm_length + club_length) * np.sin(
+                total_angle
+            )  # x (forward)
             position[i, 1] = 0  # y (lateral, simplified)
             position[i, 2] = (arm_length + club_length) * np.cos(
                 total_angle
@@ -658,7 +665,9 @@ class SwingOptimizer(ContractChecker):
         constraints = []
 
         if OptimizationConstraint.TORQUE_LIMITS in self.config.constraints:
-            constraints.append({"type": "ineq", "fun": lambda x: self._torque_constraint(x)})
+            constraints.append(
+                {"type": "ineq", "fun": lambda x: self._torque_constraint(x)}
+            )
 
         if OptimizationConstraint.KINEMATIC_CHAIN in self.config.constraints:
             constraints.append(
@@ -777,10 +786,17 @@ class SwingOptimizer(ContractChecker):
         assert trajectory is not None, "trajectory must be provided"
         assert trajectory is not None, "trajectory must be provided"
         total_work = 0.0
-        dt = trajectory.time[1] - trajectory.time[0] if len(trajectory.time) > 1 else 0.001
+        dt = (
+            trajectory.time[1] - trajectory.time[0]
+            if len(trajectory.time) > 1
+            else 0.001
+        )
 
         for joint in self.JOINTS:
-            if joint in trajectory.joint_torques and joint in trajectory.joint_velocities:
+            if (
+                joint in trajectory.joint_torques
+                and joint in trajectory.joint_velocities
+            ):
                 torque = trajectory.joint_torques[joint]
                 velocity = trajectory.joint_velocities[joint]
                 power = torque * velocity

@@ -138,7 +138,9 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self._on_step)
 
-        self.state_double = DoublePendulumState(theta1=-0.5, theta2=-1.2, omega1=0.0, omega2=0.0)
+        self.state_double = DoublePendulumState(
+            theta1=-0.5, theta2=-1.2, omega1=0.0, omega2=0.0
+        )
         self.state_triple = TriplePendulumState(
             theta1=-0.5, theta2=-0.8, theta3=-0.6, omega1=0.0, omega2=0.0, omega3=0.0
         )
@@ -152,7 +154,9 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
         self._build_layout()
         self._update_plot()
 
-    def _validate_polynomial_input(self, text: str, widget: QtWidgets.QLineEdit) -> None:
+    def _validate_polynomial_input(
+        self, text: str, widget: QtWidgets.QLineEdit
+    ) -> None:
         error_msg = validate_polynomial_text(text)
         self._set_input_error(widget, error=error_msg)
 
@@ -160,7 +164,9 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
         error_msg = validate_torque_text(text)
         self._set_input_error(widget, error=error_msg)
 
-    def _set_input_error(self, widget: QtWidgets.QLineEdit, *, error: str | None = None) -> None:
+    def _set_input_error(
+        self, widget: QtWidgets.QLineEdit, *, error: str | None = None
+    ) -> None:
         if error:
             widget.setStyleSheet("background-color: #ffcccc;")
             widget.setToolTip(error)
@@ -244,7 +250,9 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
         ):
             entry = QtWidgets.QLineEdit(default)
             entry.setToolTip("Constant value (e.g. 10.5) or math expression")
-            entry.textChanged.connect(functools.partial(self._validate_torque_input, widget=entry))
+            entry.textChanged.connect(
+                functools.partial(self._validate_torque_input, widget=entry)
+            )
             self.torque_inputs[label] = entry
             layout.addRow(label, entry)
 
@@ -256,7 +264,9 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
             ("Elbow ω polynomial", "0"),
         ):
             entry = QtWidgets.QLineEdit(default)
-            entry.setToolTip("Polynomial coefficients separated by '+' (e.g. 1.0+0.5+0.1)")
+            entry.setToolTip(
+                "Polynomial coefficients separated by '+' (e.g. 1.0+0.5+0.1)"
+            )
             entry.textChanged.connect(
                 functools.partial(self._validate_polynomial_input, widget=entry)
             )
@@ -291,7 +301,9 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
     def _reset(self) -> None:
         self.timer.stop()
         self.time = 0.0
-        self.state_double = DoublePendulumState(theta1=-0.5, theta2=-1.2, omega1=0.0, omega2=0.0)
+        self.state_double = DoublePendulumState(
+            theta1=-0.5, theta2=-1.2, omega1=0.0, omega2=0.0
+        )
         self.state_triple = TriplePendulumState(
             theta1=-0.5, theta2=-0.8, theta3=-0.6, omega1=0.0, omega2=0.0, omega3=0.0
         )
@@ -314,18 +326,24 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
                 )
             else:
                 profiles = self._polynomial_profiles(config.velocity_polynomials[:2])
-                self.state_double = self._apply_inverse_profile_double(self.state_double, profiles)
+                self.state_double = self._apply_inverse_profile_double(
+                    self.state_double, profiles
+                )
             self.time += TIME_STEP
             self._update_plot()
         else:
             if config.forward_mode:
-                torques = tuple(self._safe_eval(expr) for expr in config.torque_expressions)
+                torques = tuple(
+                    self._safe_eval(expr) for expr in config.torque_expressions
+                )
                 self.state_triple = self.triple_dynamics.step(
                     self.time, self.state_triple, TIME_STEP, torques
                 )
             else:
                 profiles = self._polynomial_profiles(config.velocity_polynomials)
-                self.state_triple = self._apply_inverse_profile_triple(self.state_triple, profiles)
+                self.state_triple = self._apply_inverse_profile_triple(
+                    self.state_triple, profiles
+                )
             self.time += TIME_STEP
             self._update_plot()
 
@@ -348,7 +366,9 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
             logger.debug("Error evaluating expression: %s", expression)
             return 0.0
 
-    def _polynomial_profiles(self, expressions: tuple[str, ...]) -> tuple[PolynomialProfile, ...]:
+    def _polynomial_profiles(
+        self, expressions: tuple[str, ...]
+    ) -> tuple[PolynomialProfile, ...]:
         assert expressions is not None, "expressions must be provided"
         assert expressions is not None, "expressions must be provided"
         profiles = []
@@ -384,7 +404,9 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
         )
 
         accelerations = (alpha1, alpha2)
-        torques = self.double_dynamics.inverse_dynamics(state_with_profile, accelerations)
+        torques = self.double_dynamics.inverse_dynamics(
+            state_with_profile, accelerations
+        )
         self.double_dynamics.forcing_functions = (
             lambda _t, _s: torques[0],
             lambda _t, _s: torques[1],
@@ -409,8 +431,12 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
             omega2=omega[1],
             omega3=omega[2],
         )
-        torques = self.triple_dynamics.inverse_dynamics(state_with_profile, accelerations)
-        return self.triple_dynamics.step(self.time, state_with_profile, TIME_STEP, torques)
+        torques = self.triple_dynamics.inverse_dynamics(
+            state_with_profile, accelerations
+        )
+        return self.triple_dynamics.step(
+            self.time, state_with_profile, TIME_STEP, torques
+        )
 
     def _update_plot(self) -> None:
         config = self._current_config()
@@ -439,7 +465,9 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
 
         self.status_label.setText(status_text)
 
-    def _points_double(self, state: DoublePendulumState) -> np.ndarray[typing.Any, typing.Any]:
+    def _points_double(
+        self, state: DoublePendulumState
+    ) -> np.ndarray[typing.Any, typing.Any]:
         assert state is not None, "state must be provided"
         assert state is not None, "state must be provided"
         plane_rotation = self._plane_rotation(self.double_params.plane_inclination_deg)
@@ -454,7 +482,9 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
         )
         return np.vstack([shoulder, upper, lower])
 
-    def _points_triple(self, state: TriplePendulumState) -> np.ndarray[typing.Any, typing.Any]:
+    def _points_triple(
+        self, state: TriplePendulumState
+    ) -> np.ndarray[typing.Any, typing.Any]:
         assert state is not None, "state must be provided"
         assert state is not None, "state must be provided"
         shoulder = np.array([0.0, 0.0, 0.0])
@@ -486,7 +516,9 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
         result = rotation @ local
         return np.array(result, dtype=np.float64)
 
-    def _plane_rotation(self, inclination_deg: float) -> np.ndarray[typing.Any, typing.Any]:
+    def _plane_rotation(
+        self, inclination_deg: float
+    ) -> np.ndarray[typing.Any, typing.Any]:
         assert inclination_deg is not None, "inclination_deg must be provided"
         assert inclination_deg is not None, "inclination_deg must be provided"
         inclination_rad = math.radians(inclination_deg)

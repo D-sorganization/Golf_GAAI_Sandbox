@@ -190,7 +190,9 @@ class DrakeMotionOptimizer:
             constraint_function=impact_timing_constraint,
         )
 
-    def _build_total_cost_function(self, traj_shape: tuple) -> Callable[[np.ndarray], float]:
+    def _build_total_cost_function(
+        self, traj_shape: tuple
+    ) -> Callable[[np.ndarray], float]:
         def total_cost(x: np.ndarray) -> float:
             """Combined weighted objective function."""
             traj = x.reshape(traj_shape)
@@ -213,7 +215,9 @@ class DrakeMotionOptimizer:
                 scipy_constraints.append(
                     {
                         "type": "eq",
-                        "fun": lambda x, c=con: c.constraint_function(x.reshape(traj_shape)),
+                        "fun": lambda x, c=con: c.constraint_function(
+                            x.reshape(traj_shape)
+                        ),
                     }
                 )
             elif con.constraint_type == "inequality":
@@ -222,7 +226,8 @@ class DrakeMotionOptimizer:
                         {
                             "type": "ineq",
                             "fun": lambda x, c=con: (
-                                c.upper_bound - c.constraint_function(x.reshape(traj_shape))
+                                c.upper_bound
+                                - c.constraint_function(x.reshape(traj_shape))
                             ),
                         }
                     )
@@ -231,7 +236,8 @@ class DrakeMotionOptimizer:
                         {
                             "type": "ineq",
                             "fun": lambda x, c=con: (
-                                c.constraint_function(x.reshape(traj_shape)) - c.lower_bound
+                                c.constraint_function(x.reshape(traj_shape))
+                                - c.lower_bound
                             ),
                         }
                     )
@@ -431,7 +437,9 @@ class DrakeMotionOptimizer:
 
         return self.optimize_trajectory(initial_trajectory)
 
-    def export_optimization_results(self, result: OptimizationResult, output_path: str) -> None:
+    def export_optimization_results(
+        self, result: OptimizationResult, output_path: str
+    ) -> None:
         """Export optimization results for analysis.
 
         Args:

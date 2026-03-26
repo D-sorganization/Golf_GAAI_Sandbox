@@ -61,7 +61,9 @@ def fix_numpy_compatibility() -> None:
 
         print("Uninstalling packages that may have NumPy compatibility issues...")
         for package in packages_to_reinstall:
-            run_command([sys.executable, "-m", "pip", "uninstall", "-y", package], check=False)
+            run_command(
+                [sys.executable, "-m", "pip", "uninstall", "-y", package], check=False
+            )
 
         # Downgrade NumPy
         print("Downgrading NumPy to 1.x...")
@@ -83,7 +85,9 @@ def fix_numpy_compatibility() -> None:
 
         # Install project dependencies
         print("Installing project dependencies...")
-        run_command([sys.executable, "-m", "pip", "install", "-e", ".", "--force-reinstall"])
+        run_command(
+            [sys.executable, "-m", "pip", "install", "-e", ".", "--force-reinstall"]
+        )
 
     print("✅ NumPy compatibility fix complete!")
 

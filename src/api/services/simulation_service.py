@@ -39,7 +39,9 @@ class SimulationService:
         "Simulation duration must be positive",
     )
     @precondition(
-        lambda self, request: (request.engine_type is not None and len(request.engine_type) > 0),
+        lambda self, request: (
+            request.engine_type is not None and len(request.engine_type) > 0
+        ),
         "Engine type must be specified",
     )
     def _prepare_engine(self, request: SimulationRequest) -> Any:
@@ -139,7 +141,9 @@ class SimulationService:
             simulation_data = self._extract_simulation_data(recorder)
             analysis_results = None
             if request.analysis_config:
-                analysis_results = self._perform_analysis(recorder, request.analysis_config)
+                analysis_results = self._perform_analysis(
+                    recorder, request.analysis_config
+                )
 
             return SimulationResponse(
                 success=True,
@@ -162,7 +166,9 @@ class SimulationService:
             )
 
     @precondition(
-        lambda self, task_id, request, active_tasks: (task_id is not None and len(task_id) > 0),
+        lambda self, task_id, request, active_tasks: (
+            task_id is not None and len(task_id) > 0
+        ),
         "Task ID must be a non-empty string",
     )
     @precondition(
@@ -189,7 +195,9 @@ class SimulationService:
         except (GolfSuiteError, ValueError, RuntimeError, OSError) as e:
             active_tasks[task_id] = {"status": "failed", "error": str(e)}
 
-    def _extract_simulation_data(self, recorder: GenericPhysicsRecorder) -> dict[str, Any]:
+    def _extract_simulation_data(
+        self, recorder: GenericPhysicsRecorder
+    ) -> dict[str, Any]:
         """Extract simulation data from recorder.
 
         Args:
@@ -216,7 +224,9 @@ class SimulationService:
 
             times, accelerations = recorder.get_time_series("joint_accelerations")
             data["joint_accelerations"] = (
-                accelerations.tolist() if hasattr(accelerations, "tolist") else accelerations
+                accelerations.tolist()
+                if hasattr(accelerations, "tolist")
+                else accelerations
             )
 
             # Extract control data if available
@@ -252,12 +262,16 @@ class SimulationService:
             # Extract ZTCF data if enabled
             if config.get("ztcf", False):
                 times, ztcf = recorder.get_time_series("ztcf_accel")
-                results["ztcf_acceleration"] = ztcf.tolist() if hasattr(ztcf, "tolist") else ztcf
+                results["ztcf_acceleration"] = (
+                    ztcf.tolist() if hasattr(ztcf, "tolist") else ztcf
+                )
 
             # Extract ZVCF data if enabled
             if config.get("zvcf", False):
                 times, zvcf = recorder.get_time_series("zvcf_accel")
-                results["zvcf_acceleration"] = zvcf.tolist() if hasattr(zvcf, "tolist") else zvcf
+                results["zvcf_acceleration"] = (
+                    zvcf.tolist() if hasattr(zvcf, "tolist") else zvcf
+                )
 
             # Extract drift analysis if enabled
             if config.get("track_drift", False):

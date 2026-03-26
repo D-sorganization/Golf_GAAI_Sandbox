@@ -349,7 +349,10 @@ class MuJoCoSimWidget(  # type: ignore[misc]
         elif self.model.nq >= 10:
             if self.model.njnt > 0:
                 first_joint_type = self.model.jnt_type[0]
-                if first_joint_type == mujoco.mjtJoint.mjJNT_FREE and len(self.data.qpos) >= 3:
+                if (
+                    first_joint_type == mujoco.mjtJoint.mjJNT_FREE
+                    and len(self.data.qpos) >= 3
+                ):
                     self.data.qpos[2] = 0.9
         elif self.model.nq >= 1:
             self.data.qpos[0] = 0.2
@@ -505,7 +508,9 @@ class MuJoCoSimWidget(  # type: ignore[misc]
             self.data.ctrl.copy(),
         )
 
-    def set_state_and_forward(self, qpos: np.ndarray, qvel: np.ndarray, ctrl: np.ndarray) -> None:
+    def set_state_and_forward(
+        self, qpos: np.ndarray, qvel: np.ndarray, ctrl: np.ndarray
+    ) -> None:
         """Set simulation state and run forward kinematics."""
         assert qpos is not None, "qpos must be provided"
         assert qpos is not None, "qpos must be provided"
@@ -649,7 +654,9 @@ class MuJoCoSimWidget(  # type: ignore[misc]
 
         self._render_once()
 
-    def set_torque_visualization(self, enabled: bool, scale: float | None = None) -> None:
+    def set_torque_visualization(
+        self, enabled: bool, scale: float | None = None
+    ) -> None:
         """Toggle torque vector overlay and optionally set scale."""
         assert enabled is not None, "enabled must be provided"
         assert enabled is not None, "enabled must be provided"
@@ -672,7 +679,9 @@ class MuJoCoSimWidget(  # type: ignore[misc]
         if not screw:
             self._prev_body_ts.clear()
 
-    def set_force_visualization(self, enabled: bool, scale: float | None = None) -> None:
+    def set_force_visualization(
+        self, enabled: bool, scale: float | None = None
+    ) -> None:
         """Toggle force vector overlay and optionally set scale."""
         assert enabled is not None, "enabled must be provided"
         assert enabled is not None, "enabled must be provided"
@@ -680,7 +689,9 @@ class MuJoCoSimWidget(  # type: ignore[misc]
         if scale is not None:
             self.force_scale = scale
 
-    def set_ellipsoid_visualization(self, mobility_enabled: bool, force_enabled: bool) -> None:
+    def set_ellipsoid_visualization(
+        self, mobility_enabled: bool, force_enabled: bool
+    ) -> None:
         """Toggle mobility and force ellipsoid overlays."""
         assert mobility_enabled is not None, "mobility_enabled must be provided"
         assert mobility_enabled is not None, "mobility_enabled must be provided"
@@ -1018,7 +1029,9 @@ class MuJoCoSimWidget(  # type: ignore[misc]
                 self._render_once()
                 return
 
-            steps_per_frame = max(1, int(1.0 / (self.fps * self._safe_model_timestep())))
+            steps_per_frame = max(
+                1, int(1.0 / (self.fps * self._safe_model_timestep()))
+            )
 
             for _ in range(steps_per_frame):
                 if self.control_system is not None:
@@ -1026,7 +1039,9 @@ class MuJoCoSimWidget(  # type: ignore[misc]
 
                 if self.control_system is not None:
                     nu = self._safe_model_nu()
-                    velocities = self.data.qvel[:nu] if nu <= len(self.data.qvel) else None
+                    velocities = (
+                        self.data.qvel[:nu] if nu <= len(self.data.qvel) else None
+                    )
                     control_torques = self.control_system.compute_control_vector(
                         velocities,
                     )

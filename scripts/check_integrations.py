@@ -314,7 +314,9 @@ def main() -> int:
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Check UpstreamDrift integrations")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
-    parser.add_argument("--fix", action="store_true", help="Attempt to fix common issues")
+    parser.add_argument(
+        "--fix", action="store_true", help="Attempt to fix common issues"
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(message)s")
