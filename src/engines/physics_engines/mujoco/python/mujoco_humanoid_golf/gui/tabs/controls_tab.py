@@ -134,7 +134,9 @@ class ControlsTab(QtWidgets.QWidget):
         self.recording_label.setStyleSheet(Styles.RECORDING_IDLE)
         main_layout.addWidget(self.recording_label)
 
-        self.chk_live_analysis = QtWidgets.QCheckBox("Enable Live Analysis (CPU Intensive)")
+        self.chk_live_analysis = QtWidgets.QCheckBox(
+            "Enable Live Analysis (CPU Intensive)"
+        )  # noqa: E501
         self.chk_live_analysis.setToolTip(
             "Compute Induced Accelerations and Counterfactuals in real-time"
         )
@@ -206,7 +208,9 @@ class ControlsTab(QtWidgets.QWidget):
         help_layout.addWidget(label)
         parent_layout.addWidget(self.help_group)
 
-    def _create_quick_camera_buttons(self, parent_layout: QtWidgets.QVBoxLayout) -> None:
+    def _create_quick_camera_buttons(
+        self, parent_layout: QtWidgets.QVBoxLayout
+    ) -> None:  # noqa: E501
         """Create quick access camera buttons."""
         assert parent_layout is not None, "parent_layout must be provided"
         assert parent_layout is not None, "parent_layout must be provided"
@@ -222,7 +226,9 @@ class ControlsTab(QtWidgets.QWidget):
         for label, preset_name in presets:
             btn = QtWidgets.QPushButton(label)
             btn.setToolTip(f"Switch to {label} view")
-            btn.clicked.connect(lambda checked, n=preset_name: self._on_quick_camera_clicked(n))
+            btn.clicked.connect(
+                lambda checked, n=preset_name: self._on_quick_camera_clicked(n)
+            )  # noqa: E501
             camera_layout.addWidget(btn)
             self.quick_camera_buttons[preset_name] = btn
 
@@ -244,7 +250,9 @@ class ControlsTab(QtWidgets.QWidget):
         self._clear_actuator_controls()
 
         actuators = config.get("actuators", [])
-        if self.sim_widget.has_model() and len(actuators) != self.sim_widget.get_num_actuators():
+        if (
+            self.sim_widget.has_model() and len(actuators) != self.sim_widget.get_num_actuators()
+        ):  # noqa: E501
             # Re-verify if fixup happened in PhysicsTab, but just in case
             logger.warning("Actuator count mismatch in ControlsTab update")
 
@@ -299,7 +307,8 @@ class ControlsTab(QtWidgets.QWidget):
 
         if self.simplified_actuator_mode:
             self._simplified_notice = QtWidgets.QLabel(
-                "Large musculoskeletal model detected. Showing simplified " "actuator controls."
+                "Large musculoskeletal model detected. Showing simplified "
+                "actuator controls."  # noqa: E501
             )
             self._simplified_notice.setStyleSheet(Styles.NOTICE_WARNING)
             self.actuator_layout.addWidget(self._simplified_notice)
@@ -361,7 +370,9 @@ class ControlsTab(QtWidgets.QWidget):
             groups[key].append(name)
         return groups
 
-    def _create_simplified_actuator_row(self, index: int, name: str) -> QtWidgets.QWidget:
+    def _create_simplified_actuator_row(
+        self, index: int, name: str
+    ) -> QtWidgets.QWidget:  # noqa: E501
         assert index is not None, "index must be provided"
         assert index is not None, "index must be provided"
         container = QtWidgets.QFrame()
@@ -372,7 +383,9 @@ class ControlsTab(QtWidgets.QWidget):
 
         slider = QtWidgets.QSlider(QtCore.Qt.Orientation.Horizontal)
         slider.setRange(-100, 100)
-        slider.valueChanged.connect(lambda v, i=index: self.on_actuator_slider_changed(i, v))
+        slider.valueChanged.connect(
+            lambda v, i=index: self.on_actuator_slider_changed(i, v)
+        )  # noqa: E501
         self.actuator_sliders.append(slider)
         layout.addWidget(slider, stretch=4)
 
@@ -385,13 +398,17 @@ class ControlsTab(QtWidgets.QWidget):
         detail_btn = QtWidgets.QPushButton("Edit...")
         detail_btn.setFixedWidth(50)
         detail_btn.clicked.connect(
-            lambda _, i=index, n=name, s=slider: self.open_actuator_detail_dialog(i, n, s)
+            lambda _, i=index, n=name, s=slider: self.open_actuator_detail_dialog(
+                i, n, s
+            )  # noqa: E501
         )
         layout.addWidget(detail_btn)
 
         return container
 
-    def _create_advanced_actuator_control(self, index: int, name: str) -> QtWidgets.QWidget:
+    def _create_advanced_actuator_control(
+        self, index: int, name: str
+    ) -> QtWidgets.QWidget:  # noqa: E501
         assert index is not None, "index must be provided"
         assert index is not None, "index must be provided"
         container = QtWidgets.QFrame()
@@ -404,7 +421,9 @@ class ControlsTab(QtWidgets.QWidget):
 
         combo = QtWidgets.QComboBox()
         combo.addItems(["Constant", "Polynomial", "Sine Wave", "Step"])
-        combo.currentIndexChanged.connect(lambda idx, i=index: self.on_control_type_changed(i, idx))
+        combo.currentIndexChanged.connect(
+            lambda idx, i=index: self.on_control_type_changed(i, idx)
+        )  # noqa: E501
         self.actuator_control_types.append(combo)
         hl.addWidget(QtWidgets.QLabel("Type:"))
         hl.addWidget(combo)
@@ -414,12 +433,16 @@ class ControlsTab(QtWidgets.QWidget):
         ql = QtWidgets.QHBoxLayout()
         slider = QtWidgets.QSlider(QtCore.Qt.Orientation.Horizontal)
         slider.setRange(-100, 100)
-        slider.valueChanged.connect(lambda v, i=index: self.on_actuator_slider_changed(i, v))
+        slider.valueChanged.connect(
+            lambda v, i=index: self.on_actuator_slider_changed(i, v)
+        )  # noqa: E501
         self.actuator_sliders.append(slider)
 
         spin = QtWidgets.QDoubleSpinBox()
         spin.setRange(-1000, 1000)
-        spin.valueChanged.connect(lambda v, i=index: self.on_constant_value_changed(i, v))
+        spin.valueChanged.connect(
+            lambda v, i=index: self.on_constant_value_changed(i, v)
+        )  # noqa: E501
         self.actuator_constant_inputs.append(spin)
 
         label = QtWidgets.QLabel("0 Nm")
@@ -443,7 +466,9 @@ class ControlsTab(QtWidgets.QWidget):
         # Details button for advanced layout too (for Poly/Sine/Step params)
         detail_btn = QtWidgets.QPushButton("Params...")
         detail_btn.clicked.connect(
-            lambda _, i=index, n=name, s=slider: self.open_actuator_detail_dialog(i, n, s)
+            lambda _, i=index, n=name, s=slider: self.open_actuator_detail_dialog(
+                i, n, s
+            )  # noqa: E501
         )
         dl.addWidget(detail_btn)
 
@@ -462,7 +487,9 @@ class ControlsTab(QtWidgets.QWidget):
         assert actuator_index is not None, "actuator_index must be provided"
         control_system = self.sim_widget.get_control_system()
         if control_system is None:
-            QtWidgets.QMessageBox.warning(self, "Error", "Control system not initialized.")
+            QtWidgets.QMessageBox.warning(
+                self, "Error", "Control system not initialized."
+            )  # noqa: E501
             return
 
         slider_sync: Callable[[float], None] | None = None
@@ -609,12 +636,16 @@ class ControlsTab(QtWidgets.QWidget):
 
         output_dir = Path("output/screenshots")
         output_dir.mkdir(parents=True, exist_ok=True)
-        filename = output_dir / f"screenshot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+        filename = (
+            output_dir / f"screenshot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+        )  # noqa: E501
         pixmap.save(str(filename))
         logger.info("Screenshot saved: %s", filename)
 
         if self.main_window.statusBar():
-            self.main_window.statusBar().showMessage(f"Screenshot saved: {filename}", 3000)
+            self.main_window.statusBar().showMessage(
+                f"Screenshot saved: {filename}", 3000
+            )  # noqa: E501
 
     def on_export_data(self) -> None:
         """Delegate data export to the main window handler."""
@@ -638,7 +669,9 @@ class ControlsTab(QtWidgets.QWidget):
         dof_info = self.sim_widget.get_dof_info()
 
         if not dof_info:
-            self.joint_layout.addWidget(QtWidgets.QLabel("No controllable joints found."))
+            self.joint_layout.addWidget(
+                QtWidgets.QLabel("No controllable joints found.")
+            )  # noqa: E501
             return
 
         for name, (min_val, max_val), current_val in dof_info:
