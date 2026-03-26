@@ -45,9 +45,7 @@ class SignalToolkitProcessingMixin:
 
     def _setup_connections(self: Any) -> None:
         """Setup signal-slot connections."""
-        self.signal_type_combo.currentIndexChanged.connect(
-            self.param_stack.setCurrentIndex
-        )
+        self.signal_type_combo.currentIndexChanged.connect(self.param_stack.setCurrentIndex)
         self.generate_btn.clicked.connect(self._generate_signal)
 
         self.fit_btn.clicked.connect(self._fit_function)
@@ -273,9 +271,7 @@ class SignalToolkitProcessingMixin:
                 params_str = self.fit_custom_params.text()
                 if expr and params_str:
                     params = [p.strip() for p in params_str.split(",")]
-                    result = fitter.fit_custom_expression(
-                        self.current_signal, expr, params
-                    )
+                    result = fitter.fit_custom_expression(self.current_signal, expr, params)
                 else:
                     return
             else:
@@ -456,9 +452,7 @@ class SignalToolkitProcessingMixin:
                     window += 1
 
                 if design == "Moving Average":
-                    self.current_signal = apply_moving_average(
-                        self.current_signal, window
-                    )
+                    self.current_signal = apply_moving_average(self.current_signal, window)
                 elif design == "Savitzky-Golay":
                     self.current_signal = apply_savgol(self.current_signal, window, 3)
                 elif design == "Median":
@@ -466,17 +460,13 @@ class SignalToolkitProcessingMixin:
                         apply_median_filter,
                     )
 
-                    self.current_signal = apply_median_filter(
-                        self.current_signal, window
-                    )
+                    self.current_signal = apply_median_filter(self.current_signal, window)
                 elif design == "Gaussian":
                     from src.shared.python.signal_toolkit.filters import (
                         apply_gaussian_smoothing,
                     )
 
-                    self.current_signal = apply_gaussian_smoothing(
-                        self.current_signal, window / 3
-                    )
+                    self.current_signal = apply_gaussian_smoothing(self.current_signal, window / 3)
             else:
                 fs = self.current_signal.fs
                 cutoff = self.filter_cutoff.value()

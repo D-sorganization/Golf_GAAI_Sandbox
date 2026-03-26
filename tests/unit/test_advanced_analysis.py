@@ -8,9 +8,7 @@ from src.shared.python.validation_pkg.statistical_analysis import StatisticalAna
 
 
 class TestAdvancedAnalysis:
-    @pytest.mark.skip(
-        reason="compute_poincare_map not yet implemented in StatisticalAnalyzer"
-    )
+    @pytest.mark.skip(reason="compute_poincare_map not yet implemented in StatisticalAnalyzer")
     def test_compute_poincare_map(self) -> None:
         # Create a simple periodic signal: sin(t), cos(t)
         # Using enough points to get good interpolation

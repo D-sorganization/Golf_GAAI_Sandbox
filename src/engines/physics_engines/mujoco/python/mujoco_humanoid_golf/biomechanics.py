@@ -1,6 +1,6 @@
 # ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """Biomechanical analysis module for golf swing simulations.
 
@@ -213,9 +213,7 @@ class BiomechanicalAnalyzer:
 
         # Get velocity (compute from Jacobian)
         if self._use_shaped_jac:
-            mujoco.mj_jacBody(
-                self.model, self.data, self._jacp, self._jacr, self.club_head_id
-            )
+            mujoco.mj_jacBody(self.model, self.data, self._jacp, self._jacr, self.club_head_id)
             jacp = self._jacp
         else:
             mujoco.mj_jacBody(
@@ -271,9 +269,7 @@ class BiomechanicalAnalyzer:
                 else:
                     left_force += contact_force
 
-            if self.right_foot_id is not None and (
-                self.right_foot_id in (body1, body2)
-            ):
+            if self.right_foot_id is not None and (self.right_foot_id in (body1, body2)):
                 if right_force is None:
                     right_force = contact_force.copy()
                 else:
@@ -350,9 +346,7 @@ class BiomechanicalAnalyzer:
 
         club_induced = None
         if self.club_head_id is not None:
-            club_name = mujoco.mj_id2name(
-                self.model, mujoco.mjtObj.mjOBJ_BODY, self.club_head_id
-            )
+            club_name = mujoco.mj_id2name(self.model, mujoco.mjtObj.mjOBJ_BODY, self.club_head_id)
             if club_name:
                 club_induced = self.induced_analyzer.compute_task_space_components(
                     club_name, qdd_comps=comps
@@ -375,12 +369,8 @@ class BiomechanicalAnalyzer:
         Returns:
             BiomechanicalData object
         """
-        assert compute_advanced_metrics is not None, (
-            "compute_advanced_metrics must be provided"
-        )
-        assert compute_advanced_metrics is not None, (
-            "compute_advanced_metrics must be provided"
-        )
+        assert compute_advanced_metrics is not None, "compute_advanced_metrics must be provided"
+        assert compute_advanced_metrics is not None, "compute_advanced_metrics must be provided"
         qacc = self.compute_joint_accelerations()
         club_pos, club_vel, club_speed = self.get_club_head_data()
         left_grf, right_grf = self.get_ground_reaction_forces()
@@ -401,8 +391,8 @@ class BiomechanicalAnalyzer:
         counterfactuals: dict = {}
 
         if compute_advanced_metrics:
-            induced, club_induced, counterfactuals = (
-                self._compute_advanced_induced_metrics(selected_actuator_name)
+            induced, club_induced, counterfactuals = self._compute_advanced_induced_metrics(
+                selected_actuator_name
             )
 
         return BiomechanicalData(
@@ -677,10 +667,7 @@ class SwingRecorder:
         values = []
 
         for f in self.frames:
-            if (
-                f.club_induced_accelerations
-                and component_name in f.club_induced_accelerations
-            ):
+            if f.club_induced_accelerations and component_name in f.club_induced_accelerations:
                 times.append(f.time)
                 values.append(f.club_induced_accelerations[component_name])
 

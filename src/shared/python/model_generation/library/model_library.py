@@ -164,9 +164,7 @@ class LibraryConfig:
     """Configuration for the model library."""
 
     # Local storage paths
-    cache_dir: Path = field(
-        default_factory=lambda: Path.home() / ".model_generation" / "cache"
-    )
+    cache_dir: Path = field(default_factory=lambda: Path.home() / ".model_generation" / "cache")
     index_file: Path = field(
         default_factory=lambda: Path.home() / ".model_generation" / "index.json"
     )
@@ -373,9 +371,7 @@ class ModelLibrary:
         """Get a model entry by ID."""
         return self._entries.get(model_id)
 
-    @precondition(
-        lambda self, model_id, **kw: model_id is not None, "Model ID cannot be None"
-    )
+    @precondition(lambda self, model_id, **kw: model_id is not None, "Model ID cannot be None")
     @precondition(
         lambda self, model_id, **kw: len(model_id.strip()) > 0,
         "Model ID cannot be empty",
@@ -403,9 +399,7 @@ class ModelLibrary:
             return None
 
         # Check if we need to download
-        if (
-            not entry.is_cached or force_download
-        ) and entry.source != RepositorySource.LOCAL:
+        if (not entry.is_cached or force_download) and entry.source != RepositorySource.LOCAL:
             self._download_model(entry)
 
         if not entry.urdf_path or not entry.urdf_path.exists():
@@ -504,9 +498,7 @@ class ModelLibrary:
             source_path=str(urdf_path.parent),
             urdf_path=urdf_path,
             mesh_dir=(
-                urdf_path.parent / "meshes"
-                if (urdf_path.parent / "meshes").exists()
-                else None
+                urdf_path.parent / "meshes" if (urdf_path.parent / "meshes").exists() else None
             ),
             tags=tags or [],
             link_count=link_count,
@@ -744,9 +736,7 @@ class ModelLibrary:
             logger.error(f"Failed to download {entry.id}: {e}")
             return False
 
-    @precondition(
-        lambda self, model_id, **kw: model_id is not None, "Model ID cannot be None"
-    )
+    @precondition(lambda self, model_id, **kw: model_id is not None, "Model ID cannot be None")
     @precondition(
         lambda self, model_id, **kw: len(model_id.strip()) > 0,
         "Model ID cannot be empty",
@@ -826,9 +816,7 @@ class ModelLibrary:
 
         return new_entry
 
-    @precondition(
-        lambda self, model_id, **kw: model_id is not None, "Model ID cannot be None"
-    )
+    @precondition(lambda self, model_id, **kw: model_id is not None, "Model ID cannot be None")
     def remove_model(self, model_id: str, delete_files: bool = False) -> bool:
         """
         Remove a model from the library.

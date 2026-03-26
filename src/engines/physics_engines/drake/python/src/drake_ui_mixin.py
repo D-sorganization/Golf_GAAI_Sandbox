@@ -1,6 +1,6 @@
 # ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """Drake GUI UI setup mixin.
 
@@ -116,12 +116,8 @@ class DrakeUIMixin:
         mode_layout = QtWidgets.QHBoxLayout()
         self.mode_combo = QtWidgets.QComboBox()
         self.mode_combo.addItems(["Dynamic (Physics)", "Kinematic (Pose)"])
-        self.mode_combo.setToolTip(
-            "Select between physics simulation or manual pose control"
-        )
-        self.mode_combo.setStatusTip(
-            "Select between physics simulation or manual pose control"
-        )
+        self.mode_combo.setToolTip("Select between physics simulation or manual pose control")
+        self.mode_combo.setStatusTip("Select between physics simulation or manual pose control")
         self.mode_combo.currentTextChanged.connect(self._on_mode_changed)
         mode_layout.addWidget(QtWidgets.QLabel("Mode:"))
         mode_layout.addWidget(self.mode_combo)
@@ -171,9 +167,7 @@ class DrakeUIMixin:
 
         self.btn_reset = QtWidgets.QPushButton("Reset")
         self.btn_reset.setToolTip("Reset the simulation to the initial state (Ctrl+R)")
-        self.btn_reset.setStatusTip(
-            "Reset the simulation to the initial state (Ctrl+R)"
-        )
+        self.btn_reset.setStatusTip("Reset the simulation to the initial state (Ctrl+R)")
         self.btn_reset.setShortcut(QtGui.QKeySequence("Ctrl+R"))
         self.btn_reset.clicked.connect(self._reset_simulation)
         dyn_layout.addWidget(self.btn_reset)
@@ -210,9 +204,7 @@ class DrakeUIMixin:
 
         analysis_layout.addLayout(ind_layout)
 
-        self.btn_counterfactuals = QtWidgets.QPushButton(
-            "Show Counterfactuals (ZTCF/ZVCF)"
-        )
+        self.btn_counterfactuals = QtWidgets.QPushButton("Show Counterfactuals (ZTCF/ZVCF)")
         self.btn_counterfactuals.setToolTip(
             "Show Zero Torque (ZTCF) and Zero Velocity (ZVCF) analysis"
         )
@@ -227,9 +219,7 @@ class DrakeUIMixin:
         analysis_layout.addWidget(self.btn_swing_plane)
 
         self.btn_advanced_plots = QtWidgets.QPushButton("Show Advanced Plots")
-        self.btn_advanced_plots.setToolTip(
-            "Show Radar Chart, CoP Field, and Power Flow"
-        )
+        self.btn_advanced_plots.setToolTip("Show Radar Chart, CoP Field, and Power Flow")
         self.btn_advanced_plots.clicked.connect(self._show_advanced_plots)
         self.btn_advanced_plots.setEnabled(HAS_MATPLOTLIB)
         analysis_layout.addWidget(self.btn_advanced_plots)
@@ -262,12 +252,8 @@ class DrakeUIMixin:
         vis_layout = QtWidgets.QVBoxLayout()
 
         self.btn_overlays = QtWidgets.QPushButton("Manage Body Overlays")
-        self.btn_overlays.setToolTip(
-            "Toggle visibility of reference frames and centers of mass"
-        )
-        self.btn_overlays.setStatusTip(
-            "Toggle visibility of reference frames and centers of mass"
-        )
+        self.btn_overlays.setToolTip("Toggle visibility of reference frames and centers of mass")
+        self.btn_overlays.setStatusTip("Toggle visibility of reference frames and centers of mass")
         self.btn_overlays.clicked.connect(self._show_overlay_dialog)
         vis_layout.addWidget(self.btn_overlays)
 
@@ -292,8 +278,7 @@ class DrakeUIMixin:
 
         self.chk_live_analysis = QtWidgets.QCheckBox("Live Analysis (Induced/CF)")
         self.chk_live_analysis.setToolTip(
-            "Compute Induced Accelerations and Counterfactuals in real-time "
-            "(Can slow down sim)"
+            "Compute Induced Accelerations and Counterfactuals in real-time " "(Can slow down sim)"
         )
         vis_layout.addWidget(self.chk_live_analysis)
 
@@ -326,9 +311,7 @@ class DrakeUIMixin:
         if line_edit := self.combo_induced_source.lineEdit():
             line_edit.editingFinished.connect(self._on_visualization_changed)
         # Also connect index changed for dropdown selection
-        self.combo_induced_source.currentIndexChanged.connect(
-            self._on_visualization_changed
-        )
+        self.combo_induced_source.currentIndexChanged.connect(self._on_visualization_changed)
 
         self.chk_cf_vec = QtWidgets.QCheckBox("CF Vectors")
         self.chk_cf_vec.toggled.connect(self._on_visualization_changed)
@@ -412,8 +395,7 @@ class DrakeUIMixin:
                 joint_max = JOINT_ANGLE_MAX_RAD
 
             slider.setToolTip(
-                f"Adjust angle for {joint.name()} (radians, "
-                f"{joint_min:.2f} to {joint_max:.2f})"
+                f"Adjust angle for {joint.name()} (radians, " f"{joint_min:.2f} to {joint_max:.2f})"
             )
 
             # Spinbox
@@ -572,9 +554,7 @@ class DrakeUIMixin:
         else:
             self.recorder.stop()
             self.btn_record.setText("Record")
-            self._update_status(
-                f"Recording stopped. Total Frames: {len(self.recorder.times)}"
-            )
+            self._update_status(f"Recording stopped. Total Frames: {len(self.recorder.times)}")
 
     def _show_overlay_dialog(self: Any) -> None:  # noqa: PLR0915
         """Show dialog to toggle overlays for specific bodies."""

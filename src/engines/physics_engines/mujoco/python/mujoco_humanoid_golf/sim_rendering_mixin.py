@@ -1,6 +1,6 @@
 # ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """MuJoCo sim widget rendering mixin.
 
@@ -95,9 +95,7 @@ class SimRenderingMixin:
         # Add force/torque/accel overlays
         rgb = self._add_force_torque_overlays(rgb)
 
-        if self.manipulator is not None and (
-            self.show_selected_body or self.show_constraints
-        ):
+        if self.manipulator is not None and (self.show_selected_body or self.show_constraints):
             rgb = self._add_manipulation_overlays(rgb)
 
         if self.show_club_trajectory or self.show_swing_plane:
@@ -163,9 +161,7 @@ class SimRenderingMixin:
             return rgb
 
         selected_id = (
-            getattr(self.manipulator, "selected_body_id", None)
-            if self.manipulator
-            else None
+            getattr(self.manipulator, "selected_body_id", None) if self.manipulator else None
         )
         if selected_id is None or selected_id < 0:
             return rgb
@@ -212,8 +208,7 @@ class SimRenderingMixin:
 
         if getattr(self, "show_live_quat", False):
             msg = (
-                f"Quat (w,x,y,z): [{quat[0]:.2f}, "
-                f"{quat[1]:.2f}, {quat[2]:.2f}, {quat[3]:.2f}]"
+                f"Quat (w,x,y,z): [{quat[0]:.2f}, " f"{quat[1]:.2f}, {quat[2]:.2f}, {quat[3]:.2f}]"
             )
             cv2.putText(
                 img,
@@ -249,9 +244,7 @@ class SimRenderingMixin:
                     vec_end = pos + world_axis * 0.5
                     end_px = self._world_to_screen(vec_end)
                     if end_px:
-                        cv2.arrowedLine(
-                            img, (x, y), end_px, (255, 0, 255), 2, tipLength=0.2
-                        )
+                        cv2.arrowedLine(img, (x, y), end_px, (255, 0, 255), 2, tipLength=0.2)
                     cv2.putText(
                         img,
                         f"Screw Angle: {np.rad2deg(theta):.2f} deg",
@@ -273,9 +266,7 @@ class SimRenderingMixin:
             except (AttributeError, TypeError) as exc:
                 logger.debug("Background colour update failed: %s", exc)
 
-    def set_background_color(
-        self: Any, sky_color: Any = None, ground_color: Any = None
-    ) -> None:
+    def set_background_color(self: Any, sky_color: Any = None, ground_color: Any = None) -> None:
         """Set sky and ground background colors for the scene."""
         if sky_color is not None:
             self.sky_color = np.array(sky_color, dtype=np.float32)

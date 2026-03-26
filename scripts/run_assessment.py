@@ -53,9 +53,7 @@ def _assess_hygiene() -> tuple[list[str], int]:
         f"- Ruff check: {_CHECK + ' passed' if ruff['exit_code'] == 0 else _CROSS + ' issues found'}",
         f"- Black formatting: {_CHECK + ' formatted' if black['exit_code'] == 0 else _CROSS + ' needs formatting'}",
     ]
-    penalty = (0 if ruff["exit_code"] == 0 else 2) + (
-        0 if black["exit_code"] == 0 else 1
-    )
+    penalty = (0 if ruff["exit_code"] == 0 else 2) + (0 if black["exit_code"] == 0 else 1)
     return findings, 10 - penalty
 
 
@@ -93,9 +91,7 @@ def _assess_unsupported(py_files: list) -> tuple[list[str], int | None]:
     return findings, None
 
 
-def _format_report(
-    assessment_id: str, name: str, findings: list[str], score: int | None
-) -> str:
+def _format_report(assessment_id: str, name: str, findings: list[str], score: int | None) -> str:
     """Format an assessment report as markdown."""
     assert isinstance(assessment_id, str), "assessment_id must be a string"
     assert isinstance(name, str), "name must be a string"

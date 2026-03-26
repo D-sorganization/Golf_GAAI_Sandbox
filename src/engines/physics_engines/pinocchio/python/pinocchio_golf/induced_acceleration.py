@@ -53,9 +53,7 @@ class InducedAccelerationAnalyzer:
         # Pinocchio ABA: a = aba(model, data, q, v, tau)
         assert q is not None, "q must be provided"
         assert q is not None, "q must be provided"
-        q_ddot_g = pin.aba(
-            self.model, self._temp_data, q, np.zeros(self.nv), np.zeros(self.nv)
-        )
+        q_ddot_g = pin.aba(self.model, self._temp_data, q, np.zeros(self.nv), np.zeros(self.nv))
 
         # 2. Velocity Induced Acceleration
         # M * q_ddot_v = -C(q, v)v
@@ -99,9 +97,7 @@ class InducedAccelerationAnalyzer:
             "total": q_ddot_total,
         }
 
-    def compute_specific_control(
-        self, q: np.ndarray, specific_tau: np.ndarray
-    ) -> np.ndarray:
+    def compute_specific_control(self, q: np.ndarray, specific_tau: np.ndarray) -> np.ndarray:
         """
         Compute induced acceleration for a specific control torque vector.
 
@@ -131,9 +127,7 @@ class InducedAccelerationAnalyzer:
 
         return np.asarray(a_tau_G - a_G)
 
-    def compute_counterfactuals(
-        self, q: np.ndarray, v: np.ndarray
-    ) -> dict[str, np.ndarray]:
+    def compute_counterfactuals(self, q: np.ndarray, v: np.ndarray) -> dict[str, np.ndarray]:
         """
         Decompose acceleration into Zero-Torque (ZTCF) and Zero-Velocity (ZVCF)
         components.

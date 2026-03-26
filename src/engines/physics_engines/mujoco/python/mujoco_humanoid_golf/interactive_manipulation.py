@@ -1,6 +1,6 @@
 # ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """Interactive drag-and-pose manipulation system for MuJoCo models.
 
@@ -675,11 +675,7 @@ class InteractiveManipulator:
         Returns:
             List of body IDs with active constraints
         """
-        return [
-            body_id
-            for body_id, constraint in self.constraints.items()
-            if constraint.active
-        ]
+        return [body_id for body_id, constraint in self.constraints.items() if constraint.active]
 
     # -------- Pose Library --------
 

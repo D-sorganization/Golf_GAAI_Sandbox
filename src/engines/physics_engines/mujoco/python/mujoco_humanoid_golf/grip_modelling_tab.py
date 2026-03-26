@@ -1,6 +1,6 @@
 # ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """Grip Modelling Tab for Advanced Hand Models.
 
@@ -100,9 +100,7 @@ class PressureVisualizationWidget(QtWidgets.QWidget):
 
         if self.pressure_data is None or len(self.pressure_data.pressures) == 0:
             painter.setPen(QtGui.QColor(150, 150, 150))
-            painter.drawText(
-                rect, QtCore.Qt.AlignmentFlag.AlignCenter, "No contact data"
-            )
+            painter.drawText(rect, QtCore.Qt.AlignmentFlag.AlignCenter, "No contact data")
             return
 
         # Draw title
@@ -288,9 +286,7 @@ class GripModellingTab(QtWidgets.QWidget):
         self.control_layout.addWidget(self.chk_kinematic)
 
         self.chk_contact_monitor = QtWidgets.QCheckBox("Monitor Contacts")
-        self.chk_contact_monitor.setToolTip(
-            "Enable contact force and slip monitoring (Issue #757)"
-        )
+        self.chk_contact_monitor.setToolTip("Enable contact force and slip monitoring (Issue #757)")
         self.chk_contact_monitor.setChecked(False)
         self.chk_contact_monitor.toggled.connect(self._on_contact_monitor_toggled)
         self.control_layout.addWidget(self.chk_contact_monitor)
@@ -402,18 +398,14 @@ class GripModellingTab(QtWidgets.QWidget):
         # Apply initial kinematic state
         self._on_kinematic_toggled(self.chk_kinematic.isChecked())
 
-    def _prepare_scene_xml(
-        self, scene_path: Path, folder_path: Path, is_both: bool = False
-    ) -> str:
+    def _prepare_scene_xml(self, scene_path: Path, folder_path: Path, is_both: bool = False) -> str:
         """Read scene file and inject absolute paths and cylinder object."""
         assert scene_path is not None, "scene_path must be provided"
         assert scene_path is not None, "scene_path must be provided"
         xml_content = scene_path.read_text("utf-8")
 
         # 1. Inline hand XML includes and extract worldbodies
-        xml_content = self._inline_hand_includes(
-            xml_content, scene_path, folder_path, is_both
-        )
+        xml_content = self._inline_hand_includes(xml_content, scene_path, folder_path, is_both)
 
         # 2. Ensure offscreen framebuffer is large enough for renderer
         xml_content = self._ensure_offscreen_visual(xml_content)
@@ -424,9 +416,7 @@ class GripModellingTab(QtWidgets.QWidget):
         # 4. Inject Mocap Bodies and Welds for Hands
         xml_content = self._inject_mocap_bodies(xml_content, scene_path, is_both)
 
-        logger.info(
-            "Successfully prepared scene XML with movable hands and mocap bodies."
-        )
+        logger.info("Successfully prepared scene XML with movable hands and mocap bodies.")
         return xml_content
 
     def _get_hand_content(
@@ -473,9 +463,7 @@ class GripModellingTab(QtWidgets.QWidget):
                 class_names = re.findall(r'<default class="([^"]+)">', content)
                 for class_name in set(class_names):
                     new_name = f"{hand_prefix}_{class_name}"
-                    content = content.replace(
-                        f'class="{class_name}"', f'class="{new_name}"'
-                    )
+                    content = content.replace(f'class="{class_name}"', f'class="{new_name}"')
 
             return content
         except (RuntimeError, ValueError, OSError):
@@ -498,17 +486,11 @@ class GripModellingTab(QtWidgets.QWidget):
             """Extract worldbody XML content from a hand model file."""
             assert filename is not None, "filename must be provided"
             assert filename is not None, "filename must be provided"
-            content = self._get_hand_content(
-                folder_path, filename, body_pattern, is_both
-            )
-            bodies_match = re.search(
-                r"<worldbody[^>]*>(.*?)</worldbody>", content, re.DOTALL
-            )
+            content = self._get_hand_content(folder_path, filename, body_pattern, is_both)
+            bodies_match = re.search(r"<worldbody[^>]*>(.*?)</worldbody>", content, re.DOTALL)
             if bodies_match:
                 extracted_bodies.append(bodies_match.group(1))
-                content = re.sub(
-                    r"<worldbody[^>]*>.*?</worldbody>", "", content, flags=re.DOTALL
-                )
+                content = re.sub(r"<worldbody[^>]*>.*?</worldbody>", "", content, flags=re.DOTALL)
             return content
 
         if is_both:
@@ -548,9 +530,7 @@ class GripModellingTab(QtWidgets.QWidget):
         # Inject extracted bodies into the scene's worldbody
         if extracted_bodies:
             bodies_str = "\n".join(extracted_bodies)
-            xml_content = re.sub(
-                r"(<worldbody[^>]*>)", r"\1\n" + bodies_str, xml_content, count=1
-            )
+            xml_content = re.sub(r"(<worldbody[^>]*>)", r"\1\n" + bodies_str, xml_content, count=1)
 
         return xml_content
 
@@ -568,9 +548,7 @@ class GripModellingTab(QtWidgets.QWidget):
                     attrs = re.sub(r'offheight="[^"]*"', "", attrs)
                     return f'<global {attrs} offwidth="1920" offheight="1080"/>'
 
-                xml_content = re.sub(
-                    r"<global([^>]*)>", update_global_tag, xml_content, count=1
-                )
+                xml_content = re.sub(r"<global([^>]*)>", update_global_tag, xml_content, count=1)
             else:
                 xml_content = xml_content.replace(
                     "<visual>",
@@ -616,9 +594,7 @@ class GripModellingTab(QtWidgets.QWidget):
         equality_xml = "<equality>\n"
 
         # Right Hand Mocap (only add if not already present)
-        if (
-            is_both or "right" in str(scene_path).lower()
-        ) and 'name="rh_mocap"' not in xml_content:
+        if (is_both or "right" in str(scene_path).lower()) and 'name="rh_mocap"' not in xml_content:
             mocap_xml += """
     <body name="rh_mocap" mocap="true" pos="0 0 0">
         <geom type="box" size="0.02 0.02 0.02" rgba="0 1 0 0.5" contype="0"
@@ -631,9 +607,7 @@ class GripModellingTab(QtWidgets.QWidget):
             )
 
         # Left Hand Mocap (only add if not already present)
-        if (
-            is_both or "left" in str(scene_path).lower()
-        ) and 'name="lh_mocap"' not in xml_content:
+        if (is_both or "left" in str(scene_path).lower()) and 'name="lh_mocap"' not in xml_content:
             mocap_xml += """
     <body name="lh_mocap" mocap="true" pos="0 0 0">
         <geom type="box" size="0.02 0.02 0.02" rgba="1 0 0 0.5" contype="0"
@@ -660,13 +634,9 @@ class GripModellingTab(QtWidgets.QWidget):
         # Insert Equality section before </mujoco> (or merge if exists)
         if "</equality>" in xml_content:
             equality_content = (
-                equality_xml.strip()
-                .replace("<equality>", "")
-                .replace("</equality>", "")
+                equality_xml.strip().replace("<equality>", "").replace("</equality>", "")
             )
-            xml_content = xml_content.replace(
-                "</equality>", f"{equality_content}\n  </equality>"
-            )
+            xml_content = xml_content.replace("</equality>", f"{equality_content}\n  </equality>")
         else:
             xml_content = xml_content.replace("</mujoco>", f"{equality_xml}\n</mujoco>")
 
@@ -911,9 +881,7 @@ class GripModellingTab(QtWidgets.QWidget):
 
         return positions, normals, forces, velocities, body_names
 
-    def _update_contact_visualizations(
-        self, positions_arr: np.ndarray, state: Any
-    ) -> None:
+    def _update_contact_visualizations(self, positions_arr: np.ndarray, state: Any) -> None:
         assert positions_arr is not None, "positions_arr must be provided"
         assert positions_arr is not None, "positions_arr must be provided"
         if len(positions_arr) > 0:
@@ -955,8 +923,8 @@ class GripModellingTab(QtWidgets.QWidget):
             self.metrics_widget.update_metrics(0, 0, 0, 0, 0.0, False)
             return
 
-        positions, normals, forces, velocities, body_names = (
-            self._extract_hand_contacts(model, data)
+        positions, normals, forces, velocities, body_names = self._extract_hand_contacts(
+            model, data
         )
 
         if not positions:
@@ -1029,6 +997,4 @@ class GripModellingTab(QtWidgets.QWidget):
 
         except ImportError as e:
             logger.exception("Failed to export contact data")
-            QtWidgets.QMessageBox.critical(
-                self, "Export Failed", f"Failed to export: {e}"
-            )
+            QtWidgets.QMessageBox.critical(self, "Export Failed", f"Failed to export: {e}")

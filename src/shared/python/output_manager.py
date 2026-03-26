@@ -10,9 +10,7 @@ from src.shared.python.data_io.output_manager import (
 )
 
 
-def save_results(
-    results, filename: str, format_type: str = "csv", engine: str = "mujoco"
-) -> str:
+def save_results(results, filename: str, format_type: str = "csv", engine: str = "mujoco") -> str:
     """Backward-compatible convenience save helper."""
     assert results is not None, "results must be provided"
     assert results is not None, "results must be provided"

@@ -1,6 +1,6 @@
 # ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """MuJoCo physics engine integration for humanoid golf simulation.
 
@@ -134,9 +134,7 @@ class MuJoCoPhysicsEngine(PhysicsEngine):
         """Return the MuJoCo simulation data, or None."""
         return self.data
 
-    @precondition(
-        lambda self, dt=None: self.is_initialized, "Engine must be initialized"
-    )
+    @precondition(lambda self, dt=None: self.is_initialized, "Engine must be initialized")
     def step(self, dt: float | None = None) -> None:
         """Step the simulation forward."""
         if self.model is not None and self.data is not None:
@@ -174,15 +172,13 @@ class MuJoCoPhysicsEngine(PhysicsEngine):
             # Validate dimensions
             if len(q) != len(self.data.qpos):
                 raise ValueError(
-                    f"State q size mismatch: got {len(q)}, "
-                    f"expected {len(self.data.qpos)}"
+                    f"State q size mismatch: got {len(q)}, " f"expected {len(self.data.qpos)}"
                 )
             self.data.qpos[:] = q
 
             if len(v) != len(self.data.qvel):
                 raise ValueError(
-                    f"State v size mismatch: got {len(v)}, "
-                    f"expected {len(self.data.qvel)}"
+                    f"State v size mismatch: got {len(v)}, " f"expected {len(self.data.qvel)}"
                 )
             self.data.qvel[:] = v
 
@@ -195,8 +191,7 @@ class MuJoCoPhysicsEngine(PhysicsEngine):
             # Strict size validation
             if len(u) != self.model.nu:
                 raise ValueError(
-                    f"Control vector size mismatch: got {len(u)}, "
-                    f"expected {self.model.nu}"
+                    f"Control vector size mismatch: got {len(u)}, " f"expected {self.model.nu}"
                 )
             self.data.ctrl[:] = u
 
@@ -677,9 +672,7 @@ class MuJoCoPhysicsEngine(PhysicsEngine):
             Dictionary with deflection, rotation, velocity, modal_amplitudes,
             or None if shaft not configured.
         """
-        if not hasattr(self, "_shaft_config") or not hasattr(
-            self, "_shaft_modal_state"
-        ):
+        if not hasattr(self, "_shaft_config") or not hasattr(self, "_shaft_modal_state"):
             return None
 
         modes = self._shaft_modes
@@ -690,9 +683,7 @@ class MuJoCoPhysicsEngine(PhysicsEngine):
         deflection = np.zeros(n_stations)
         velocity = np.zeros(n_stations)
 
-        for i, (amp, vel) in enumerate(
-            zip(state["amplitudes"], state["velocities"], strict=True)
-        ):
+        for i, (amp, vel) in enumerate(zip(state["amplitudes"], state["velocities"], strict=True)):
             deflection += amp * modes["mode_shapes"][i]
             velocity += vel * modes["mode_shapes"][i]
 
