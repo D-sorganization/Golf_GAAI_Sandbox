@@ -95,8 +95,8 @@ class ParameterRange:
         Returns:
             Sampled value within the defined range.
         """
-        assert rng is not None, "rng must be provided"
-        assert rng is not None, "rng must be provided"
+        if rng is None:
+            raise ValueError("rng must be provided")
         if self.distribution == "uniform":
             return float(rng.uniform(self.min_val, self.max_val))
         if self.distribution == "normal":
@@ -145,8 +145,8 @@ class ControlProfile:
         Returns:
             Control array of shape (n_steps, n_actuators).
         """
-        assert n_actuators is not None, "n_actuators must be provided"
-        assert n_actuators is not None, "n_actuators must be provided"
+        if n_actuators is None:
+            raise ValueError("n_actuators must be provided")
         if self.profile_type == "zero":
             return np.zeros((n_steps, n_actuators))
         if self.profile_type == "constant":
@@ -330,8 +330,8 @@ class DatasetGenerator:
         Raises:
             ValueError: If engine has no model loaded.
         """
-        assert engine is not None, "engine must be provided"
-        assert engine is not None, "engine must be provided"
+        if engine is None:
+            raise ValueError("engine must be provided")
         self.engine = engine
         self._original_state: tuple[np.ndarray, np.ndarray] | None = None
 
@@ -368,8 +368,8 @@ class DatasetGenerator:
         Raises:
             RuntimeError: If simulation fails for all samples.
         """
-        assert config is not None, "config must be provided"
-        assert config is not None, "config must be provided"
+        if config is None:
+            raise ValueError("config must be provided")
         rng = np.random.default_rng(config.seed)
 
         # Save original state
@@ -498,17 +498,24 @@ class DatasetGenerator:
             "control_type": profile.profile_type,
         }
 
-        assert buffers["times"] is not None, "times buffer must not be None"
-        assert buffers["positions"] is not None, "positions buffer must not be None"
-        assert buffers["velocities"] is not None, "velocities buffer must not be None"
-        assert buffers["accelerations"] is not None, (
+        if not (buffers["times"] is not None):
+            raise ValueError("times buffer must not be None")
+        if not (buffers["positions"] is not None):
+            raise ValueError("positions buffer must not be None")
+        if not (buffers["velocities"] is not None):
+            raise ValueError("velocities buffer must not be None")
+        if not (buffers["accelerations"] is not None):
+            raise ValueError(()
             "accelerations buffer must not be None"
         )
-        assert buffers["torques"] is not None, "torques buffer must not be None"
-        assert buffers["kinetic_energy"] is not None, (
+        if not (buffers["torques"] is not None):
+            raise ValueError("torques buffer must not be None")
+        if not (buffers["kinetic_energy"] is not None):
+            raise ValueError(()
             "kinetic_energy buffer must not be None"
         )
-        assert buffers["potential_energy"] is not None, (
+        if not (buffers["potential_energy"] is not None):
+            raise ValueError(()
             "potential_energy buffer must not be None"
         )
 
@@ -614,8 +621,8 @@ class DatasetGenerator:
             try:
                 q_new, v_new = self.engine.get_state()
                 buffers["accelerations"][step] = (v_new - v) / config.timestep  # type: ignore[index]
-            except (ValueError, RuntimeError, AttributeError):
-                pass
+            except (ValueError, RuntimeError, AttributeError) as _e:
+                logger.debug("Non-critical failure: %s", _e)
 
     def _record_dynamics_step(
         self,
@@ -634,8 +641,8 @@ class DatasetGenerator:
             v: Current velocity vector.
             buffers: Pre-allocated recording buffers (modified in-place).
         """
-        assert config is not None, "config must be provided"
-        assert config is not None, "config must be provided"
+        if config is None:
+            raise ValueError("config must be provided")
         if config.record_mass_matrix and buffers["mass_matrices"] is not None:
             with contextlib.suppress(ValueError, RuntimeError, AttributeError):
                 buffers["mass_matrices"][step] = self.engine.compute_mass_matrix()
@@ -652,8 +659,8 @@ class DatasetGenerator:
             try:
                 cf = self.engine.compute_contact_forces()
                 buffers["contact"][step, : len(cf)] = cf[:3]
-            except (ValueError, RuntimeError, AttributeError):
-                pass
+            except (ValueError, RuntimeError, AttributeError) as _e:
+                logger.debug("Non-critical failure: %s", _e)
 
         if config.record_drift_control:
             try:
@@ -663,15 +670,15 @@ class DatasetGenerator:
                     buffers["control_accel"][step] = (
                         self.engine.compute_control_acceleration(tau)
                     )
-            except (ValueError, RuntimeError, AttributeError):
-                pass
+            except (ValueError, RuntimeError, AttributeError) as _e:
+                logger.debug("Non-critical failure: %s", _e)
 
         # Compute energies
         try:
             M = self.engine.compute_mass_matrix()
             buffers["kinetic_energy"][step] = 0.5 * float(v.T @ M @ v)  # type: ignore[index]
-        except (ValueError, RuntimeError, AttributeError):
-            pass
+        except (ValueError, RuntimeError, AttributeError) as _e:
+            logger.debug("Non-critical failure: %s", _e)
 
     def _generate_initial_conditions(
         self,
@@ -691,8 +698,8 @@ class DatasetGenerator:
         Returns:
             Tuple of (initial_positions, initial_velocities).
         """
-        assert config is not None, "config must be provided"
-        assert config is not None, "config must be provided"
+        if config is None:
+            raise ValueError("config must be provided")
         if config.vary_initial_positions and config.position_ranges:
             q0 = np.zeros(n_q)
             for pr in config.position_ranges:
@@ -760,8 +767,8 @@ class DatasetGenerator:
             names = self.engine.get_joint_names()
             if names:
                 return names
-        except (ValueError, RuntimeError, AttributeError):
-            pass
+        except (ValueError, RuntimeError, AttributeError) as _e:
+            logger.debug("Non-critical failure: %s", _e)
         n_q, _ = self._get_dimensions()
         return [f"joint_{i}" for i in range(n_q)]
 
@@ -778,8 +785,8 @@ class DatasetGenerator:
         Raises:
             ImportError: If h5py is not available.
         """
-        assert dataset is not None, "dataset must be provided"
-        assert dataset is not None, "dataset must be provided"
+        if dataset is None:
+            raise ValueError("dataset must be provided")
         try:
             import h5py
         except ImportError:
@@ -805,8 +812,8 @@ class DatasetGenerator:
     @staticmethod
     def _write_hdf5_metadata(f: Any, dataset: TrainingDataset) -> None:
         """Write dataset-level metadata to an HDF5 file."""
-        assert dataset is not None, "dataset must be provided"
-        assert dataset is not None, "dataset must be provided"
+        if dataset is None:
+            raise ValueError("dataset must be provided")
         meta = f.create_group("metadata")
         meta.attrs["model_name"] = dataset.model_name
         meta.attrs["engine_name"] = dataset.engine_name
@@ -826,8 +833,8 @@ class DatasetGenerator:
     @staticmethod
     def _write_hdf5_sample(samples_grp: Any, sample: SimulationSample) -> None:
         """Write a single sample's data to an HDF5 samples group."""
-        assert sample is not None, "sample must be provided"
-        assert sample is not None, "sample must be provided"
+        if sample is None:
+            raise ValueError("sample must be provided")
         s_grp = samples_grp.create_group(f"sample_{sample.sample_id:06d}")
         s_grp.create_dataset("times", data=sample.times, compression="gzip")
         s_grp.create_dataset("positions", data=sample.positions, compression="gzip")
@@ -868,8 +875,8 @@ class DatasetGenerator:
         Returns:
             Path to the created SQLite database.
         """
-        assert dataset is not None, "dataset must be provided"
-        assert dataset is not None, "dataset must be provided"
+        if dataset is None:
+            raise ValueError("dataset must be provided")
         output_path = Path(output_path)
         if not output_path.suffix:
             output_path = output_path.with_suffix(".db")
@@ -928,8 +935,8 @@ class DatasetGenerator:
         cursor: sqlite3.Cursor, dataset: TrainingDataset
     ) -> None:
         """Insert dataset-level metadata into the SQLite database."""
-        assert cursor is not None, "cursor must be provided"
-        assert cursor is not None, "cursor must be provided"
+        if cursor is None:
+            raise ValueError("cursor must be provided")
         meta_items = [
             ("model_name", dataset.model_name),
             ("engine_name", dataset.engine_name),
@@ -949,8 +956,8 @@ class DatasetGenerator:
     @staticmethod
     def _insert_sqlite_sample(cursor: sqlite3.Cursor, sample: SimulationSample) -> None:
         """Insert a single sample and its frames into the SQLite database."""
-        assert cursor is not None, "cursor must be provided"
-        assert cursor is not None, "cursor must be provided"
+        if cursor is None:
+            raise ValueError("cursor must be provided")
         n_steps = len(sample.times)
         n_q = sample.positions.shape[1] if sample.positions.ndim > 1 else 0
         n_v = sample.velocities.shape[1] if sample.velocities.ndim > 1 else 0
@@ -999,8 +1006,8 @@ class DatasetGenerator:
         Returns:
             Path to the output directory.
         """
-        assert dataset is not None, "dataset must be provided"
-        assert dataset is not None, "dataset must be provided"
+        if dataset is None:
+            raise ValueError("dataset must be provided")
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 

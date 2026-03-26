@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import shutil
 import subprocess
+
+logger = logging.getLogger(__name__)
 
 # Base Image Family
 DOCKER_IMAGE_FAMILY = os.environ.get("UPSTREAM_DRIFT_IMAGE_FAMILY", "upstream-drift")
@@ -73,8 +76,8 @@ def detect_gpu_support() -> dict:
         if proc2.returncode == 0:
             result["cuda_version"] = proc2.stdout.strip()
 
-    except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
-        pass
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError) as _e:
+        logger.debug("Non-critical failure: %s", _e)
 
     # Check for NVIDIA Container Toolkit
     result["container_toolkit"] = shutil.which("nvidia-container-cli") is not None

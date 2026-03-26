@@ -27,6 +27,7 @@ from ..models.responses import (
     EngineStatusResponse,
 )
 from ..utils.path_validation import validate_model_path
+from .physics import _CONTROL_INTERFACE_CACHE, _FEATURES_REGISTRY_CACHE
 
 router = APIRouter()
 
@@ -43,7 +44,6 @@ async def get_engines(
     _user: Any = Depends(OptionalAuth(auto_error=False)),
 ) -> EngineListResponse:
     """Get status of all available physics engines."""
-    assert engine_manager is not None, "engine_manager must be provided"
     engines = []
     available_engines = engine_manager.get_available_engines()
     current_engine = engine_manager.get_current_engine()
@@ -152,6 +152,11 @@ async def load_engine(
                 status_code=400, detail=f"Failed to load engine: {engine_type}"
             )
 
+        # Invalidate stale ControlInterface / ControlFeaturesRegistry caches
+        # that were bound to the previous engine instance.
+        _CONTROL_INTERFACE_CACHE.pop(engine_manager, None)
+        _FEATURES_REGISTRY_CACHE.pop(engine_manager, None)
+
         engine = engine_manager.get_active_physics_engine()
 
         if model_path and engine:
@@ -227,7 +232,6 @@ async def get_engine_capabilities(
     Raises:
         HTTPException: If engine type is invalid or engine cannot be queried.
     """
-    assert engine_type is not None, "engine_type must be provided"
     try:
         engine_enum = EngineType(engine_type.lower())
     except ValueError as exc:
