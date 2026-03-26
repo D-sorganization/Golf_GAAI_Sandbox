@@ -94,9 +94,12 @@ def parse_args():
 
 def run_trajectory_analysis(trajectory_path: Path, sheet_name: str, output_dir: Path):
     """Run trajectory analysis and generate plots."""
-    assert trajectory_path is not None, "trajectory_path required"
-    assert sheet_name, "sheet_name required"
-    assert output_dir is not None, "output_dir required"
+    if not (trajectory_path is not None):
+        raise ValueError("trajectory_path required")
+    if not (sheet_name):
+        raise ValueError("sheet_name required")
+    if not (output_dir is not None):
+        raise ValueError("output_dir required")
     from motion_training.club_trajectory_parser import ClubTrajectoryParser
 
     print("\n=== Trajectory Analysis ===")
@@ -133,9 +136,12 @@ def run_trajectory_analysis(trajectory_path: Path, sheet_name: str, output_dir: 
 
 
 def _parse_and_subsample(trajectory_path, sheet_name, subsample):
-    assert trajectory_path is not None, "trajectory_path required"
-    assert sheet_name, "sheet_name required"
-    assert subsample > 0, "subsample must be positive"
+    if not (trajectory_path is not None):
+        raise ValueError("trajectory_path required")
+    if not (sheet_name):
+        raise ValueError("sheet_name required")
+    if not (subsample > 0):
+        raise ValueError("subsample must be positive")
     from motion_training.club_trajectory_parser import ClubTrajectoryParser
 
     print("\n[1/5] Parsing club trajectory...")
@@ -153,8 +159,10 @@ def _parse_and_subsample(trajectory_path, sheet_name, subsample):
 
 
 def _init_and_solve_ik(urdf_path, trajectory):
-    assert urdf_path is not None, "urdf_path required"
-    assert trajectory is not None, "trajectory required"
+    if not (urdf_path is not None):
+        raise ValueError("urdf_path required")
+    if not (trajectory is not None):
+        raise ValueError("trajectory required")
     from motion_training.dual_hand_ik_solver import (
         IKSolverSettings,
         create_ik_solver,
@@ -194,9 +202,12 @@ def _init_and_solve_ik(urdf_path, trajectory):
 
 
 def _export_results(ik_result, trajectory, output_dir):
-    assert ik_result is not None, "ik_result required"
-    assert trajectory is not None, "trajectory required"
-    assert output_dir is not None, "output_dir required"
+    if not (ik_result is not None):
+        raise ValueError("ik_result required")
+    if not (trajectory is not None):
+        raise ValueError("trajectory required")
+    if not (output_dir is not None):
+        raise ValueError("output_dir required")
     from motion_training.trajectory_exporter import TrajectoryExporter
 
     print("\n[4/5] Exporting results...")
@@ -270,10 +281,14 @@ def run_ik_demo(
     playback: bool = False,
 ):
     """Run the full IK demo."""
-    assert trajectory_path is not None, "trajectory_path required"
-    assert sheet_name, "sheet_name required"
-    assert urdf_path is not None, "urdf_path required"
-    assert output_dir is not None, "output_dir required"
+    if not (trajectory_path is not None):
+        raise ValueError("trajectory_path required")
+    if not (sheet_name):
+        raise ValueError("sheet_name required")
+    if not (urdf_path is not None):
+        raise ValueError("urdf_path required")
+    if not (output_dir is not None):
+        raise ValueError("output_dir required")
     print("\n" + "=" * 60)
     print("Motion Training Demo")
     print("=" * 60)

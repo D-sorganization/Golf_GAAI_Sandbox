@@ -53,8 +53,10 @@ def precondition(
         def sqrt(x: float) -> float:
             return math.sqrt(x)
     """
-    assert condition is not None, "condition must be provided"
-    assert condition is not None, "condition must be provided"
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
     from .level import get_contract_level  # read live state via function
 
     def decorator(func: F) -> F:
@@ -127,8 +129,10 @@ def postcondition(
         def compute_acceleration(self) -> np.ndarray:
             ...
     """
-    assert condition is not None, "condition must be provided"
-    assert condition is not None, "condition must be provided"
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
     from .level import get_contract_level  # read live state via function
 
     def decorator(func: F) -> F:
@@ -193,8 +197,10 @@ def require_state(
         def step(self, dt: float) -> None:
             ...
     """
-    assert state_check is not None, "state_check must be provided"
-    assert state_check is not None, "state_check must be provided"
+    if not (state_check is not None):
+        raise ValueError("state_check must be provided")
+    if not (state_check is not None):
+        raise ValueError("state_check must be provided")
     from .exceptions import StateError
     from .level import get_contract_level  # read live state via function
 

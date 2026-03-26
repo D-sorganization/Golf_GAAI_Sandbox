@@ -64,7 +64,7 @@ def issue_context(repo: str, issue_number: str, task_classes_path: str) -> int:
         "slug": slug,
         "branch_prefix": branch_prefix,
     }
-    print(json.dumps(payload))
+    print(json.dumps(payload))  # noqa: T201
     return 0
 
 
@@ -96,7 +96,7 @@ def pr_lookup(repo: str, issue_number: str, branch_prefix: str) -> int:
         ):
             match = pr
             break
-    print(json.dumps(match or {}))
+    print(json.dumps(match or {}))  # noqa: T201
     return 0
 
 
@@ -183,7 +183,7 @@ def collect_pr_comments(repo: str, pr_number: str) -> int:
         "comments": deduped,
         "grouped_by_path": grouped,
     }
-    print(json.dumps(payload, indent=2, default=list))
+    print(json.dumps(payload, indent=2, default=list))  # noqa: T201
     return 0
 
 
