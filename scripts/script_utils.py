@@ -150,11 +150,9 @@ def run_command(
     """
     if not (cmd):
         raise ValueError("cmd must be provided")
-    if not (isinstance(cmd):
-        raise ValueError(list), "cmd must be a list")
+    assert isinstance(cmd, list), "cmd must be a list"
     if cwd is not None:
-        if not (isinstance(cwd):
-            raise ValueError((Path, str)), "cwd must be a Path or str")
+        assert isinstance(cwd, (Path, str)), "cwd must be a Path or str"
 
     if logger:
         logger.debug(f"Running command: {' '.join(cmd)}")
@@ -192,11 +190,9 @@ def run_pytest(
     """Run pytest with consistent configuration."""
     if not (path is not None):
         raise ValueError("path must be provided")
-    if not (isinstance(verbose):
-        raise ValueError(bool), "verbose must be a bool")
+    assert isinstance(verbose, bool), "verbose must be a bool"
     if markers is not None:
-        if not (isinstance(markers):
-            raise ValueError(str), "markers must be a str")
+        assert isinstance(markers, str), "markers must be a str"
 
     if logger:
         logger.info(f"Running tests in {path}...")

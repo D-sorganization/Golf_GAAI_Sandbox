@@ -1,0 +1,25 @@
+3b9fa65c merge: sync local main with origin/main
+4e2538ce feat: Standardize Platform Dependencies and Outputs (Wave 5) (#71)
+94384e63 chore(quality): purge legacy objects and broken window markers (Wave 4)
+9a13b9cd chore: Extinguish Pragmatic Technical Debt (Wave 4) (#70)
+06645336 fix(quality): mass remediate technical debt (Wave 1) (#69)
+925c2508 fix(quality): mass remediate technical debt (Wave 1) (#68)
+5787e223 docs: automated A-O and Pragmatic Programmer assessment (#64)
+385f8602 docs(curie): monthly hygiene report
+83ecd1f3 fix: compute true air density dynamically (#61)
+61c60e21 refactor: finalize A+ fleet quality (Zero Bare Except / Zero TODO) (#59)
+96af0012 refactor: purge deprecated archive and legacy directories to reduce bloat (#58)
+a07a5042 refactor: auto-remediate Pragmatic Programmer debt (exceptions, formatting) (#55)
+7fe1f1ab Merge pull request #54 from D-sorganization/fix/gaai-batch-1
+d78153da Fix physics API regressions batch 1
+55e1bda6 Merge pull request #30 from D-sorganization/dependabot/github_actions/codecov/codecov-action-5
+cac4b352 Merge branch 'main' into dependabot/github_actions/codecov/codecov-action-5
+5319f4b5 fix: round-2 quality improvements — engine manager, API, and test coverage (#46)
+2dd2059a Merge branch 'main' into dependabot/github_actions/codecov/codecov-action-5
+90e9aba3 fix: audit issues #31-34 — duplicate assertions, encapsulation, cache safety, error handling
+5af800a1 chore(ci): bump codecov/codecov-action from 4 to 5
+73cb5494 docs: add completist report and issues (#28)
+eec7f0a4 docs(curie): monthly hygiene report
+77351011 Merge pull request #27 from D-sorganization/feat/jules-finalize
+af6949b5 feat: add Jules cleanup and PR compiler workflows
+8bc1d78c Merge pull request #26 from D-sorganization/feat/jules-helper-layer

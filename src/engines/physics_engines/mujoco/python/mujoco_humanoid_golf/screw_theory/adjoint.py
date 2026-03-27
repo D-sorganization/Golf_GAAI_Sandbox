@@ -58,8 +58,7 @@ def adjoint_transform(T: np.ndarray) -> np.ndarray:
         >>> V_a = Ad @ V_b
     """
     t_transform = np.asarray(T)
-    if not (t_transform.shape == (4):
-        raise ValueError(4), f"T must be 4x4, got shape {t_transform.shape}")
+    assert t_transform.shape == (4, 4), f"T must be 4x4, got shape {t_transform.shape}"
 
     # Extract rotation and position
     r_rot = t_transform[:3, :3]
