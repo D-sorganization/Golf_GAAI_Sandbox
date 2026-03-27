@@ -1,9 +1,4 @@
-import logging
-
-logger = logging.getLogger(__name__)
-
-"""
-Swing Optimization Bridge Module
+"""Swing Optimization Bridge Module.
 
 Bridges UpstreamDrift with AffineDrift's DDP-based (Differential Dynamic
 Programming) swing optimization.  This provides a high-level interface for
@@ -27,13 +22,16 @@ References:
       Behaviors through Online Trajectory Optimization.
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import time  # noqa: E402
-from dataclasses import dataclass  # noqa: E402
-from typing import Any  # noqa: E402
+import logging
+import time
+from dataclasses import dataclass
+from typing import Any
 
-import numpy as np  # noqa: E402
+import numpy as np
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Configuration
