@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """
 Mesh processing utilities for humanoid character builder.
@@ -518,6 +520,7 @@ class PrimitiveMeshGenerator:
         """Check if trimesh is available."""
         try:
             import trimesh  # noqa: F401
+from numba import jit
 
             return True
         except ImportError:

@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """
 Spinal Load Analysis Module
@@ -31,6 +33,7 @@ from dataclasses import dataclass, field  # noqa: E402
 from enum import Enum  # noqa: E402
 
 import numpy as np  # noqa: E402
+from numba import jit
 
 from src.shared.python.analysis.dataclasses import (  # noqa: E402
     CITATION_CRUNCH_FACTOR,

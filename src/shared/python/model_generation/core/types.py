@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """
 Core data types for model generation.
@@ -17,6 +19,7 @@ from typing import Any  # noqa: E402
 
 import numpy as np  # noqa: E402
 from model_generation.core.contracts import precondition  # noqa: E402
+from numba import jit
 from numpy.typing import NDArray  # noqa: E402
 
 logger = logging.getLogger(__name__)

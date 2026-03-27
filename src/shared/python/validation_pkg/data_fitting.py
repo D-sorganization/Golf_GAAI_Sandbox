@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Data fitting and parameter estimation for golf biomechanics (Guideline A3).
 
@@ -1072,6 +1074,7 @@ class A3FittingPipeline:
         if not (report is not None):
             raise ValueError("report must be provided")
         import json
+from numba import jit
 
         if format == "json":
             output_data = {

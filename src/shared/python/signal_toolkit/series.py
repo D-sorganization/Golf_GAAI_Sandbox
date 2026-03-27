@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Taylor and Maclaurin series expansion module.
 
@@ -19,6 +21,7 @@ from collections.abc import Callable  # noqa: E402
 from dataclasses import dataclass  # noqa: E402
 
 import numpy as np  # noqa: E402
+from numba import jit
 from numpy.typing import ArrayLike, NDArray  # noqa: E402
 
 

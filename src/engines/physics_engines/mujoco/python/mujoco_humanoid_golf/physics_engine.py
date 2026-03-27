@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """MuJoCo physics engine integration for humanoid golf simulation.
 
@@ -15,6 +17,7 @@ from typing import Any, cast  # noqa: E402, F401
 
 import mujoco  # noqa: E402
 import numpy as np  # noqa: E402
+from numba import jit
 
 from src.shared.python.core.contracts import (  # noqa: E402
     PreconditionError,

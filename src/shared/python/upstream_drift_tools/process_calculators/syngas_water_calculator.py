@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """
 Syngas Water Calculator
@@ -18,6 +20,7 @@ from typing import Any  # noqa: E402
 
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
+from numba import jit
 from scipy.interpolate import interp1d  # noqa: E402
 
 from .constants import (  # noqa: E402

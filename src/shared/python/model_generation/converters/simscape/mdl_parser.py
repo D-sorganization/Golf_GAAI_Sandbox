@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """
 SimScape MDL/SLX file parser.
@@ -19,6 +21,7 @@ from pathlib import Path  # noqa: E402
 from typing import Any  # noqa: E402
 
 import defusedxml.ElementTree as DefusedET  # noqa: E402
+from numba import jit
 
 logger = logging.getLogger(__name__)
 

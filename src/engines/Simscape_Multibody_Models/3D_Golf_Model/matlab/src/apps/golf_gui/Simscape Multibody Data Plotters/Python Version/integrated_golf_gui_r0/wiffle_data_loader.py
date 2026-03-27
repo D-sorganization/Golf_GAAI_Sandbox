@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 #!/usr/bin/env python3
 """
@@ -708,6 +710,7 @@ def main() -> None:
     except (RuntimeError, ValueError, OSError) as e:
         logger.error("[ERROR] Error during testing: %s", e)
         import traceback
+from numba import jit
 
         traceback.print_exc()
 

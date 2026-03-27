@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """3D Ellipsoid Visualization Module.
 
@@ -446,6 +448,7 @@ def _write_stl_binary(
     if not (vertices is not None):
         raise ValueError("vertices must be provided")
     import struct
+from numba import jit
 
     n_triangles = len(faces)
 

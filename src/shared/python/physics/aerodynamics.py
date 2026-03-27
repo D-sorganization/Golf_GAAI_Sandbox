@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Aerodynamics module for golf ball flight simulation.
 
@@ -33,6 +35,7 @@ from dataclasses import dataclass, field, replace  # noqa: E402
 from typing import Any  # noqa: E402
 
 import numpy as np  # noqa: E402
+from numba import jit
 
 from src.shared.python.core.contracts import precondition  # noqa: E402
 from src.shared.python.core.physics_constants import (  # noqa: E402

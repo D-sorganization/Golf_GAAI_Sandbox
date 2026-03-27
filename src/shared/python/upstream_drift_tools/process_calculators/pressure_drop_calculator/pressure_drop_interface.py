@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 #!/usr/bin/env python3
 """User-friendly Python interface for advanced pressure drop calculator.
@@ -769,6 +771,7 @@ def _resolve_gas_and_flow(
         )
         density = props["density"]
         from .utils.flow_rate_converter import volumetric_actual_to_mass
+from numba import jit
 
         mass_flow_kg_s = volumetric_actual_to_mass(
             flow_rate, flow_unit, density, "kg/s"

@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Terrain modeling system for golf simulation.
 
@@ -35,6 +37,7 @@ from pathlib import Path  # noqa: E402
 from typing import Any  # noqa: E402
 
 import numpy as np  # noqa: E402
+from numba import jit
 
 from src.shared.python.core.physics_constants import GRAVITY_M_S2  # noqa: E402
 from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402

@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Skeleton mapping system for gaming skeletons to physics models.
 
@@ -35,6 +37,7 @@ from enum import Enum, auto  # noqa: E402
 from typing import Any  # noqa: E402
 
 import numpy as np  # noqa: E402
+from numba import jit
 
 logger = logging.getLogger(__name__)
 

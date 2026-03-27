@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """
 Anthropometric data for humanoid character builder.
@@ -19,6 +21,7 @@ from __future__ import annotations  # noqa: E402, F404
 from dataclasses import dataclass  # noqa: E402
 
 from humanoid_character_builder.contracts import precondition  # noqa: E402
+from numba import jit
 
 
 @dataclass

@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """
 SimScape Multibody to URDF converter.
@@ -824,6 +826,7 @@ class SimscapeToURDFConverter:
         if not (result is not None):
             raise ValueError("result must be provided")
         from model_generation.builders.urdf_writer import URDFWriter
+from numba import jit
 
         writer = URDFWriter(pretty_print=True)
         return writer.write(

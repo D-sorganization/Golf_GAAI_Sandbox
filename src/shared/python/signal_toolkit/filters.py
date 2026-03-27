@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Signal filtering utilities.
 
@@ -648,6 +650,7 @@ def apply_gaussian_smoothing(
         raise ValueError("signal must be provided")
     require(sigma > 0.0, f"sigma must be positive, got {sigma}")
     from scipy.ndimage import gaussian_filter1d
+from numba import jit
 
     filtered_values = gaussian_filter1d(signal.values, sigma)
 

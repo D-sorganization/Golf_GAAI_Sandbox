@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """
 Standalone URDF generator for humanoid characters.
@@ -48,6 +50,7 @@ from humanoid_character_builder.mesh.primitive_inertia import (  # noqa: E402
     PrimitiveInertiaCalculator,
     estimate_segment_primitive,
 )
+from numba import jit
 
 logger = logging.getLogger(__name__)
 

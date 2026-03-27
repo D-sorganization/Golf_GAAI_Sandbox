@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """
 Swing Optimizer Module
@@ -361,6 +363,7 @@ class SwingOptimizer(ContractChecker):
             OptimizationResult with optimal trajectory and metrics
         """
         import time
+from numba import jit
 
         start_time = time.time()
 

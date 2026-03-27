@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """
 PyQt6 GUI for Two-Stage PSA System Analysis.
@@ -1055,6 +1057,7 @@ class PSAMainWindow(QMainWindow):
 def main() -> None:
     """Main entry point for the GUI application."""
     from shared.python.theme import setup_themed_app
+from numba import jit
 
     app = QApplication(sys.argv)
     app.setStyle("Fusion")

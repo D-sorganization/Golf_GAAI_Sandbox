@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Imitation learning algorithms."""
 
@@ -24,6 +26,8 @@ except ImportError:
     GYMNASIUM_AVAILABLE = False
     gym = None  # type: ignore[assignment]
     spaces = None  # type: ignore[assignment]
+
+from numba import jit
 
 from src.learning.imitation.dataset import (  # noqa: E402
     Demonstration,

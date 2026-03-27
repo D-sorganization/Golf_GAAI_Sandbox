@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 # mypy: ignore-errors
 # MuJoCo types are dynamically imported and mypy cannot resolve them statically
@@ -332,6 +334,7 @@ class MuJoCoOffscreenRenderer:
         if not (urdf_content is not None):
             raise ValueError("urdf_content must be provided")
         import re
+from numba import jit
 
         min_mass = 0.001  # 1 gram minimum
         min_inertia = 0.0001  # Minimum inertia value

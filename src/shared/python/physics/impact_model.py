@@ -1,4 +1,7 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+
 """Modular Impact Model Module.
 
 Guideline K3 Implementation: Modular Impact Model (MuJoCo).
@@ -37,6 +40,7 @@ from ..core.physics_constants import (
     GOLF_BALL_RADIUS_M,
     TYPICAL_CONTACT_DURATION_S,
 )
+from numba import jit
 
 if TYPE_CHECKING:
     ...

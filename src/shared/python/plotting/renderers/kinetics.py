@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Kinetics plotting renderer."""
 
@@ -436,6 +438,7 @@ class KineticsRenderer(BaseRenderer):
         tau = torques[:, joint_idx]
 
         from scipy.stats import linregress
+from numba import jit
 
         n_windows = len(theta) - window_size + 1
         t_centers = np.zeros(n_windows)

@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """Kinematic-dependent force analysis for golf swing biomechanics.
 
@@ -192,6 +194,7 @@ def _check_mujoco_version() -> None:
         # Success - log version
         # Success - log version
         import logging
+from numba import jit
 
         logger = logging.getLogger(__name__)
         logger.info(f"MuJoCo version {version_str} validated successfully")

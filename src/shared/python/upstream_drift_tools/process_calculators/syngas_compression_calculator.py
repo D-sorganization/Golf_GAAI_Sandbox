@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 #!/usr/bin/env python3
 """Advanced Syngas Compression Calculator
@@ -137,6 +139,7 @@ try:
     from integrated_process_simulator.calculators.thermodynamic_properties.species_database import (
         get_species_database,
     )
+from numba import jit
 except ImportError:
     # Minimal fallback for standalone use
     class _MinimalSpeciesDB:

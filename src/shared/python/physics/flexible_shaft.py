@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Flexible Beam Shaft Module.
 
@@ -907,6 +909,7 @@ class FiniteElementShaftModel(ShaftModel):
         if not (n_modes is not None):
             raise ValueError("n_modes must be provided")
         from scipy.linalg import eigh
+from numba import jit
 
         # Solve generalized eigenvalue problem
         eigenvalues, _ = eigh(self.K, self.M)

@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Whole-body controller with hierarchical task prioritization.
 
@@ -15,6 +17,7 @@ from __future__ import annotations  # noqa: E402, F404
 from dataclasses import dataclass, field  # noqa: E402
 
 import numpy as np  # noqa: E402
+from numba import jit
 from numpy.typing import NDArray  # noqa: E402
 
 from src.robotics.control.whole_body.qp_solver import (  # noqa: E402

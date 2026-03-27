@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """
 Golf Swing Analyzer.
@@ -12,6 +14,8 @@ import math  # noqa: E402
 import uuid  # noqa: E402
 from collections.abc import Callable  # noqa: E402
 from datetime import datetime  # noqa: E402
+
+from numba import jit
 
 from src.shared.python.core.contracts import precondition  # noqa: E402
 

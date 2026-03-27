@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """Visualization system for golf swing motion and club trajectory.
 
@@ -419,6 +421,7 @@ class MotionVisualizer:
                     from motion_training.club_trajectory_parser import (
                         compute_hand_positions,
                     )
+from numba import jit
 
                     left_pos, right_pos = compute_hand_positions(frame)
                     self.add_hand_targets(left_pos, right_pos)

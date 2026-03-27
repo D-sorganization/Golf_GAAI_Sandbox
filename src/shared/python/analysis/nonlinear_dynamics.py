@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Nonlinear dynamics and complexity analysis.
 
@@ -406,6 +408,7 @@ class NonlinearDynamicsMixin:
         nearest_neighbors = np.zeros(M, dtype=int)
 
         from scipy.spatial.distance import cdist
+from numba import jit
 
         dists_mat = cdist(orbit, orbit, metric="euclidean")
 

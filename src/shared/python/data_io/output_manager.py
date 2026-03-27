@@ -1,4 +1,7 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+
 """
 Output Manager for Golf Modeling Suite
 
@@ -35,6 +38,7 @@ from ..core.datetime_utils import (
 )
 from .common_utils import get_logger, setup_structured_logging
 from .provenance import ProvenanceInfo, add_provenance_header_file
+from numba import jit
 
 # Configure structured logging
 setup_structured_logging()

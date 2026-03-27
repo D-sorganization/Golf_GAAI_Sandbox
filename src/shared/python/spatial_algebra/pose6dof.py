@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """
 6DOF (Six Degrees of Freedom) positioning module.
@@ -29,6 +31,7 @@ from .transforms import xtrans  # noqa: E402
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+from numba import jit
 
 # Type alias for clarity
 Vec3 = npt.NDArray[np.float64]

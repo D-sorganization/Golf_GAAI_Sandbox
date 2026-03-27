@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """Motion capture integration and retargeting for golf swing analysis.
 
@@ -22,6 +24,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 import numpy as np  # noqa: E402
+from numba import jit
 from scipy.interpolate import CubicSpline, interp1d  # noqa: E402
 from scipy.signal import butter, filtfilt  # noqa: E402
 

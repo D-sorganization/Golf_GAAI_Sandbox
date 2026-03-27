@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """Drake GUI visualization mixin.
 
@@ -680,6 +682,7 @@ class DrakeVisualizationMixin:
         from shared.python.validation_pkg.statistical_analysis import (
             StatisticalAnalyzer,
         )
+from numba import jit
 
         if not self.recorder.times:
             QtWidgets.QMessageBox.warning(

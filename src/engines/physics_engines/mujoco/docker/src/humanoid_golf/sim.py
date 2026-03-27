@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """MuJoCo humanoid-golf simulation core (Docker backend).
 
@@ -492,6 +494,7 @@ def _run_viewer_loop(physics, controller, initialize_episode, save_path) -> None
     except (ValueError, TypeError, RuntimeError) as e:
         logger.error("%s", f"Failed to launch viewer: {e}")
         import traceback
+from numba import jit
 
         traceback.print_exc()
         raise e

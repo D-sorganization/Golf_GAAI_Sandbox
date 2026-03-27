@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Kinematics plotting renderer."""
 
@@ -7,6 +9,7 @@ from __future__ import annotations  # noqa: E402, F404
 import numpy as np  # noqa: E402
 from matplotlib.axes import Axes  # noqa: E402
 from matplotlib.figure import Figure  # noqa: E402
+from numba import jit
 
 from src.shared.python.plotting.renderers.base import BaseRenderer  # noqa: E402
 

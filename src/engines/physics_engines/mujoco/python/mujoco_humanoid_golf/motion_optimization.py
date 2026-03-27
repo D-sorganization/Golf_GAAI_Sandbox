@@ -1,4 +1,7 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
+
 """Motion optimization and trajectory planning for golf swing.
 
 This module provides advanced optimization tools for generating optimal
@@ -21,6 +24,7 @@ import mujoco
 import numpy as np
 from scipy.interpolate import CubicSpline
 from scipy.optimize import differential_evolution, minimize
+from numba import jit
 
 
 @dataclass

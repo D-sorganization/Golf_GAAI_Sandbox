@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """
 Packed Bed Scrubber Calculator Module
@@ -27,6 +29,7 @@ from dataclasses import dataclass  # noqa: E402
 from typing import Final  # noqa: E402
 
 import numpy as np  # noqa: E402
+from numba import jit
 
 from .constants import (  # noqa: E402
     COOLING_WATER_APPROACH_TEMP,

@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Coordination and sequencing plotting renderer."""
 
@@ -805,6 +807,7 @@ class CoordinationRenderer(BaseRenderer):
             from src.shared.python.validation_pkg.statistical_analysis import (
                 StatisticalAnalyzer,
             )
+from numba import jit
         except ImportError:
             ax = fig.add_subplot(111)
             ax.text(0.5, 0.5, "Analysis module missing", ha="center", va="center")

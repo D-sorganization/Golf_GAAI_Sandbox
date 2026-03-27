@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """Controls tab for the MuJoCo humanoid golf GUI.
 
@@ -25,6 +27,7 @@ from ...sim_widget import MuJoCoSimWidget  # noqa: E402
 
 if typing.TYPE_CHECKING:
     from ..advanced_gui import AdvancedGolfAnalysisWindow
+from numba import jit
 
 logger = get_logger(__name__)
 

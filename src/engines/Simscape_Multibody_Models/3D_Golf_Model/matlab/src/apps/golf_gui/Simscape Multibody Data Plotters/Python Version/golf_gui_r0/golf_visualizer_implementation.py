@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 #!/usr/bin/env python3
 """Modern Golf Swing Visualizer - Production Implementation
@@ -23,6 +25,7 @@ from dataclasses import dataclass  # noqa: E402
 import moderngl as mgl  # noqa: E402
 import numpy as np  # noqa: E402
 import scipy.io  # noqa: E402
+from numba import jit
 from PyQt6.QtCore import Qt, QTimer  # noqa: E402
 from PyQt6.QtOpenGLWidgets import QOpenGLWidget  # noqa: E402
 from PyQt6.QtWidgets import (  # noqa: E402

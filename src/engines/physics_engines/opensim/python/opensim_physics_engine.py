@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """OpenSim Physics Engine implementation.
 
@@ -592,6 +594,7 @@ class OpenSimPhysicsEngine(PhysicsEngine):
 
         try:
             from .muscle_analysis import OpenSimGripModel
+from numba import jit
 
             return OpenSimGripModel(self._model)
         except ImportError as e:

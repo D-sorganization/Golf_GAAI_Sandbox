@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """MuJoCo sim widget rendering mixin.
 
@@ -27,6 +29,7 @@ def get_cv2() -> Any:
     if _cv2_state["lib"] is None and not _cv2_state["invalid"]:
         try:
             import cv2
+from numba import jit
 
             _cv2_state["lib"] = cv2
         except ImportError:

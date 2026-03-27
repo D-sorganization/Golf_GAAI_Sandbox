@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """Interactive drag-and-pose manipulation system for MuJoCo models.
 
@@ -19,6 +21,7 @@ from enum import Enum  # noqa: E402
 
 import mujoco  # noqa: E402
 import numpy as np  # noqa: E402
+from numba import jit
 
 
 class ConstraintType(Enum):

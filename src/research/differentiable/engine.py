@@ -1,4 +1,7 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+
 """Differentiable physics simulation engines."""
 
 from __future__ import annotations
@@ -14,6 +17,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from src.engines.protocols import PhysicsEngineProtocol
+from numba import jit
 
 
 class AutodiffBackend(Enum):

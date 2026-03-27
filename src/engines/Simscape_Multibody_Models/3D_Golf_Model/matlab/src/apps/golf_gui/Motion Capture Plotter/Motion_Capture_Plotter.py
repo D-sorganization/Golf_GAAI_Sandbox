@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
 
 """
 Motion Capture Plotter - 3D visualization of golf swing data.
@@ -19,7 +21,9 @@ import pandas as pd  # noqa: E402
 
 matplotlib.use("QtAgg")  # Use QtAgg backend for PyQt6 compatibility
 
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas  # noqa: E402
+from matplotlib.backends.backend_qtagg import (
+    FigureCanvasQTAgg as FigureCanvas,  # noqa: E402
+)
 from matplotlib.figure import Figure  # noqa: E402
 from mocap_data_loader import (  # noqa: E402
     find_available_joints,
@@ -28,6 +32,7 @@ from mocap_data_loader import (  # noqa: E402
     process_excel_sheet,
     safe_float,
 )
+from numba import jit
 from PyQt6.QtCore import Qt, QTimer  # noqa: E402
 from PyQt6.QtGui import QFont  # noqa: E402
 from PyQt6.QtWidgets import (  # noqa: E402

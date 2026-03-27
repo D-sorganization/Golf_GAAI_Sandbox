@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Putting Green Simulator - Main Physics Engine.
 
@@ -28,6 +30,7 @@ from pathlib import Path  # noqa: E402
 from typing import Any  # noqa: E402
 
 import numpy as np  # noqa: E402
+from numba import jit
 
 from src.engines.physics_engines.putting_green.python.ball_roll_physics import (  # noqa: E402
     BallRollPhysics,

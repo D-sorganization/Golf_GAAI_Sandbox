@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Terrain-aware physics engine integration.
 
@@ -930,6 +932,7 @@ def register_terrain_parameters() -> None:
         PhysicsParameter,
         get_parameter_registry,
     )
+from numba import jit
 
     registry = get_parameter_registry()
 

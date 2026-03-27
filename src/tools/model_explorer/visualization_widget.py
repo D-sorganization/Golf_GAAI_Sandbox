@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """3D visualization widget for URDF preview."""
 
@@ -23,6 +25,7 @@ logger = get_logger(__name__)
 if MUJOCO_AVAILABLE:
     try:
         from .mujoco_viewer import MuJoCoViewerWidget
+from numba import jit
 
         logger.info("MuJoCo 3D viewer available")
 

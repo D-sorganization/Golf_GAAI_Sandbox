@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 #!/usr/bin/env python3
 """Gas mixture property calculations for pressure drop analysis.
@@ -18,6 +20,8 @@ References:
 import logging  # noqa: E402
 import math  # noqa: E402
 from dataclasses import dataclass  # noqa: E402
+
+from numba import jit
 
 from ....utils.unit_constants import R_UNIVERSAL as R_UNIVERSAL_J_MOL_K  # noqa: E402
 from ....utils.unit_constants import (  # noqa: E402

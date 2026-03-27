@@ -1,4 +1,6 @@
-from numba import jit
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Green Surface Model for Putting Simulation.
 
@@ -850,6 +852,7 @@ class GreenSurface:
             raise ValueError("filepath must be provided")
         try:
             import rasterio  # type: ignore
+from numba import jit
         except ImportError as err:
             raise ImportError(
                 "rasterio required for GeoTIFF support. Install with: pip install rasterio"

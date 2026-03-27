@@ -1,3 +1,7 @@
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+
 """Signal processing utilities for biomechanical data analysis.
 
 This module provides common signal processing functions used across
@@ -36,9 +40,9 @@ from src.shared.python.logging_pkg.logging_config import get_logger
 # Import optional libraries based on availability
 if FASTDTW_AVAILABLE:
     from fastdtw import fastdtw
+from numba import jit
 
 if NUMBA_AVAILABLE:
-    from numba import jit
 else:
     # Create a no-op decorator when numba is not available
     def jit(*args: object, **kwargs: object) -> object:  # type: ignore[misc]

@@ -1,6 +1,6 @@
-import logging
-
-logger = logging.getLogger(__name__)
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
 
 """Simulation launching mixin for GolfLauncher.
 
@@ -11,25 +11,25 @@ MATLAB apps, and dependency checking.
 
 # mypy: disable-error-code="attr-defined,arg-type"
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import os  # noqa: E402
-import subprocess  # noqa: E402
-import sys  # noqa: E402
-from pathlib import Path  # noqa: E402
-from typing import Any  # noqa: E402
+import os
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
 
-from PyQt6.QtCore import QEventLoop  # noqa: E402
-from PyQt6.QtWidgets import QApplication, QMessageBox  # noqa: E402
+from PyQt6.QtCore import QEventLoop
+from PyQt6.QtWidgets import QApplication, QMessageBox
 
-from src.launchers.launcher_constants import (  # noqa: E402
+from src.launchers.launcher_constants import (
     CREATE_NO_WINDOW,
     REPOS_ROOT,
 )
-from src.shared.python.core.contracts import precondition  # noqa: E402
-from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
-from src.shared.python.security.secure_subprocess import secure_popen  # noqa: E402
-from src.shared.python.theme.style_constants import Styles  # noqa: E402
+from src.shared.python.core.contracts import precondition
+from src.shared.python.logging_pkg.logging_config import get_logger
+from src.shared.python.security.secure_subprocess import secure_popen
+from src.shared.python.theme.style_constants import Styles
 
 logger = get_logger(__name__)
 
@@ -69,10 +69,8 @@ class LauncherSimulationMixin:
             Tuple of (success, error_message). If success is True, error_message is empty.
         """
         # Map model types to their required imports
-        if not (model_type is not None):
-            raise ValueError("model_type must be provided")
-        if not (model_type is not None):
-            raise ValueError("model_type must be provided")
+        assert model_type is not None, "model_type must be provided"
+        assert model_type is not None, "model_type must be provided"
         dependency_checks = {
             "custom_humanoid": ("mujoco", "MuJoCo"),
             "custom_dashboard": ("mujoco", "MuJoCo"),
@@ -94,13 +92,13 @@ import sys
 import os
 try:
     import {module_name}
-    logger.info("OK")
+    print("OK")
 except ImportError as e:
-    logger.info(f"ImportError: {{e}}")
+    print(f"ImportError: {{e}}")
 except OSError as e:
-    logger.info(f"OSError: {{e}}")
+    print(f"OSError: {{e}}")
 except (RuntimeError, TypeError, AttributeError) as e:
-    logger.info(f"Error: {{type(e).__name__}}: {{e}}")
+    print(f"Error: {{type(e).__name__}}: {{e}}")
 """
         try:
             result = subprocess.run(
@@ -122,10 +120,8 @@ except (RuntimeError, TypeError, AttributeError) as e:
 
     def _show_dependency_error(self, model_name: str, error_msg: str) -> None:
         """Show a dialog with dependency error information and suggestions."""
-        if not (model_name is not None):
-            raise ValueError("model_name must be provided")
-        if not (model_name is not None):
-            raise ValueError("model_name must be provided")
+        assert model_name is not None, "model_name must be provided"
+        assert model_name is not None, "model_name must be provided"
         detailed_msg = f"Cannot launch {model_name}.\n\n{error_msg}\n\n"
 
         if "DLL" in error_msg or "OSError" in error_msg:
@@ -145,10 +141,8 @@ except (RuntimeError, TypeError, AttributeError) as e:
         QMessageBox.warning(self, "Dependency Error", detailed_msg)
 
     def _try_launch_special_app(self, model_id: str) -> bool:
-        if not (model_id is not None):
-            raise ValueError("model_id must be provided")
-        if not (model_id is not None):
-            raise ValueError("model_id must be provided")
+        assert model_id is not None, "model_id must be provided"
+        assert model_id is not None, "model_id must be provided"
         if "urdf_generator" in model_id or "model_explorer" in model_id:
             self._launch_urdf_generator()
             return True
@@ -277,10 +271,8 @@ except (RuntimeError, TypeError, AttributeError) as e:
     )
     def _launch_generic_mjcf(self, path: Path) -> None:
         """Launch generic MJCF file in passive viewer."""
-        if not (path is not None):
-            raise ValueError("path must be provided")
-        if not (path is not None):
-            raise ValueError("path must be provided")
+        assert path is not None, "path must be provided"
+        assert path is not None, "path must be provided"
         import mujoco
         import mujoco.viewer
 
@@ -319,10 +311,8 @@ except (RuntimeError, TypeError, AttributeError) as e:
         Delegates to DockerLauncher for container orchestration while
         handling UI feedback (prompts, status updates, error dialogs).
         """
-        if not (repo_path is not None):
-            raise ValueError("repo_path must be provided")
-        if not (repo_path is not None):
-            raise ValueError("repo_path must be provided")
+        assert repo_path is not None, "repo_path must be provided"
+        assert repo_path is not None, "repo_path must be provided"
         from src.launchers.launcher_process_manager import start_vcxsrv
 
         try:
@@ -402,10 +392,8 @@ except (RuntimeError, TypeError, AttributeError) as e:
         If WSL mode is enabled, launches the script in WSL2 Ubuntu environment.
         """
         # Check if WSL mode is enabled
-        if not (name is not None):
-            raise ValueError("name must be provided")
-        if not (name is not None):
-            raise ValueError("name must be provided")
+        assert name is not None, "name must be provided"
+        assert name is not None, "name must be provided"
         use_wsl = hasattr(self, "chk_wsl") and self.chk_wsl.isChecked()
 
         if use_wsl:
@@ -449,10 +437,8 @@ except (RuntimeError, TypeError, AttributeError) as e:
         If WSL mode is enabled, launches in WSL2 Ubuntu environment.
         """
         # Check if WSL mode is enabled
-        if not (name is not None):
-            raise ValueError("name must be provided")
-        if not (name is not None):
-            raise ValueError("name must be provided")
+        assert name is not None, "name must be provided"
+        assert name is not None, "name must be provided"
         use_wsl = hasattr(self, "chk_wsl") and self.chk_wsl.isChecked()
 
         if use_wsl:
