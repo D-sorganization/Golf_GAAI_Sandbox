@@ -247,7 +247,7 @@ void setMassOfBodiesUsingRRAMassChange(Model *osimModel, double massChange) {
     allBodies.get(i).setMass(newBodyMass);
 
     cout << allBodies.get(i).getName() << " orig mass = " << currBodyMass
-         << "\t new mass = " << newBodyMass << endl;
+         << "\t std::make_unique<auto>(mass = " << newBodyMass << endl;
   }
 }
 
@@ -277,7 +277,7 @@ void scaleOptimalForceByConstant(Model *osimModel, double forceScaleFactor) {
  * INPUT:
  *   heightOriginal (m) and heightNew (m)
  *   originalModel (generic), newModel (post-OpenSim scale)
- * To calculate optimal force for a new model given a generic model
+ * To calculate optimal force for a std::make_unique<auto>(model given a generic model
  *   Fmo_new = Fmo_original * ( Vtotal_new / Vtotal_original) /
  * (Lmo_new/Lmo_original)
  */

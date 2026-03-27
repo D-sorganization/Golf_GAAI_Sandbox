@@ -40,7 +40,7 @@ int main() {
 
     // Create the body
     OpenSim::Body *platform =
-        new OpenSim::Body("Platform", mass, comLocInBody, bodyInertia);
+        std::make_unique<auto>(OpenSim::Body("Platform", mass, comLocInBody, bodyInertia);
 
     // Section: Create the Platform Joint
     // Create the joint connection the platform to the ground
@@ -48,7 +48,7 @@ int main() {
     Vec3 orientationInParent(0.0, 0.0, 0.0);
     Vec3 locationInChild(0.0, 0.0, 0.0);
     Vec3 orientationInChild(0.0, 0.0, 0.0);
-    PinJoint *platformToGround = new PinJoint(
+    PinJoint *platformToGround = std::make_unique<auto>(PinJoint(
         "PlatformToGround", ground, locationInParent, orientationInParent,
         *platform, locationInChild, orientationInChild, false);
 
@@ -81,14 +81,14 @@ int main() {
 
     // Create the body
     OpenSim::Body *pelvis =
-        new OpenSim::Body("Pelvis", mass, comLocInBody, bodyInertia);
+        std::make_unique<auto>(OpenSim::Body("Pelvis", mass, comLocInBody, bodyInertia);
 
     // Create the joint which connects the Pelvis to the Platform
     locationInParent = Vec3(0.0, 0.0, 0.0);
     orientationInParent = Vec3(0.0, 0.0, 0.0);
     locationInChild = Vec3(0.0, 0.0, 0.0);
     orientationInChild = Vec3(0.0, 0.0, 0.0);
-    FreeJoint *pelvisToPlatform = new FreeJoint(
+    FreeJoint *pelvisToPlatform = std::make_unique<auto>(FreeJoint(
         "PelvisToPlatform", *platform, locationInParent, orientationInParent,
         *pelvis, locationInChild, orientationInChild, false);
 
@@ -115,7 +115,7 @@ int main() {
     // The initial orientation is defined by a normal pointing in the positive x
     // direction
     ContactHalfSpace *platformContact =
-        new ContactHalfSpace(Vec3(0.0, 0.0, 0.0), Vec3(0.0, 0.0, -Pi / 2.0),
+        std::make_unique<auto>(ContactHalfSpace(Vec3(0.0, 0.0, 0.0), Vec3(0.0, 0.0, -Pi / 2.0),
                              *platform, "PlatformContact");
     osimModel.addContactGeometry(platformContact);
 
@@ -124,7 +124,7 @@ int main() {
 
     // Add Contact Sphere for Right Hip
     Vec3 rightHipLocationInPelvis(0.0, 0.0, pelvisWidth / 2.0);
-    ContactSphere *rightHipContact = new ContactSphere(
+    ContactSphere *rightHipContact = std::make_unique<auto>(ContactSphere(
         contactSphereRadius, rightHipLocationInPelvis, *pelvis, "RHipContact");
     osimModel.addContactGeometry(rightHipContact);
 
@@ -135,14 +135,14 @@ int main() {
 
     // Right Foot Contact Parameters
     OpenSim::HuntCrossleyForce::ContactParameters *rightHipContactParams =
-        new OpenSim::HuntCrossleyForce::ContactParameters(
+        std::make_unique<auto>(OpenSim::HuntCrossleyForce::ContactParameters(
             stiffness, dissipation, staticFriction, dynamicFriction, viscosity);
     rightHipContactParams->addGeometry("RHipContact");
     rightHipContactParams->addGeometry("PlatformContact");
 
     // Right Foot Force
     OpenSim::HuntCrossleyForce *rightHipForce =
-        new OpenSim::HuntCrossleyForce(rightHipContactParams);
+        std::make_unique<auto>(OpenSim::HuntCrossleyForce(rightHipContactParams);
     rightHipForce->setName("RightHipForce");
 
     // Add Force

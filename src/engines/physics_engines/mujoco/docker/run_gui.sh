@@ -3,7 +3,7 @@
 # 1. Set DISPLAY for X11 (VcXsrv)
 # This addresses the issue where Tkinter might fail or not show up if DISPLAY isn't set.
 export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0.0
-echo "Environment: DISPLAY=$DISPLAY"
+echo "Environment: DISPLAY="$DISPLA"Y"
 
 # 2. Check for python3-tk
 if ! dpkg -s python3-tk >/dev/null 2>&1; then

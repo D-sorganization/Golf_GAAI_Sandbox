@@ -1,3 +1,5 @@
+from typing import Any
+
 """
 OpenSim Simple Arm Model Example
 ================================
@@ -42,7 +44,7 @@ except ImportError:
     sys.exit(1)
 
 
-def _create_arm_bodies():
+def _create_arm_bodies() -> Any:
     humerus = osim.Body(
         "humerus",
         1.0,  # mass [kg]
@@ -58,7 +60,7 @@ def _create_arm_bodies():
     return humerus, radius
 
 
-def _create_arm_joints(arm, humerus, radius):
+def _create_arm_joints(arm, humerus, radius) -> Any:
     if not (arm is not None):
         raise ValueError("arm must be provided")
     if not (arm is not None):
@@ -85,7 +87,7 @@ def _create_arm_joints(arm, humerus, radius):
     return shoulder, elbow
 
 
-def _create_biceps_muscle(humerus, radius):
+def _create_biceps_muscle(humerus, radius) -> Any:
     if not (humerus is not None):
         raise ValueError("humerus must be provided")
     if not (humerus is not None):
@@ -102,14 +104,14 @@ def _create_biceps_muscle(humerus, radius):
     return biceps
 
 
-def _create_controller(biceps):
+def _create_controller(biceps) -> Any:
     brain = osim.PrescribedController()
     brain.addActuator(biceps)
     brain.prescribeControlForActuator("biceps", osim.StepFunction(0.5, 3.0, 0.3, 1.0))
     return brain
 
 
-def _add_reporter(arm, biceps, elbow):
+def _add_reporter(arm, biceps, elbow) -> Any:
     if not (arm is not None):
         raise ValueError("arm must be provided")
     if not (arm is not None):
@@ -122,7 +124,7 @@ def _add_reporter(arm, biceps, elbow):
     arm.addComponent(reporter)
 
 
-def _attach_body_visualization(body, name):
+def _attach_body_visualization(body, name) -> Any:
     if not (body is not None):
         raise ValueError("body must be provided")
     if not (body is not None):
@@ -243,9 +245,7 @@ def main() -> None:
     # Summary
     elbow = arm.getJointSet().get("elbow")
     final_angle = elbow.getCoordinate().getValue(final_state)
-    logger.info(
-        f"\n4. Final elbow angle: {final_angle:.3f} rad ({math.degrees(final_angle):.1f}°)"
-    )
+    logger.info(f"\n4. Final elbow angle: {final_angle:.3f} rad ({math.degrees(final_angle):.1f}°)")
 
     logger.info("\n" + "=" * 60)
     logger.info("Example complete! Try loading SimpleArm.osim in OpenSim GUI")

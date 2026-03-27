@@ -1,3 +1,5 @@
+from typing import Any
+
 """
 Type definitions for Golf Swing Video Analysis.
 
@@ -254,7 +256,7 @@ class SwingAnalysis:
         """Convert to dictionary for JSON serialization."""
         import dataclasses
 
-        def convert(obj):
+        def convert(obj) -> Any:
             """Recursively convert dataclasses and enums to plain dicts."""
             if dataclasses.is_dataclass(obj):
                 return {k: convert(v) for k, v in dataclasses.asdict(obj).items()}  # type: ignore[arg-type]

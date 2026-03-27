@@ -1,3 +1,5 @@
+from typing import Any
+
 """
 Test suite for PSA Model.
 
@@ -55,7 +57,7 @@ class TestPSAModelBaseCase:
         )
 
     @pytest.fixture
-    def base_results(self, base_model: PSAModel):
+    def base_results(self, base_model: PSAModel) -> Any:
         """Calculate base case results."""
         return base_model.calculate()
 
@@ -106,9 +108,9 @@ class TestPSAModelBaseCase:
 
     def test_mass_balance(self, base_results) -> None:
         """Test mass balance closure."""
-        assert abs(base_results.mass_balance_error) < 1e-10, (
-            f"Mass balance error too large: {base_results.mass_balance_error}"
-        )
+        assert (
+            abs(base_results.mass_balance_error) < 1e-10
+        ), f"Mass balance error too large: {base_results.mass_balance_error}"
 
     def test_s2_tail_h2_pct(self, base_results) -> None:
         """Test S2 tail H2 percentage matches Excel."""
@@ -133,7 +135,7 @@ class TestPSAModelH2Flows:
     """Test H2 component flows against Excel."""
 
     @pytest.fixture
-    def base_results(self):
+    def base_results(self) -> Any:
         """Calculate base case results."""
         model = PSAModel()
         return model.calculate()
@@ -191,7 +193,7 @@ class TestPSAModelO2Flows:
     """Test O2 component flows against Excel."""
 
     @pytest.fixture
-    def base_results(self):
+    def base_results(self) -> Any:
         """Calculate base case results."""
         model = PSAModel()
         return model.calculate()
@@ -451,9 +453,9 @@ class TestPSAModelConsistency:
                 - results.flows.s2_tail_vent[i]
                 - results.flows.net_product[i]
             )
-            assert abs(balance) < 1e-10, (
-                f"Mass balance error for {results.component_names[i]}: {balance}"
-            )
+            assert (
+                abs(balance) < 1e-10
+            ), f"Mass balance error for {results.component_names[i]}: {balance}"
 
     def test_mixed_feed_balance(self) -> None:
         """Test mixed feed balance."""
@@ -481,9 +483,7 @@ class TestPSAModelConsistency:
 
         for i in range(len(results.component_names)):
             # Interstage = Mixed feed - Exhaust
-            calculated_interstage = (
-                results.flows.mixed_feed[i] - results.flows.exhaust[i]
-            )
+            calculated_interstage = results.flows.mixed_feed[i] - results.flows.exhaust[i]
             assert_allclose(
                 results.flows.interstage[i],
                 calculated_interstage,

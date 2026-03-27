@@ -372,7 +372,9 @@ class GitHubRepository(Repository):
 
             for item in contents:
                 if item["type"] == "file" and item["name"].endswith(".urdf"):
-                    raw_url = f"{self.RAW_BASE}/{self._owner}/{self._repo}/{self._branch}/{item['path']}"
+                    raw_url = (
+                        f"{self.RAW_BASE}/{self._owner}/{self._repo}/{self._branch}/{item['path']}"
+                    )
                     models.append(
                         RepositoryModel(
                             name=item["name"][:-5],
@@ -404,9 +406,7 @@ class GitHubRepository(Repository):
         destination.mkdir(parents=True, exist_ok=True)
 
         # Download URDF
-        urdf_url = (
-            f"{self.RAW_BASE}/{self._owner}/{self._repo}/{self._branch}/{model_path}"
-        )
+        urdf_url = f"{self.RAW_BASE}/{self._owner}/{self._repo}/{self._branch}/{model_path}"
         filename = Path(model_path).name
         local_path = destination / filename
 
@@ -431,9 +431,7 @@ class GitHubRepository(Repository):
         if not (model_dir is not None):
             raise ValueError("model_dir must be provided")
         mesh_dir = f"{model_dir}/meshes"
-        api_url = (
-            f"{self.API_BASE}/repos/{self._owner}/{self._repo}/contents/{mesh_dir}"
-        )
+        api_url = f"{self.API_BASE}/repos/{self._owner}/{self._repo}/contents/{mesh_dir}"
 
         try:
             contents = self._api_request_with_retry(api_url)
@@ -459,9 +457,7 @@ class GitHubRepository(Repository):
             raise ValueError("destination must be provided")
         if not (destination is not None):
             raise ValueError("destination must be provided")
-        archive_url = (
-            f"https://github.com/{self._owner}/{self._repo}/archive/{self._branch}.zip"
-        )
+        archive_url = f"https://github.com/{self._owner}/{self._repo}/archive/{self._branch}.zip"
 
         try:
             with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:

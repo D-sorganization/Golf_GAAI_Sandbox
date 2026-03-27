@@ -750,9 +750,7 @@ class Transform6DOF:
         return cls(rotation=pose.rotation_matrix, translation=pose.position)
 
     @classmethod
-    def interpolate(
-        cls, t1: Transform6DOF, t2: Transform6DOF, alpha: float
-    ) -> Transform6DOF:
+    def interpolate(cls, t1: Transform6DOF, t2: Transform6DOF, alpha: float) -> Transform6DOF:
         """
         Linear interpolation between two transforms.
 
@@ -832,9 +830,7 @@ class Transform6DOF:
         point = np.asarray(point, dtype=np.float64)
         return self._rotation @ point + self._translation
 
-    def transform_points(
-        self, points: npt.NDArray[np.float64]
-    ) -> npt.NDArray[np.float64]:
+    def transform_points(self, points: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
         """Transform multiple points (Nx3 array)."""
         if not (points is not None):
             raise ValueError("points must be provided")
@@ -954,9 +950,7 @@ class EntityPlacement:
         new_euler = rotation_matrix_to_euler(R @ self.pose.rotation_matrix)
         self.pose.euler_angles = new_euler
 
-    def look_at(
-        self, target: Vec3 | list[float], up: Vec3 | list[float] | None = None
-    ) -> None:
+    def look_at(self, target: Vec3 | list[float], up: Vec3 | list[float] | None = None) -> None:
         """
         Orient entity to look at a target point.
 

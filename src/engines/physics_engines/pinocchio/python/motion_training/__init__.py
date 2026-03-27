@@ -1,3 +1,5 @@
+from typing import Any
+
 """Motion training module for inverse kinematics from club trajectory data.
 
 This module provides tools to:
@@ -53,7 +55,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     """Lazy import for module components.
 
     Each group of names is loaded from its respective sub-module only when

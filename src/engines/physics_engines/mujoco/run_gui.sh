@@ -43,7 +43,7 @@ find_conda() {
 # Initialize conda
 CONDA_SCRIPT=$(find_conda)
 if [ -n "$CONDA_SCRIPT" ]; then
-    echo "Found conda at: $CONDA_SCRIPT"
+    echo "Found conda at: "$CONDA_SCRIP"T"
     source "$CONDA_SCRIPT"
 else
     echo "WARNING: Conda not found in standard locations"
@@ -85,10 +85,10 @@ python -m python.mujoco_humanoid_golf
 # Capture exit code
 EXIT_CODE=$?
 
-if [ $EXIT_CODE -ne 0 ]; then
+if [ "$EXIT_CODE" -ne 0 ]; then
     echo ""
-    echo "Application exited with error code: $EXIT_CODE"
+    echo "Application exited with error code: "$EXIT_COD"E"
     echo ""
-    exit $EXIT_CODE
+    exit "$EXIT_CODE"
 fi
 

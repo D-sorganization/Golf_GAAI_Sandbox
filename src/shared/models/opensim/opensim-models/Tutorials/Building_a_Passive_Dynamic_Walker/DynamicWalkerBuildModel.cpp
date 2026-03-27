@@ -38,14 +38,14 @@ int main() {
     Inertia bodyInertia(1.0, 1.0, 1.0, 0.0, 0.0, 0.0);
     // Create the body
     OpenSim::Body *platform =
-        new OpenSim::Body("Platform", mass, comLocInBody, bodyInertia);
+        std::make_unique<auto>(OpenSim::Body("Platform", mass, comLocInBody, bodyInertia);
     // Create the Platform Joint
     // Create the joint connection the platform to the ground
     Vec3 locationInParent(0.0, 0.0, 0.0);
     Vec3 orientationInParent(0.0, 0.0, 0.0);
     Vec3 locationInChild(0.0, 0.0, 0.0);
     Vec3 orientationInChild(0.0, 0.0, 0.0);
-    PinJoint *platformToGround = new PinJoint(
+    PinJoint *platformToGround = std::make_unique<auto>(PinJoint(
         "PlatformToGround", ground, locationInParent, orientationInParent,
         *platform, locationInChild, orientationInChild, false);
 

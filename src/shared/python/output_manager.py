@@ -1,3 +1,5 @@
+from typing import Any
+
 """Backward-compatible output manager module path.
 
 Legacy imports use ``shared.python.output_manager`` while the implementation
@@ -10,9 +12,7 @@ from src.shared.python.data_io.output_manager import (
 )
 
 
-def save_results(
-    results, filename: str, format_type: str = "csv", engine: str = "mujoco"
-) -> str:
+def save_results(results, filename: str, format_type: str = "csv", engine: str = "mujoco") -> str:
     """Backward-compatible convenience save helper."""
     if not (results is not None):
         raise ValueError("results must be provided")
@@ -29,7 +29,7 @@ def save_results(
     )
 
 
-def load_results(filename: str, format_type: str = "csv", engine: str = "mujoco"):
+def load_results(filename: str, format_type: str = "csv", engine: str = "mujoco") -> Any:
     """Backward-compatible convenience load helper."""
     if not (filename is not None):
         raise ValueError("filename must be provided")

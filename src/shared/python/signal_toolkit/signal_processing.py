@@ -493,7 +493,7 @@ def _get_cached_wavelet(M: int, s_int: int, w0_int: int, n_fft: int) -> np.ndarr
     return np.asarray(fft.fft(wavelet, n=n_fft))
 
 
-def _validate_cwt_inputs(fs, freq_range):
+def _validate_cwt_inputs(fs, freq_range) -> Any:
     if fs <= 0:
         raise ValueError(f"Sampling frequency must be positive, got {fs}")
     min_freq, max_freq = freq_range
@@ -502,7 +502,7 @@ def _validate_cwt_inputs(fs, freq_range):
     return min_freq, max_freq
 
 
-def _prepare_cwt_fft(data, freqs, w0, fs):
+def _prepare_cwt_fft(data, freqs, w0, fs) -> Any:
     if not (data is not None):
         raise ValueError("data must be provided")
     if not (data is not None):
@@ -525,7 +525,7 @@ def _prepare_cwt_fft(data, freqs, w0, fs):
     return n_data, n_fft, data_fft
 
 
-def _convolve_wavelet_at_scale(data_fft, n_fft, n_data, s, w0):
+def _convolve_wavelet_at_scale(data_fft, n_fft, n_data, s, w0) -> Any:
     if not (data_fft is not None):
         raise ValueError("data_fft must be provided")
     if not (data_fft is not None):
@@ -877,15 +877,11 @@ class KalmanFilter:
     """
 
     @precondition(
-        lambda self, dim_x, dim_z, F=None, H=None, Q=None, R=None, P=None, x=None: (
-            dim_x > 0
-        ),
+        lambda self, dim_x, dim_z, F=None, H=None, Q=None, R=None, P=None, x=None: (dim_x > 0),
         "State dimension must be positive",
     )
     @precondition(
-        lambda self, dim_x, dim_z, F=None, H=None, Q=None, R=None, P=None, x=None: (
-            dim_z > 0
-        ),
+        lambda self, dim_x, dim_z, F=None, H=None, Q=None, R=None, P=None, x=None: (dim_z > 0),
         "Measurement dimension must be positive",
     )
     def __init__(

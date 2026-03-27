@@ -181,9 +181,7 @@ class MotionTrainingPipeline:
         # Apply frame range
         start = self.config.start_frame
         end = (
-            self.config.end_frame
-            if self.config.end_frame > 0
-            else len(trajectory.frames)
+            self.config.end_frame if self.config.end_frame > 0 else len(trajectory.frames)
         )  # noqa: E501
         trajectory.frames = trajectory.frames[start:end]
 

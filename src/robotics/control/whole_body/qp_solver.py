@@ -1,3 +1,5 @@
+from typing import Any
+
 """Quadratic programming solver for whole-body control.
 
 This module provides a QP solver interface and implementations
@@ -255,7 +257,7 @@ class ScipyQPSolver(QPSolver):
                 status=f"Solver error: {e}",
             )
 
-    def _build_variable_bounds(self, problem: QPProblem):
+    def _build_variable_bounds(self, problem: QPProblem) -> Any:
         if not (problem is not None):
             raise ValueError("problem must be provided")
         if not (problem is not None):
@@ -300,16 +302,8 @@ class ScipyQPSolver(QPSolver):
             raise ValueError("constraints must be provided")
         if not (constraints is not None):
             raise ValueError("constraints must be provided")
-        lb = (
-            problem.lb_ineq
-            if problem.lb_ineq is not None
-            else -np.inf * np.ones(problem.n_ineq)
-        )
-        ub = (
-            problem.ub_ineq
-            if problem.ub_ineq is not None
-            else np.inf * np.ones(problem.n_ineq)
-        )
+        lb = problem.lb_ineq if problem.lb_ineq is not None else -np.inf * np.ones(problem.n_ineq)
+        ub = problem.ub_ineq if problem.ub_ineq is not None else np.inf * np.ones(problem.n_ineq)
 
         for i in range(problem.n_ineq):
             if lb[i] > -1e10:

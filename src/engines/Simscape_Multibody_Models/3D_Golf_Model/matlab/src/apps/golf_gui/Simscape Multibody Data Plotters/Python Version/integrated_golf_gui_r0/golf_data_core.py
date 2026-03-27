@@ -554,8 +554,7 @@ class FrameProcessor:
         # Extract full position and orientation data
         position_data = np.array(
             [
-                self.get_column_data(self.baseq_df, "Clubhead", i)
-                for i in range(self.num_frames)
+                self.get_column_data(self.baseq_df, "Clubhead", i) for i in range(self.num_frames)
             ]  # noqa: E501
         )
         # Placeholder for orientation data

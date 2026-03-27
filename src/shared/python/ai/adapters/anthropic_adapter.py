@@ -14,7 +14,7 @@ Cost Model:
 
 Example:
     >>> from shared.python.ai.adapters.anthropic_adapter import AnthropicAdapter
-    >>> adapter = AnthropicAdapter(api_key="your-api-key-here")
+    >>> adapter = AnthropicAdapter(api_key = os.getenv("api_key".upper(), ""))
     >>> response = adapter.send_message("Analyze this swing", context, tools)
 """
 
@@ -72,7 +72,7 @@ class AnthropicAdapter(BaseAgentAdapter):
         timeout: Request timeout [s].
 
     Example:
-        >>> adapter = AnthropicAdapter(api_key="your-api-key-here")
+        >>> adapter = AnthropicAdapter(api_key = os.getenv("api_key".upper(), ""))
         >>> success, message = adapter.validate_connection()
         >>> if success:
         ...     response = adapter.send_message(
@@ -135,9 +135,7 @@ class AnthropicAdapter(BaseAgentAdapter):
                 ) from e
         return self._client
 
-    @precondition(
-        lambda message: bool(message.strip()), "message must not be empty or blank"
-    )
+    @precondition(lambda message: bool(message.strip()), "message must not be empty or blank")
     def send_message(
         self,
         message: str,
@@ -289,9 +287,7 @@ class AnthropicAdapter(BaseAgentAdapter):
             return True, "Connected to Anthropic"
 
         except AIProviderError:
-            return False, (
-                "anthropic package not installed. Install with: pip install anthropic"
-            )
+            return False, ("anthropic package not installed. Install with: pip install anthropic")
         except (RuntimeError, ValueError, OSError) as e:
             error_str = str(e).lower()
             if "authentication" in error_str or "api key" in error_str:

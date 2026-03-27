@@ -17,7 +17,7 @@ Mass adjustments with the RRA tool
 ------------------------------------------------------------- */
     // RUN RRA ROUND 1
     /*
-     Model* osimModel = new Model("DOWNLOAD_DIR/RRA/run/subject_run_rra1.osim");
+     Model* osimModel = std::make_unique<auto>(Model("DOWNLOAD_DIR/RRA/run/subject_run_rra1.osim");
 
     double rraSuggMassChange = 0.49989;
     setMassOfBodiesUsingRRAMassChange(osimModel, rraSuggMassChange);
@@ -26,7 +26,7 @@ Mass adjustments with the RRA tool
 
     // RUN RRA ROUND 2
     /*
-    Model* osimModel = new Model("DOWNLOAD_DIR/RRA/run/subject_run_rra2.osim");
+    Model* osimModel = std::make_unique<auto>(Model("DOWNLOAD_DIR/RRA/run/subject_run_rra2.osim");
 
     double rraSuggMassChange = -0.010818;
     setMassOfBodiesUsingRRAMassChange(osimModel, rraSuggMassChange);
@@ -35,7 +35,7 @@ Mass adjustments with the RRA tool
 
     // RUN RRA ROUND 3
     /*
-    Model* osimModel = new Model("DOWNLOAD_DIR/RRA/run/subject_run_rra3.osim");
+    Model* osimModel = std::make_unique<auto>(Model("DOWNLOAD_DIR/RRA/run/subject_run_rra3.osim");
 
     double rraSuggMassChange = 0.067014;
     setMassOfBodiesUsingRRAMassChange(osimModel, rraSuggMassChange);
@@ -47,7 +47,7 @@ Mass adjustments with the RRA tool
        relationship
        ------------------------------------------------------------- */
     /*
-    Model* osimModel = new Model("DOWNLOAD_DIR/RRA/run/subject_run_rra3.osim");
+    Model* osimModel = std::make_unique<auto>(Model("DOWNLOAD_DIR/RRA/run/subject_run_rra3.osim");
     Model* osimModelUpd = new
     Model("DOWNLOAD_DIR/RRA/run/subject_run_rra3.osim");
 
@@ -91,7 +91,7 @@ Mass adjustments with the RRA tool
     /*
      Model* osimModel = new
      Model("DOWNLOAD_DIR/RRA/walk/subject_walk_rra2.osim"); Model* osimModelUpd
-     = new Model("DOWNLOAD_DIR/RRA/walk/subject_walk_rra2.osim");
+     = std::make_unique<auto>(Model("DOWNLOAD_DIR/RRA/walk/subject_walk_rra2.osim");
 
      double heightOriginal = 1.70; // m
      double heightNew = 1.83; // m

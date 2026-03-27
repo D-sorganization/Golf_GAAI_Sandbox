@@ -30,7 +30,6 @@ def test_local_server_logs_ui_missing(monkeypatch, tmp_path, caplog) -> None:
 
     assert local_server._startup_metrics["ui_path"] == str(missing_ui_path)
     assert any(
-        "UI build not found" in message
-        for message in local_server._startup_metrics["errors"]
+        "UI build not found" in message for message in local_server._startup_metrics["errors"]
     )
     assert any("UI build not found" in record.message for record in caplog.records)

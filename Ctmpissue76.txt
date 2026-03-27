@@ -1,0 +1,11 @@
+title:	[STD-002] Enforce Comprehensive Type Hinting
+state:	OPEN
+author:	dieterolson (Dieter Olson)
+labels:	
+comments:	0
+assignees:	
+projects:	
+milestone:	
+number:	76
+--
+### Enforce Comprehensive Type Hinting

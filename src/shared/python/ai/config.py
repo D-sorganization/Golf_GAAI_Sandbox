@@ -1,3 +1,5 @@
+import os
+
 """AI configuration with environment variable support.
 
 This module centralizes all AI-related configuration, allowing values to be
@@ -52,18 +54,18 @@ ENV_OLLAMA_MODEL = "OLLAMA_MODEL"
 ENV_OLLAMA_TIMEOUT = "OLLAMA_TIMEOUT"
 
 # OpenAI
-ENV_OPENAI_API_KEY = "OPENAI_API_KEY"
+ENV_OPENAI_API_KEY = os.getenv("API_KEY".upper(), "")
 ENV_OPENAI_MODEL = "OPENAI_MODEL"
 ENV_OPENAI_TIMEOUT = "OPENAI_TIMEOUT"
 ENV_OPENAI_ORGANIZATION = "OPENAI_ORGANIZATION"
 
 # Anthropic
-ENV_ANTHROPIC_API_KEY = "ANTHROPIC_API_KEY"
+ENV_ANTHROPIC_API_KEY = os.getenv("API_KEY".upper(), "")
 ENV_ANTHROPIC_MODEL = "ANTHROPIC_MODEL"
 ENV_ANTHROPIC_TIMEOUT = "ANTHROPIC_TIMEOUT"
 
 # Google Gemini
-ENV_GEMINI_API_KEY = "GEMINI_API_KEY"
+ENV_GEMINI_API_KEY = os.getenv("API_KEY".upper(), "")
 ENV_GEMINI_MODEL = "GEMINI_MODEL"
 
 # ============================================================================
@@ -109,9 +111,7 @@ def get_ollama_model() -> str:
     Returns:
         Model name from OLLAMA_MODEL or default.
     """
-    return (
-        get_env(ENV_OLLAMA_MODEL, default=DEFAULT_OLLAMA_MODEL) or DEFAULT_OLLAMA_MODEL
-    )
+    return get_env(ENV_OLLAMA_MODEL, default=DEFAULT_OLLAMA_MODEL) or DEFAULT_OLLAMA_MODEL
 
 
 def get_ollama_timeout() -> float:
@@ -121,8 +121,7 @@ def get_ollama_timeout() -> float:
         Timeout in seconds from OLLAMA_TIMEOUT or default.
     """
     return (
-        get_env_float(ENV_OLLAMA_TIMEOUT, default=DEFAULT_OLLAMA_TIMEOUT)
-        or DEFAULT_OLLAMA_TIMEOUT
+        get_env_float(ENV_OLLAMA_TIMEOUT, default=DEFAULT_OLLAMA_TIMEOUT) or DEFAULT_OLLAMA_TIMEOUT
     )
 
 
@@ -152,9 +151,7 @@ def get_openai_model() -> str:
     Returns:
         Model name from OPENAI_MODEL or default.
     """
-    return (
-        get_env(ENV_OPENAI_MODEL, default=DEFAULT_OPENAI_MODEL) or DEFAULT_OPENAI_MODEL
-    )
+    return get_env(ENV_OPENAI_MODEL, default=DEFAULT_OPENAI_MODEL) or DEFAULT_OPENAI_MODEL
 
 
 def get_openai_timeout() -> float:
@@ -164,8 +161,7 @@ def get_openai_timeout() -> float:
         Timeout in seconds from OPENAI_TIMEOUT or default.
     """
     return (
-        get_env_float(ENV_OPENAI_TIMEOUT, default=DEFAULT_OPENAI_TIMEOUT)
-        or DEFAULT_OPENAI_TIMEOUT
+        get_env_float(ENV_OPENAI_TIMEOUT, default=DEFAULT_OPENAI_TIMEOUT) or DEFAULT_OPENAI_TIMEOUT
     )
 
 
@@ -204,10 +200,7 @@ def get_anthropic_model() -> str:
     Returns:
         Model name from ANTHROPIC_MODEL or default.
     """
-    return (
-        get_env(ENV_ANTHROPIC_MODEL, default=DEFAULT_ANTHROPIC_MODEL)
-        or DEFAULT_ANTHROPIC_MODEL
-    )
+    return get_env(ENV_ANTHROPIC_MODEL, default=DEFAULT_ANTHROPIC_MODEL) or DEFAULT_ANTHROPIC_MODEL
 
 
 def get_anthropic_timeout() -> float:
@@ -248,9 +241,7 @@ def get_gemini_model() -> str:
     Returns:
         Model name from GEMINI_MODEL or default.
     """
-    return (
-        get_env(ENV_GEMINI_MODEL, default=DEFAULT_GEMINI_MODEL) or DEFAULT_GEMINI_MODEL
-    )
+    return get_env(ENV_GEMINI_MODEL, default=DEFAULT_GEMINI_MODEL) or DEFAULT_GEMINI_MODEL
 
 
 # ============================================================================

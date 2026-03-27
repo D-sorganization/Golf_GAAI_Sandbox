@@ -1,3 +1,5 @@
+from typing import Any
+
 # ARCHITECTURE_DEBT:
 # This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
 # It requires domain-aware structural extraction to isolate its internal classes appropriately.
@@ -232,9 +234,7 @@ class KineticsRenderer(BaseRenderer):
 
         ax.set_xlabel("Time (s)", fontsize=12, fontweight="bold")
         ax.set_ylabel("Power (W)", fontsize=12, fontweight="bold")
-        ax.set_title(
-            "Power Flow (Generation/Absorption)", fontsize=14, fontweight="bold"
-        )
+        ax.set_title("Power Flow (Generation/Absorption)", fontsize=14, fontweight="bold")
         ax.legend(loc="upper left", bbox_to_anchor=(1, 1), ncol=1)
         fig.tight_layout()
 
@@ -497,9 +497,7 @@ class KineticsRenderer(BaseRenderer):
         ax1.legend(lns, labs, loc="best")
 
         joint_name = self.data.get_joint_name(joint_idx)
-        ax1.set_title(
-            f"Dynamic Stiffness: {joint_name}", fontsize=14, fontweight="bold"
-        )
+        ax1.set_title(f"Dynamic Stiffness: {joint_name}", fontsize=14, fontweight="bold")
         ax1.grid(True, alpha=0.3)
 
         fig.tight_layout()
@@ -589,15 +587,9 @@ class KineticsRenderer(BaseRenderer):
 
         ax = fig.add_subplot(111)
 
-        ax.plot(
-            times, am_data[:, 0], label="Lx", color=self.colors["secondary"], alpha=0.7
-        )
-        ax.plot(
-            times, am_data[:, 1], label="Ly", color=self.colors["tertiary"], alpha=0.7
-        )
-        ax.plot(
-            times, am_data[:, 2], label="Lz", color=self.colors["quaternary"], alpha=0.7
-        )
+        ax.plot(times, am_data[:, 0], label="Lx", color=self.colors["secondary"], alpha=0.7)
+        ax.plot(times, am_data[:, 1], label="Ly", color=self.colors["tertiary"], alpha=0.7)
+        ax.plot(times, am_data[:, 2], label="Lz", color=self.colors["quaternary"], alpha=0.7)
 
         ax.plot(
             times,
@@ -695,9 +687,7 @@ class KineticsRenderer(BaseRenderer):
         colors = [self.colors["secondary"], self.colors["tertiary"], "black"]
 
         has_data = False
-        for comp, ls, lbl, clr in zip(
-            components, linestyles, labels, colors, strict=True
-        ):
+        for comp, ls, lbl, clr in zip(components, linestyles, labels, colors, strict=True):
             try:
                 times, acc = self.data.get_induced_acceleration_series(comp)
                 if len(times) > 0 and acc.size > 0 and joint_idx < acc.shape[1]:
@@ -774,11 +764,9 @@ class KineticsRenderer(BaseRenderer):
         else:
             self._plot_induced_norm(ax, times, acc)
 
-        ax.set_title(
-            f"Induced Acceleration: {source_name}", fontsize=14, fontweight="bold"
-        )
+        ax.set_title(f"Induced Acceleration: {source_name}", fontsize=14, fontweight="bold")
 
-    def _plot_induced_joint(self, ax, times, acc, joint_idx):
+    def _plot_induced_joint(self, ax, times, acc, joint_idx) -> Any:
         if not (ax is not None):
             raise ValueError("ax must be provided")
         if not (ax is not None):
@@ -806,7 +794,7 @@ class KineticsRenderer(BaseRenderer):
         )
         return True
 
-    def _plot_induced_norm(self, ax, times, acc):
+    def _plot_induced_norm(self, ax, times, acc) -> Any:
         if not (ax is not None):
             raise ValueError("ax must be provided")
         if not (ax is not None):
@@ -819,6 +807,4 @@ class KineticsRenderer(BaseRenderer):
             linewidth=2,
             color=self.colors["primary"],
         )
-        ax.set_ylabel(
-            "Acceleration Magnitude (rad/s\u00b2)", fontsize=12, fontweight="bold"
-        )
+        ax.set_ylabel("Acceleration Magnitude (rad/s\u00b2)", fontsize=12, fontweight="bold")

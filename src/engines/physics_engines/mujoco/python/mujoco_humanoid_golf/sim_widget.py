@@ -362,8 +362,7 @@ class MuJoCoSimWidget(  # type: ignore[misc]
             if self.model.njnt > 0:
                 first_joint_type = self.model.jnt_type[0]
                 if (
-                    first_joint_type == mujoco.mjtJoint.mjJNT_FREE
-                    and len(self.data.qpos) >= 3
+                    first_joint_type == mujoco.mjtJoint.mjJNT_FREE and len(self.data.qpos) >= 3
                 ):  # noqa: E501
                     self.data.qpos[2] = 0.9
         elif self.model.nq >= 1:
@@ -576,7 +575,7 @@ class MuJoCoSimWidget(  # type: ignore[misc]
     def get_camera_distance(self) -> float:
         return self.camera.distance if self.camera else 0.0
 
-    def get_camera_lookat(self):
+    def get_camera_lookat(self) -> Any:
         return self.camera.lookat if self.camera else None
 
     def connect_timer(self, slot) -> None:
@@ -587,12 +586,12 @@ class MuJoCoSimWidget(  # type: ignore[misc]
         self.loading_started.connect(start_slot)
         self.loading_finished.connect(finish_slot)
 
-    def get_pixmap(self):
+    def get_pixmap(self) -> Any:
         if hasattr(self, "label") and self.label:
             return self.label.pixmap()
         return None
 
-    def open_meshcat_browser(self):
+    def open_meshcat_browser(self) -> Any:
         if hasattr(self, "meshcat_adapter") and self.meshcat_adapter:
             self.meshcat_adapter.open_browser()
 

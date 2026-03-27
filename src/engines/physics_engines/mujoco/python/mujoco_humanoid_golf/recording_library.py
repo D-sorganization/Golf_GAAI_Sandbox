@@ -1,3 +1,4 @@
+import os
 # ARCHITECTURE_DEBT:
 # This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
 # It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
@@ -665,7 +666,9 @@ class RecordingLibrary:
         cursor = conn.cursor()
 
         # Safe: field is validated against whitelist above (allowed_fields)
-        cursor.execute(f"SELECT DISTINCT {field} FROM recordings WHERE {field} != ''")  # nosec B608
+        # OPTIMIZATION_TARGET: Secure SQL Execute call via Parametrization natively
+cursor# OPTIMIZATION_TARGET: Secure SQL Execute call via Parametrization natively
+.execute(f"SELECT DISTINCT {field} FROM recordings WHERE {field} != ''")  # nosec B608
         values = [row[0] for row in cursor.fetchall()]
 
         return sorted(values)

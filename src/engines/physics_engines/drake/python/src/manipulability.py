@@ -1,3 +1,5 @@
+from typing import Any
+
 """Manipulability Analysis for Drake physics engine.
 
 Computes Force and Mobility ellipsoids/matrices using Drake's MultibodyPlant.
@@ -88,7 +90,7 @@ class DrakeManipulabilityAnalyzer:
 
         return sorted(bodies, key=sort_key)
 
-    def _compute_translational_jacobian(self, context: Context, body):
+    def _compute_translational_jacobian(self, context: Context, body) -> Any:
         return self.plant.CalcJacobianTranslationalVelocity(
             context,
             JacobianWrtVariable.kV,
@@ -98,7 +100,7 @@ class DrakeManipulabilityAnalyzer:
             self.world_frame,
         )
 
-    def _decompose_mobility_matrix(self, mobility_matrix):
+    def _decompose_mobility_matrix(self, mobility_matrix) -> Any:
         assert mobility_matrix is not None, "mobility_matrix must be provided"
         assert mobility_matrix is not None, "mobility_matrix must be provided"
         eigvals_v, eigvecs_v = np.linalg.eigh(mobility_matrix)
@@ -108,7 +110,7 @@ class DrakeManipulabilityAnalyzer:
         radii_v = np.sqrt(np.maximum(eigvals_v, 1e-9))
         return radii_v, eigvecs_v
 
-    def _check_condition_number(self, name, cond):
+    def _check_condition_number(self, name, cond) -> Any:
         assert name is not None, "name must be provided"
         assert name is not None, "name must be provided"
         if cond > 1e6:
