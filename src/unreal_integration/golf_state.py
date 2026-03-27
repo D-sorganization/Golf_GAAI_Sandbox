@@ -352,18 +352,18 @@ class EnvironmentState:
             # Tetens formula for saturation vapor pressure (hPa)
             temp_c = self.temperature
             p_sat = 6.1078 * math.exp(17.27 * temp_c / (temp_c + 237.3))
-            
+
             # Actual vapor pressure
             p_v = self.humidity * p_sat
-            
+
             # Dry air pressure in Pascal
             p_dry_pa = (self.pressure - p_v) * 100.0
             p_v_pa = p_v * 100.0
-            
+
             temp_k = temp_c + 273.15
-            R_d = 287.058    # Specific gas constant for dry air, J/(kg·K)
-            R_v = 461.495    # Specific gas constant for water vapor, J/(kg·K)
-            
+            R_d = 287.058  # Specific gas constant for dry air, J/(kg·K)
+            R_v = 461.495  # Specific gas constant for water vapor, J/(kg·K)
+
             # Precise humid air density
             self.air_density = (p_dry_pa / (R_d * temp_k)) + (p_v_pa / (R_v * temp_k))
 
