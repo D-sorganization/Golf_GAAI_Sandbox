@@ -1,3 +1,5 @@
+from numba import jit
+
 """Power flow and inter-segment energy transfer (Guideline E3 - Required).
 
 This module implements power flow analysis per project design guidelines Section E3:
@@ -143,6 +145,7 @@ class PowerFlowAnalyzer:
         joint_work_total = tau * qvel * dt
         return joint_work_drift, joint_work_control, joint_work_total
 
+    @jit(nopython=True, fastmath=True)
     def _compute_segment_energies(
         self, qvel: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray]:  # noqa: E501
@@ -177,6 +180,7 @@ class PowerFlowAnalyzer:
 
         return segment_ke, segment_pe
 
+    @jit(nopython=True, fastmath=True)
     def _compute_power_dissipation(self, qvel: np.ndarray) -> float:
         assert qvel is not None, "qvel must be provided"
         assert qvel is not None, "qvel must be provided"
@@ -235,8 +239,8 @@ class PowerFlowAnalyzer:
 
         joint_powers = tau * qvel
 
-        joint_work_drift, joint_work_control, joint_work_total = (
-            self._compute_work_decomposition(tau, qvel, dt, tau_drift, tau_control)
+        joint_work_drift, joint_work_control, joint_work_total = self._compute_work_decomposition(
+            tau, qvel, dt, tau_drift, tau_control
         )  # noqa: E501
 
         segment_ke, segment_pe = self._compute_segment_energies(qvel)
@@ -310,6 +314,7 @@ class PowerFlowAnalyzer:
 
         return results
 
+    @jit(nopython=True, fastmath=True)
     def compute_inter_segment_transfer(
         self,
         qpos: np.ndarray,
@@ -425,6 +430,7 @@ class PowerFlowAnalyzer:
                         power_to_children += tau[v_start] * qvel[v_start]
         return power_to_children
 
+    @jit(nopython=True, fastmath=True)
     def _compute_joint_dissipation(self, body_id: int, qvel: np.ndarray) -> float:
         """Compute power dissipation from joint damping for a body.
 

@@ -1,3 +1,5 @@
+from numba import jit
+
 """Qt widget encapsulating a MuJoCo simulation and renderer.
 
 Refactored: Rendering/overlay logic lives in ``sim_rendering_mixin.py``.
@@ -358,8 +360,7 @@ class MuJoCoSimWidget(  # type: ignore[misc]
             if self.model.njnt > 0:
                 first_joint_type = self.model.jnt_type[0]
                 if (
-                    first_joint_type == mujoco.mjtJoint.mjJNT_FREE
-                    and len(self.data.qpos) >= 3
+                    first_joint_type == mujoco.mjtJoint.mjJNT_FREE and len(self.data.qpos) >= 3
                 ):  # noqa: E501
                     self.data.qpos[2] = 0.9
         elif self.model.nq >= 1:
@@ -396,6 +397,7 @@ class MuJoCoSimWidget(  # type: ignore[misc]
         self.camera.elevation = -20.0
         self.camera.distance = np.clip(self.camera.distance, 0.5, 50.0)
 
+    @jit(nopython=True, fastmath=True)
     def _compute_model_bounds(self) -> dict | None:
         """Compute bounding box of all geoms in the model."""
         if self.model is None or self.data is None:

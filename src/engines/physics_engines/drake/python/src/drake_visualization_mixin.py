@@ -1,3 +1,5 @@
+from numba import jit
+
 """Drake GUI visualization mixin.
 
 Extracts vector drawing, ellipsoid rendering, analysis plots,
@@ -116,6 +118,7 @@ class DrakeVisualizationMixin:
         tau = self.plant.CalcGravityGeneralizedForces(self.eval_context)
         self._draw_accel_vectors(-tau, "torques", Rgba(0, 0, 1, 1), scale=0.05)
 
+    @jit(nopython=True, fastmath=True)
     def _draw_gravity_force_vectors(self: Any) -> None:
         for i in range(self.plant.num_bodies()):
             body = self.plant.get_body(BodyIndex(i))
@@ -226,6 +229,7 @@ class DrakeVisualizationMixin:
         if self.chk_cf_vec.isChecked():
             self._draw_counterfactual_vectors(analyzer)
 
+    @jit(nopython=True, fastmath=True)
     def _draw_accel_vectors(
         self: Any,
         values: np.ndarray,
@@ -394,10 +398,7 @@ class DrakeVisualizationMixin:
     def _draw_ellipsoids(self: Any) -> None:
         """Draw force/mobility ellipsoids using Meshcat."""
         if (
-            not self.meshcat
-            or not self.manip_analyzer
-            or not self.context
-            or not self.plant
+            not self.meshcat or not self.manip_analyzer or not self.context or not self.plant
         ):  # noqa: E501
             return
 

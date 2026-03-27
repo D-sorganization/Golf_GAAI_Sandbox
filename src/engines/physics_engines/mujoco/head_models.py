@@ -1,3 +1,5 @@
+from numba import jit
+
 """MJCF models for golf swing systems.
 
 Demo/utility models and club XML generation live here.
@@ -353,6 +355,7 @@ def _generate_grip_xml(
     ]
 
 
+@jit(nopython=True, fastmath=True)
 def _generate_shaft_segments_xml(
     num_segments: int,
     config: dict[str, Any],

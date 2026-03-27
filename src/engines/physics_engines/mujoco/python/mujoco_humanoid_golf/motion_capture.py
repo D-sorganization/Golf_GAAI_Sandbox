@@ -1,3 +1,5 @@
+from numba import jit
+
 """Motion capture integration and retargeting for golf swing analysis.
 
 This module provides comprehensive motion capture data handling, including:
@@ -151,6 +153,8 @@ class MarkerSet:
 class MotionCaptureLoader:
     """Load motion capture data from various file formats."""
 
+    @jit(nopython=True, fastmath=True)
+    @jit(nopython=True, fastmath=True)
     @staticmethod
     def load_csv(
         filepath: str | Path,
@@ -366,6 +370,7 @@ class MotionRetargeting:
 
         return (np.array(times), np.array(joint_trajectories), success_flags)
 
+    @jit(nopython=True, fastmath=True)
     def _solve_frame_ik(
         self,
         frame: MotionCaptureFrame,

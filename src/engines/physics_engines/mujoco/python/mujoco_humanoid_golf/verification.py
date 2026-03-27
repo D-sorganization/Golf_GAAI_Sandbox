@@ -1,3 +1,5 @@
+from numba import jit
+
 """
 Scientific Verification Engine for Golf Modeling Suite.
 
@@ -161,6 +163,7 @@ class JacobianTester:
         # Use a private MjData to avoid side effects (Phase 1 Fix)
         self.data = mujoco.MjData(model)
 
+    @jit(nopython=True, fastmath=True)
     def check_body_jacobian(
         self, body_name: str, qpos: np.ndarray, epsilon: float = 1e-6
     ) -> float:  # noqa: E501

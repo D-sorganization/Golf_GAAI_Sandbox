@@ -1,3 +1,5 @@
+from numba import jit
+
 """Kinematic-dependent force analysis for golf swing biomechanics.
 
 This module computes motion-dependent forces that can be calculated from
@@ -605,6 +607,7 @@ class KinematicForceAnalyzer:
 
         return M
 
+    @jit(nopython=True, fastmath=True)
     def compute_coriolis_matrix(self, qpos: np.ndarray, qvel: np.ndarray) -> np.ndarray:
         """Compute Coriolis matrix C(q,q̇).
 
@@ -776,6 +779,7 @@ class KinematicForceAnalyzer:
             "total_conservative_power": float(coriolis_power + gravity_power),
         }
 
+    @jit(nopython=True, fastmath=True)
     def compute_kinetic_energy_components(
         self,
         qpos: np.ndarray,
@@ -862,8 +866,8 @@ class KinematicForceAnalyzer:
             centrifugal, coupling = self.decompose_coriolis_forces(qpos, qvel)
 
             # Club head apparent forces
-            club_coriolis, club_centrifugal, club_apparent = (
-                self.compute_club_head_apparent_forces(qpos, qvel, qacc)
+            club_coriolis, club_centrifugal, club_apparent = self.compute_club_head_apparent_forces(
+                qpos, qvel, qacc
             )  # noqa: E501
 
             # Power contributions

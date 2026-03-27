@@ -73,9 +73,7 @@ class URDFBuilder:
             iyz = inertia.get("iyz", 0.0)
 
             # Build 3x3 inertia matrix
-            inertia_matrix = np.array(
-                [[ixx, ixy, ixz], [ixy, iyy, iyz], [ixz, iyz, izz]]
-            )
+            inertia_matrix = np.array([[ixx, ixy, ixz], [ixy, iyy, iyz], [ixz, iyz, izz]])
 
             # Check 1: Positive diagonal elements
             if ixx <= 0 or iyy <= 0 or izz <= 0:
@@ -134,9 +132,7 @@ class URDFBuilder:
 
         # Check for duplicate names
         if any(seg["name"] == segment_data["name"] for seg in self.segments):
-            raise ValueError(
-                f"Segment with name '{segment_data['name']}' already exists"
-            )
+            raise ValueError(f"Segment with name '{segment_data['name']}' already exists")
 
         # Validate physical parameters
         self._validate_physical_parameters(segment_data)
@@ -577,9 +573,7 @@ class URDFBuilder:
             visited.add(segment_name)
 
             # Find children
-            children = [
-                seg for seg in self.segments if seg.get("parent") == segment_name
-            ]
+            children = [seg for seg in self.segments if seg.get("parent") == segment_name]
             for child in children:
                 if has_circular_dependency(child["name"], visited.copy()):
                     return True
@@ -588,18 +582,14 @@ class URDFBuilder:
 
         for segment in self.segments:
             if has_circular_dependency(segment["name"], set()):
-                errors.append(
-                    f"Circular dependency detected involving segment: {segment['name']}"
-                )
+                errors.append(f"Circular dependency detected involving segment: {segment['name']}")
 
         # Check for orphaned segments (parent doesn't exist)
         segment_names = {seg["name"] for seg in self.segments}
         for segment in self.segments:
             parent = segment.get("parent")
             if parent and parent not in segment_names:
-                errors.append(
-                    f"Segment '{segment['name']}' has non-existent parent: '{parent}'"
-                )
+                errors.append(f"Segment '{segment['name']}' has non-existent parent: '{parent}'")
 
         return errors
 

@@ -1,3 +1,5 @@
+from numba import jit
+
 """Export trajectory data for use in MuJoCo, Drake, and other engines.
 
 Provides export functionality to various formats:
@@ -130,6 +132,7 @@ class TrajectoryExporter:
             export_format=format,
         )
 
+    @jit(nopython=True, fastmath=True)
     def _export_mujoco(self, output_path: Path, **kwargs) -> Path:
         """Export for MuJoCo.
 
@@ -159,14 +162,16 @@ class TrajectoryExporter:
 
         # Build keyframes
         keyframes = []
-        for i in range(self.num_frames):
-            keyframes.append(
+        keyframes.extend(
+            [
                 {
                     "time": float(self.times[i]),
                     "qpos": self.q_traj[i].tolist(),
                     "qvel": qvel[i].tolist(),
                 }
-            )
+                for i in range(self.num_frames)
+            ]
+        )
 
         # Include club trajectory if available
         club_data = None

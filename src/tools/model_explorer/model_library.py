@@ -452,12 +452,8 @@ class ModelLibrary:
         dims = self._compute_club_dimensions(club_info)
 
         base_link = self._urdf_base_link()
-        grip_link = self._urdf_grip_link(
-            club_info, dims["grip_length"], dims["grip_radius"]
-        )
-        shaft_link = self._urdf_shaft_link(
-            club_info, dims["shaft_length"], dims["shaft_radius"]
-        )
+        grip_link = self._urdf_grip_link(club_info, dims["grip_length"], dims["grip_radius"])
+        shaft_link = self._urdf_shaft_link(club_info, dims["shaft_length"], dims["shaft_radius"])
         head_link = self._urdf_head_link(
             club_info, dims["head_length"], dims["head_width"], dims["head_height"]
         )
@@ -531,9 +527,7 @@ class ModelLibrary:
         </visual>
     </link>"""
 
-    def _urdf_grip_link(
-        self, club_info: dict, grip_length: float, grip_radius: float
-    ) -> str:
+    def _urdf_grip_link(self, club_info: dict, grip_length: float, grip_radius: float) -> str:
         if not (club_info is not None):
             raise ValueError("club_info must be provided")
         if not (club_info is not None):
@@ -565,9 +559,7 @@ class ModelLibrary:
         </collision>
     </link>"""
 
-    def _urdf_shaft_link(
-        self, club_info: dict, shaft_length: float, shaft_radius: float
-    ) -> str:
+    def _urdf_shaft_link(self, club_info: dict, shaft_length: float, shaft_radius: float) -> str:
         if not (club_info is not None):
             raise ValueError("club_info must be provided")
         if not (club_info is not None):
@@ -803,9 +795,7 @@ class ModelLibrary:
                     if urdf_path or mjcf_path:
                         path = urdf_path or mjcf_path
                         m_type = "urdf" if urdf_path else "mjcf"
-                        name = (
-                            attr.replace("_description", "").replace("_", " ").title()
-                        )
+                        name = attr.replace("_description", "").replace("_", " ").title()
 
                         models.append(
                             {
@@ -830,9 +820,7 @@ class ModelLibrary:
         models = {}
         try:
             # Dynamic import to avoid hard dependency on non-tool code
-            module_name = (
-                "src.engines.physics_engines.mujoco.python.mujoco_humanoid_golf.models"
-            )
+            module_name = "src.engines.physics_engines.mujoco.python.mujoco_humanoid_golf.models"
             if module_name not in sys.modules:
                 importlib.import_module(module_name)
 
@@ -845,9 +833,7 @@ class ModelLibrary:
                     if isinstance(content, str) and "<mujoco" in content:
                         key = attr_name.lower().replace("_xml", "")
                         models[key] = {
-                            "name": attr_name.replace("_XML", "")
-                            .replace("_", " ")
-                            .title(),
+                            "name": attr_name.replace("_XML", "").replace("_", " ").title(),
                             "description": "Embedded MuJoCo model",
                             "content": content,
                             "type": "mjcf_string",
@@ -889,9 +875,7 @@ class ModelLibrary:
                     if file.lower().endswith((".xml", ".mjcf")):
                         # quick check
                         try:
-                            with open(
-                                file_path, encoding="utf-8", errors="ignore"
-                            ) as f:
+                            with open(file_path, encoding="utf-8", errors="ignore") as f:
                                 if "<mujoco" in f.read(500):
                                     m_type = "mjcf"
                         except (FileNotFoundError, PermissionError, OSError):

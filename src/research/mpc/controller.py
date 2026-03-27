@@ -1,3 +1,5 @@
+from numba import jit
+
 """Model Predictive Control implementation."""
 
 from __future__ import annotations
@@ -293,6 +295,8 @@ class ModelPredictiveController:
 
         return np.concatenate([q_next, v_next])
 
+    @jit(nopython=True, fastmath=True)
+    @jit(nopython=True, fastmath=True)
     def _dynamics_linearize(
         self,
         x: NDArray[np.floating],
@@ -403,6 +407,7 @@ class ModelPredictiveController:
             constraint_violations=max_violation,
         )
 
+    @jit(nopython=True, fastmath=True)
     def _backward_pass(
         self,
         X: NDArray[np.floating],
@@ -474,6 +479,8 @@ class ModelPredictiveController:
 
         return K, d
 
+    @jit(nopython=True, fastmath=True)
+    @jit(nopython=True, fastmath=True)
     def _forward_pass(
         self,
         X: NDArray[np.floating],
@@ -525,6 +532,8 @@ class ModelPredictiveController:
 
         return best_X, best_U, best_cost
 
+    @jit(nopython=True, fastmath=True)
+    @jit(nopython=True, fastmath=True)
     def _compute_constraint_violations(
         self,
         X: NDArray[np.floating],

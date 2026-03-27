@@ -1,3 +1,5 @@
+from numba import jit
+
 """MJCF exporter from canonical YAML specification."""
 
 from __future__ import annotations
@@ -98,6 +100,7 @@ class MJCFExporter:
         lines.append("</mujoco>")
         return "\n".join(lines)
 
+    @jit(nopython=True, fastmath=True)
     def _generate_segments_mjcf(self, parent_name: str, depth: int = 1) -> list[str]:
         """Generate MJCF for segments recursively.
 

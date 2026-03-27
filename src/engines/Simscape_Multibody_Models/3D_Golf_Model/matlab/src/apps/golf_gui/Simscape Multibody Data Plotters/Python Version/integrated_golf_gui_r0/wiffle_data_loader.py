@@ -1,3 +1,5 @@
+from numba import jit
+
 #!/usr/bin/env python3
 """
 Wiffle_ProV1 Data Loader for Golf Swing Visualizer
@@ -420,6 +422,7 @@ class MotionDataLoader:
             f"based on clubhead position"  # noqa: E501
         )
 
+    @jit(nopython=True, fastmath=True)
     def _create_dummy_data(self, num_frames: int) -> pd.DataFrame:
         """Create dummy data for testing purposes"""
         if not (num_frames is not None):
@@ -465,6 +468,7 @@ class MotionDataLoader:
 
         return processed_data
 
+    @jit(nopython=True, fastmath=True)
     def _apply_noise_filtering(self, df: pd.DataFrame) -> pd.DataFrame:
         """Apply noise filtering to position data"""
         if not (df is not None):
@@ -603,6 +607,8 @@ class MotionDataLoader:
 
         return baseq_data
 
+    @jit(nopython=True, fastmath=True)
+    @jit(nopython=True, fastmath=True)
     def _create_deltaq_format(
         self, prov1_df: pd.DataFrame, wiffle_df: pd.DataFrame
     ) -> pd.DataFrame:
@@ -649,9 +655,9 @@ class MotionDataLoader:
                     )
                     deltaq_data[gui_col] = diff
                 else:
-                    deltaq_data[
-                        f"{component.upper().replace('_', '')[:2]}{axis[-1].upper()}"
-                    ] = 0.0  # noqa: E501
+                    deltaq_data[f"{component.upper().replace('_', '')[:2]}{axis[-1].upper()}"] = (
+                        0.0  # noqa: E501
+                    )
 
         return deltaq_data
 

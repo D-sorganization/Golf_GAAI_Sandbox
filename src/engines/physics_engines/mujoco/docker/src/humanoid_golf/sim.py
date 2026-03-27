@@ -1,3 +1,5 @@
+from numba import jit
+
 """MuJoCo humanoid-golf simulation core (Docker backend).
 
 Implements the main simulation loop, state management, and trajectory
@@ -86,6 +88,7 @@ class PDController(BaseController):
         self.kp = kp
         self.kd = kd
 
+    @jit(nopython=True, fastmath=True)
     def get_action(self, physics) -> np.ndarray:
         """Calculate PD control action."""
         if not (physics is not None):

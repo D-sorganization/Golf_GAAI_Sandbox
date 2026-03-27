@@ -1,3 +1,5 @@
+from numba import jit
+
 #!/usr/bin/env python3
 """
 Video Export Module for Golf Visualizer
@@ -72,6 +74,7 @@ class VideoExporter(QObject):
         self.renderer = renderer
         self.frame_processor = frame_processor
 
+    @jit(nopython=True, fastmath=True)
     def export_video(self, config: VideoExportConfig) -> None:
         """
         Export animation to video file

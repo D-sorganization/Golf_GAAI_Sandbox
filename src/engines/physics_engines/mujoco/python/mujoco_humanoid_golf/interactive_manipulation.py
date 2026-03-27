@@ -1,3 +1,5 @@
+from numba import jit
+
 """Interactive drag-and-pose manipulation system for MuJoCo models.
 
 This module provides:
@@ -134,6 +136,7 @@ class MousePickingRay:
 
         return ray_origin, ray_dir
 
+    @jit(nopython=True, fastmath=True)
     def pick_body(
         self,
         x: int,
@@ -700,9 +703,7 @@ class InteractiveManipulator:
             List of body IDs with active constraints
         """
         return [
-            body_id
-            for body_id, constraint in self.constraints.items()
-            if constraint.active
+            body_id for body_id, constraint in self.constraints.items() if constraint.active
         ]  # noqa: E501
 
     # -------- Pose Library --------

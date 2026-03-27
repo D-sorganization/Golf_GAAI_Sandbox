@@ -1,3 +1,5 @@
+from numba import jit
+
 """Dual-hand inverse kinematics solver for golf swing motion.
 
 This module implements IK solving with both hands as end-effectors that must
@@ -211,6 +213,7 @@ class DualHandIKSolver:
 
         return left_target, right_target
 
+    @jit(nopython=True, fastmath=True)
     def solve_frame(
         self,
         frame: ClubFrame,
@@ -297,6 +300,7 @@ class DualHandIKSolver:
             iterations=s.max_iterations,
         )
 
+    @jit(nopython=True, fastmath=True)
     def solve_trajectory(
         self,
         trajectory: ClubTrajectory,
@@ -414,6 +418,7 @@ class DualHandIKSolverFallback:
 
         self.q_ref = pin.neutral(self.model)
 
+    @jit(nopython=True, fastmath=True)
     def solve_frame(
         self,
         frame: ClubFrame,
@@ -497,6 +502,7 @@ class DualHandIKSolverFallback:
             iterations=s.max_iterations,
         )
 
+    @jit(nopython=True, fastmath=True)
     def solve_trajectory(
         self,
         trajectory: ClubTrajectory,

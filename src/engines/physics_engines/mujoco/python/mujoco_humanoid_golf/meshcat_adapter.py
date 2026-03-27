@@ -1,3 +1,5 @@
+from numba import jit
+
 """MeshCat adapter for MuJoCo humanoid golf visualization.
 
 Provides a browser-based 3D visualization backend via MeshCat,
@@ -66,6 +68,7 @@ class MuJoCoMeshcatAdapter:
         if self.vis is not None:
             webbrowser.open(self.vis.url())
 
+    @jit(nopython=True, fastmath=True)
     def load_model_geometry(self) -> None:
         """
         Parses MuJoCo model geoms and creates corresponding Meshcat objects.
@@ -219,6 +222,7 @@ class MuJoCoMeshcatAdapter:
                     f"overlays/torques/{body_name}", pos, t * torque_scale, 0x0000FF
                 )  # noqa: E501
 
+    @jit(nopython=True, fastmath=True)
     def draw_induced_vectors(
         self,
         data: mujoco.MjData,
@@ -286,6 +290,7 @@ class MuJoCoMeshcatAdapter:
                 f"overlays/induced/joint_{j}", joint_pos, arrow_dir, 0xFF00FF
             )  # noqa: E501
 
+    @jit(nopython=True, fastmath=True)
     def draw_cf_vectors(
         self,
         data: mujoco.MjData,

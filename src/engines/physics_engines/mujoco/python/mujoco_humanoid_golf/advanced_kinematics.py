@@ -1,3 +1,5 @@
+from numba import jit
+
 """Advanced kinematics analysis for parallel mechanisms and redundant manipulators.
 
 This module provides state-of-the-art robotics analysis tools including:
@@ -276,6 +278,7 @@ class AdvancedKinematicsAnalyzer:
             max_singular_value=s.max() if len(s) > 0 else 0.0,
         )
 
+    @jit(nopython=True, fastmath=True)
     def solve_inverse_kinematics(
         self,
         target_body_id: int,

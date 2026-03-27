@@ -1,3 +1,5 @@
+from numba import jit
+
 """MuJoCo sim widget rendering mixin.
 
 Extracts frame rendering, overlay compositing, force/torque/induced/CF
@@ -337,6 +339,7 @@ class SimRenderingMixin:
 
         return img
 
+    @jit(nopython=True, fastmath=True)
     def _draw_torque_vectors(self: Any, draw_arrow_func: Callable) -> None:
         if not (draw_arrow_func is not None):
             raise ValueError("draw_arrow_func must be provided")
@@ -409,6 +412,7 @@ class SimRenderingMixin:
             arrow_end = body_pos + joint_force * self.force_scale
             draw_arrow_func(body_pos, arrow_end, (0, 255, 255))
 
+    @jit(nopython=True, fastmath=True)
     def _draw_induced_vectors(self: Any, draw_arrow_func: Callable) -> None:
         """Draw Induced Acceleration vectors (Magenta)."""
         if not (draw_arrow_func is not None):
@@ -453,6 +457,7 @@ class SimRenderingMixin:
 
             draw_arrow_func(joint_pos, arrow_end, (255, 0, 255))
 
+    @jit(nopython=True, fastmath=True)
     def _draw_cf_vectors(self: Any, draw_arrow_func: Callable) -> None:
         """Draw Counterfactual vectors (Yellow)."""
         if not (draw_arrow_func is not None):
@@ -485,6 +490,7 @@ class SimRenderingMixin:
 
             draw_arrow_func(joint_pos, arrow_end, (0, 255, 255))
 
+    @jit(nopython=True, fastmath=True)
     def _add_manipulation_overlays(self: Any, rgb: np.ndarray) -> np.ndarray:
         if not (rgb is not None):
             raise ValueError("rgb must be provided")
@@ -651,6 +657,7 @@ class SimRenderingMixin:
 
         return img
 
+    @jit(nopython=True, fastmath=True)
     def _add_frame_and_com_overlays(self: Any, rgb: np.ndarray) -> np.ndarray:
         if not (rgb is not None):
             raise ValueError("rgb must be provided")

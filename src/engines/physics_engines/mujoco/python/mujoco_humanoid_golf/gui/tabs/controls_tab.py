@@ -1,3 +1,5 @@
+from numba import jit
+
 """Controls tab for the MuJoCo humanoid golf GUI.
 
 Provides joint angle sliders, actuator controls, and simulation
@@ -161,9 +163,7 @@ class ControlsTab(QtWidgets.QWidget):
 
         scroll = QtWidgets.QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-        )
+        scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.actuator_container = QtWidgets.QWidget()
         self.actuator_layout = QtWidgets.QVBoxLayout(self.actuator_container)
@@ -253,8 +253,7 @@ class ControlsTab(QtWidgets.QWidget):
 
         actuators = config.get("actuators", [])
         if (
-            self.sim_widget.has_model()
-            and len(actuators) != self.sim_widget.get_num_actuators()
+            self.sim_widget.has_model() and len(actuators) != self.sim_widget.get_num_actuators()
         ):  # noqa: E501
             # Re-verify if fixup happened in PhysicsTab, but just in case
             logger.warning("Actuator count mismatch in ControlsTab update")
@@ -627,9 +626,7 @@ class ControlsTab(QtWidgets.QWidget):
             self.record_btn.setText("Start Recording")
             if style := self.style():
                 self.record_btn.setIcon(
-                    style.standardIcon(
-                        QtWidgets.QStyle.StandardPixmap.SP_DialogYesButton
-                    )
+                    style.standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogYesButton)
                 )
             recorder.stop_recording()
 
@@ -657,6 +654,7 @@ class ControlsTab(QtWidgets.QWidget):
         if hasattr(self.main_window, "on_export_data"):
             self.main_window.on_export_data()
 
+    @jit(nopython=True, fastmath=True)
     def _refresh_kinematic_controls(self) -> None:
         """Rebuild the kinematic joint controls."""
         # Clear existing
@@ -888,6 +886,7 @@ class ActuatorDetailDialog(QtWidgets.QDialog):
         const_form.addRow("Damping:", self.damping_input)
         layout.addLayout(const_form)
 
+    @jit(nopython=True, fastmath=True)
     def _create_polynomial_section(self, layout: QtWidgets.QVBoxLayout) -> None:
         assert layout is not None, "layout must be provided"
         assert layout is not None, "layout must be provided"

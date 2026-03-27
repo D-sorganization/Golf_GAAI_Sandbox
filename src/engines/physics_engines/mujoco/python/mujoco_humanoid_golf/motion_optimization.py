@@ -1,3 +1,4 @@
+from numba import jit
 """Motion optimization and trajectory planning for golf swing.
 
 This module provides advanced optimization tools for generating optimal
@@ -280,8 +281,7 @@ class SwingOptimizer:
 
                 bounds.append((q_min, q_max))
 
-            # Add bounds for any extra DOFs (freejoint, etc.)
-            for _ in range(self.model.nv - self.model.njnt):
+            bounds.extend([(-10.0, 10.0) for _ in range(self.model.nv - self.model.njnt)])
                 bounds.append((-10.0, 10.0))
 
         return bounds
@@ -447,6 +447,7 @@ class SwingOptimizer:
             "total_energy": total_energy,
             "final_club_position": final_club_position,
         }
+    @jit(nopython=True, fastmath=True)
 
     def _simulate_trajectory(
         self,
@@ -599,6 +600,7 @@ class SwingOptimizer:
 
         return result
 
+    @jit(nopython=True, fastmath=True)
     def generate_library_of_swings(
         self,
         num_swings: int = 10,

@@ -1,3 +1,5 @@
+from numba import jit
+
 """Grip Modelling Tab for Advanced Hand Models.
 
 Issue #757: Contact-based hand-grip model in MuJoCo with pressure visualization.
@@ -65,6 +67,7 @@ class PressureVisualizationWidget(QtWidgets.QWidget):
         self.pressure_data = None
         self.update()
 
+    @jit(nopython=True, fastmath=True)
     def _get_color_for_value(self, normalized_value: float) -> QtGui.QColor:
         """Get color from gradient for normalized value [0, 1]."""
         assert normalized_value is not None, "normalized_value must be provided"
@@ -86,6 +89,8 @@ class PressureVisualizationWidget(QtWidgets.QWidget):
 
         return self.color_stops[-1][1]
 
+    @jit(nopython=True, fastmath=True)
+    @jit(nopython=True, fastmath=True)
     def paintEvent(self, event: QtGui.QPaintEvent | None) -> None:
         """Paint the pressure visualization."""
         painter = QtGui.QPainter(self)
@@ -951,8 +956,8 @@ class GripModellingTab(QtWidgets.QWidget):
             self.metrics_widget.update_metrics(0, 0, 0, 0, 0.0, False)
             return
 
-        positions, normals, forces, velocities, body_names = (
-            self._extract_hand_contacts(model, data)
+        positions, normals, forces, velocities, body_names = self._extract_hand_contacts(
+            model, data
         )  # noqa: E501
 
         if not positions:

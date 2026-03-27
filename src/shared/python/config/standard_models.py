@@ -133,9 +133,7 @@ class StandardModelManager:
             human_meshes_dir.mkdir(parents=True, exist_ok=True)
 
             # Download specific files from human-gazebo repository
-            base_url = (
-                "https://raw.githubusercontent.com/robotology/human-gazebo/master"
-            )
+            base_url = "https://raw.githubusercontent.com/robotology/human-gazebo/master"
 
             files_to_download = [
                 ("models/humanSubject06_66dof/model.urdf", "humanSubject06_66dof.urdf"),

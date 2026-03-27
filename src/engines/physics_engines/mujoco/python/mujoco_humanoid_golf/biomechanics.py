@@ -371,12 +371,12 @@ class BiomechanicalAnalyzer:
         Returns:
             BiomechanicalData object
         """
-        assert compute_advanced_metrics is not None, (
-            "compute_advanced_metrics must be provided"
-        )  # noqa: E501
-        assert compute_advanced_metrics is not None, (
-            "compute_advanced_metrics must be provided"
-        )  # noqa: E501
+        assert (
+            compute_advanced_metrics is not None
+        ), "compute_advanced_metrics must be provided"  # noqa: E501
+        assert (
+            compute_advanced_metrics is not None
+        ), "compute_advanced_metrics must be provided"  # noqa: E501
         qacc = self.compute_joint_accelerations()
         club_pos, club_vel, club_speed = self.get_club_head_data()
         left_grf, right_grf = self.get_ground_reaction_forces()
@@ -397,8 +397,8 @@ class BiomechanicalAnalyzer:
         counterfactuals: dict = {}
 
         if compute_advanced_metrics:
-            induced, club_induced, counterfactuals = (
-                self._compute_advanced_induced_metrics(selected_actuator_name)
+            induced, club_induced, counterfactuals = self._compute_advanced_induced_metrics(
+                selected_actuator_name
             )  # noqa: E501
 
         return BiomechanicalData(
@@ -674,8 +674,7 @@ class SwingRecorder:
 
         for f in self.frames:
             if (
-                f.club_induced_accelerations
-                and component_name in f.club_induced_accelerations
+                f.club_induced_accelerations and component_name in f.club_induced_accelerations
             ):  # noqa: E501
                 times.append(f.time)
                 values.append(f.club_induced_accelerations[component_name])

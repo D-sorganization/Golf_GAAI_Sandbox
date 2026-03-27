@@ -1,3 +1,5 @@
+from numba import jit
+
 #!/usr/bin/env python3
 """Modern Golf Swing Visualizer - Production Implementation
 High-performance, visually stunning 3D golf swing analysis tool
@@ -398,6 +400,8 @@ class OpenGLRenderer:
         self._create_club_geometry()
         self._create_arrow_geometry()
 
+    @jit(nopython=True, fastmath=True)
+    @jit(nopython=True, fastmath=True)
     def _create_cylinder_geometry(self) -> None:
         """Create optimized cylinder with proper normals"""
         segments = 16
@@ -578,6 +582,8 @@ class OpenGLRenderer:
     def _create_club_geometry(self) -> None:
         """Create detailed club geometry"""
 
+    @jit(nopython=True, fastmath=True)
+    @jit(nopython=True, fastmath=True)
     def _create_arrow_geometry(self) -> None:
         """Create arrow geometry for force/torque vectors"""
         segments = 16
@@ -757,6 +763,8 @@ class OpenGLRenderer:
         self.programs["standard"]["opacity"].value = opacity
         self.vaos["cylinder"].render()
 
+    @jit(nopython=True, fastmath=True)
+    @jit(nopython=True, fastmath=True)
     def _render_vectors(
         self,
         frame_data: FrameData,
@@ -866,8 +874,7 @@ class OpenGLRenderer:
         if not (frame_data is not None):
             raise ValueError("frame_data must be provided")
         if not (
-            np.isfinite(frame_data.butt).all()
-            and np.isfinite(frame_data.clubhead).all()
+            np.isfinite(frame_data.butt).all() and np.isfinite(frame_data.clubhead).all()
         ):  # noqa: E501
             return
         self._render_cylinder_between_points(

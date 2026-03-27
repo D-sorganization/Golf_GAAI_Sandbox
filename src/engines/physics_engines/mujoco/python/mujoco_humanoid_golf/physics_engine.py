@@ -1,3 +1,5 @@
+from numba import jit
+
 """MuJoCo physics engine integration for humanoid golf simulation.
 
 Wraps the MuJoCo physics backend to provide a unified interface for
@@ -616,6 +618,7 @@ class MuJoCoPhysicsEngine(PhysicsEngine):
         )
         return True
 
+    @jit(nopython=True, fastmath=True)
     def _compute_shaft_modes(
         self,
         length: float,
@@ -680,6 +683,7 @@ class MuJoCoPhysicsEngine(PhysicsEngine):
 
         return frequencies, mode_shapes
 
+    @jit(nopython=True, fastmath=True)
     def get_shaft_state(self) -> dict[str, np.ndarray] | None:
         """Get current shaft deformation state.
 
