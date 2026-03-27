@@ -281,7 +281,8 @@ def _build_force_vectors(
         raise ValueError("engine_manager must be provided")
     engine, state = _extract_engine_state(engine_manager)
     if engine is None:
-        return _build_demo_vectors(config)
+        demo: list[ForceVector3D] = _build_demo_vectors(config)
+        return demo
 
     positions = state.get("positions", [])
     torques = state.get("torques", [])

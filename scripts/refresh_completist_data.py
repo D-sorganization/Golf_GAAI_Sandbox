@@ -58,7 +58,7 @@ def main():
 
     # 2. Grep for TODOs
     run_grep(
-        "TRACKED_TASK|TRACKED_DEFECT|XXX|HACK|TEMP",
+        "TODO|FIXME|XXX|HACK|TEMP",
         join(DATA_DIR, "todo_markers.txt"),
         extended_regex=True,
     )
