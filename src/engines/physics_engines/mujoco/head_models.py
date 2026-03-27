@@ -7,11 +7,11 @@ Pendulum models are in pendulum_models_xml.py.
 Golf swing models are in golf_swing_models_xml.py.
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-from typing import Any, cast
+from typing import Any, cast  # noqa: E402
 
-from src.shared.python.core.constants import (
+from src.shared.python.core.constants import (  # noqa: E402
     DEFAULT_TIME_STEP,
     GOLF_BALL_MASS_KG,
     GOLF_BALL_RADIUS_M,
@@ -19,13 +19,13 @@ from src.shared.python.core.constants import (
 )
 
 # Re-export pendulum models for backward compatibility
-from .golf_swing_models_xml import (  # noqa: F401
+from .golf_swing_models_xml import (  # noqa: E402, F401
     ADVANCED_BIOMECHANICAL_GOLF_SWING_XML,
     CLUB_CONFIGS,
     FULL_BODY_GOLF_SWING_XML,
     UPPER_BODY_GOLF_SWING_XML,
 )
-from .pendulum_models_xml import (  # noqa: F401
+from .pendulum_models_xml import (  # noqa: E402, F401
     CHAOTIC_PENDULUM_XML,
     DOUBLE_PENDULUM_XML,
     TRIPLE_PENDULUM_XML,

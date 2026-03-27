@@ -7,16 +7,16 @@ Provides visualization using:
 2. Matplotlib (2D plots and static 3D views)
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-import time
-from dataclasses import dataclass
-from pathlib import Path
-from typing import TYPE_CHECKING, Any
+import time  # noqa: E402
+from dataclasses import dataclass  # noqa: E402
+from pathlib import Path  # noqa: E402
+from typing import TYPE_CHECKING, Any  # noqa: E402
 
-import numpy as np
+import numpy as np  # noqa: E402
 
-from src.shared.python.engine_core.engine_availability import PINOCCHIO_AVAILABLE
+from src.shared.python.engine_core.engine_availability import PINOCCHIO_AVAILABLE  # noqa: E402
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -45,10 +45,10 @@ try:
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
 
-import logging
+import logging  # noqa: E402
 
-from motion_training.club_trajectory_parser import ClubTrajectory
-from motion_training.dual_hand_ik_solver import TrajectoryIKResult
+from motion_training.club_trajectory_parser import ClubTrajectory  # noqa: E402
+from motion_training.dual_hand_ik_solver import TrajectoryIKResult  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -459,7 +459,9 @@ class MotionVisualizer:
         if trajectory.num_frames <= num_frames_to_show:
             indices: list[int] | np.ndarray = list(range(trajectory.num_frames))
         else:
-            indices = np.linspace(0, trajectory.num_frames - 1, num_frames_to_show).astype(
+            indices = np.linspace(
+                0, trajectory.num_frames - 1, num_frames_to_show
+            ).astype(  # noqa: E501
                 int
             )  # noqa: E501
 

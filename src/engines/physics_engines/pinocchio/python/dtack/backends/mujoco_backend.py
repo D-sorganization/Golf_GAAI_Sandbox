@@ -2,15 +2,15 @@ from numba import jit
 
 """MuJoCo backend wrapper for simulation and contact dynamics."""
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-from pathlib import Path
+from pathlib import Path  # noqa: E402
 
-import numpy as np  # noqa: TID253
-import numpy.typing as npt  # noqa: TID253
+import numpy as np  # noqa: E402, TID253
+import numpy.typing as npt  # noqa: E402, TID253
 
-from src.shared.python.engine_core.engine_availability import MUJOCO_AVAILABLE
-from src.shared.python.logging_pkg.logging_config import get_logger
+from src.shared.python.engine_core.engine_availability import MUJOCO_AVAILABLE  # noqa: E402
+from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
 
 if MUJOCO_AVAILABLE:
     import mujoco

@@ -16,20 +16,20 @@ Test Coverage
 - Physical parameter defaults
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-import math
+import math  # noqa: E402
 
-import numpy as np
-import pytest
+import numpy as np  # noqa: E402
+import pytest  # noqa: E402
 
-from src.engines.pendulum_models.python.double_pendulum_model import (
+from src.engines.pendulum_models.python.double_pendulum_model import (  # noqa: E402
     DoublePendulumDynamics,
     DoublePendulumParameters,
     DoublePendulumState,
     compile_forcing_functions,
 )
-from src.engines.pendulum_models.python.double_pendulum_model.physics.double_pendulum import (
+from src.engines.pendulum_models.python.double_pendulum_model.physics.double_pendulum import (  # noqa: E402
     DEFAULT_DAMPING_SHOULDER,
     DEFAULT_DAMPING_WRIST,
 )

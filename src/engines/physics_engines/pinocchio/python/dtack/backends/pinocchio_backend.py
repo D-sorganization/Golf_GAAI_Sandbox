@@ -94,7 +94,7 @@ class PinocchioBackend:
         if model_path_obj.suffix == ".urdf":
             self.model, self.collision_model, self.visual_model = pin.buildModelsFromUrdf(
                 str(model_path_obj), ""
-            )  # noqa: E501
+            )  # noqa: E501  # noqa: E501
         else:
             msg = f"Unsupported model format: {model_path_obj.suffix}"
             raise ValueError(msg)

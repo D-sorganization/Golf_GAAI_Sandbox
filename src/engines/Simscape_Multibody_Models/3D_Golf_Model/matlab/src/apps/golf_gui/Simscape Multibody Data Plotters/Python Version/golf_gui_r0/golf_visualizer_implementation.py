@@ -10,22 +10,22 @@ Key Technologies:
 - NumPy + Numba for high-performance computations
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
 # ============================================================================
 # HIGH-PERFORMANCE DATA STRUCTURES
 # ============================================================================
-import logging
-import sys
-import time
-from dataclasses import dataclass
+import logging  # noqa: E402
+import sys  # noqa: E402
+import time  # noqa: E402
+from dataclasses import dataclass  # noqa: E402
 
-import moderngl as mgl
-import numpy as np
-import scipy.io
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtOpenGLWidgets import QOpenGLWidget
-from PyQt6.QtWidgets import (
+import moderngl as mgl  # noqa: E402
+import numpy as np  # noqa: E402
+import scipy.io  # noqa: E402
+from PyQt6.QtCore import Qt, QTimer  # noqa: E402
+from PyQt6.QtOpenGLWidgets import QOpenGLWidget  # noqa: E402
+from PyQt6.QtWidgets import (  # noqa: E402
     QApplication,
     QCheckBox,
     QDockWidget,
@@ -874,7 +874,8 @@ class OpenGLRenderer:
         if not (frame_data is not None):
             raise ValueError("frame_data must be provided")
         if not (
-            np.isfinite(frame_data.butt).all() and np.isfinite(frame_data.clubhead).all()
+            np.isfinite(frame_data.butt).all()
+            and np.isfinite(frame_data.clubhead).all()  # noqa: E501
         ):  # noqa: E501
             return
         self._render_cylinder_between_points(

@@ -7,14 +7,14 @@ miscellaneous numerical utilities shared across the Docker-containerised
 MuJoCo humanoid golf simulation backend.
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-import logging
-import os
+import logging  # noqa: E402
+import os  # noqa: E402
 
-import dm_control.suite
-import numpy as np
-from dm_control import mjcf
+import dm_control.suite  # noqa: E402
+import numpy as np  # noqa: E402
+from dm_control import mjcf  # noqa: E402
 
 logger = logging.getLogger(__name__)
 

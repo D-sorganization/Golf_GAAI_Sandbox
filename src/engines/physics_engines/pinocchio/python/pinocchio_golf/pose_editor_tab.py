@@ -268,7 +268,7 @@ class PinocchioPoseEditor(BasePoseEditor):
                     self._q[info.position_index] = float(value)
                 else:
                     self._q[info.position_index : info.position_index + info.num_positions] = (
-                        value  # noqa: E501
+                        value  # noqa: E501  # noqa: E501
                     )
 
                 self._state.joint_positions = self._q.copy()

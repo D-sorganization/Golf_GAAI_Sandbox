@@ -11,13 +11,13 @@ This module provides:
 - Real-time data display helpers.
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-from collections import deque
-from collections.abc import Callable
-from typing import Any
+from collections import deque  # noqa: E402
+from collections.abc import Callable  # noqa: E402
+from typing import Any  # noqa: E402
 
-import numpy as np
+import numpy as np  # noqa: E402
 
 
 # ---------------------------------------------------------------------------

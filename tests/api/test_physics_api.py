@@ -236,9 +236,7 @@ class TestResponseModels:
             engine_name="MuJoCo",
             engine_type="mujoco",
             capabilities=[
-                CapabilityLevelResponse(
-                    name="mass_matrix", level="full", supported=True
-                ),
+                CapabilityLevelResponse(name="mass_matrix", level="full", supported=True),
             ],
             summary={"full": 1, "partial": 0, "none": 0},
         )
@@ -546,9 +544,7 @@ class TestControlFeaturesEndpoints:
 class TestPhysicsHappyPathEndpoints:
     """Test happy paths for physics endpoints with injected dependencies."""
 
-    def test_get_actuator_state_returns_live_control_state(
-        self, physics_test_app
-    ) -> None:
+    def test_get_actuator_state_returns_live_control_state(self, physics_test_app) -> None:
         client, mock_engine_manager, _ = physics_test_app
         mock_engine_manager.get_active_physics_engine.return_value = MagicMock()
 
@@ -567,9 +563,7 @@ class TestPhysicsHappyPathEndpoints:
             ctrl.get_available_strategies.return_value = [
                 {"name": "pd", "description": "PD control"}
             ]
-            monkeypatch.setattr(
-                "src.api.routes.physics._get_control_interface", lambda _: ctrl
-            )
+            monkeypatch.setattr("src.api.routes.physics._get_control_interface", lambda _: ctrl)
 
             resp = client.get("/simulation/actuators")
 
@@ -592,9 +586,7 @@ class TestPhysicsHappyPathEndpoints:
         with pytest.MonkeyPatch.context() as monkeypatch:
             ctrl = MagicMock()
             ctrl.current_torques = np.array([5.0, -6.0])
-            monkeypatch.setattr(
-                "src.api.routes.physics._get_control_interface", lambda _: ctrl
-            )
+            monkeypatch.setattr("src.api.routes.physics._get_control_interface", lambda _: ctrl)
 
             resp = client.get("/simulation/forces")
 
@@ -606,9 +598,7 @@ class TestPhysicsHappyPathEndpoints:
         assert data["applied_torques"] == [5.0, -6.0]
         assert data["bias_forces"] == [3.0, 4.0]
 
-    def test_get_metrics_returns_energy_speed_and_torque_metrics(
-        self, physics_test_app
-    ) -> None:
+    def test_get_metrics_returns_energy_speed_and_torque_metrics(self, physics_test_app) -> None:
         client, mock_engine_manager, _ = physics_test_app
 
         mock_engine = MagicMock()
@@ -616,9 +606,7 @@ class TestPhysicsHappyPathEndpoints:
         q = np.array([0.1, 0.2])
         v = np.array([3.0, 4.0])
         mock_engine.get_state.return_value = (q, v)
-        mock_engine.compute_jacobian.return_value = {
-            "linear": np.array([[1.0, 0.0], [0.0, 2.0]])
-        }
+        mock_engine.compute_jacobian.return_value = {"linear": np.array([[1.0, 0.0], [0.0, 2.0]])}
         mock_engine.compute_mass_matrix.return_value = np.eye(2)
         mock_engine.get_potential_energy.return_value = 12.5
         mock_engine_manager.get_active_physics_engine.return_value = mock_engine
@@ -626,9 +614,7 @@ class TestPhysicsHappyPathEndpoints:
         with pytest.MonkeyPatch.context() as monkeypatch:
             ctrl = MagicMock()
             ctrl.current_torques = np.array([5.0, -6.0])
-            monkeypatch.setattr(
-                "src.api.routes.physics._get_control_interface", lambda _: ctrl
-            )
+            monkeypatch.setattr("src.api.routes.physics._get_control_interface", lambda _: ctrl)
 
             resp = client.get("/simulation/metrics")
 
@@ -643,9 +629,7 @@ class TestPhysicsHappyPathEndpoints:
         assert data["peak_torque"] == pytest.approx(6.0)
         assert data["total_torque_magnitude"] == pytest.approx(11.0)
 
-    def test_get_control_features_returns_registry_summary(
-        self, physics_test_app
-    ) -> None:
+    def test_get_control_features_returns_registry_summary(self, physics_test_app) -> None:
         client, mock_engine_manager, _ = physics_test_app
         mock_engine_manager.get_active_physics_engine.return_value = MagicMock()
 
@@ -665,9 +649,7 @@ class TestPhysicsHappyPathEndpoints:
                     "description": "Zero torque counterfactual",
                 }
             ]
-            monkeypatch.setattr(
-                "src.api.routes.physics._get_features_registry", lambda _: registry
-            )
+            monkeypatch.setattr("src.api.routes.physics._get_features_registry", lambda _: registry)
 
             resp = client.get("/simulation/control-features?available_only=true")
 

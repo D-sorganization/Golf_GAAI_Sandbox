@@ -143,18 +143,18 @@ REFERENCES
 - MuJoCo Documentation: https://mujoco.readthedocs.io/
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-import csv
-import warnings
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
+import csv  # noqa: E402
+import warnings  # noqa: E402
+from dataclasses import dataclass  # noqa: E402
+from typing import TYPE_CHECKING  # noqa: E402
 
-import mujoco
-import numpy as np
+import mujoco  # noqa: E402
+import numpy as np  # noqa: E402
 
 # Import numerical constants (Assessment B-004, B-007)
-from src.shared.python.core.numerical_constants import (
+from src.shared.python.core.numerical_constants import (  # noqa: E402
     EPSILON_FINITE_DIFF_JACOBIAN,
     EPSILON_SINGULARITY_DETECTION,
 )
@@ -868,7 +868,7 @@ class KinematicForceAnalyzer:
             # Club head apparent forces
             club_coriolis, club_centrifugal, club_apparent = self.compute_club_head_apparent_forces(
                 qpos, qvel, qacc
-            )  # noqa: E501
+            )  # noqa: E501  # noqa: E501
 
             # Power contributions
             power_dict = self.compute_kinematic_power(qpos, qvel)

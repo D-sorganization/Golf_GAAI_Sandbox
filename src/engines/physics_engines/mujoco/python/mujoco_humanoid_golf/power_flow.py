@@ -9,15 +9,15 @@ aligned with drift/control/constraint components."
 Reference: docs/assessments/project_design_guidelines.qmd Section E3
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from dataclasses import dataclass  # noqa: E402
+from typing import TYPE_CHECKING  # noqa: E402
 
-import numpy as np
+import numpy as np  # noqa: E402
 
-from src.shared.python.core.contracts import precondition
-from src.shared.python.logging_pkg.logging_config import get_logger
+from src.shared.python.core.contracts import precondition  # noqa: E402
+from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
 
 if TYPE_CHECKING:
     import mujoco
@@ -241,7 +241,7 @@ class PowerFlowAnalyzer:
 
         joint_work_drift, joint_work_control, joint_work_total = self._compute_work_decomposition(
             tau, qvel, dt, tau_drift, tau_control
-        )  # noqa: E501
+        )  # noqa: E501  # noqa: E501
 
         segment_ke, segment_pe = self._compute_segment_energies(qvel)
         total_me = float(np.sum(segment_ke) + np.sum(segment_pe))

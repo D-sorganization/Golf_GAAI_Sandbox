@@ -178,9 +178,7 @@ class TestPuttingGreenEngine:
         assert data["status"] == "loaded"
         assert data["engine"] == "putting_green"
 
-    @pytest.mark.skip(
-        reason="Proper Putting Green implementation pending (Issue #1136)"
-    )
+    @pytest.mark.skip(reason="Proper Putting Green implementation pending (Issue #1136)")
     def test_putting_green_simulation(self, client) -> None:
         """Test Putting Green simulation (will be implemented in #1136)."""
         # Load engine

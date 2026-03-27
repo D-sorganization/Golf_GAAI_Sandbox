@@ -6,16 +6,16 @@ Extracts viewer updates, ellipsoid drawing, vector drawing, frame/COM
 overlays, and toggle handlers from PinocchioGUI (gui.py).
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-import contextlib
-from typing import Any
+import contextlib  # noqa: E402
+from typing import Any  # noqa: E402
 
-import numpy as np
-import pinocchio as pin  # type: ignore
-from PyQt6 import QtWidgets
+import numpy as np  # noqa: E402
+import pinocchio as pin  # type: ignore  # noqa: E402
+from PyQt6 import QtWidgets  # noqa: E402
 
-from src.shared.python.logging_pkg.logging_config import get_logger
+from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
 
 # Check meshcat availability
 try:
@@ -49,7 +49,10 @@ class PinocchioVisualizationMixin:
 
     def _update_viewer(self: Any) -> None:
         if (
-            self.model is None or self.data is None or self.q is None or self.viz is None
+            self.model is None
+            or self.data is None
+            or self.q is None
+            or self.viz is None  # noqa: E501
         ):  # noqa: E501
             return
 
@@ -136,7 +139,8 @@ class PinocchioVisualizationMixin:
                     pos = res.velocity_ellipsoid.center
 
                     if (
-                        self.chk_mobility.isChecked() and res.mobility_matrix is not None
+                        self.chk_mobility.isChecked()
+                        and res.mobility_matrix is not None  # noqa: E501
                     ):  # noqa: E501
                         path_name = f"{res.body_name}/mobility"
                         radii = res.velocity_ellipsoid.radii
@@ -149,7 +153,8 @@ class PinocchioVisualizationMixin:
                         )
 
                     if (
-                        self.chk_force_ellip.isChecked() and res.force_matrix is not None
+                        self.chk_force_ellip.isChecked()
+                        and res.force_matrix is not None  # noqa: E501
                     ):  # noqa: E501
                         path_name = f"{res.body_name}/force"
                         radii = res.force_ellipsoid.radii
@@ -292,7 +297,10 @@ class PinocchioVisualizationMixin:
     def _draw_cf_vectors(self: Any) -> None:
         """Draw Counterfactual vectors."""
         if (
-            self.model is None or self.data is None or self.viewer is None or self.latest_cf is None
+            self.model is None
+            or self.data is None
+            or self.viewer is None
+            or self.latest_cf is None  # noqa: E501
         ):  # noqa: E501
             return
 

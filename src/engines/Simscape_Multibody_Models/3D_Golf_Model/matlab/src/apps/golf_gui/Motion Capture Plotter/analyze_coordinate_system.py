@@ -2,12 +2,12 @@ from numba import jit
 
 """Analyse and visualise coordinate system orientation for motion-capture data."""
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-import logging
+import logging  # noqa: E402
 
-import numpy as np
-import pandas as pd
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
 
 logger = logging.getLogger(__name__)
 

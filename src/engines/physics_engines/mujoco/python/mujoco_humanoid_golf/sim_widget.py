@@ -6,30 +6,30 @@ Refactored: Rendering/overlay logic lives in ``sim_rendering_mixin.py``.
 Camera/mouse interaction lives in ``sim_camera_mixin.py``.
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-import os
-from pathlib import Path
-from typing import Any, Final
+import os  # noqa: E402
+from pathlib import Path  # noqa: E402
+from typing import Any, Final  # noqa: E402
 
-import mujoco
-import numpy as np
-from PyQt6 import QtCore, QtWidgets
+import mujoco  # noqa: E402
+import numpy as np  # noqa: E402
+from PyQt6 import QtCore, QtWidgets  # noqa: E402
 
-from src.shared.python.biomechanics.biomechanics_data import BiomechanicalData
-from src.shared.python.biomechanics.swing_plane_visualization import (
+from src.shared.python.biomechanics.biomechanics_data import BiomechanicalData  # noqa: E402
+from src.shared.python.biomechanics.swing_plane_visualization import (  # noqa: E402
     SwingPlaneVisualizer,
 )
-from src.shared.python.logging_pkg.logging_config import get_logger
+from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
 
-from .biomechanics import BiomechanicalAnalyzer, SwingRecorder
-from .control_system import ControlSystem, ControlType
-from .interactive_manipulation import InteractiveManipulator
-from .meshcat_adapter import MuJoCoMeshcatAdapter
-from .physics_engine import MuJoCoPhysicsEngine
-from .sim_camera_mixin import SimCameraMixin
-from .sim_rendering_mixin import SimRenderingMixin
-from .telemetry import TelemetryRecorder
+from .biomechanics import BiomechanicalAnalyzer, SwingRecorder  # noqa: E402
+from .control_system import ControlSystem, ControlType  # noqa: E402
+from .interactive_manipulation import InteractiveManipulator  # noqa: E402
+from .meshcat_adapter import MuJoCoMeshcatAdapter  # noqa: E402
+from .physics_engine import MuJoCoPhysicsEngine  # noqa: E402
+from .sim_camera_mixin import SimCameraMixin  # noqa: E402
+from .sim_rendering_mixin import SimRenderingMixin  # noqa: E402
+from .telemetry import TelemetryRecorder  # noqa: E402
 
 logger = get_logger(__name__)
 
@@ -360,7 +360,8 @@ class MuJoCoSimWidget(  # type: ignore[misc]
             if self.model.njnt > 0:
                 first_joint_type = self.model.jnt_type[0]
                 if (
-                    first_joint_type == mujoco.mjtJoint.mjJNT_FREE and len(self.data.qpos) >= 3
+                    first_joint_type == mujoco.mjtJoint.mjJNT_FREE
+                    and len(self.data.qpos) >= 3  # noqa: E501
                 ):  # noqa: E501
                     self.data.qpos[2] = 0.9
         elif self.model.nq >= 1:

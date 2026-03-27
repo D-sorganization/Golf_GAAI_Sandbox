@@ -5,19 +5,19 @@ from numba import jit
 Issue #757: Contact-based hand-grip model in MuJoCo with pressure visualization.
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-import os
-import re
-from pathlib import Path
-from typing import Any
+import os  # noqa: E402
+import re  # noqa: E402
+from pathlib import Path  # noqa: E402
+from typing import Any  # noqa: E402
 
-import mujoco
-import numpy as np
-from PyQt6 import QtCore, QtGui, QtWidgets
+import mujoco  # noqa: E402
+import numpy as np  # noqa: E402
+from PyQt6 import QtCore, QtGui, QtWidgets  # noqa: E402
 
-from src.shared.python.logging_pkg.logging_config import get_logger
-from src.shared.python.physics.grip_contact_model import (
+from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
+from src.shared.python.physics.grip_contact_model import (  # noqa: E402
     GripContactExporter,
     GripContactModel,
     GripParameters,
@@ -25,7 +25,7 @@ from src.shared.python.physics.grip_contact_model import (
     compute_pressure_visualization,
 )
 
-from .sim_widget import MuJoCoSimWidget
+from .sim_widget import MuJoCoSimWidget  # noqa: E402
 
 logger = get_logger(__name__)
 
@@ -958,7 +958,7 @@ class GripModellingTab(QtWidgets.QWidget):
 
         positions, normals, forces, velocities, body_names = self._extract_hand_contacts(
             model, data
-        )  # noqa: E501
+        )  # noqa: E501  # noqa: E501
 
         if not positions:
             self.pressure_widget.clear()

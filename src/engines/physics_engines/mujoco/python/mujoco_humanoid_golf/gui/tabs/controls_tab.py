@@ -6,22 +6,22 @@ Provides joint angle sliders, actuator controls, and simulation
 playback controls for the humanoid golf simulation viewer.
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-import typing
-from collections.abc import Callable
-from datetime import datetime
-from pathlib import Path
-from typing import Any
+import typing  # noqa: E402
+from collections.abc import Callable  # noqa: E402
+from datetime import datetime  # noqa: E402
+from pathlib import Path  # noqa: E402
+from typing import Any  # noqa: E402
 
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets  # noqa: E402
 
-from src.shared.python.logging_pkg.logging_config import get_logger
-from src.shared.python.theme.style_constants import Styles
+from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
+from src.shared.python.theme.style_constants import Styles  # noqa: E402
 
-from ...control_system import ControlSystem, ControlType
-from ...polynomial_generator import PolynomialGeneratorWidget
-from ...sim_widget import MuJoCoSimWidget
+from ...control_system import ControlSystem, ControlType  # noqa: E402
+from ...polynomial_generator import PolynomialGeneratorWidget  # noqa: E402
+from ...sim_widget import MuJoCoSimWidget  # noqa: E402
 
 if typing.TYPE_CHECKING:
     from ..advanced_gui import AdvancedGolfAnalysisWindow
@@ -253,7 +253,8 @@ class ControlsTab(QtWidgets.QWidget):
 
         actuators = config.get("actuators", [])
         if (
-            self.sim_widget.has_model() and len(actuators) != self.sim_widget.get_num_actuators()
+            self.sim_widget.has_model()
+            and len(actuators) != self.sim_widget.get_num_actuators()  # noqa: E501
         ):  # noqa: E501
             # Re-verify if fixup happened in PhysicsTab, but just in case
             logger.warning("Actuator count mismatch in ControlsTab update")

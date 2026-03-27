@@ -53,7 +53,9 @@ def deep_analyze_matlab_file(filename) -> bool:
                         )  # noqa: E501
 
                         # If it's an object array, try to explore further
-                        if hasattr(field_data, "dtype") and field_data.dtype == np.dtype(
+                        if hasattr(
+                            field_data, "dtype"
+                        ) and field_data.dtype == np.dtype(  # noqa: E501
                             "O"
                         ):  # noqa: E501
                             logger.info(

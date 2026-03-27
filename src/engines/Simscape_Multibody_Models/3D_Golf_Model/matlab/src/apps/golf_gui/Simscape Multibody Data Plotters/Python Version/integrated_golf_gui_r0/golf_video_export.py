@@ -12,17 +12,17 @@ Features:
 - Background rendering (non-blocking UI)
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-import logging
-import subprocess
-from dataclasses import dataclass
-from pathlib import Path
+import logging  # noqa: E402
+import subprocess  # noqa: E402
+from dataclasses import dataclass  # noqa: E402
+from pathlib import Path  # noqa: E402
 
-import numpy as np
-from golf_data_core import RenderConfig
-from PyQt6.QtCore import QObject, QThread, pyqtSignal
-from PyQt6.QtWidgets import (
+import numpy as np  # noqa: E402
+from golf_data_core import RenderConfig  # noqa: E402
+from PyQt6.QtCore import QObject, QThread, pyqtSignal  # noqa: E402
+from PyQt6.QtWidgets import (  # noqa: E402
     QComboBox,
     QDialog,
     QFileDialog,

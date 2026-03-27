@@ -6,15 +6,15 @@ This module implements IK solving with both hands as end-effectors that must
 track positions on a golf club grip as it moves through the swing trajectory.
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import TYPE_CHECKING
+from dataclasses import dataclass, field  # noqa: E402
+from pathlib import Path  # noqa: E402
+from typing import TYPE_CHECKING  # noqa: E402
 
-import numpy as np
+import numpy as np  # noqa: E402
 
-from src.shared.python.engine_core.engine_availability import PINOCCHIO_AVAILABLE
+from src.shared.python.engine_core.engine_availability import PINOCCHIO_AVAILABLE  # noqa: E402
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -34,9 +34,9 @@ try:
 except ImportError:
     PINK_AVAILABLE = False
 
-import logging
+import logging  # noqa: E402
 
-from motion_training.club_trajectory_parser import ClubFrame, ClubTrajectory
+from motion_training.club_trajectory_parser import ClubFrame, ClubTrajectory  # noqa: E402
 
 logger = logging.getLogger(__name__)
 

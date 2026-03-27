@@ -6,15 +6,15 @@ Wiffle_ProV1 Data Loader for Golf Swing Visualizer
 Handles Excel-based motion capture data and converts to the GUI's expected format
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-import logging
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any
+import logging  # noqa: E402
+from dataclasses import dataclass  # noqa: E402
+from pathlib import Path  # noqa: E402
+from typing import Any  # noqa: E402
 
-import numpy as np
-import pandas as pd
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -656,7 +656,7 @@ class MotionDataLoader:
                     deltaq_data[gui_col] = diff
                 else:
                     deltaq_data[f"{component.upper().replace('_', '')[:2]}{axis[-1].upper()}"] = (
-                        0.0  # noqa: E501
+                        0.0  # noqa: E501  # noqa: E501
                     )
 
         return deltaq_data

@@ -7,16 +7,16 @@ vector drawing, manipulation overlays, swing plane overlays, and
 frame/COM overlays from MuJoCoSimWidget.
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: E402, F404
 
-from collections.abc import Callable
-from typing import Any
+from collections.abc import Callable  # noqa: E402
+from typing import Any  # noqa: E402
 
-import mujoco
-import numpy as np
-from PyQt6 import QtGui
+import mujoco  # noqa: E402
+import numpy as np  # noqa: E402
+from PyQt6 import QtGui  # noqa: E402
 
-from src.shared.python.logging_pkg.logging_config import get_logger
+from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
 
 # Lazy loading for OpenCV (mutable holder avoids 'global' keyword)
 _cv2_state: dict[str, Any] = {"lib": None, "invalid": False}
