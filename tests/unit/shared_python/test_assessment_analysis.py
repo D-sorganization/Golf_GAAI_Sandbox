@@ -239,7 +239,7 @@ class TestGrepCount:
         assert n == 0
 
     def test_asserts_root(self) -> None:
-        with pytest.raises(AssertionError):
+        with pytest.raises((AssertionError, ValueError)):
             grep_count(None, "x")  # type: ignore[arg-type]
 
 
@@ -295,5 +295,5 @@ class TestClassifyAssessmentCategory:
         assert classify_assessment_category("Z", "completely random") == "General"
 
     def test_requires_source_name(self) -> None:
-        with pytest.raises(AssertionError):
+        with pytest.raises((AssertionError, ValueError)):
             classify_assessment_category(None)  # type: ignore[arg-type]

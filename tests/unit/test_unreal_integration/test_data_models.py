@@ -431,7 +431,9 @@ class TestEnvironmentState:
         """Test EnvironmentState.default() factory method."""
         env = EnvironmentState.default()
         assert env.temperature == 20.0
-        assert env.air_density == pytest.approx(1.225)
+        # Air density is dynamically computed via Tetens + Ideal Gas Law;
+        # at 20 C, 50 % humidity, 1013.25 hPa it is ~1.199 kg/m^3.
+        assert env.air_density == pytest.approx(1.199, abs=0.01)
 
 
 class TestUnrealDataFrame:
