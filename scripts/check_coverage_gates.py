@@ -77,7 +77,8 @@ def load_coverage_report(path: str) -> dict:
 
     if "files" not in data:
         print(
-            "ERROR: Coverage report missing 'files' key. " "Ensure you used --cov-report=json.",
+            "ERROR: Coverage report missing 'files' key. "
+            "Ensure you used --cov-report=json.",
             file=sys.stderr,
         )
         sys.exit(2)
@@ -138,7 +139,9 @@ def check_gates(
     all_passed = True
 
     print()
-    print(f"{'Module':<12} {'Covered':>8} {'Total':>8} {'Pct':>7} {'Gate':>7} {'Status':>8}")
+    print(
+        f"{'Module':<12} {'Covered':>8} {'Total':>8} {'Pct':>7} {'Gate':>7} {'Status':>8}"
+    )
     print("-" * 58)
 
     for gate_name, threshold in sorted(gates.items()):
@@ -153,7 +156,9 @@ def check_gates(
             )
         else:
             # No source files found for this gate — skip silently
-            print(f"{gate_name:<12} {'—':>8} {'—':>8} {'—':>7} {threshold:>6.1f}% {'SKIP':>8}")
+            print(
+                f"{gate_name:<12} {'—':>8} {'—':>8} {'—':>7} {threshold:>6.1f}% {'SKIP':>8}"
+            )
 
     print("-" * 58)
     print()

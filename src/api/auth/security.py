@@ -201,7 +201,9 @@ class SecurityManager:
         return str(jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm))
 
     @precondition(
-        lambda self, token, token_type="access": (isinstance(token, str) and len(token) > 0),
+        lambda self, token, token_type="access": (
+            isinstance(token, str) and len(token) > 0
+        ),
         "token must be a non-empty string",
     )
     @precondition(
@@ -411,7 +413,9 @@ class UsageTracker:
             "video_analyses": {
                 "used": video_analyses_used,
                 "limit": quotas.video_analyses_per_month,
-                "remaining": max(0, quotas.video_analyses_per_month - video_analyses_used),
+                "remaining": max(
+                    0, quotas.video_analyses_per_month - video_analyses_used
+                ),
             },
             "simulations": {
                 "used": simulations_used,

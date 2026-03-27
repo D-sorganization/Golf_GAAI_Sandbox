@@ -24,7 +24,10 @@ from .inverse_dynamics import (  # noqa: E402
     InverseDynamicsSolver,
     export_inverse_dynamics_to_csv,
 )
-from .kinematic_forces import KinematicForceAnalyzer, export_kinematic_forces_to_csv  # noqa: E402
+from .kinematic_forces import (  # noqa: E402
+    KinematicForceAnalyzer,
+    export_kinematic_forces_to_csv,
+)
 from .models import ADVANCED_BIOMECHANICAL_GOLF_SWING_XML  # noqa: E402
 from .motion_capture import (  # noqa: E402
     MarkerSet,

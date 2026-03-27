@@ -248,7 +248,9 @@ async def update_actuators(
     except ImportError as exc:
         if logger:
             logger.error("Actuator update error: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Actuator update failed: {str(exc)}") from exc
+        raise HTTPException(
+            status_code=500, detail=f"Actuator update failed: {str(exc)}"
+        ) from exc
 
 
 @router.get("/simulation/actuators", response_model=ActuatorStateResponse)
@@ -348,7 +350,9 @@ async def get_forces(
     except ImportError as exc:
         if logger:
             logger.error("Force query error: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Force query failed: {str(exc)}") from exc
+        raise HTTPException(
+            status_code=500, detail=f"Force query failed: {str(exc)}"
+        ) from exc
 
 
 # ──────────────────────────────────────────────────────────────
@@ -429,7 +433,9 @@ async def get_metrics(
     except ImportError as exc:
         if logger:
             logger.error("Metrics query error: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Metrics query failed: {str(exc)}") from exc
+        raise HTTPException(
+            status_code=500, detail=f"Metrics query failed: {str(exc)}"
+        ) from exc
 
 
 # ──────────────────────────────────────────────────────────────
@@ -624,4 +630,6 @@ async def control_recording(
             export_path=None,
         )
 
-    raise HTTPException(status_code=400, detail=f"Unsupported recording action: {action}")
+    raise HTTPException(
+        status_code=400, detail=f"Unsupported recording action: {action}"
+    )

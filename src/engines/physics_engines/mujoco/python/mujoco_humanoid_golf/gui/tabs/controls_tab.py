@@ -163,7 +163,9 @@ class ControlsTab(QtWidgets.QWidget):
 
         scroll = QtWidgets.QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
 
         self.actuator_container = QtWidgets.QWidget()
         self.actuator_layout = QtWidgets.QVBoxLayout(self.actuator_container)
@@ -627,7 +629,9 @@ class ControlsTab(QtWidgets.QWidget):
             self.record_btn.setText("Start Recording")
             if style := self.style():
                 self.record_btn.setIcon(
-                    style.standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogYesButton)
+                    style.standardIcon(
+                        QtWidgets.QStyle.StandardPixmap.SP_DialogYesButton
+                    )
                 )
             recorder.stop_recording()
 

@@ -317,7 +317,9 @@ class PolynomialGeneratorWidget(QtWidgets.QWidget):
         self.clear_btn.setAccessibleName("Clear all points")
         style = self.style()
         if style:
-            self.clear_btn.setIcon(style.standardIcon(QtWidgets.QStyle.StandardPixmap.SP_TrashIcon))
+            self.clear_btn.setIcon(
+                style.standardIcon(QtWidgets.QStyle.StandardPixmap.SP_TrashIcon)
+            )
 
         self.fit_btn = QtWidgets.QPushButton("Fit Polynomial")
         self.fit_btn.setObjectName("fitBtn")

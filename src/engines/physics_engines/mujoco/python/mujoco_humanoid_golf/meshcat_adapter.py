@@ -13,7 +13,9 @@ from typing import Any  # noqa: E402
 import mujoco  # noqa: E402
 import numpy as np  # noqa: E402
 
-from src.shared.python.biomechanics.biomechanics_data import BiomechanicalData  # noqa: E402
+from src.shared.python.biomechanics.biomechanics_data import (
+    BiomechanicalData,  # noqa: E402
+)
 from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
 
 try:

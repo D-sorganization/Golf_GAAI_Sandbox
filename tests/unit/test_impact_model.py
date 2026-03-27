@@ -108,7 +108,8 @@ class TestRigidBodyImpactModel:
 
         # Pre-impact momentum
         p_pre = (
-            m_club * default_pre_state.clubhead_velocity + m_ball * default_pre_state.ball_velocity
+            m_club * default_pre_state.clubhead_velocity
+            + m_ball * default_pre_state.ball_velocity
         )
 
         # Post-impact momentum
@@ -137,7 +138,9 @@ class TestRigidBodyImpactModel:
         result_high = model.solve(pre_state, high_cor)
 
         # Higher COR should give faster ball
-        assert np.linalg.norm(result_high.ball_velocity) > np.linalg.norm(result_low.ball_velocity)
+        assert np.linalg.norm(result_high.ball_velocity) > np.linalg.norm(
+            result_low.ball_velocity
+        )
 
 
 class TestSpringDamperImpactModel:
@@ -305,7 +308,9 @@ class TestImpactModelFactory:
         ],
         ids=["rigid-body", "spring-damper", "finite-time"],
     )
-    def test_creates_correct_model(self, model_type: ImpactModelType, expected_class: type) -> None:
+    def test_creates_correct_model(
+        self, model_type: ImpactModelType, expected_class: type
+    ) -> None:
         """Factory should create the correct model type."""
         model = create_impact_model(model_type)
         assert isinstance(model, expected_class)
@@ -640,7 +645,9 @@ class TestMOIEffectiveMass:
             impact_offset=np.array([0.020, 0.0]),  # 20mm toe
         )
 
-    def test_center_hit_equals_point_mass(self, center_hit_state: PreImpactState) -> None:
+    def test_center_hit_equals_point_mass(
+        self, center_hit_state: PreImpactState
+    ) -> None:
         """Center hit should produce same result as point mass model."""
         model = RigidBodyImpactModel()
         params = ImpactParameters()
@@ -662,7 +669,9 @@ class TestMOIEffectiveMass:
         )
         result_zero = model.solve(zero_offset_state, params)
 
-        np.testing.assert_allclose(result.ball_velocity, result_zero.ball_velocity, atol=1e-10)
+        np.testing.assert_allclose(
+            result.ball_velocity, result_zero.ball_velocity, atol=1e-10
+        )
 
     def test_off_center_reduces_ball_speed(
         self,

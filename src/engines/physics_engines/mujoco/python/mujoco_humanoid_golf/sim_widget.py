@@ -16,7 +16,9 @@ import mujoco  # noqa: E402
 import numpy as np  # noqa: E402
 from PyQt6 import QtCore, QtWidgets  # noqa: E402
 
-from src.shared.python.biomechanics.biomechanics_data import BiomechanicalData  # noqa: E402
+from src.shared.python.biomechanics.biomechanics_data import (
+    BiomechanicalData,  # noqa: E402
+)
 from src.shared.python.biomechanics.swing_plane_visualization import (  # noqa: E402
     SwingPlaneVisualizer,
 )

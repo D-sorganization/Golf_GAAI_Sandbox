@@ -115,9 +115,7 @@ class ProvenanceInfo:
         # Environment versions
         import sys
 
-        python_version = (
-            f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-        )
+        python_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
         numpy_version = str(getattr(np, "__version__", "unknown"))
 
         # MuJoCo version (if available)
@@ -239,7 +237,10 @@ class ProvenanceInfo:
         if self.parameters:
             lines.append("# Analysis parameters:")
             lines.extend(
-                [f"#   {key}: {value}" for (key, value) in sorted(self.parameters.items())]
+                [
+                    f"#   {key}: {value}"
+                    for (key, value) in sorted(self.parameters.items())
+                ]
             )
 
         # Environment
@@ -253,7 +254,9 @@ class ProvenanceInfo:
         if self.git_is_dirty:
             lines.append("#")
             lines.append("# WARNING: Exported with uncommitted code changes!")
-            lines.append("# Results may not be exactly reproducible from git SHA alone.")
+            lines.append(
+                "# Results may not be exactly reproducible from git SHA alone."
+            )
 
         return lines
 
@@ -307,7 +310,9 @@ def add_provenance_to_csv(
     if not (filepath is not None):
         raise ValueError("filepath must be provided")
     if provenance is None:
-        provenance = ProvenanceInfo.capture(model_path=model_path, parameters=parameters)
+        provenance = ProvenanceInfo.capture(
+            model_path=model_path, parameters=parameters
+        )
 
     # Read existing file
     filepath_obj = Path(filepath)

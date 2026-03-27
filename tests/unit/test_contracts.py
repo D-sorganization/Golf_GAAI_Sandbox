@@ -146,7 +146,9 @@ class TestPostconditionDecorator:
     def test_postcondition_with_numpy_array(self):
         """Postcondition should work with numpy array results."""
 
-        @postcondition(lambda arr: np.all(arr >= 0), "all elements must be non-negative")
+        @postcondition(
+            lambda arr: np.all(arr >= 0), "all elements must be non-negative"
+        )
         def compute_squares(values: np.ndarray) -> np.ndarray:
             return values**2
 
@@ -424,7 +426,9 @@ class TestContractViolationErrorHierarchy:
         except ContractViolationError:
             pass  # Expected
         except Exception:  # noqa: BLE001
-            pytest.fail(f"{error_cls.__name__} was not caught as ContractViolationError")
+            pytest.fail(
+                f"{error_cls.__name__} was not caught as ContractViolationError"
+            )
 
 
 # ─── New: Function-call style contracts ───────────────────────

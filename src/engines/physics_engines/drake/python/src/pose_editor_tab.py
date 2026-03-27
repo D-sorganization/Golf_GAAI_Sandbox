@@ -275,9 +275,9 @@ class DrakePoseEditor(BasePoseEditor):
                 if info.num_positions == 1:
                     positions[info.position_index] = float(value)
                 else:
-                    positions[info.position_index : info.position_index + info.num_positions] = (
-                        value  # noqa: E501  # noqa: E501
-                    )
+                    positions[
+                        info.position_index : info.position_index + info.num_positions
+                    ] = value  # noqa: E501  # noqa: E501
 
                 self._plant.SetPositions(self._context, positions)
                 self._state.joint_positions = positions

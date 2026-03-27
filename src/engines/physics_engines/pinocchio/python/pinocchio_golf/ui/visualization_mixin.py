@@ -328,7 +328,9 @@ class VisualizationMixin:
 
             transform = self.data.oMf[i]
             homogeneous_matrix = transform.homogeneous
-            self.viewer[f"overlays/frames/{frame.name}"].set_transform(homogeneous_matrix)
+            self.viewer[f"overlays/frames/{frame.name}"].set_transform(
+                homogeneous_matrix
+            )
 
     def _draw_coms(self: PinocchioGUI) -> None:
         """Render individual joint COMs."""
@@ -356,7 +358,9 @@ class VisualizationMixin:
                 for frame in self.model.frames:
                     if frame.name == "universe":
                         continue
-                    self.viewer[f"overlays/frames/{frame.name}"].set_object(g.triad(scale=0.1))
+                    self.viewer[f"overlays/frames/{frame.name}"].set_object(
+                        g.triad(scale=0.1)
+                    )
             self._update_viewer()
 
     def _toggle_coms(self: PinocchioGUI, checked: bool) -> None:

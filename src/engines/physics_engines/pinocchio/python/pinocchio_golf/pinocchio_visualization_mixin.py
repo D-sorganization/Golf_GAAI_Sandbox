@@ -363,7 +363,9 @@ class PinocchioVisualizationMixin:
 
             transform = self.data.oMf[i]
             homogeneous_matrix = transform.homogeneous
-            self.viewer[f"overlays/frames/{frame.name}"].set_transform(homogeneous_matrix)
+            self.viewer[f"overlays/frames/{frame.name}"].set_transform(
+                homogeneous_matrix
+            )
 
     def _draw_coms(self: Any) -> None:
         if self.model is None or self.data is None or self.viewer is None:
@@ -390,7 +392,9 @@ class PinocchioVisualizationMixin:
                 for frame in self.model.frames:
                     if frame.name == "universe":
                         continue
-                    self.viewer[f"overlays/frames/{frame.name}"].set_object(g.triad(scale=0.1))
+                    self.viewer[f"overlays/frames/{frame.name}"].set_object(
+                        g.triad(scale=0.1)
+                    )
             self._update_viewer()
 
     def _toggle_coms(self: Any, checked: bool) -> None:  # noqa: FBT001
