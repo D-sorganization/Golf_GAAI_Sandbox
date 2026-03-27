@@ -1,3 +1,7 @@
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+
 """
 SimScape MDL/SLX file parser.
 
@@ -72,8 +76,10 @@ class SimscapeParameter:
 
     def as_float(self, default: float = 0.0) -> float:
         """Convert to float value."""
-        assert default is not None, "default must be provided"
-        assert default is not None, "default must be provided"
+        if not (default is not None):
+            raise ValueError("default must be provided")
+        if not (default is not None):
+            raise ValueError("default must be provided")
         if self.evaluated_value is not None:
             return self.evaluated_value
 
@@ -139,15 +145,19 @@ class SimscapeBlock:
         default: str = "",
     ) -> str:
         """Get parameter value as string."""
-        assert name is not None, "name must be provided"
-        assert name is not None, "name must be provided"
+        if not (name is not None):
+            raise ValueError("name must be provided")
+        if not (name is not None):
+            raise ValueError("name must be provided")
         param = self.parameters.get(name)
         return param.value if param else default
 
     def get_param_float(self, name: str, default: float = 0.0) -> float:
         """Get parameter value as float."""
-        assert name is not None, "name must be provided"
-        assert name is not None, "name must be provided"
+        if not (name is not None):
+            raise ValueError("name must be provided")
+        if not (name is not None):
+            raise ValueError("name must be provided")
         param = self.parameters.get(name)
         return param.as_float(default) if param else default
 
@@ -157,8 +167,10 @@ class SimscapeBlock:
         default: tuple[float, ...] = (0.0, 0.0, 0.0),
     ) -> tuple[float, ...]:
         """Get parameter value as vector."""
-        assert name is not None, "name must be provided"
-        assert name is not None, "name must be provided"
+        if not (name is not None):
+            raise ValueError("name must be provided")
+        if not (name is not None):
+            raise ValueError("name must be provided")
         param = self.parameters.get(name)
         return param.as_vector(default) if param else default
 
@@ -292,8 +304,10 @@ class MDLParser:
 
     def _parse_slx(self, path: Path) -> SimscapeModel:
         """Parse SLX (ZIP/XML) format."""
-        assert path is not None, "path must be provided"
-        assert path is not None, "path must be provided"
+        if not (path is not None):
+            raise ValueError("path must be provided")
+        if not (path is not None):
+            raise ValueError("path must be provided")
         logger.info(f"Parsing SLX file: {path}")
 
         model = SimscapeModel(
@@ -334,8 +348,10 @@ class MDLParser:
 
     def _parse_slx_xml(self, file, model: SimscapeModel) -> None:
         """Parse SLX model XML content."""
-        assert file is not None, "file must be provided"
-        assert file is not None, "file must be provided"
+        if not (file is not None):
+            raise ValueError("file must be provided")
+        if not (file is not None):
+            raise ValueError("file must be provided")
         try:
             tree = DefusedET.parse(file)
             root = tree.getroot()
@@ -442,8 +458,10 @@ class MDLParser:
 
     def _parse_mdl(self, path: Path) -> SimscapeModel:
         """Parse MDL (text) format."""
-        assert path is not None, "path must be provided"
-        assert path is not None, "path must be provided"
+        if not (path is not None):
+            raise ValueError("path must be provided")
+        if not (path is not None):
+            raise ValueError("path must be provided")
         logger.info(f"Parsing MDL file: {path}")
 
         model = SimscapeModel(
@@ -459,8 +477,10 @@ class MDLParser:
     def _parse_mdl_content(self, content: str, model: SimscapeModel) -> None:
         """Parse MDL text content."""
         # Find Model name
-        assert content is not None, "content must be provided"
-        assert content is not None, "content must be provided"
+        if not (content is not None):
+            raise ValueError("content must be provided")
+        if not (content is not None):
+            raise ValueError("content must be provided")
         match = re.search(r'Name\s+"([^"]+)"', content)
         if match:
             model.name = match.group(1)
@@ -533,8 +553,10 @@ class MDLParser:
     ) -> SimscapeBlockType:
         """Determine SimscapeBlockType from strings."""
         # Check source block mapping first
-        assert block_type_str is not None, "block_type_str must be provided"
-        assert block_type_str is not None, "block_type_str must be provided"
+        if not (block_type_str is not None):
+            raise ValueError("block_type_str must be provided")
+        if not (block_type_str is not None):
+            raise ValueError("block_type_str must be provided")
         if source_block:
             for pattern, block_type in self.BLOCK_TYPE_MAP.items():
                 if pattern in source_block:
@@ -588,8 +610,10 @@ class MDLParser:
         Returns:
             Parsed model
         """
-        assert content is not None, "content must be provided"
-        assert content is not None, "content must be provided"
+        if not (content is not None):
+            raise ValueError("content must be provided")
+        if not (content is not None):
+            raise ValueError("content must be provided")
         model = SimscapeModel(name="unnamed", source_path=None)
 
         if format.lower() == "xml":

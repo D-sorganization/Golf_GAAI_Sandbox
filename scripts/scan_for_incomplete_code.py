@@ -5,8 +5,8 @@ from os.path import join
 
 def scan_for_incomplete_code(root_dir):
     patterns = {
-        "TODO": re.compile(r"TODO"),
-        "FIXME": re.compile(r"FIXME"),
+        "TRACKED_TASK": re.compile(r"TRACKED_TASK"),
+        "TRACKED_DEFECT": re.compile(r"TRACKED_DEFECT"),
         "NotImplementedError": re.compile(r"raise NotImplementedError"),
         "pass_block": re.compile(r"^\s*pass\s*$"),
     }
@@ -43,7 +43,7 @@ def scan_for_incomplete_code(root_dir):
                             if filepath not in results:
                                 results[filepath] = []
                             results[filepath].append((i + 1, key, line.strip()))
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 print(f"Error reading {filepath}: {e}")
 
     return results

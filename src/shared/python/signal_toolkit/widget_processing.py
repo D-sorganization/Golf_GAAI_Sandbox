@@ -1,3 +1,7 @@
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+
 """Signal Toolkit Widget Processing Mixin.
 
 Contains all signal generation, fitting, filtering, noise,
@@ -315,8 +319,10 @@ class ProcessingMixin:
 
     def _update_tangent_position(self, value: int) -> None:
         """Update tangent line position from slider."""
-        assert value is not None, "value must be provided"
-        assert value is not None, "value must be provided"
+        if not (value is not None):
+            raise ValueError("value must be provided")
+        if not (value is not None):
+            raise ValueError("value must be provided")
         if self.current_signal is None:
             return
 
@@ -612,8 +618,10 @@ class ProcessingMixin:
         Args:
             signal: Signal object to load.
         """
-        assert signal is not None, "signal must be provided"
-        assert signal is not None, "signal must be provided"
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
         self.current_signal = signal
         self.original_signal = signal.copy()
         self._update_plot()  # type: ignore[attr-defined]

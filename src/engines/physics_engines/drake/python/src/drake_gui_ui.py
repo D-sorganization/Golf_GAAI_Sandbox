@@ -80,8 +80,10 @@ class UISetupMixin:
 
     def _setup_model_selector(self, layout: QtWidgets.QVBoxLayout) -> None:
         """Build the model selection group box."""
-        assert layout is not None, "layout must be provided"
-        assert layout is not None, "layout must be provided"
+        if not (layout is not None):
+            raise ValueError("layout must be provided")
+        if not (layout is not None):
+            raise ValueError("layout must be provided")
         model_group = QtWidgets.QGroupBox("Model Selection")
         model_layout = QtWidgets.QHBoxLayout()
         self.model_combo = QtWidgets.QComboBox()
@@ -95,18 +97,20 @@ class UISetupMixin:
 
     def _setup_mode_selector(self, layout: QtWidgets.QVBoxLayout) -> None:
         """Build the operating mode group box."""
-        assert layout is not None, "layout must be provided"
-        assert layout is not None, "layout must be provided"
+        if not (layout is not None):
+            raise ValueError("layout must be provided")
+        if not (layout is not None):
+            raise ValueError("layout must be provided")
         mode_group = QtWidgets.QGroupBox("Operating Mode")
         mode_layout = QtWidgets.QHBoxLayout()
         self.mode_combo = QtWidgets.QComboBox()
         self.mode_combo.addItems(["Dynamic (Physics)", "Kinematic (Pose)"])
         self.mode_combo.setToolTip(
             "Select between physics simulation or manual pose control"
-        )
+        )  # noqa: E501
         self.mode_combo.setStatusTip(
             "Select between physics simulation or manual pose control"
-        )
+        )  # noqa: E501
         self.mode_combo.currentTextChanged.connect(self._on_mode_changed)  # type: ignore[attr-defined]
         mode_layout.addWidget(QtWidgets.QLabel("Mode:"))
         mode_layout.addWidget(self.mode_combo)
@@ -115,8 +119,10 @@ class UISetupMixin:
 
     def _setup_controls_tabs(self, layout: QtWidgets.QVBoxLayout) -> None:
         """Build the main tab widget with simulation controls and live analysis."""
-        assert layout is not None, "layout must be provided"
-        assert layout is not None, "layout must be provided"
+        if not (layout is not None):
+            raise ValueError("layout must be provided")
+        if not (layout is not None):
+            raise ValueError("layout must be provided")
         self.main_tab_widget = QtWidgets.QTabWidget()
         layout.addWidget(self.main_tab_widget)
 
@@ -160,7 +166,7 @@ class UISetupMixin:
         self.btn_reset.setToolTip("Reset the simulation to the initial state (Ctrl+R)")
         self.btn_reset.setStatusTip(
             "Reset the simulation to the initial state (Ctrl+R)"
-        )
+        )  # noqa: E501
         self.btn_reset.setShortcut(QtGui.QKeySequence("Ctrl+R"))
         self.btn_reset.clicked.connect(self._reset_simulation)  # type: ignore[attr-defined]
         dyn_layout.addWidget(self.btn_reset)
@@ -173,8 +179,10 @@ class UISetupMixin:
 
     def _setup_analysis_group(self, parent_layout: QtWidgets.QVBoxLayout) -> None:
         """Build the recording and post-hoc analysis group box."""
-        assert parent_layout is not None, "parent_layout must be provided"
-        assert parent_layout is not None, "parent_layout must be provided"
+        if not (parent_layout is not None):
+            raise ValueError("parent_layout must be provided")
+        if not (parent_layout is not None):
+            raise ValueError("parent_layout must be provided")
         analysis_group = QtWidgets.QGroupBox("Recording & Post-Hoc Analysis")
         analysis_layout = QtWidgets.QVBoxLayout()
 
@@ -201,7 +209,7 @@ class UISetupMixin:
 
         self.btn_counterfactuals = QtWidgets.QPushButton(
             "Show Counterfactuals (ZTCF/ZVCF)"
-        )
+        )  # noqa: E501
         self.btn_counterfactuals.setToolTip(
             "Show Zero Torque (ZTCF) and Zero Velocity (ZVCF) analysis"
         )
@@ -218,7 +226,7 @@ class UISetupMixin:
         self.btn_advanced_plots = QtWidgets.QPushButton("Show Advanced Plots")
         self.btn_advanced_plots.setToolTip(
             "Show Radar Chart, CoP Field, and Power Flow"
-        )
+        )  # noqa: E501
         self.btn_advanced_plots.clicked.connect(self._show_advanced_plots)  # type: ignore[attr-defined]
         self.btn_advanced_plots.setEnabled(HAS_MATPLOTLIB)
         analysis_layout.addWidget(self.btn_advanced_plots)
@@ -247,18 +255,20 @@ class UISetupMixin:
 
     def _setup_visualization_panel(self, layout: QtWidgets.QVBoxLayout) -> None:
         """Build the visualization toggles group box."""
-        assert layout is not None, "layout must be provided"
-        assert layout is not None, "layout must be provided"
+        if not (layout is not None):
+            raise ValueError("layout must be provided")
+        if not (layout is not None):
+            raise ValueError("layout must be provided")
         vis_group = QtWidgets.QGroupBox("Visualization")
         vis_layout = QtWidgets.QVBoxLayout()
 
         self.btn_overlays = QtWidgets.QPushButton("Manage Body Overlays")
         self.btn_overlays.setToolTip(
             "Toggle visibility of reference frames and centers of mass"
-        )
+        )  # noqa: E501
         self.btn_overlays.setStatusTip(
             "Toggle visibility of reference frames and centers of mass"
-        )
+        )  # noqa: E501
         self.btn_overlays.clicked.connect(self._show_overlay_dialog)
         vis_layout.addWidget(self.btn_overlays)
 
@@ -284,7 +294,7 @@ class UISetupMixin:
         self.chk_live_analysis = QtWidgets.QCheckBox("Live Analysis (Induced/CF)")
         self.chk_live_analysis.setToolTip(
             "Compute Induced Accelerations and Counterfactuals in real-time "
-            "(Can slow down sim)"
+            "(Can slow down sim)"  # noqa: E501
         )
         vis_layout.addWidget(self.chk_live_analysis)
 
@@ -302,8 +312,10 @@ class UISetupMixin:
 
     def _setup_advanced_vectors(self, vis_layout: QtWidgets.QVBoxLayout) -> None:
         """Build the advanced vector controls (induced accel, counterfactual combos)."""
-        assert vis_layout is not None, "vis_layout must be provided"
-        assert vis_layout is not None, "vis_layout must be provided"
+        if not (vis_layout is not None):
+            raise ValueError("vis_layout must be provided")
+        if not (vis_layout is not None):
+            raise ValueError("vis_layout must be provided")
         vec_grid = QtWidgets.QGridLayout()
 
         self.chk_induced_vec = QtWidgets.QCheckBox("Induced Vectors")
@@ -339,8 +351,10 @@ class UISetupMixin:
 
     def _setup_matrix_analysis_panel(self, layout: QtWidgets.QVBoxLayout) -> None:
         """Build the matrix analysis group box (Jacobian condition, constraint rank)."""
-        assert layout is not None, "layout must be provided"
-        assert layout is not None, "layout must be provided"
+        if not (layout is not None):
+            raise ValueError("layout must be provided")
+        if not (layout is not None):
+            raise ValueError("layout must be provided")
         matrix_group = QtWidgets.QGroupBox("Matrix Analysis")
         matrix_layout = QtWidgets.QFormLayout(matrix_group)
         self.lbl_cond = QtWidgets.QLabel("--")
@@ -407,7 +421,7 @@ class UISetupMixin:
 
             slider.setToolTip(
                 f"Adjust angle for {joint.name()} (radians, "
-                f"{joint_min:.2f} to {joint_max:.2f})"
+                f"{joint_min:.2f} to {joint_max:.2f})"  # noqa: E501
             )
 
             # Spinbox

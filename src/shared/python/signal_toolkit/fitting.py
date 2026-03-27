@@ -1,3 +1,7 @@
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+
 """Function fitting utilities for signal analysis.
 
 This module provides various function fitters including sinusoidal,
@@ -78,8 +82,10 @@ class SinusoidFitter:
             Tuple of (amplitude, frequency, phase, offset) estimates.
         """
         # Offset estimate
-        assert t is not None, "t must be provided"
-        assert t is not None, "t must be provided"
+        if not (t is not None):
+            raise ValueError("t must be provided")
+        if not (t is not None):
+            raise ValueError("t must be provided")
         offset = np.mean(y)
         y_centered = y - offset
 
@@ -122,8 +128,10 @@ class SinusoidFitter:
         Raises:
             PreconditionError: If signal is empty.
         """
-        assert signal is not None, "signal must be provided"
-        assert signal is not None, "signal must be provided"
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
         from src.shared.python.core.contracts import PreconditionError
 
         if len(signal.time) == 0:
@@ -368,8 +376,10 @@ class ExponentialFitter:
         Returns:
             FitResult with fitted parameters.
         """
-        assert signal is not None, "signal must be provided"
-        assert signal is not None, "signal must be provided"
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
         t = signal.time - signal.time[0]
         y = signal.values
 
@@ -445,8 +455,10 @@ class LinearFitter:
         Raises:
             PreconditionError: If signal is empty.
         """
-        assert signal is not None, "signal must be provided"
-        assert signal is not None, "signal must be provided"
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
         from src.shared.python.core.contracts import PreconditionError
 
         if len(signal.time) == 0:
@@ -506,8 +518,10 @@ class PolynomialFitter:
         Args:
             order: Polynomial order (degree).
         """
-        assert order is not None, "order must be provided"
-        assert order is not None, "order must be provided"
+        if not (order is not None):
+            raise ValueError("order must be provided")
+        if not (order is not None):
+            raise ValueError("order must be provided")
         self.order = order
 
     def fit(
@@ -527,8 +541,10 @@ class PolynomialFitter:
         Raises:
             PreconditionError: If signal is empty or order is negative.
         """
-        assert signal is not None, "signal must be provided"
-        assert signal is not None, "signal must be provided"
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
         from src.shared.python.core.contracts import PreconditionError
 
         effective_order = order if order is not None else self.order
@@ -591,8 +607,10 @@ class PolynomialFitter:
         Returns:
             Array of coefficients [c0, c1, c2, ...].
         """
-        assert params is not None, "params must be provided"
-        assert params is not None, "params must be provided"
+        if not (params is not None):
+            raise ValueError("params must be provided")
+        if not (params is not None):
+            raise ValueError("params must be provided")
         max_order = max(int(k[1:]) for k in params)
         coeffs = np.zeros(max_order + 1)
         for k, v in params.items():
@@ -620,8 +638,10 @@ class CustomFunctionFitter:
             param_names: List of parameter names (excluding t).
             expression: String representation of the function (for display).
         """
-        assert func is not None, "func must be provided"
-        assert func is not None, "func must be provided"
+        if not (func is not None):
+            raise ValueError("func must be provided")
+        if not (func is not None):
+            raise ValueError("func must be provided")
         self.func = func
         self.param_names = param_names
         self.expression = expression
@@ -642,8 +662,10 @@ class CustomFunctionFitter:
         Returns:
             FitResult with fitted parameters.
         """
-        assert signal is not None, "signal must be provided"
-        assert signal is not None, "signal must be provided"
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
         t = signal.time - signal.time[0]
         y = signal.values
 
@@ -813,8 +835,10 @@ class FunctionFitter:
         initial_guess: list[float] | None = None,
     ) -> FitResult:
         """Fit a custom function."""
-        assert signal is not None, "signal must be provided"
-        assert signal is not None, "signal must be provided"
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
         fitter = CustomFunctionFitter(func, param_names)
         return fitter.fit(signal, initial_guess)
 
@@ -826,8 +850,10 @@ class FunctionFitter:
         initial_guess: list[float] | None = None,
     ) -> FitResult:
         """Fit a custom function from expression string."""
-        assert signal is not None, "signal must be provided"
-        assert signal is not None, "signal must be provided"
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
+        if not (signal is not None):
+            raise ValueError("signal must be provided")
         fitter = CustomFunctionFitter.from_expression(expression, param_names)
         return fitter.fit(signal, initial_guess)
 

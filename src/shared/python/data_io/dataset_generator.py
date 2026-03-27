@@ -1,3 +1,7 @@
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+
 """Dataset Generator for Neural Network Training.
 
 Generates large-scale simulation datasets by varying inputs across physics engines.
@@ -498,17 +502,24 @@ class DatasetGenerator:
             "control_type": profile.profile_type,
         }
 
-        assert buffers["times"] is not None, "times buffer must not be None"
-        assert buffers["positions"] is not None, "positions buffer must not be None"
-        assert buffers["velocities"] is not None, "velocities buffer must not be None"
-        assert buffers["accelerations"] is not None, (
+        if not (buffers["times"] is not None):
+            raise ValueError("times buffer must not be None")
+        if not (buffers["positions"] is not None):
+            raise ValueError("positions buffer must not be None")
+        if not (buffers["velocities"] is not None):
+            raise ValueError("velocities buffer must not be None")
+        if not (buffers["accelerations"] is not None):
+            raise ValueError(()
             "accelerations buffer must not be None"
         )
-        assert buffers["torques"] is not None, "torques buffer must not be None"
-        assert buffers["kinetic_energy"] is not None, (
+        if not (buffers["torques"] is not None):
+            raise ValueError("torques buffer must not be None")
+        if not (buffers["kinetic_energy"] is not None):
+            raise ValueError(()
             "kinetic_energy buffer must not be None"
         )
-        assert buffers["potential_energy"] is not None, (
+        if not (buffers["potential_energy"] is not None):
+            raise ValueError(()
             "potential_energy buffer must not be None"
         )
 

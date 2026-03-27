@@ -1,3 +1,7 @@
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+
 """Engine readiness probe system.
 
 This module provides infrastructure for checking if physics engines
@@ -270,7 +274,8 @@ class DrakeProbe(EngineProbe):
         version, error = self._check_pydrake_import()
         if error is not None:
             return error
-        assert version is not None
+        if not (version is not None):
+            raise ValueError("DbC Blocked: Precondition failed.")
 
         available_port = self._check_meshcat_port()
         if available_port is None:

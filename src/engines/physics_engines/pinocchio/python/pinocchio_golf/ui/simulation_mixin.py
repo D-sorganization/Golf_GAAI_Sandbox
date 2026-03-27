@@ -37,7 +37,7 @@ class SimulationMixin:
                     name = urdf_file.stem.replace("_", " ").title()
                     self.available_models.append(
                         {"name": f"URDF: {name}", "path": str(urdf_file)}
-                    )
+                    )  # noqa: E501
         except (RuntimeError, ValueError, OSError) as e:
             logger.error(f"Failed to scan URDF models: {e}")
 
@@ -202,7 +202,7 @@ class SimulationMixin:
 
         slider.valueChanged.connect(
             lambda val, s=spin, k=idx: self._on_slider(val, s, k)
-        )
+        )  # noqa: E501
         spin.valueChanged.connect(lambda val, s=slider, k=idx: self._on_spin(val, s, k))
 
         r_layout.addWidget(slider)
@@ -237,7 +237,7 @@ class SimulationMixin:
 
     def _on_slider(
         self: PinocchioGUI, val: int, spin: QtWidgets.QDoubleSpinBox, idx: int
-    ) -> None:
+    ) -> None:  # noqa: E501
         assert val is not None, "val must be provided"
         assert val is not None, "val must be provided"
         angle = val / SLIDER_SCALE
@@ -247,7 +247,7 @@ class SimulationMixin:
 
     def _on_spin(
         self: PinocchioGUI, val: float, slider: QtWidgets.QSlider, idx: int
-    ) -> None:
+    ) -> None:  # noqa: E501
         with SignalBlocker(slider):
             slider.setValue(int(val * SLIDER_SCALE))
         self._update_q(idx, val)

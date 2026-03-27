@@ -1,3 +1,7 @@
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+
 #!/usr/bin/env python3
 """Data Processor Widget - PyQt6 Interface for Data Processing.
 
@@ -556,8 +560,10 @@ class DataProcessorWidget(DataProcessorOpsMixin, BaseCalculatorWidget):
         self.stats_text.setHtml(h)
 
     def _show_table_context_menu(self, pos: QPoint) -> None:
-        assert pos is not None, "pos must be provided"
-        assert pos is not None, "pos must be provided"
+        if not (pos is not None):
+            raise ValueError("pos must be provided")
+        if not (pos is not None):
+            raise ValueError("pos must be provided")
         menu = QMenu()
         action = menu.addAction("Copy Selected")
         if action is not None:

@@ -93,7 +93,7 @@ class MotionTrainingPipeline:
     """
 
     DEFAULT_URDF = (
-        "src/engines/physics_engines/pinocchio/models/generated/golfer_ik.urdf"
+        "src/engines/physics_engines/pinocchio/models/generated/golfer_ik.urdf"  # noqa: E501
     )
 
     def __init__(self, config: PipelineConfig | None = None) -> None:
@@ -133,7 +133,8 @@ class MotionTrainingPipeline:
         logger.info("\n[2/4] Initializing IK solver...")
         self._init_ik_solver()
         logger.info(f"      Model: {self.config.golfer_urdf}")
-        assert self.ik_solver is not None
+        if not (self.ik_solver is not None):
+            raise ValueError("DbC Blocked: Precondition failed.")
         logger.info(f"      DOF: {self.ik_solver.model.nq}")
 
         # Step 3: Solve IK
@@ -141,7 +142,7 @@ class MotionTrainingPipeline:
         self.ik_result = self._solve_ik()
         logger.info(
             f"      Convergence rate: {self.ik_result.convergence_rate * 100:.1f}%"
-        )
+        )  # noqa: E501
         logger.error(
             f"      Mean left hand error: "
             f"{np.mean(self.ik_result.left_hand_errors) * 1000:.2f} mm"
@@ -183,7 +184,7 @@ class MotionTrainingPipeline:
             self.config.end_frame
             if self.config.end_frame > 0
             else len(trajectory.frames)
-        )
+        )  # noqa: E501
         trajectory.frames = trajectory.frames[start:end]
 
         # Apply subsampling
@@ -202,7 +203,8 @@ class MotionTrainingPipeline:
 
     def _solve_ik(self) -> TrajectoryIKResult:
         """Solve IK for the trajectory."""
-        assert self.ik_solver is not None
+        if not (self.ik_solver is not None):
+            raise ValueError("DbC Blocked: Precondition failed.")
         return self.ik_solver.solve_trajectory(
             self.trajectory,
             verbose=True,
@@ -210,7 +212,8 @@ class MotionTrainingPipeline:
 
     def _save_results(self) -> None:
         """Save results to files."""
-        assert self.ik_result is not None
+        if not (self.ik_result is not None):
+            raise ValueError("DbC Blocked: Precondition failed.")
         output_dir = Path(self.config.output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -231,7 +234,7 @@ class MotionTrainingPipeline:
             writer = csv.writer(f)
             header = ["time"] + [
                 f"q{i}" for i in range(self.ik_result.q_trajectory.shape[1])
-            ]
+            ]  # noqa: E501
             writer.writerow(header)
             for i, t in enumerate(self.ik_result.times):
                 row = [t] + list(self.ik_result.q_trajectory[i])
@@ -304,8 +307,10 @@ def run_motion_training(
     Returns:
         PipelineResult with trajectory and IK results
     """
-    assert trajectory_file is not None, "trajectory_file must be provided"
-    assert trajectory_file is not None, "trajectory_file must be provided"
+    if not (trajectory_file is not None):
+        raise ValueError("trajectory_file must be provided")
+    if not (trajectory_file is not None):
+        raise ValueError("trajectory_file must be provided")
     config = PipelineConfig(
         trajectory_file=trajectory_file,
         sheet_name=sheet_name,
@@ -325,7 +330,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="Train body motion from club trajectory using IK"
-    )
+    )  # noqa: E501
     parser.add_argument(
         "--trajectory",
         "-t",

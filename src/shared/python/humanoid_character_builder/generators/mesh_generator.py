@@ -1,3 +1,7 @@
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+
 """
 Mesh generation interfaces for humanoid character builder.
 
@@ -852,7 +856,7 @@ def generate_human():
         try:
             h.setDetail(key, value)
         except Exception as exc:
-            print(f'Warning: modifier {{key}}={{value}}: {{exc}}')
+            logger.info(f'Warning: modifier {{key}}={{value}}: {{exc}}')
 
     exportOBJ(h, '{obj_path_str}')
 

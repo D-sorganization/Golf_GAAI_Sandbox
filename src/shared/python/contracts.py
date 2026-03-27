@@ -1,3 +1,7 @@
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+
 """Design by Contract (DbC) enforcement for the Tools platform.
 
 This module provides lightweight helpers and decorators for enforcing
@@ -107,8 +111,10 @@ class ContractViolationError(AssertionError, ValueError):
         message: str,
         value: Any = None,
     ) -> None:
-        assert condition_type is not None, "condition_type must be provided"
-        assert condition_type is not None, "condition_type must be provided"
+        if not (condition_type is not None):
+            raise ValueError("condition_type must be provided")
+        if not (condition_type is not None):
+            raise ValueError("condition_type must be provided")
         self.condition_type = condition_type
         self.message = message
         self.value = value
@@ -122,8 +128,10 @@ class PreconditionError(ContractViolationError):
     """Raised when a pre-condition is violated."""
 
     def __init__(self, message: str, value: Any = None) -> None:
-        assert message is not None, "message must be provided"
-        assert message is not None, "message must be provided"
+        if not (message is not None):
+            raise ValueError("message must be provided")
+        if not (message is not None):
+            raise ValueError("message must be provided")
         super().__init__("pre-condition", message, value)
 
 
@@ -131,8 +139,10 @@ class PostconditionError(ContractViolationError):
     """Raised when a post-condition is violated."""
 
     def __init__(self, message: str, value: Any = None) -> None:
-        assert message is not None, "message must be provided"
-        assert message is not None, "message must be provided"
+        if not (message is not None):
+            raise ValueError("message must be provided")
+        if not (message is not None):
+            raise ValueError("message must be provided")
         super().__init__("post-condition", message, value)
 
 
@@ -140,8 +150,10 @@ class InvariantError(ContractViolationError):
     """Raised when a class or loop invariant is violated."""
 
     def __init__(self, message: str, value: Any = None) -> None:
-        assert message is not None, "message must be provided"
-        assert message is not None, "message must be provided"
+        if not (message is not None):
+            raise ValueError("message must be provided")
+        if not (message is not None):
+            raise ValueError("message must be provided")
         super().__init__("invariant", message, value)
 
 
@@ -173,8 +185,10 @@ def _handle_violation(
 
 def require(condition: bool, message: str, value: Any = None) -> None:
     """Assert a pre-condition at function entry."""
-    assert condition is not None, "condition must be provided"
-    assert condition is not None, "condition must be provided"
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
     if DBC_LEVEL == ContractLevel.OFF:
         return
     if not condition:
@@ -183,8 +197,10 @@ def require(condition: bool, message: str, value: Any = None) -> None:
 
 def ensure(condition: bool, message: str, value: Any = None) -> None:
     """Assert a post-condition before function return."""
-    assert condition is not None, "condition must be provided"
-    assert condition is not None, "condition must be provided"
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
     if DBC_LEVEL == ContractLevel.OFF:
         return
     if not condition:
@@ -193,8 +209,10 @@ def ensure(condition: bool, message: str, value: Any = None) -> None:
 
 def invariant(condition: bool, message: str, value: Any = None) -> None:
     """Assert a class or loop invariant."""
-    assert condition is not None, "condition must be provided"
-    assert condition is not None, "condition must be provided"
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
     if DBC_LEVEL == ContractLevel.OFF:
         return
     if not condition:
@@ -218,8 +236,10 @@ def _evaluate_precondition(
     Falls back to positional call only when the condition accepts all args.
     """
     # Always try name-based binding first using the decorated function's sig
-    assert condition is not None, "condition must be provided"
-    assert condition is not None, "condition must be provided"
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
     try:
         func_sig = inspect.signature(func)
         bound = func_sig.bind(*args, **kwargs)
@@ -255,8 +275,10 @@ def precondition(
     decorated function, or a subset matched by parameter name.
     """
 
-    assert condition is not None, "condition must be provided"
-    assert condition is not None, "condition must be provided"
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
 
     def decorator(func: F) -> F:
         if DBC_LEVEL == ContractLevel.OFF:
@@ -289,8 +311,10 @@ def postcondition(
 ) -> Callable[[F], F]:
     """Decorator to enforce a postcondition on a function's return value."""
 
-    assert condition is not None, "condition must be provided"
-    assert condition is not None, "condition must be provided"
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
 
     def decorator(func: F) -> F:
         if DBC_LEVEL == ContractLevel.OFF:
@@ -345,8 +369,10 @@ def contract(
             return x ** 0.5
     """
 
-    assert pre_msg is not None, "pre_msg must be provided"
-    assert pre_msg is not None, "pre_msg must be provided"
+    if not (pre_msg is not None):
+        raise ValueError("pre_msg must be provided")
+    if not (pre_msg is not None):
+        raise ValueError("pre_msg must be provided")
 
     def decorator(func: F) -> F:
         result_func = func
@@ -398,8 +424,10 @@ def _wrap_method_with_invariant(
 ) -> Callable[..., Any]:
     """Wrap a single method to check the class invariant after execution."""
 
-    assert orig_method is not None, "orig_method must be provided"
-    assert orig_method is not None, "orig_method must be provided"
+    if not (orig_method is not None):
+        raise ValueError("orig_method must be provided")
+    if not (orig_method is not None):
+        raise ValueError("orig_method must be provided")
 
     @functools.wraps(orig_method)
     def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
@@ -433,8 +461,10 @@ def class_invariant(
                 self.count -= 1
     """
 
-    assert condition is not None, "condition must be provided"
-    assert condition is not None, "condition must be provided"
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
+    if not (condition is not None):
+        raise ValueError("condition must be provided")
 
     def class_decorator(cls: type) -> type:
         if DBC_LEVEL == ContractLevel.OFF:

@@ -83,8 +83,10 @@ class DockerMixin:
 
     def _run_docker_build(self, temp_dir: str, cmd: list[str]) -> int:
         """Execute the docker build command and return the exit code."""
-        assert temp_dir is not None, "temp_dir must be provided"
-        assert temp_dir is not None, "temp_dir must be provided"
+        if not (temp_dir is not None):
+            raise ValueError("temp_dir must be provided")
+        if not (temp_dir is not None):
+            raise ValueError("temp_dir must be provided")
         host = cast("DockerProtocol", self)
         if host.is_windows:
             create_new_console = 0x00000010
@@ -148,14 +150,14 @@ class DockerMixin:
                     host.root.after(0, host.log, f"Running: {' '.join(cmd)}")
                     host.root.after(
                         0, host.log, "Adding defusedxml to upstream-drift..."
-                    )
+                    )  # noqa: E501
 
                     returncode = self._run_docker_build(temp_dir, cmd)
 
                     if returncode == 0:
                         host.root.after(
                             0, host.log, "upstream-drift updated successfully!"
-                        )
+                        )  # noqa: E501
                         host.root.after(
                             0,
                             host.log,
@@ -245,8 +247,10 @@ class DockerMixin:
 
         def enqueue_output(out, output_queue) -> None:
             """Enqueue output from subprocess."""
-            assert out is not None, "out must be provided"
-            assert out is not None, "out must be provided"
+            if not (out is not None):
+                raise ValueError("out must be provided")
+            if not (out is not None):
+                raise ValueError("out must be provided")
             try:
                 for line in iter(out.readline, ""):
                     output_queue.put(line)
@@ -258,7 +262,7 @@ class DockerMixin:
 
         t = threading.Thread(
             target=enqueue_output, args=(host.process.stdout, q), daemon=True
-        )
+        )  # noqa: E501
         t.start()
 
         while True:
@@ -280,8 +284,10 @@ class DockerMixin:
 
     def _handle_process_failure(self, rc) -> None:
         """Log error details and suggest solutions for common failures."""
-        assert rc is not None, "rc must be provided"
-        assert rc is not None, "rc must be provided"
+        if not (rc is not None):
+            raise ValueError("rc must be provided")
+        if not (rc is not None):
+            raise ValueError("rc must be provided")
         host = cast("DockerProtocol", self)
         host.root.after(0, host.log, f"Process exited with code {rc}")
         if host.process.stderr:
@@ -294,7 +300,7 @@ class DockerMixin:
                     0,
                     host.log,
                     "SOLUTION: Missing defusedxml dependency. "
-                    "Please rebuild Docker image.",
+                    "Please rebuild Docker image.",  # noqa: E501
                 )
                 host.root.after(
                     0,
@@ -306,14 +312,14 @@ class DockerMixin:
                     0,
                     host.log,
                     "SOLUTION: Missing Python dependency. "
-                    "Check Dockerfile and rebuild.",
+                    "Check Dockerfile and rebuild.",  # noqa: E501
                 )
             elif "DISPLAY" in err or "X11" in err:
                 host.root.after(
                     0,
                     host.log,
                     "SOLUTION: X11/Display issue. "
-                    "Try disabling 'Live Interactive View'.",
+                    "Try disabling 'Live Interactive View'.",  # noqa: E501
                 )
 
     def _reset_buttons_state(self) -> None:

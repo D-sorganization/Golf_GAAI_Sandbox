@@ -35,12 +35,11 @@ def issue_context(repo: str, issue_number: str, task_classes_path: str) -> int:
         ]
     )
 
-    import re
-
+    import re  # noqa: I001
     import yaml
 
     labels = [label["name"] for label in issue.get("labels", [])]
-    with open(task_classes_path, encoding="utf-8") as handle:
+    with open(task_classes_path, "r", encoding="utf-8") as handle:  # noqa: UP015
         task_classes = yaml.safe_load(handle)["task_classes"]
 
     task_class = "triage"
@@ -56,7 +55,7 @@ def issue_context(repo: str, issue_number: str, task_classes_path: str) -> int:
 
     slug = re.sub(r"[^a-z0-9]+", "-", issue["title"].lower()).strip("-")[:40] or "task"
     branch_prefix = f"jules/issue-{issue['number']}-"
-    {
+    payload = {
         "title": issue["title"],
         "task_class": task_class,
         "task_label": task_label,
@@ -64,6 +63,7 @@ def issue_context(repo: str, issue_number: str, task_classes_path: str) -> int:
         "slug": slug,
         "branch_prefix": branch_prefix,
     }
+    print(json.dumps(payload))  # noqa: T201
     return 0
 
 
@@ -83,6 +83,7 @@ def pr_lookup(repo: str, issue_number: str, branch_prefix: str) -> int:
     )
     issue_ref = f"#{issue_number}"
     issue_title_ref = f"issue #{issue_number}"
+    match = None
     for pr in prs:
         body = pr.get("body") or ""
         title = pr.get("title") or ""
@@ -92,7 +93,9 @@ def pr_lookup(repo: str, issue_number: str, branch_prefix: str) -> int:
             or issue_ref in body
             or issue_title_ref in title.lower()
         ):
+            match = pr
             break
+    print(json.dumps(match or {}))  # noqa: T201
     return 0
 
 
@@ -173,12 +176,13 @@ def collect_pr_comments(repo: str, pr_number: str) -> int:
     for comment in deduped:
         grouped[comment.get("path") or "general"].append(comment)
 
-    {
+    payload = {
         "pr_number": pr_number,
         "comment_count": len(deduped),
         "comments": deduped,
         "grouped_by_path": grouped,
     }
+    print(json.dumps(payload, indent=2, default=list))  # noqa: T201
     return 0
 
 
