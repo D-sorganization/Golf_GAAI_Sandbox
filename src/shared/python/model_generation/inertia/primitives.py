@@ -1,5 +1,3 @@
-from numba import jit
-
 """
 Analytical inertia formulas for primitive shapes.
 
@@ -7,9 +5,9 @@ This module provides closed-form solutions for computing inertia
 tensors of common geometric primitives.
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import math  # noqa: E402
+import math
 
 
 def box_inertia(
@@ -412,7 +410,6 @@ def parallel_axis(
     }
 
 
-@jit(nopython=True, fastmath=True)
 def combine_inertias(
     inertias: list[tuple[dict[str, float], float, tuple[float, float, float]]],
 ) -> dict[str, float]:

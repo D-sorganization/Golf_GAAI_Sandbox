@@ -1,17 +1,15 @@
-from numba import jit
-
 """MJCF exporter from canonical YAML specification."""
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import math  # noqa: E402
-import typing  # noqa: E402
-from pathlib import Path  # noqa: E402
+import math
+import typing
+from pathlib import Path
 
-import yaml  # type: ignore[import-untyped]  # noqa: E402
+import yaml  # type: ignore[import-untyped]
 
-from src.shared.python.core.constants import GRAVITY_M_S2  # noqa: E402
-from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
+from src.shared.python.core.constants import GRAVITY_M_S2
+from src.shared.python.logging_pkg.logging_config import get_logger
 
 logger = get_logger(__name__)
 
@@ -100,7 +98,6 @@ class MJCFExporter:
         lines.append("</mujoco>")
         return "\n".join(lines)
 
-    @jit(nopython=True, fastmath=True)
     def _generate_segments_mjcf(self, parent_name: str, depth: int = 1) -> list[str]:
         """Generate MJCF for segments recursively.
 

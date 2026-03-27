@@ -1,3 +1,7 @@
+# ARCHITECTURE_DEBT:
+# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
+# It requires domain-aware structural extraction to isolate its internal classes appropriately.
+
 """Terrain-aware physics engine integration.
 
 Provides terrain support for all physics engines including:
@@ -75,8 +79,10 @@ class TerrainAwareEngine:
             stiffness: Contact stiffness (N/m)
             damping: Contact damping (N*s/m)
         """
-        assert stiffness is not None, "stiffness must be provided"
-        assert stiffness is not None, "stiffness must be provided"
+        if not (stiffness is not None):
+            raise ValueError("stiffness must be provided")
+        if not (stiffness is not None):
+            raise ValueError("stiffness must be provided")
         self.terrain: Terrain | None = terrain
         self.default_stiffness = stiffness
         self.default_damping = damping
@@ -87,8 +93,10 @@ class TerrainAwareEngine:
         Args:
             terrain: Terrain configuration
         """
-        assert terrain is not None, "terrain must be provided"
-        assert terrain is not None, "terrain must be provided"
+        if not (terrain is not None):
+            raise ValueError("terrain must be provided")
+        if not (terrain is not None):
+            raise ValueError("terrain must be provided")
         self.terrain = terrain
         logger.info(f"Terrain set: {terrain.name}")
 
@@ -102,8 +110,10 @@ class TerrainAwareEngine:
         Returns:
             Ground height (meters)
         """
-        assert x is not None, "x must be provided"
-        assert x is not None, "x must be provided"
+        if not (x is not None):
+            raise ValueError("x must be provided")
+        if not (x is not None):
+            raise ValueError("x must be provided")
         if self.terrain is None:
             return 0.0
 
@@ -123,8 +133,10 @@ class TerrainAwareEngine:
         Returns:
             Unit normal vector (3,)
         """
-        assert x is not None, "x must be provided"
-        assert x is not None, "x must be provided"
+        if not (x is not None):
+            raise ValueError("x must be provided")
+        if not (x is not None):
+            raise ValueError("x must be provided")
         if self.terrain is None:
             return np.array([0.0, 0.0, 1.0])
 
@@ -143,8 +155,10 @@ class TerrainAwareEngine:
         Returns:
             Friction coefficient
         """
-        assert x is not None, "x must be provided"
-        assert x is not None, "x must be provided"
+        if not (x is not None):
+            raise ValueError("x must be provided")
+        if not (x is not None):
+            raise ValueError("x must be provided")
         if self.terrain is None:
             return 0.5
 
@@ -161,8 +175,10 @@ class TerrainAwareEngine:
         Returns:
             Coefficient of restitution
         """
-        assert x is not None, "x must be provided"
-        assert x is not None, "x must be provided"
+        if not (x is not None):
+            raise ValueError("x must be provided")
+        if not (x is not None):
+            raise ValueError("x must be provided")
         if self.terrain is None:
             return 0.6
 
@@ -179,8 +195,10 @@ class TerrainAwareEngine:
         Returns:
             Dictionary of terrain properties
         """
-        assert x is not None, "x must be provided"
-        assert x is not None, "x must be provided"
+        if not (x is not None):
+            raise ValueError("x must be provided")
+        if not (x is not None):
+            raise ValueError("x must be provided")
         if self.terrain is None:
             return {
                 "elevation": 0.0,
@@ -235,8 +253,10 @@ class TerrainContactModel:
         Returns:
             True if in contact
         """
-        assert x is not None, "x must be provided"
-        assert x is not None, "x must be provided"
+        if not (x is not None):
+            raise ValueError("x must be provided")
+        if not (x is not None):
+            raise ValueError("x must be provided")
         ground_height = self.terrain.get_elevation(x, y)
         contact_height = z - radius
 
@@ -260,8 +280,10 @@ class TerrainContactModel:
         Returns:
             Penetration depth (positive when penetrating, meters)
         """
-        assert x is not None, "x must be provided"
-        assert x is not None, "x must be provided"
+        if not (x is not None):
+            raise ValueError("x must be provided")
+        if not (x is not None):
+            raise ValueError("x must be provided")
         ground_height = self.terrain.get_elevation(x, y)
         contact_height = z - radius
 
@@ -289,8 +311,10 @@ class TerrainContactModel:
         Returns:
             Contact force vector (3,) [N]
         """
-        assert x is not None, "x must be provided"
-        assert x is not None, "x must be provided"
+        if not (x is not None):
+            raise ValueError("x must be provided")
+        if not (x is not None):
+            raise ValueError("x must be provided")
         penetration = self.compute_penetration(x, y, z, radius)
 
         if penetration <= 0:
@@ -347,8 +371,10 @@ class TerrainContactModel:
             Friction force vector (3,) [N]
         """
         # Get normal force if not provided
-        assert x is not None, "x must be provided"
-        assert x is not None, "x must be provided"
+        if not (x is not None):
+            raise ValueError("x must be provided")
+        if not (x is not None):
+            raise ValueError("x must be provided")
         if normal_force is None:
             normal_force = self.compute_contact_force(x, y, z, radius, velocity)
 
@@ -418,8 +444,10 @@ class CompressibleTurfModel:
             Dictionary with compression_depth, effective_stiffness,
             max_compression, and compression_ratio
         """
-        assert x is not None, "x must be provided"
-        assert x is not None, "x must be provided"
+        if not (x is not None):
+            raise ValueError("x must be provided")
+        if not (x is not None):
+            raise ValueError("x must be provided")
         material = self.terrain.get_material(x, y)
         ground_height = self.terrain.get_elevation(x, y)
 
@@ -476,8 +504,10 @@ class CompressibleTurfModel:
         Returns:
             Contact force vector (3,) [N]
         """
-        assert x is not None, "x must be provided"
-        assert x is not None, "x must be provided"
+        if not (x is not None):
+            raise ValueError("x must be provided")
+        if not (x is not None):
+            raise ValueError("x must be provided")
         material = self.terrain.get_material(x, y)
         state = self.get_compression_state(x, y, z, radius)
 
@@ -536,8 +566,10 @@ class CompressibleTurfModel:
             Dictionary with lie_type, sitting_depth, grass_interference,
             and playability_factor
         """
-        assert x is not None, "x must be provided"
-        assert x is not None, "x must be provided"
+        if not (x is not None):
+            raise ValueError("x must be provided")
+        if not (x is not None):
+            raise ValueError("x must be provided")
         material = self.terrain.get_material(x, y)
         terrain_type = self.terrain.get_terrain_type(x, y)
 
@@ -611,8 +643,10 @@ class CompressibleTurfModel:
             Dictionary with kinetic_energy, absorbed_energy,
             remaining_energy, and energy_absorption_ratio
         """
-        assert x is not None, "x must be provided"
-        assert x is not None, "x must be provided"
+        if not (x is not None):
+            raise ValueError("x must be provided")
+        if not (x is not None):
+            raise ValueError("x must be provided")
         material = self.terrain.get_material(x, y)
         normal = self.terrain.get_normal(x, y)
 
@@ -662,8 +696,10 @@ class TerrainGeometryGenerator:
         Args:
             terrain: Terrain configuration
         """
-        assert terrain is not None, "terrain must be provided"
-        assert terrain is not None, "terrain must be provided"
+        if not (terrain is not None):
+            raise ValueError("terrain must be provided")
+        if not (terrain is not None):
+            raise ValueError("terrain must be provided")
         self.terrain = terrain
 
     def generate_mesh(self) -> tuple[np.ndarray, list[tuple[int, int, int]]]:
@@ -735,8 +771,10 @@ class TerrainGeometryGenerator:
         Returns:
             XML string for inclusion in MuJoCo model
         """
-        assert name is not None, "name must be provided"
-        assert name is not None, "name must be provided"
+        if not (name is not None):
+            raise ValueError("name must be provided")
+        if not (name is not None):
+            raise ValueError("name must be provided")
         elev = self.terrain.elevation
         n_rows, n_cols = elev.data.shape
 
@@ -775,8 +813,10 @@ class TerrainGeometryGenerator:
         Returns:
             URDF XML snippet
         """
-        assert name is not None, "name must be provided"
-        assert name is not None, "name must be provided"
+        if not (name is not None):
+            raise ValueError("name must be provided")
+        if not (name is not None):
+            raise ValueError("name must be provided")
         elev = self.terrain.elevation
         h_max = float(elev.data.max())
         h_min = float(elev.data.min())
@@ -810,8 +850,10 @@ def apply_terrain_to_engine(
         x: X position (meters)
         y: Y position (meters)
     """
-    assert terrain is not None, "terrain must be provided"
-    assert terrain is not None, "terrain must be provided"
+    if not (terrain is not None):
+        raise ValueError("terrain must be provided")
+    if not (terrain is not None):
+        raise ValueError("terrain must be provided")
     height = terrain.get_elevation(x, y)
     material = terrain.get_material(x, y)
 
@@ -840,8 +882,10 @@ def validate_terrain(
     Returns:
         List of error/warning messages (empty if valid)
     """
-    assert terrain is not None, "terrain must be provided"
-    assert terrain is not None, "terrain must be provided"
+    if not (terrain is not None):
+        raise ValueError("terrain must be provided")
+    if not (terrain is not None):
+        raise ValueError("terrain must be provided")
     messages = []
 
     elev = terrain.elevation

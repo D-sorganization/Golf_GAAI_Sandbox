@@ -403,7 +403,7 @@ class BiomechanicalAnalyzer:
         if compute_advanced_metrics:
             induced, club_induced, counterfactuals = (
                 self._compute_advanced_induced_metrics(selected_actuator_name)
-            )  # noqa: E501  # noqa: E501
+            )  # noqa: E501
 
         return BiomechanicalData(
             time=float(self.data.time),
@@ -679,7 +679,7 @@ class SwingRecorder:
         for f in self.frames:
             if (
                 f.club_induced_accelerations
-                and component_name in f.club_induced_accelerations  # noqa: E501
+                and component_name in f.club_induced_accelerations
             ):  # noqa: E501
                 times.append(f.time)
                 values.append(f.club_induced_accelerations[component_name])

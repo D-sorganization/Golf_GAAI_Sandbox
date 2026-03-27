@@ -145,7 +145,7 @@ class SimulationMixin:
 
             self.log(
                 "⚠️ COMMON CAUSE: X11 Display Server not found or "
-                "configured incorrectly."  # noqa: E501
+                "configured incorrectly."
             )  # noqa: E501
 
             self.log("1. Ensure VcXsrv (XLaunch) is running.")

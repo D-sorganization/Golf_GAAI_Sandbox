@@ -17,21 +17,20 @@ Follows pragmatic programmer principles:
 - Clear separation of concerns
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-from copy import deepcopy  # noqa: E402
-from dataclasses import dataclass, field  # noqa: E402
-from typing import TYPE_CHECKING, Any  # noqa: E402
+from copy import deepcopy
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
 
-import numpy as np  # noqa: E402
-import numpy.typing as npt  # noqa: E402
+import numpy as np
+import numpy.typing as npt
 
-from .spatial_vectors import skew  # noqa: E402
-from .transforms import xtrans  # noqa: E402
+from .spatial_vectors import skew
+from .transforms import xtrans
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-from numba import jit
 
 # Type alias for clarity
 Vec3 = npt.NDArray[np.float64]
@@ -1141,7 +1140,6 @@ class PlacementGroup:
         for entity in self._entities.values():
             entity.pose._position += offset
 
-    @jit(nopython=True, fastmath=True)
     def rotate_around_point(
         self,
         point: Vec3 | list[float],

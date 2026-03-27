@@ -1,5 +1,3 @@
-from numba import jit
-
 """Tests for the UpstreamDrift double pendulum model (DoublePendulumDynamics).
 
 Ported and extended from the Tools repository test suite.
@@ -16,20 +14,20 @@ Test Coverage
 - Physical parameter defaults
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import math  # noqa: E402
+import math
 
-import numpy as np  # noqa: E402
-import pytest  # noqa: E402
+import numpy as np
+import pytest
 
-from src.engines.pendulum_models.python.double_pendulum_model import (  # noqa: E402
+from src.engines.pendulum_models.python.double_pendulum_model import (
     DoublePendulumDynamics,
     DoublePendulumParameters,
     DoublePendulumState,
     compile_forcing_functions,
 )
-from src.engines.pendulum_models.python.double_pendulum_model.physics.double_pendulum import (  # noqa: E402
+from src.engines.pendulum_models.python.double_pendulum_model.physics.double_pendulum import (
     DEFAULT_DAMPING_SHOULDER,
     DEFAULT_DAMPING_WRIST,
 )
@@ -82,7 +80,6 @@ def nonzero_state() -> DoublePendulumState:
 class TestMassMatrix:
     """Mass matrix algebraic properties."""
 
-    @jit(nopython=True, fastmath=True)
     def test_symmetric(self, default_dynamics: DoublePendulumDynamics) -> None:
         for theta2 in [0.0, math.pi / 4, -math.pi / 3, math.pi / 2]:
             M = default_dynamics.mass_matrix(theta2)

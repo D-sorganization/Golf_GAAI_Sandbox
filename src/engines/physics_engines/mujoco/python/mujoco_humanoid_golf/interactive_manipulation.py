@@ -12,16 +12,15 @@ This module provides:
 - Visual feedback for selected bodies and constraints
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import json  # noqa: E402
-import time  # noqa: E402
-from dataclasses import dataclass  # noqa: E402
-from enum import Enum  # noqa: E402
+import json
+import time
+from dataclasses import dataclass
+from enum import Enum
 
-import mujoco  # noqa: E402
-import numpy as np  # noqa: E402
-from numba import jit
+import mujoco
+import numpy as np
 
 
 class ConstraintType(Enum):
@@ -139,7 +138,6 @@ class MousePickingRay:
 
         return ray_origin, ray_dir
 
-    @jit(nopython=True, fastmath=True)
     def pick_body(
         self,
         x: int,
@@ -708,7 +706,7 @@ class InteractiveManipulator:
         return [
             body_id
             for body_id, constraint in self.constraints.items()
-            if constraint.active  # noqa: E501
+            if constraint.active
         ]  # noqa: E501
 
     # -------- Pose Library --------

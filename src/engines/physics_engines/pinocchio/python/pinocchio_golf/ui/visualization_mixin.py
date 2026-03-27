@@ -70,7 +70,7 @@ class VisualizationMixin:
             self.model is None
             or self.data is None
             or self.q is None
-            or self.viz is None  # noqa: E501
+            or self.viz is None
         ):  # noqa: E501
             return
 
@@ -156,7 +156,7 @@ class VisualizationMixin:
 
                     if (
                         self.chk_mobility.isChecked()
-                        and res.mobility_matrix is not None  # noqa: E501
+                        and res.mobility_matrix is not None
                     ):  # noqa: E501
                         path_name = f"{res.body_name}/mobility"
                         radii = res.velocity_ellipsoid.radii
@@ -170,7 +170,7 @@ class VisualizationMixin:
 
                     if (
                         self.chk_force_ellip.isChecked()
-                        and res.force_matrix is not None  # noqa: E501
+                        and res.force_matrix is not None
                     ):  # noqa: E501
                         path_name = f"{res.body_name}/force"
                         radii = res.force_ellipsoid.radii

@@ -244,7 +244,7 @@ class GolfVisualizerMainWindow(QMainWindow):
         if (
             hasattr(self, "gl_widget")
             and self.gl_widget
-            and self.gl_widget.current_render_config  # noqa: E501
+            and self.gl_widget.current_render_config
         ):  # noqa: E501
             self.gl_widget.current_render_config.show_face_normal = bool(state)
             self.gl_widget.update()
@@ -254,7 +254,7 @@ class GolfVisualizerMainWindow(QMainWindow):
         if (
             hasattr(self, "gl_widget")
             and self.gl_widget
-            and self.gl_widget.current_render_config  # noqa: E501
+            and self.gl_widget.current_render_config
         ):  # noqa: E501
             self.gl_widget.current_render_config.show_ball = bool(state)
             self.gl_widget.update()

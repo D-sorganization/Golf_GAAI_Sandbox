@@ -452,12 +452,14 @@ def _system_capabilities(
     namespaces = registry.list_by_namespace()
 
     capabilities = []
-    capabilities.extend(
-        [
-            {"name": ns, "version": "1.0", "methods": methods}
-            for (ns, methods) in namespaces.items()
-        ]
-    )
+    for ns, methods in namespaces.items():
+        capabilities.append(
+            {
+                "name": ns,
+                "version": "1.0",
+                "methods": methods,
+            }
+        )
 
     return {
         "server_name": "UpstreamDrift AIP Server",

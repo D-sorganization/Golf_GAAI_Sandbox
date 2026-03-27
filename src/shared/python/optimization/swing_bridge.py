@@ -1,7 +1,5 @@
 import logging
 
-from numba import jit
-
 logger = logging.getLogger(__name__)
 
 """
@@ -243,8 +241,7 @@ class SwingOptimizationBridge:
         return self._control_dim
 
     # -- public API ---------------------------------------------------------
-    @jit(nopython=True, fastmath=True)
-    @jit(nopython=True, fastmath=True)
+
     def optimize_swing(
         self,
         initial_state: np.ndarray,
@@ -388,7 +385,6 @@ class SwingOptimizationBridge:
 
         return Q, R
 
-    @jit(nopython=True, fastmath=True)
     def _evaluate_trajectory(
         self,
         controls: list[np.ndarray],

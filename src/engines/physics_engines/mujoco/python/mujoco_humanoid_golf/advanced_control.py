@@ -199,7 +199,7 @@ class AdvancedController:
             return (
                 feedforward_torque
                 if feedforward_torque is not None
-                else np.zeros(self.model.nu)  # noqa: E501
+                else np.zeros(self.model.nu)
             )  # noqa: E501
 
         if self.mode == ControlMode.IMPEDANCE:

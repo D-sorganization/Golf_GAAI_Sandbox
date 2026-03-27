@@ -163,12 +163,13 @@ async def list_methods() -> dict[str, Any]:
         Dictionary with method names, descriptions, and namespaces.
     """
     methods = []
-    methods.extend(
-        [
-            {"name": name, "description": _registry.get_description(name)}
-            for name in _registry.list_methods()
-        ]
-    )
+    for name in _registry.list_methods():
+        methods.append(
+            {
+                "name": name,
+                "description": _registry.get_description(name),
+            }
+        )
 
     return {
         "methods": methods,

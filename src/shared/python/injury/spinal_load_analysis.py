@@ -28,20 +28,19 @@ References:
 - Lindsay et al. (2002) review of spine loading mechanisms
 """
 
-import logging  # noqa: E402
-from dataclasses import dataclass, field  # noqa: E402
-from enum import Enum  # noqa: E402
+import logging
+from dataclasses import dataclass, field
+from enum import Enum
 
-import numpy as np  # noqa: E402
-from numba import jit
+import numpy as np
 
-from src.shared.python.analysis.dataclasses import (  # noqa: E402
+from src.shared.python.analysis.dataclasses import (
     CITATION_CRUNCH_FACTOR,
     CITATION_SPINAL_LOAD,
     CITATION_X_FACTOR,
     MethodCitation,
 )
-from src.shared.python.core.constants import GRAVITY_M_S2  # noqa: E402
+from src.shared.python.core.constants import GRAVITY_M_S2
 
 logger = logging.getLogger(__name__)
 
@@ -276,7 +275,6 @@ class SpinalLoadAnalyzer:
 
         return result
 
-    @jit(nopython=True, fastmath=True)
     def _compute_segment_loads(
         self,
         segment_name: str,
@@ -545,7 +543,6 @@ class SpinalLoadAnalyzer:
 
         return result
 
-    @jit(nopython=True, fastmath=True)
     def _compute_cumulative_loads(
         self, result: SpinalLoadResult, time: np.ndarray
     ) -> SpinalLoadResult:

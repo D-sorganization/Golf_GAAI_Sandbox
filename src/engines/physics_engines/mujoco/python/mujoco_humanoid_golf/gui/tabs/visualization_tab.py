@@ -649,7 +649,7 @@ class VisualizationTab(QtWidgets.QWidget):
         """Open the Meshcat visualizer in the default browser."""
         if (
             hasattr(self.sim_widget, "meshcat_adapter")
-            and self.sim_widget.meshcat_adapter  # noqa: E501
+            and self.sim_widget.meshcat_adapter
         ):  # noqa: E501
             self.sim_widget.open_meshcat_browser()
         else:

@@ -395,7 +395,7 @@ class CounterfactualAnalyzer:
         title = (
             "ZTCF: Torque Attribution"
             if cf_type == "ztcf"
-            else "ZVCF: Velocity Attribution"  # noqa: E501
+            else "ZVCF: Velocity Attribution"
         )  # noqa: E501
         plt.suptitle(f"{title} (Joint {joint_idx})")
         plt.tight_layout()

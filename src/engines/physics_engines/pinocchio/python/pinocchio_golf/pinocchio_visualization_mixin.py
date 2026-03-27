@@ -1,21 +1,19 @@
-from numba import jit
-
 """Pinocchio visualization mixin.
 
 Extracts viewer updates, ellipsoid drawing, vector drawing, frame/COM
 overlays, and toggle handlers from PinocchioGUI (gui.py).
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import contextlib  # noqa: E402
-from typing import Any  # noqa: E402
+import contextlib
+from typing import Any
 
-import numpy as np  # noqa: E402
-import pinocchio as pin  # type: ignore  # noqa: E402
-from PyQt6 import QtWidgets  # noqa: E402
+import numpy as np
+import pinocchio as pin  # type: ignore
+from PyQt6 import QtWidgets
 
-from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
+from src.shared.python.logging_pkg.logging_config import get_logger
 
 # Check meshcat availability
 try:
@@ -52,7 +50,7 @@ class PinocchioVisualizationMixin:
             self.model is None
             or self.data is None
             or self.q is None
-            or self.viz is None  # noqa: E501
+            or self.viz is None
         ):  # noqa: E501
             return
 
@@ -140,7 +138,7 @@ class PinocchioVisualizationMixin:
 
                     if (
                         self.chk_mobility.isChecked()
-                        and res.mobility_matrix is not None  # noqa: E501
+                        and res.mobility_matrix is not None
                     ):  # noqa: E501
                         path_name = f"{res.body_name}/mobility"
                         radii = res.velocity_ellipsoid.radii
@@ -154,7 +152,7 @@ class PinocchioVisualizationMixin:
 
                     if (
                         self.chk_force_ellip.isChecked()
-                        and res.force_matrix is not None  # noqa: E501
+                        and res.force_matrix is not None
                     ):  # noqa: E501
                         path_name = f"{res.body_name}/force"
                         radii = res.force_ellipsoid.radii
@@ -195,7 +193,6 @@ class PinocchioVisualizationMixin:
 
         self.viewer[path].set_transform(T)
 
-    @jit(nopython=True, fastmath=True)
     def _draw_vectors(self: Any) -> None:
         """Draw force and torque vectors at joints."""
         if self.model is None or self.data is None or self.viewer is None:
@@ -300,7 +297,7 @@ class PinocchioVisualizationMixin:
             self.model is None
             or self.data is None
             or self.viewer is None
-            or self.latest_cf is None  # noqa: E501
+            or self.latest_cf is None
         ):  # noqa: E501
             return
 

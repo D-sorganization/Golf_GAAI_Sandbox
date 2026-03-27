@@ -930,12 +930,8 @@ class URDFTextEditor(TextEditorDiffMixin):
 
         for line_idx, line in enumerate(lines, 1):
             if regex:
-                results.extend(
-                    [
-                        (line_idx, match.start(), match.group())
-                        for match in re.finditer(pattern, line)
-                    ]
-                )
+                for match in re.finditer(pattern, line):
+                    results.append((line_idx, match.start(), match.group()))
             else:
                 start = 0
                 while True:

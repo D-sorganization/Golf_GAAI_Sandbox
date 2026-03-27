@@ -656,7 +656,7 @@ class C3DDataReader:
             ]
             units = [
                 unit.strip()
-                for unit in analog_parameters.get("UNITS", {}).get("value", [])  # noqa: E501
+                for unit in analog_parameters.get("UNITS", {}).get("value", [])
             ]  # noqa: E501
             analog_rate = float(analog_parameters.get("RATE", {}).get("value", [0])[0])
 

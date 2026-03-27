@@ -474,7 +474,7 @@ class UnifiedGolfGUI(QtWidgets.QMainWindow):
             # Or actuator if available
             if (
                 self.recorded_data
-                and "actuator" in self.recorded_data[0].induced_accelerations  # noqa: E501
+                and "actuator" in self.recorded_data[0].induced_accelerations
             ):  # noqa: E501
                 # Override for demo
                 self.results_canvas.fig.clear()

@@ -555,7 +555,7 @@ class FrameProcessor:
         position_data = np.array(
             [
                 self.get_column_data(self.baseq_df, "Clubhead", i)
-                for i in range(self.num_frames)  # noqa: E501
+                for i in range(self.num_frames)
             ]  # noqa: E501
         )
         # Placeholder for orientation data
@@ -785,8 +785,6 @@ class GeometryUtils:
         return R.astype(np.float32)
 
     @staticmethod
-    @jit(nopython=True, fastmath=True)  # noqa: F821
-    @jit(nopython=True, fastmath=True)  # noqa: F821
     def create_cylinder_mesh(
         radius: float = 1.0, height: float = 1.0, segments: int = 16
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -830,9 +828,6 @@ class GeometryUtils:
         )
 
     @staticmethod
-    @jit(nopython=True, fastmath=True)  # noqa: F821
-    @jit(nopython=True, fastmath=True)  # noqa: F821
-    @jit(nopython=True, fastmath=True)  # noqa: F821
     def create_sphere_mesh(
         radius: float = 1.0, lat_segments: int = 12, lon_segments: int = 16
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -848,7 +843,6 @@ class GeometryUtils:
         # Generate vertices
         for i in range(lat_segments + 1):
             lat = np.pi * i / lat_segments - np.pi / 2  # -π/2 to π/2
-            # OPTIMIZATION_TARGET: Migrate computationally bound loop to PyO3/Rust Core natively  # noqa: E501
             for j in range(lon_segments + 1):
                 lon = 2 * np.pi * j / lon_segments  # 0 to 2π
 
@@ -878,10 +872,6 @@ class GeometryUtils:
         )
 
     @staticmethod
-    @jit(nopython=True, fastmath=True)  # noqa: F821
-    @jit(nopython=True, fastmath=True)  # noqa: F821
-    @jit(nopython=True, fastmath=True)  # noqa: F821
-    @jit(nopython=True, fastmath=True)  # noqa: F821
     def create_arrow_mesh(
         shaft_radius: float = 0.01,
         shaft_length: float = 0.8,

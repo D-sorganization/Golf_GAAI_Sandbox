@@ -449,7 +449,7 @@ class PolynomialGeneratorWidget(QtWidgets.QWidget):
         if (
             event.inaxes != self.canvas.axes
             or event.xdata is None
-            or event.ydata is None  # noqa: E501
+            or event.ydata is None
         ):  # noqa: E501
             return
 
@@ -465,7 +465,7 @@ class PolynomialGeneratorWidget(QtWidgets.QWidget):
         elif (
             self.mode == "drag"
             and event.button == 1
-            and self.polynomial_coeffs is not None  # noqa: E501
+            and self.polynomial_coeffs is not None
         ):  # noqa: E501
             self.dragging_curve = True
             self.drag_start_pos = (event.xdata, event.ydata)
@@ -507,7 +507,7 @@ class PolynomialGeneratorWidget(QtWidgets.QWidget):
         if (
             event.inaxes != self.canvas.axes
             or event.xdata is None
-            or event.ydata is None  # noqa: E501
+            or event.ydata is None
         ):  # noqa: E501
             return
 

@@ -1,5 +1,3 @@
-from numba import jit
-
 """Zero Moment Point (ZMP) computation.
 
 This module provides ZMP computation for bipedal balance analysis.
@@ -11,17 +9,17 @@ Design by Contract:
     Results indicate validity status.
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-from collections.abc import Callable  # noqa: E402
-from dataclasses import dataclass  # noqa: E402
+from collections.abc import Callable
+from dataclasses import dataclass
 
-import numpy as np  # noqa: E402
-from numpy.typing import NDArray  # noqa: E402
+import numpy as np
+from numpy.typing import NDArray
 
-from src.robotics.core.protocols import HumanoidCapable, RoboticsCapable  # noqa: E402
-from src.shared.python.core.constants import GRAVITY as _GRAVITY_CONST  # noqa: E402
-from src.shared.python.core.contracts import ContractChecker  # noqa: E402
+from src.robotics.core.protocols import HumanoidCapable, RoboticsCapable
+from src.shared.python.core.constants import GRAVITY as _GRAVITY_CONST
+from src.shared.python.core.contracts import ContractChecker
 
 
 @dataclass
@@ -358,7 +356,6 @@ class ZMPComputer(ContractChecker):
 
         return is_inside, margin
 
-    @jit(nopython=True, fastmath=True)
     def _point_in_polygon(
         self,
         point: NDArray[np.float64],

@@ -658,7 +658,7 @@ class ManipulationTab(QtWidgets.QWidget):
         if (
             reply == QtWidgets.QMessageBox.StandardButton.Yes
             and manipulator.delete_pose(pose_name)
-        ):  # noqa: E501  # noqa: E501
+        ):  # noqa: E501
             self.update_pose_list()
             logger.info("Pose '%s' deleted successfully", pose_name)
             if self.main_window.statusBar():

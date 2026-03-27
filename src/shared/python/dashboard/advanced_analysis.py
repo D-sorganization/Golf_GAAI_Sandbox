@@ -440,7 +440,8 @@ class CorrelationTab(QtWidgets.QWidget):
         # Stack into matrix (N_samples, N_features)
         feature_names = list(data_dict.keys())
         matrix_list = []
-        matrix_list.extend([data_dict[name][: int(min_len)] for name in feature_names])
+        for name in feature_names:
+            matrix_list.append(data_dict[name][: int(min_len)])
 
         X = np.column_stack(matrix_list)  # (N, F)
 

@@ -489,17 +489,17 @@ class InverseDynamicsSolver:
         inertial = (
             result.inertial_torques
             if result.inertial_torques is not None
-            else np.zeros(nv)  # noqa: E501
+            else np.zeros(nv)
         )  # noqa: E501
         coriolis = (
             result.coriolis_torques
             if result.coriolis_torques is not None
-            else np.zeros(nv)  # noqa: E501
+            else np.zeros(nv)
         )  # noqa: E501
         gravity = (
             result.gravity_torques
             if result.gravity_torques is not None
-            else np.zeros(nv)  # noqa: E501
+            else np.zeros(nv)
         )  # noqa: E501
 
         return ForceDecomposition(

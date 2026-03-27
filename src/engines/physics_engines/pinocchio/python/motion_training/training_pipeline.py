@@ -183,7 +183,7 @@ class MotionTrainingPipeline:
         end = (
             self.config.end_frame
             if self.config.end_frame > 0
-            else len(trajectory.frames)  # noqa: E501
+            else len(trajectory.frames)
         )  # noqa: E501
         trajectory.frames = trajectory.frames[start:end]
 

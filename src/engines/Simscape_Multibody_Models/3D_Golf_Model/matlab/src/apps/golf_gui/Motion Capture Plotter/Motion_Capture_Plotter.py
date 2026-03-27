@@ -9,33 +9,30 @@ Decomposed via SRP into:
 - mocap_data_loader.py: Data parsing/loading (Excel, CSV formats)
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import logging  # noqa: E402
-import os  # noqa: E402
-import sys  # noqa: E402
+import logging
+import os
+import sys
 
-import matplotlib  # noqa: E402
-import numpy as np  # noqa: E402
-import pandas as pd  # noqa: E402
+import matplotlib
+import numpy as np
+import pandas as pd
 
 matplotlib.use("QtAgg")  # Use QtAgg backend for PyQt6 compatibility
 
-from matplotlib.backends.backend_qtagg import (
-    FigureCanvasQTAgg as FigureCanvas,  # noqa: E402
-)
-from matplotlib.figure import Figure  # noqa: E402
-from mocap_data_loader import (  # noqa: E402
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+from mocap_data_loader import (
     find_available_joints,
     get_simscape_joint_positions,
     parse_excel_row,
     process_excel_sheet,
     safe_float,
 )
-from numba import jit
-from PyQt6.QtCore import Qt, QTimer  # noqa: E402
-from PyQt6.QtGui import QFont  # noqa: E402
-from PyQt6.QtWidgets import (  # noqa: E402
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import (
     QApplication,
     QCheckBox,
     QComboBox,
@@ -860,7 +857,6 @@ class MotionCapturePlotter(QMainWindow):
         # Draw trajectory paths
         self._draw_motion_capture_trajectory_paths(data)
 
-    @jit(nopython=True, fastmath=True)
     def _extract_joint_positions(self, frame_data) -> dict[str, np.ndarray]:
         """Extract scaled joint positions from a Simscape frame.
 
@@ -1010,7 +1006,7 @@ class MotionCapturePlotter(QMainWindow):
         )  # noqa: E501
         z_ball = (
             ball_radius * np.outer(np.ones(np.size(u_ball)), np.cos(v_ball))
-            + ball_position[2]  # noqa: E501
+            + ball_position[2]
         )  # noqa: E501
         self.ax.plot_surface(
             x_ball,
@@ -1068,7 +1064,7 @@ class MotionCapturePlotter(QMainWindow):
         if (
             self.trajectory_check.isChecked()
             and len(data) > 1
-            and "club_head" in joints  # noqa: E501
+            and "club_head" in joints
         ):  # noqa: E501
             club_trajectory = np.array(
                 [
@@ -1118,7 +1114,6 @@ class MotionCapturePlotter(QMainWindow):
                     label="Hands Path",
                 )
 
-    @jit(nopython=True, fastmath=True)
     def _draw_segment_traces(self, frame_data, data) -> None:
         """Draw optional per-segment trace paths for Simscape data.
 
@@ -1147,7 +1142,7 @@ class MotionCapturePlotter(QMainWindow):
             if (
                 checkbox.isChecked()
                 and f"{segment_key}_X" in frame_data
-                and len(data) > 1  # noqa: E501
+                and len(data) > 1
             ):  # noqa: E501
                 # Create trajectory for this segment
                 segment_trajectory = np.array(
@@ -1215,7 +1210,6 @@ class MotionCapturePlotter(QMainWindow):
         self._draw_simscape_trajectory_paths(joints, data)
         self._draw_segment_traces(frame_data, data)
 
-    @jit(nopython=True, fastmath=True)
     def update_info_text(self, frame_data) -> None:
         """Update the information text display."""
         if not (frame_data is not None):

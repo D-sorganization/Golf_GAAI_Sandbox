@@ -1,20 +1,18 @@
-from numba import jit
-
 """Specialized MPC implementations for robotics."""
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-from dataclasses import dataclass  # noqa: E402
-from typing import TYPE_CHECKING  # noqa: E402
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-import numpy as np  # noqa: E402
+import numpy as np
 
-from src.research.mpc.controller import (  # noqa: E402
+from src.research.mpc.controller import (
     CostFunction,
     ModelPredictiveController,
     MPCResult,
 )
-from src.shared.python.core.constants import GRAVITY  # noqa: E402
+from src.shared.python.core.constants import GRAVITY
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -138,7 +136,6 @@ class CentroidalMPC(ModelPredictiveController):
         """
         self._contact_positions = positions
 
-    @jit(nopython=True, fastmath=True)
     def _dynamics(
         self,
         x: NDArray[np.floating],
@@ -186,8 +183,6 @@ class CentroidalMPC(ModelPredictiveController):
 
         return np.concatenate([com_new, com_vel_new, L_new])
 
-    @jit(nopython=True, fastmath=True)
-    @jit(nopython=True, fastmath=True)
     def add_friction_cone_constraints(self) -> None:
         """Add friction cone constraints for contact forces."""
         from src.research.mpc.controller import Constraint
@@ -221,7 +216,6 @@ class CentroidalMPC(ModelPredictiveController):
                     )
                 )
 
-    @jit(nopython=True, fastmath=True)
     def set_gait_reference(
         self,
         target_velocity: NDArray[np.floating],

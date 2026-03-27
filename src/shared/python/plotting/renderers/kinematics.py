@@ -4,14 +4,13 @@
 
 """Kinematics plotting renderer."""
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import numpy as np  # noqa: E402
-from matplotlib.axes import Axes  # noqa: E402
-from matplotlib.figure import Figure  # noqa: E402
-from numba import jit
+import numpy as np
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 
-from src.shared.python.plotting.renderers.base import BaseRenderer  # noqa: E402
+from src.shared.python.plotting.renderers.base import BaseRenderer
 
 
 class KinematicsRenderer(BaseRenderer):
@@ -366,7 +365,6 @@ class KinematicsRenderer(BaseRenderer):
             return d[:, idx]
         return None
 
-    @jit(nopython=True, fastmath=True)
     @staticmethod
     def _find_section_crossings(
         cond_data: np.ndarray, cond_val: float, direction: str
@@ -388,8 +386,6 @@ class KinematicsRenderer(BaseRenderer):
                 crossings.append(i)
         return crossings
 
-    @jit(nopython=True, fastmath=True)
-    @jit(nopython=True, fastmath=True)
     def _interpolate_crossings(
         self,
         crossings: list[int],

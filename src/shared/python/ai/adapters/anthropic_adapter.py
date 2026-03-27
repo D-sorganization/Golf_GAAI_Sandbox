@@ -345,17 +345,15 @@ class AnthropicAdapter(BaseAgentAdapter):
                 content = []
                 if msg.content:
                     content.append({"type": "text", "text": msg.content})
-                content.extend(
-                    [
+                for tc in msg.tool_calls:
+                    content.append(
                         {
                             "type": "tool_use",
                             "id": tc.id,
                             "name": tc.name,
                             "input": tc.arguments,
                         }
-                        for tc in msg.tool_calls
-                    ]
-                )
+                    )
 
             messages.append(
                 {

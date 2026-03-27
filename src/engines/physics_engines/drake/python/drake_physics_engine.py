@@ -284,7 +284,8 @@ class DrakePhysicsEngine(PhysicsEngine):
         if not names:
             # If there are no actuators defined, fall back to generic names
             # derived from the number of generalized velocities (dofs).
-            names.extend([f"dof_{i}" for i in range(self.plant.num_velocities())])
+            for i in range(self.plant.num_velocities()):
+                names.append(f"dof_{i}")
 
         return names
 
