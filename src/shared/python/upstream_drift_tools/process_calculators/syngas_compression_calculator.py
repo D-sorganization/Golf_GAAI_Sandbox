@@ -1,7 +1,3 @@
-# ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
-
 #!/usr/bin/env python3
 """Advanced Syngas Compression Calculator
 ======================================
@@ -139,7 +135,6 @@ try:
     from integrated_process_simulator.calculators.thermodynamic_properties.species_database import (
         get_species_database,
     )
-from numba import jit
 except ImportError:
     # Minimal fallback for standalone use
     class _MinimalSpeciesDB:
@@ -194,16 +189,13 @@ class SyngasCompressionEngine:
         # Universal gas constant
         self.R = R_GAS_J_MOL_K  # J/(mol·K)
 
-    @jit(nopython=True, fastmath=True)
     def calculate_mixture_properties(
         self,
         composition: dict[str, float],
     ) -> dict[str, Any]:
         """Calculate mixture properties from component composition"""
-        if not (composition is not None):
-            raise ValueError("composition must be provided")
-        if not (composition is not None):
-            raise ValueError("composition must be provided")
+        assert composition is not None, "composition must be provided"
+        assert composition is not None, "composition must be provided"
         mole_fractions = validate_gas_composition(composition, auto_normalize=True)
 
         mix_mw = 0.0
@@ -436,10 +428,8 @@ class SyngasCompressionEngine:
         compression_result: dict[str, Any],
     ) -> dict[str, Any]:
         """Analyze process conditions and potential concerns"""
-        if not (compression_result is not None):
-            raise ValueError("compression_result must be provided")
-        if not (compression_result is not None):
-            raise ValueError("compression_result must be provided")
+        assert compression_result is not None, "compression_result must be provided"
+        assert compression_result is not None, "compression_result must be provided"
         concerns = []
         warnings = []
         recommendations = []
@@ -524,10 +514,8 @@ class CompressionCalculationWorker(QThread):
         intercooling: bool,
     ) -> None:
         """Initialize the class."""
-        if not (flow_rate is not None):
-            raise ValueError("flow_rate must be provided")
-        if not (flow_rate is not None):
-            raise ValueError("flow_rate must be provided")
+        assert flow_rate is not None, "flow_rate must be provided"
+        assert flow_rate is not None, "flow_rate must be provided"
         super().__init__()
         self.engine = engine
         self.stages = stages
@@ -687,7 +675,6 @@ if HAS_PYQT:
 
             self.tab_widget.addTab(input_widget, "Input Parameters")
 
-        @jit(nopython=True, fastmath=True)
         def _create_composition_group(self) -> QGroupBox:
             """Create the gas composition input group."""
             comp_group = QGroupBox("Syngas Composition (mol%)")
@@ -948,10 +935,8 @@ if HAS_PYQT:
             Args:
                 data: Dictionary containing calculation results and analysis.
             """
-            if not (data is not None):
-                raise ValueError("data must be provided")
-            if not (data is not None):
-                raise ValueError("data must be provided")
+            assert data is not None, "data must be provided"
+            assert data is not None, "data must be provided"
             result = data["result"]
             analysis = data["analysis"]
 
@@ -986,10 +971,8 @@ if HAS_PYQT:
                 analysis: Dictionary containing analysis data.
             """
             # Use list join for O(n) instead of O(n²) string concatenation
-            if not (result is not None):
-                raise ValueError("result must be provided")
-            if not (result is not None):
-                raise ValueError("result must be provided")
+            assert result is not None, "result must be provided"
+            assert result is not None, "result must be provided"
             output_parts = [
                 "SYNGAS COMPRESSION CALCULATION RESULTS\n",
                 "=" * 50 + "\n\n",
@@ -1063,10 +1046,8 @@ if HAS_PYQT:
                 analysis: Dictionary containing analysis data and warnings.
             """
             # Use list join for O(n) instead of O(n²) string concatenation
-            if not (analysis is not None):
-                raise ValueError("analysis must be provided")
-            if not (analysis is not None):
-                raise ValueError("analysis must be provided")
+            assert analysis is not None, "analysis must be provided"
+            assert analysis is not None, "analysis must be provided"
             output_parts = [
                 "PROCESS ANALYSIS & CONCERNS\n",
                 "=" * 40 + "\n\n",
@@ -1079,9 +1060,8 @@ if HAS_PYQT:
                         "-" * 25 + "\n",
                     ]
                 )
-                output_parts.extend(
-                    [f"• {warning}\n" for warning in analysis["warnings"]]
-                )
+                for warning in analysis["warnings"]:
+                    output_parts.append(f"• {warning}\n")
                 output_parts.append("\n")
 
             if analysis["concerns"]:
@@ -1091,9 +1071,8 @@ if HAS_PYQT:
                         "-" * 15 + "\n",
                     ]
                 )
-                output_parts.extend(
-                    [f"• {concern}\n" for concern in analysis["concerns"]]
-                )
+                for concern in analysis["concerns"]:
+                    output_parts.append(f"• {concern}\n")
                 output_parts.append("\n")
 
             if analysis["recommendations"]:
@@ -1103,9 +1082,8 @@ if HAS_PYQT:
                         "-" * 20 + "\n",
                     ]
                 )
-                output_parts.extend(
-                    [f"• {rec}\n" for rec in analysis["recommendations"]]
-                )
+                for rec in analysis["recommendations"]:
+                    output_parts.append(f"• {rec}\n")
                 output_parts.append("\n")
 
             if not analysis["warnings"] and not analysis["concerns"]:
@@ -1122,10 +1100,8 @@ if HAS_PYQT:
         def create_plots(self, result: dict[str, Any]) -> None:
             """Create visualization plots"""
             # Clear previous plots
-            if not (result is not None):
-                raise ValueError("result must be provided")
-            if not (result is not None):
-                raise ValueError("result must be provided")
+            assert result is not None, "result must be provided"
+            assert result is not None, "result must be provided"
             self.figure.clear()
 
             stages = result["stages"]

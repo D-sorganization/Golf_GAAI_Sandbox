@@ -1,7 +1,3 @@
-# ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
-
 """Green Surface Model for Putting Simulation.
 
 This module defines the putting green surface including slopes,
@@ -19,19 +15,19 @@ Design by Contract:
     - Slopes are expressed as gradients (rise/run)
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-from dataclasses import dataclass  # noqa: E402
-from pathlib import Path  # noqa: E402
-from typing import Any  # noqa: E402
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
-import numpy as np  # noqa: E402
-from scipy import interpolate, ndimage  # noqa: E402
+import numpy as np
+from scipy import interpolate, ndimage
 
-from src.engines.physics_engines.putting_green.python.turf_properties import (  # noqa: E402
+from src.engines.physics_engines.putting_green.python.turf_properties import (
     TurfProperties,
 )
-from src.shared.python.core.physics_constants import GRAVITY_M_S2  # noqa: E402
+from src.shared.python.core.physics_constants import GRAVITY_M_S2
 
 
 @dataclass
@@ -79,19 +75,15 @@ class SlopeRegion:
 
     def contains(self, position: np.ndarray) -> bool:
         """Check if position is within region."""
-        if not (position is not None):
-            raise ValueError("position must be provided")
-        if not (position is not None):
-            raise ValueError("position must be provided")
+        assert position is not None, "position must be provided"
+        assert position is not None, "position must be provided"
         distance = np.linalg.norm(position[:2] - self.center[:2])
         return bool(distance <= self.radius)
 
     def get_weight(self, position: np.ndarray) -> float:
         """Get influence weight at position (0-1)."""
-        if not (position is not None):
-            raise ValueError("position must be provided")
-        if not (position is not None):
-            raise ValueError("position must be provided")
+        assert position is not None, "position must be provided"
+        assert position is not None, "position must be provided"
         distance = np.linalg.norm(position[:2] - self.center[:2])
         if distance >= self.radius:
             return 0.0
@@ -133,10 +125,8 @@ class GreenSurface:
             height: Height of putting surface [m]
             turf: Turf properties (defaults to standard)
         """
-        if not (width is not None):
-            raise ValueError("width must be provided")
-        if not (width is not None):
-            raise ValueError("width must be provided")
+        assert width is not None, "width must be provided"
+        assert width is not None, "width must be provided"
         self.width = width
         self.height = height
         self.turf = turf or TurfProperties()
@@ -176,10 +166,8 @@ class GreenSurface:
         Args:
             points: List of ContourPoint objects
         """
-        if not (points is not None):
-            raise ValueError("points must be provided")
-        if not (points is not None):
-            raise ValueError("points must be provided")
+        assert points is not None, "points must be provided"
+        assert points is not None, "points must be provided"
         self._contour_points = points
         self._build_contour_interpolator()
 
@@ -219,10 +207,8 @@ class GreenSurface:
             smooth: Whether to smooth the heightmap
             smooth_sigma: Gaussian smoothing sigma
         """
-        if not (heightmap is not None):
-            raise ValueError("heightmap must be provided")
-        if not (heightmap is not None):
-            raise ValueError("heightmap must be provided")
+        assert heightmap is not None, "heightmap must be provided"
+        assert heightmap is not None, "heightmap must be provided"
         if smooth:
             heightmap = ndimage.gaussian_filter(heightmap, sigma=smooth_sigma)
 
@@ -250,10 +236,8 @@ class GreenSurface:
         Returns:
             Elevation at position [m]
         """
-        if not (position is not None):
-            raise ValueError("position must be provided")
-        if not (position is not None):
-            raise ValueError("position must be provided")
+        assert position is not None, "position must be provided"
+        assert position is not None, "position must be provided"
         pos = np.clip(position[:2], [0, 0], [self.width, self.height])
 
         # Base elevation from heightmap or contours
@@ -289,10 +273,8 @@ class GreenSurface:
         Returns:
             [dz/dx, dz/dy] gradient vector
         """
-        if not (position is not None):
-            raise ValueError("position must be provided")
-        if not (position is not None):
-            raise ValueError("position must be provided")
+        assert position is not None, "position must be provided"
+        assert position is not None, "position must be provided"
         pos = position[:2]
 
         # Central difference
@@ -308,7 +290,6 @@ class GreenSurface:
 
         return np.array([dzdx, dzdy])
 
-    @jit(nopython=True, fastmath=True)
     def get_slope_at(self, position: np.ndarray) -> np.ndarray:
         """Get slope vector at position.
 
@@ -320,10 +301,8 @@ class GreenSurface:
         Returns:
             [slope_x, slope_y] slope vector (gradient)
         """
-        if not (position is not None):
-            raise ValueError("position must be provided")
-        if not (position is not None):
-            raise ValueError("position must be provided")
+        assert position is not None, "position must be provided"
+        assert position is not None, "position must be provided"
         pos = position[:2]
         total_slope = np.zeros(2)
 
@@ -352,10 +331,8 @@ class GreenSurface:
         Returns:
             [ax, ay] gravitational acceleration [m/s²]
         """
-        if not (position is not None):
-            raise ValueError("position must be provided")
-        if not (position is not None):
-            raise ValueError("position must be provided")
+        assert position is not None, "position must be provided"
+        assert position is not None, "position must be provided"
         slope = self.get_slope_at(position)
         # Acceleration is proportional to slope and points downhill
         # a = g * sin(theta) ≈ g * slope for small slopes
@@ -377,10 +354,8 @@ class GreenSurface:
         Returns:
             True if ball is holed
         """
-        if not (position is not None):
-            raise ValueError("position must be provided")
-        if not (position is not None):
-            raise ValueError("position must be provided")
+        assert position is not None, "position must be provided"
+        assert position is not None, "position must be provided"
         distance = np.linalg.norm(position[:2] - self._hole_position)
 
         if distance > self.hole_radius:
@@ -398,10 +373,8 @@ class GreenSurface:
 
     def is_on_green(self, position: np.ndarray) -> bool:
         """Check if position is on the green surface."""
-        if not (position is not None):
-            raise ValueError("position must be provided")
-        if not (position is not None):
-            raise ValueError("position must be provided")
+        assert position is not None, "position must be provided"
+        assert position is not None, "position must be provided"
         x, y = position[:2]
         return 0 <= x <= self.width and 0 <= y <= self.height
 
@@ -452,10 +425,8 @@ class GreenSurface:
 
     def _ridge_elevation(self, position: np.ndarray, ridge: dict[str, Any]) -> float:
         """Compute elevation contribution from a ridge."""
-        if not (position is not None):
-            raise ValueError("position must be provided")
-        if not (position is not None):
-            raise ValueError("position must be provided")
+        assert position is not None, "position must be provided"
+        assert position is not None, "position must be provided"
         start = ridge["start"]
         end = ridge["end"]
         height = ridge["height"]
@@ -490,10 +461,8 @@ class GreenSurface:
         self, position: np.ndarray, depression: dict[str, Any]
     ) -> float:
         """Compute elevation contribution from a depression."""
-        if not (position is not None):
-            raise ValueError("position must be provided")
-        if not (position is not None):
-            raise ValueError("position must be provided")
+        assert position is not None, "position must be provided"
+        assert position is not None, "position must be provided"
         center = depression["center"]
         radius = depression["radius"]
         depth = depression["depth"]
@@ -508,7 +477,6 @@ class GreenSurface:
         elevation = -depth * (1 - normalized_dist**2)
         return elevation
 
-    @jit(nopython=True, fastmath=True)
     def calculate_break(
         self,
         start: np.ndarray,
@@ -526,10 +494,8 @@ class GreenSurface:
             Dictionary with break analysis
         """
         # Sample points along intended line
-        if not (start is not None):
-            raise ValueError("start must be provided")
-        if not (start is not None):
-            raise ValueError("start must be provided")
+        assert start is not None, "start must be provided"
+        assert start is not None, "start must be provided"
         t_values = np.linspace(0, 1, num_samples)
         positions = [start + t * (end - start) for t in t_values]
 
@@ -584,10 +550,8 @@ class GreenSurface:
         Returns:
             Dictionary with positions, elevations, and slopes along line
         """
-        if not (start is not None):
-            raise ValueError("start must be provided")
-        if not (start is not None):
-            raise ValueError("start must be provided")
+        assert start is not None, "start must be provided"
+        assert start is not None, "start must be provided"
         t_values = np.linspace(0, 1, num_samples)
         positions = [start + t * (end - start) for t in t_values]
 
@@ -607,10 +571,8 @@ class GreenSurface:
         Returns:
             2D array of elevations [resolution x resolution]
         """
-        if not (resolution is not None):
-            raise ValueError("resolution must be provided")
-        if not (resolution is not None):
-            raise ValueError("resolution must be provided")
+        assert resolution is not None, "resolution must be provided"
+        assert resolution is not None, "resolution must be provided"
         x = np.linspace(0, self.width, resolution)
         y = np.linspace(0, self.height, resolution)
 
@@ -641,10 +603,8 @@ class GreenSurface:
         Returns:
             GreenSurface instance
         """
-        if not (heightmap is not None):
-            raise ValueError("heightmap must be provided")
-        if not (heightmap is not None):
-            raise ValueError("heightmap must be provided")
+        assert heightmap is not None, "heightmap must be provided"
+        assert heightmap is not None, "heightmap must be provided"
         green = cls(width=width, height=height, turf=turf)
         green.set_heightmap(heightmap)
         return green
@@ -760,10 +720,8 @@ class GreenSurface:
         Args:
             filepath: Path to data file
         """
-        if not (filepath is not None):
-            raise ValueError("filepath must be provided")
-        if not (filepath is not None):
-            raise ValueError("filepath must be provided")
+        assert filepath is not None, "filepath must be provided"
+        assert filepath is not None, "filepath must be provided"
         filepath = Path(filepath)
         suffix = filepath.suffix.lower()
 
@@ -785,17 +743,15 @@ class GreenSurface:
 
     def _load_csv_topography(self, filepath: Path) -> None:
         """Load topography from CSV file."""
-        if not (filepath is not None):
-            raise ValueError("filepath must be provided")
-        if not (filepath is not None):
-            raise ValueError("filepath must be provided")
+        assert filepath is not None, "filepath must be provided"
+        assert filepath is not None, "filepath must be provided"
         import csv
 
         points = []
         with open(filepath) as f:
             reader = csv.DictReader(f)
-            points.extend(
-                [
+            for row in reader:
+                points.append(
                     ContourPoint(
                         x=float(row.get("x", row.get("X", 0))),
                         y=float(row.get("y", row.get("Y", 0))),
@@ -803,18 +759,14 @@ class GreenSurface:
                             row.get("elevation", row.get("z", row.get("Z", 0)))
                         ),
                     )
-                    for row in reader
-                ]
-            )
+                )
 
         self.set_contour_points(points)
 
     def _load_json_topography(self, filepath: Path) -> None:
         """Load topography from JSON file."""
-        if not (filepath is not None):
-            raise ValueError("filepath must be provided")
-        if not (filepath is not None):
-            raise ValueError("filepath must be provided")
+        assert filepath is not None, "filepath must be provided"
+        assert filepath is not None, "filepath must be provided"
         import json
 
         with open(filepath) as f:
@@ -846,13 +798,10 @@ class GreenSurface:
 
     def _load_geotiff_topography(self, filepath: Path) -> None:
         """Load topography from GeoTIFF file."""
-        if not (filepath is not None):
-            raise ValueError("filepath must be provided")
-        if not (filepath is not None):
-            raise ValueError("filepath must be provided")
+        assert filepath is not None, "filepath must be provided"
+        assert filepath is not None, "filepath must be provided"
         try:
             import rasterio  # type: ignore
-from numba import jit
         except ImportError as err:
             raise ImportError(
                 "rasterio required for GeoTIFF support. Install with: pip install rasterio"

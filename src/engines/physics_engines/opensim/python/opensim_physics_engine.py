@@ -1,29 +1,23 @@
-# ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
-
 """OpenSim Physics Engine implementation.
 
 Refactored to use shared engine availability module (DRY principle).
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import os  # noqa: E402
-from typing import Any  # noqa: E402
+import os
+from typing import Any
 
-import numpy as np  # noqa: E402
+import numpy as np
 
-from src.shared.python.core.contracts import (  # noqa: E402
+from src.shared.python.core.contracts import (
     check_finite,
     postcondition,
     precondition,
 )
-from src.shared.python.engine_core.engine_availability import (
-    OPENSIM_AVAILABLE,  # noqa: E402
-)
-from src.shared.python.engine_core.interfaces import PhysicsEngine  # noqa: E402
-from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
+from src.shared.python.engine_core.engine_availability import OPENSIM_AVAILABLE
+from src.shared.python.engine_core.interfaces import PhysicsEngine
+from src.shared.python.logging_pkg.logging_config import get_logger
 
 # Configure logging
 logger = get_logger(__name__)
@@ -172,10 +166,8 @@ class OpenSimPhysicsEngine(PhysicsEngine):
 
     def set_state(self, q: np.ndarray, v: np.ndarray) -> None:
         """Set coordinate positions and speeds on the model state."""
-        if not (q is not None):
-            raise ValueError("q must be provided")
-        if not (q is not None):
-            raise ValueError("q must be provided")
+        assert q is not None, "q must be provided"
+        assert q is not None, "q must be provided"
         if not self._model or not self._state:
             return
 
@@ -199,10 +191,8 @@ class OpenSimPhysicsEngine(PhysicsEngine):
 
     def set_control(self, u: np.ndarray) -> None:
         """Set controls for the model."""
-        if not (u is not None):
-            raise ValueError("u must be provided")
-        if not (u is not None):
-            raise ValueError("u must be provided")
+        assert u is not None, "u must be provided"
+        assert u is not None, "u must be provided"
         if not self._model or not self._state:
             return
 
@@ -297,10 +287,8 @@ class OpenSimPhysicsEngine(PhysicsEngine):
     @postcondition(check_finite, "Inverse dynamics torques must contain finite values")
     def compute_inverse_dynamics(self, qacc: np.ndarray) -> np.ndarray:
         """Compute required torques for the given joint accelerations."""
-        if not (qacc is not None):
-            raise ValueError("qacc must be provided")
-        if not (qacc is not None):
-            raise ValueError("qacc must be provided")
+        assert qacc is not None, "qacc must be provided"
+        assert qacc is not None, "qacc must be provided"
         if not self._model or not self._state:
             return np.array([])
 
@@ -339,7 +327,6 @@ class OpenSimPhysicsEngine(PhysicsEngine):
             logger.error(f"OpenSim ID failed: {e}")
             return np.array([])
 
-    @jit(nopython=True, fastmath=True)
     def compute_jacobian(self, body_name: str) -> dict[str, np.ndarray] | None:
         """Compute spatial Jacobian for a body in OpenSim.
 
@@ -354,10 +341,8 @@ class OpenSimPhysicsEngine(PhysicsEngine):
             - 'angular': Rotation Jacobian (3 × nv) [rad/rad or rad/m]
             - 'spatial': Combined [angular; linear] (6 × nv)
         """
-        if not (body_name is not None):
-            raise ValueError("body_name must be provided")
-        if not (body_name is not None):
-            raise ValueError("body_name must be provided")
+        assert body_name is not None, "body_name must be provided"
+        assert body_name is not None, "body_name must be provided"
         if not self._model or not self._state or opensim is None:
             return None
 
@@ -542,10 +527,8 @@ class OpenSimPhysicsEngine(PhysicsEngine):
         Returns:
             q_ddot_control: Control acceleration vector (nv,) [rad/s² or m/s²]
         """
-        if not (tau is not None):
-            raise ValueError("tau must be provided")
-        if not (tau is not None):
-            raise ValueError("tau must be provided")
+        assert tau is not None, "tau must be provided"
+        assert tau is not None, "tau must be provided"
         if not self._model or not self._state:
             logger.warning("Model or state not initialized")
             return np.array([])
@@ -594,7 +577,6 @@ class OpenSimPhysicsEngine(PhysicsEngine):
 
         try:
             from .muscle_analysis import OpenSimGripModel
-from numba import jit
 
             return OpenSimGripModel(self._model)
         except ImportError as e:
@@ -643,10 +625,8 @@ from numba import jit
         Returns:
             q̈_ZTCF: Acceleration under zero applied torque (n_v,)
         """
-        if not (q is not None):
-            raise ValueError("q must be provided")
-        if not (q is not None):
-            raise ValueError("q must be provided")
+        assert q is not None, "q must be provided"
+        assert q is not None, "q must be provided"
         if not self._model or not self._state:
             return np.array([])
 
@@ -695,10 +675,8 @@ from numba import jit
         Returns:
             q̈_ZVCF: Acceleration with v=0 (n_v,)
         """
-        if not (q is not None):
-            raise ValueError("q must be provided")
-        if not (q is not None):
-            raise ValueError("q must be provided")
+        assert q is not None, "q must be provided"
+        assert q is not None, "q must be provided"
         if not self._model or not self._state:
             return np.array([])
 

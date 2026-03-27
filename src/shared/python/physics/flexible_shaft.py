@@ -1,7 +1,3 @@
-# ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
-
 """Flexible Beam Shaft Module.
 
 Guideline B5 Implementation: Flexible Beam Shaft.
@@ -23,17 +19,17 @@ Planned enhancement: implement torsional dynamics (current Euler-Bernoulli beam 
 Planned enhancement: support asymmetric cross-sections (modeling spine alignment and manufacturing tolerances).
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import functools  # noqa: E402
-from abc import ABC, abstractmethod  # noqa: E402
-from dataclasses import dataclass, field  # noqa: E402
-from enum import Enum, auto  # noqa: E402
-from typing import TYPE_CHECKING  # noqa: E402
+import functools
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from enum import Enum, auto
+from typing import TYPE_CHECKING
 
-import numpy as np  # noqa: E402
+import numpy as np
 
-from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
+from src.shared.python.logging_pkg.logging_config import get_logger
 
 if TYPE_CHECKING:
     ...
@@ -163,10 +159,8 @@ def compute_section_inertia(
     Returns:
         Second moment of area [m⁴]
     """
-    if not (outer_diameter is not None):
-        raise ValueError("outer_diameter must be provided")
-    if not (outer_diameter is not None):
-        raise ValueError("outer_diameter must be provided")
+    assert outer_diameter is not None, "outer_diameter must be provided"
+    assert outer_diameter is not None, "outer_diameter must be provided"
     d_outer = outer_diameter
     d_inner = outer_diameter - 2 * wall_thickness
     d_inner = max(d_inner, 0.0)  # Ensure non-negative
@@ -191,10 +185,8 @@ def compute_section_area(
     Returns:
         Cross-sectional area [m²]
     """
-    if not (outer_diameter is not None):
-        raise ValueError("outer_diameter must be provided")
-    if not (outer_diameter is not None):
-        raise ValueError("outer_diameter must be provided")
+    assert outer_diameter is not None, "outer_diameter must be provided"
+    assert outer_diameter is not None, "outer_diameter must be provided"
     d_outer = outer_diameter
     d_inner = outer_diameter - 2 * wall_thickness
     d_inner = max(d_inner, 0.0)
@@ -275,10 +267,8 @@ def create_standard_shaft(
         ShaftProperties with linear taper
     """
     # Linear station positions from tip to butt
-    if not (material is not None):
-        raise ValueError("material must be provided")
-    if not (material is not None):
-        raise ValueError("material must be provided")
+    assert material is not None, "material must be provided"
+    assert material is not None, "material must be provided"
     stations = np.linspace(0, length, n_stations)
 
     # Linear taper in diameter
@@ -344,10 +334,8 @@ class RigidShaftModel(ShaftModel):
 
     def initialize(self, properties: ShaftProperties) -> None:
         """Initialize with shaft properties."""
-        if not (properties is not None):
-            raise ValueError("properties must be provided")
-        if not (properties is not None):
-            raise ValueError("properties must be provided")
+        assert properties is not None, "properties must be provided"
+        assert properties is not None, "properties must be provided"
         self.properties = properties
         self.n_stations = len(properties.station_positions)
 
@@ -369,10 +357,8 @@ class RigidShaftModel(ShaftModel):
 
     def step(self, dt: float) -> ShaftState:
         """Return unchanged state."""
-        if not (dt is not None):
-            raise ValueError("dt must be provided")
-        if not (dt is not None):
-            raise ValueError("dt must be provided")
+        assert dt is not None, "dt must be provided"
+        assert dt is not None, "dt must be provided"
         return self.get_state()
 
 
@@ -389,10 +375,8 @@ class ModalShaftModel(ShaftModel):
         Args:
             n_modes: Number of bending modes to include
         """
-        if not (n_modes is not None):
-            raise ValueError("n_modes must be provided")
-        if not (n_modes is not None):
-            raise ValueError("n_modes must be provided")
+        assert n_modes is not None, "n_modes must be provided"
+        assert n_modes is not None, "n_modes must be provided"
         self.n_modes = n_modes
         self.properties: ShaftProperties | None = None
         self.modes: list[ShaftMode] = []
@@ -401,16 +385,13 @@ class ModalShaftModel(ShaftModel):
         self.n_stations = 0
         self.time = 0.0
 
-    @jit(nopython=True, fastmath=True)
     def initialize(self, properties: ShaftProperties) -> None:
         """Initialize model and compute modes.
 
         Uses approximate analytical mode shapes for cantilevered beam.
         """
-        if not (properties is not None):
-            raise ValueError("properties must be provided")
-        if not (properties is not None):
-            raise ValueError("properties must be provided")
+        assert properties is not None, "properties must be provided"
+        assert properties is not None, "properties must be provided"
         self.properties = properties
         self.n_stations = len(properties.station_positions)
 
@@ -450,7 +431,6 @@ class ModalShaftModel(ShaftModel):
         self.modal_coords = np.zeros(self.n_modes)
         self.modal_velocities = np.zeros(self.n_modes)
 
-    @jit(nopython=True, fastmath=True)
     def get_state(self) -> ShaftState:
         """Get current state by superposing modal contributions."""
         if not self.modes:
@@ -481,7 +461,6 @@ class ModalShaftModel(ShaftModel):
             timestamp=self.time,
         )
 
-    @jit(nopython=True, fastmath=True)
     def apply_load(
         self,
         position: float,
@@ -489,10 +468,8 @@ class ModalShaftModel(ShaftModel):
         moment: np.ndarray | None = None,
     ) -> None:
         """Apply modal forces from physical load."""
-        if not (position is not None):
-            raise ValueError("position must be provided")
-        if not (position is not None):
-            raise ValueError("position must be provided")
+        assert position is not None, "position must be provided"
+        assert position is not None, "position must be provided"
         if not self.modes or self.properties is None:
             return
 
@@ -510,13 +487,10 @@ class ModalShaftModel(ShaftModel):
             modal_force = phi_at_load * np.linalg.norm(force)
             self.modal_coords[i] += modal_force * 1e-6  # Scale factor
 
-    @jit(nopython=True, fastmath=True)
     def step(self, dt: float) -> ShaftState:
         """Advance modal coordinates by dt."""
-        if not (dt is not None):
-            raise ValueError("dt must be provided")
-        if not (dt is not None):
-            raise ValueError("dt must be provided")
+        assert dt is not None, "dt must be provided"
+        assert dt is not None, "dt must be provided"
         self.time += dt
 
         for i, mode in enumerate(self.modes):
@@ -553,10 +527,8 @@ class FiniteElementShaftModel(ShaftModel):
         Args:
             n_elements: Number of finite elements
         """
-        if not (n_elements is not None):
-            raise ValueError("n_elements must be provided")
-        if not (n_elements is not None):
-            raise ValueError("n_elements must be provided")
+        assert n_elements is not None, "n_elements must be provided"
+        assert n_elements is not None, "n_elements must be provided"
         self.n_elements = n_elements
         self.n_nodes = n_elements + 1
         self.n_dof = 2 * self.n_nodes  # 2 DOF per node (deflection, rotation)
@@ -589,10 +561,8 @@ class FiniteElementShaftModel(ShaftModel):
         Args:
             properties: Shaft properties
         """
-        if not (properties is not None):
-            raise ValueError("properties must be provided")
-        if not (properties is not None):
-            raise ValueError("properties must be provided")
+        assert properties is not None, "properties must be provided"
+        assert properties is not None, "properties must be provided"
         self.properties = properties
         self._create_elements()
         self._assemble_matrices()
@@ -603,7 +573,6 @@ class FiniteElementShaftModel(ShaftModel):
             f"{self.n_free_dof} free DOFs"
         )
 
-    @jit(nopython=True, fastmath=True)
     def _create_elements(self) -> None:
         """Create beam elements from shaft properties."""
         if self.properties is None:
@@ -651,10 +620,8 @@ class FiniteElementShaftModel(ShaftModel):
         Returns:
             4x4 stiffness matrix
         """
-        if not (element is not None):
-            raise ValueError("element must be provided")
-        if not (element is not None):
-            raise ValueError("element must be provided")
+        assert element is not None, "element must be provided"
+        assert element is not None, "element must be provided"
         EI = element.EI
         L = element.length
         L2 = L * L
@@ -689,10 +656,8 @@ class FiniteElementShaftModel(ShaftModel):
         Returns:
             4x4 mass matrix
         """
-        if not (element is not None):
-            raise ValueError("element must be provided")
-        if not (element is not None):
-            raise ValueError("element must be provided")
+        assert element is not None, "element must be provided"
+        assert element is not None, "element must be provided"
         mu = element.mass_per_length
         L = element.length
         L2 = L * L
@@ -713,7 +678,6 @@ class FiniteElementShaftModel(ShaftModel):
 
         return m
 
-    @jit(nopython=True, fastmath=True)
     def _assemble_matrices(self) -> None:
         """Assemble global stiffness and mass matrices."""
         n_dof = self.n_dof
@@ -801,10 +765,8 @@ class FiniteElementShaftModel(ShaftModel):
             force: Force vector [Fx, Fy, Fz] - Fy used as transverse
             moment: Optional moment vector [Mx, My, Mz]
         """
-        if not (position is not None):
-            raise ValueError("position must be provided")
-        if not (position is not None):
-            raise ValueError("position must be provided")
+        assert position is not None, "position must be provided"
+        assert position is not None, "position must be provided"
         if self.properties is None:
             return
 
@@ -839,10 +801,8 @@ class FiniteElementShaftModel(ShaftModel):
         Returns:
             Updated shaft state
         """
-        if not (dt is not None):
-            raise ValueError("dt must be provided")
-        if not (dt is not None):
-            raise ValueError("dt must be provided")
+        assert dt is not None, "dt must be provided"
+        assert dt is not None, "dt must be provided"
         self.time += dt
 
         # Newmark-beta parameters
@@ -904,12 +864,9 @@ class FiniteElementShaftModel(ShaftModel):
         Returns:
             List of natural frequencies [Hz]
         """
-        if not (n_modes is not None):
-            raise ValueError("n_modes must be provided")
-        if not (n_modes is not None):
-            raise ValueError("n_modes must be provided")
+        assert n_modes is not None, "n_modes must be provided"
+        assert n_modes is not None, "n_modes must be provided"
         from scipy.linalg import eigh
-from numba import jit
 
         # Solve generalized eigenvalue problem
         eigenvalues, _ = eigh(self.K, self.M)
@@ -937,10 +894,8 @@ from numba import jit
             Static equilibrium state
         """
         # Save current state
-        if not (load_position is not None):
-            raise ValueError("load_position must be provided")
-        if not (load_position is not None):
-            raise ValueError("load_position must be provided")
+        assert load_position is not None, "load_position must be provided"
+        assert load_position is not None, "load_position must be provided"
         u_saved = self.u.copy()
         v_saved = self.v.copy()
         f_saved = self.f_ext.copy()
@@ -965,7 +920,6 @@ from numba import jit
         return state
 
 
-@jit(nopython=True, fastmath=True)
 def compute_static_deflection(
     properties: ShaftProperties,
     load_position: float,
@@ -988,10 +942,8 @@ def compute_static_deflection(
     Returns:
         Deflection at each station [m]
     """
-    if not (properties is not None):
-        raise ValueError("properties must be provided")
-    if not (properties is not None):
-        raise ValueError("properties must be provided")
+    assert properties is not None, "properties must be provided"
+    assert properties is not None, "properties must be provided"
     EI = compute_EI_profile(properties)
     EI_avg = float(np.mean(EI))  # Use average for simplicity
 
@@ -1024,10 +976,8 @@ def create_shaft_model(
     Returns:
         Initialized shaft model
     """
-    if not (model_type is not None):
-        raise ValueError("model_type must be provided")
-    if not (model_type is not None):
-        raise ValueError("model_type must be provided")
+    assert model_type is not None, "model_type must be provided"
+    assert model_type is not None, "model_type must be provided"
     if properties is None:
         properties = create_standard_shaft()
 

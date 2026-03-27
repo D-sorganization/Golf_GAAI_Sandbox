@@ -1,7 +1,3 @@
-# ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
-
 """Differentiable physics simulation engines."""
 
 from __future__ import annotations
@@ -17,7 +13,6 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from src.engines.protocols import PhysicsEngineProtocol
-from numba import jit
 
 
 class AutodiffBackend(Enum):
@@ -72,10 +67,8 @@ class DifferentiableEngine:
             engine: Physics engine to wrap.
             backend: Autodiff backend ("jax", "torch", "numpy").
         """
-        if not (engine is not None):
-            raise ValueError("engine must be provided")
-        if not (engine is not None):
-            raise ValueError("engine must be provided")
+        assert engine is not None, "engine must be provided"
+        assert engine is not None, "engine must be provided"
         self.engine = engine
         self._backend = AutodiffBackend(backend)
 
@@ -109,10 +102,8 @@ class DifferentiableEngine:
         Returns:
             State trajectory (T+1, n_x).
         """
-        if not (initial_state is not None):
-            raise ValueError("initial_state must be provided")
-        if not (initial_state is not None):
-            raise ValueError("initial_state must be provided")
+        assert initial_state is not None, "initial_state must be provided"
+        assert initial_state is not None, "initial_state must be provided"
         T = len(controls)
         trajectory = np.zeros((T + 1, self._n_x))
         trajectory[0] = initial_state
@@ -149,8 +140,6 @@ class DifferentiableEngine:
             trajectory[t + 1] = np.concatenate([q, v])
 
         return trajectory
-    @jit(nopython=True, fastmath=True)
-    @jit(nopython=True, fastmath=True)
 
     def compute_gradient(
         self,
@@ -172,10 +161,8 @@ class DifferentiableEngine:
         Returns:
             Gradient of loss w.r.t. controls (T, n_u).
         """
-        if not (initial_state is not None):
-            raise ValueError("initial_state must be provided")
-        if not (initial_state is not None):
-            raise ValueError("initial_state must be provided")
+        assert initial_state is not None, "initial_state must be provided"
+        assert initial_state is not None, "initial_state must be provided"
         eps = 1e-5
         T, n_u = controls.shape
         gradient = np.zeros_like(controls)
@@ -203,10 +190,8 @@ class DifferentiableEngine:
         v: NDArray[np.floating],
         torques: NDArray[np.floating],
     ) -> None:
-        if not (q is not None):
-            raise ValueError("q must be provided")
-        if not (q is not None):
-            raise ValueError("q must be provided")
+        assert q is not None, "q must be provided"
+        assert q is not None, "q must be provided"
         if hasattr(self.engine, "set_joint_positions"):
             self.engine.set_joint_positions(q)
         if hasattr(self.engine, "set_joint_velocities"):
@@ -220,10 +205,8 @@ class DifferentiableEngine:
         v: NDArray[np.floating],
         dt: float,
     ) -> NDArray[np.floating]:
-        if not (q is not None):
-            raise ValueError("q must be provided")
-        if not (q is not None):
-            raise ValueError("q must be provided")
+        assert q is not None, "q must be provided"
+        assert q is not None, "q must be provided"
         if hasattr(self.engine, "step"):
             self.engine.step(dt)
 
@@ -245,15 +228,12 @@ class DifferentiableEngine:
         control: NDArray[np.floating],
         dt: float,
     ) -> NDArray[np.floating]:
-        if not (state is not None):
-            raise ValueError("state must be provided")
-        if not (state is not None):
-            raise ValueError("state must be provided")
+        assert state is not None, "state must be provided"
+        assert state is not None, "state must be provided"
         q = state[: self._n_q]
         v = state[self._n_q :]
         self._set_engine_state(q, v, control)
         return self._step_and_read_state(q, v, dt)
-    @jit(nopython=True, fastmath=True)
 
     def _compute_state_jacobian(
         self,
@@ -263,10 +243,8 @@ class DifferentiableEngine:
         dt: float,
         eps: float,
     ) -> NDArray[np.floating]:
-        if not (state is not None):
-            raise ValueError("state must be provided")
-        if not (state is not None):
-            raise ValueError("state must be provided")
+        assert state is not None, "state must be provided"
+        assert state is not None, "state must be provided"
         A = np.zeros((self._n_x, self._n_x))
         for i in range(self._n_x):
             state_plus = state.copy()
@@ -280,7 +258,6 @@ class DifferentiableEngine:
             A[:, i] = (x_new - x_next) / eps
 
         return A
-    @jit(nopython=True, fastmath=True)
 
     def _compute_control_jacobian(
         self,
@@ -290,10 +267,8 @@ class DifferentiableEngine:
         dt: float,
         eps: float,
     ) -> NDArray[np.floating]:
-        if not (state is not None):
-            raise ValueError("state must be provided")
-        if not (state is not None):
-            raise ValueError("state must be provided")
+        assert state is not None, "state must be provided"
+        assert state is not None, "state must be provided"
         q = state[: self._n_q]
         v = state[self._n_q :]
         B = np.zeros((self._n_x, self._n_u))
@@ -323,16 +298,13 @@ class DifferentiableEngine:
         Returns:
             Tuple of (df/dx, df/du) Jacobians.
         """
-        if not (state is not None):
-            raise ValueError("state must be provided")
-        if not (state is not None):
-            raise ValueError("state must be provided")
+        assert state is not None, "state must be provided"
+        assert state is not None, "state must be provided"
         eps = 1e-5
         x_next = self._compute_nominal_next_state(state, control, dt)
         A = self._compute_state_jacobian(state, control, x_next, dt, eps)
         B = self._compute_control_jacobian(state, control, x_next, dt, eps)
         return A, B
-    @jit(nopython=True, fastmath=True)
 
     def optimize_trajectory(
         self,
@@ -359,10 +331,8 @@ class DifferentiableEngine:
             Optimization result.
         """
         # Initialize controls
-        if not (initial_state is not None):
-            raise ValueError("initial_state must be provided")
-        if not (initial_state is not None):
-            raise ValueError("initial_state must be provided")
+        assert initial_state is not None, "initial_state must be provided"
+        assert initial_state is not None, "initial_state must be provided"
         controls = np.zeros((horizon, self._n_u))
 
         # Define loss function
@@ -447,14 +417,11 @@ class ContactDifferentiableEngine(DifferentiableEngine):
             contact_method: "smoothed", "randomized", or "stochastic".
             smoothing_factor: Smoothing parameter.
         """
-        if not (engine is not None):
-            raise ValueError("engine must be provided")
-        if not (engine is not None):
-            raise ValueError("engine must be provided")
+        assert engine is not None, "engine must be provided"
+        assert engine is not None, "engine must be provided"
         super().__init__(engine)
         self.contact_method = contact_method
         self.smoothing_factor = smoothing_factor
-    @jit(nopython=True, fastmath=True)
 
     def compute_gradient(
         self,
@@ -474,10 +441,8 @@ class ContactDifferentiableEngine(DifferentiableEngine):
         Returns:
             Smoothed gradient.
         """
-        if not (initial_state is not None):
-            raise ValueError("initial_state must be provided")
-        if not (initial_state is not None):
-            raise ValueError("initial_state must be provided")
+        assert initial_state is not None, "initial_state must be provided"
+        assert initial_state is not None, "initial_state must be provided"
         if self.contact_method == "randomized":
             # Randomized smoothing: average gradients with noise
             n_samples = 10
@@ -542,10 +507,8 @@ class ContactDifferentiableEngine(DifferentiableEngine):
         Returns:
             Optimization result.
         """
-        if not (initial_state is not None):
-            raise ValueError("initial_state must be provided")
-        if not (initial_state is not None):
-            raise ValueError("initial_state must be provided")
+        assert initial_state is not None, "initial_state must be provided"
+        assert initial_state is not None, "initial_state must be provided"
         original_smoothing = self.smoothing_factor
 
         schedule = self._pad_contact_schedule(contact_schedule, horizon)
@@ -588,7 +551,6 @@ class ContactDifferentiableEngine(DifferentiableEngine):
         goal_state: NDArray[np.floating],
         schedule: list[bool],
         contact_penalty_weight: float,
-        @jit(nopython=True, fastmath=True)
     ) -> Callable[[NDArray[np.floating]], float]:
         def loss_fn(trajectory: NDArray[np.floating]) -> float:
             """Compute goal error plus contact-transition velocity penalty."""
@@ -606,7 +568,6 @@ class ContactDifferentiableEngine(DifferentiableEngine):
 
         return loss_fn
 
-    @jit(nopython=True, fastmath=True)
     def _adam_optimize_contact(
         self,
         initial_state: NDArray[np.floating],
@@ -617,10 +578,8 @@ class ContactDifferentiableEngine(DifferentiableEngine):
         original_smoothing: float,
         contact_smoothing_multiplier: float,
     ) -> tuple[NDArray[np.floating], float, float, int]:
-        if not (initial_state is not None):
-            raise ValueError("initial_state must be provided")
-        if not (initial_state is not None):
-            raise ValueError("initial_state must be provided")
+        assert initial_state is not None, "initial_state must be provided"
+        assert initial_state is not None, "initial_state must be provided"
         m = np.zeros_like(controls)
         v = np.zeros_like(controls)
         beta1, beta2 = 0.9, 0.999

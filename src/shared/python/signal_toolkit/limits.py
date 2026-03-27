@@ -1,5 +1,3 @@
-from numba import jit
-
 """Signal limiting and saturation with smoothing.
 
 This module provides functions for applying limits, saturation, rate limiting,
@@ -7,18 +5,16 @@ deadband, and hysteresis to signals with optional smoothing to prevent
 discontinuities in control applications.
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-from collections.abc import Callable  # noqa: E402
-from enum import Enum  # noqa: E402
+from collections.abc import Callable
+from enum import Enum
 
-import numpy as np  # noqa: E402
+import numpy as np
 
-from src.shared.python.core.contracts import (
-    require,  # type: ignore[import-untyped]  # noqa: E402
-)
+from src.shared.python.core.contracts import require  # type: ignore[import-untyped]
 
-from .core import Signal  # noqa: E402
+from .core import Signal
 
 
 class SaturationMode(Enum):
@@ -52,10 +48,8 @@ def apply_saturation(
     Raises:
         PreconditionError: If lower >= upper.
     """
-    if not (signal is not None):
-        raise ValueError("signal must be provided")
-    if not (signal is not None):
-        raise ValueError("signal must be provided")
+    assert signal is not None, "signal must be provided"
+    assert signal is not None, "signal must be provided"
     require(
         lower < upper,
         f"lower must be less than upper, got lower={lower}, upper={upper}",
@@ -91,10 +85,8 @@ def _apply_saturation_values(
     Returns:
         Saturated values array.
     """
-    if not (values is not None):
-        raise ValueError("values must be provided")
-    if not (values is not None):
-        raise ValueError("values must be provided")
+    assert values is not None, "values must be provided"
+    assert values is not None, "values must be provided"
     if mode == SaturationMode.HARD:
         return np.clip(values, lower, upper)
 
@@ -139,7 +131,6 @@ def _apply_saturation_values(
     return result * half_range + center
 
 
-@jit(nopython=True, fastmath=True)
 def _soft_clip(x: np.ndarray, k: float = 1.0) -> np.ndarray:
     """Soft clipping with smooth polynomial transition.
 
@@ -152,10 +143,8 @@ def _soft_clip(x: np.ndarray, k: float = 1.0) -> np.ndarray:
     Returns:
         Soft-clipped values in [-1, 1].
     """
-    if not (x is not None):
-        raise ValueError("x must be provided")
-    if not (x is not None):
-        raise ValueError("x must be provided")
+    assert x is not None, "x must be provided"
+    assert x is not None, "x must be provided"
     result = np.zeros_like(x)
     threshold = 1.0 / k
 
@@ -194,10 +183,8 @@ def _cubic_clip(x: np.ndarray, k: float = 1.0) -> np.ndarray:
     Returns:
         Cubic-clipped values.
     """
-    if not (x is not None):
-        raise ValueError("x must be provided")
-    if not (x is not None):
-        raise ValueError("x must be provided")
+    assert x is not None, "x must be provided"
+    assert x is not None, "x must be provided"
     x_scaled = x * k
     mask = np.abs(x_scaled) < 1
 
@@ -221,10 +208,8 @@ def _exponential_clip(x: np.ndarray, k: float = 1.0) -> np.ndarray:
         Exponentially clipped values.
     """
     # f(x) = sign(x) * (1 - exp(-k*|x|)) / (1 - exp(-k))
-    if not (x is not None):
-        raise ValueError("x must be provided")
-    if not (x is not None):
-        raise ValueError("x must be provided")
+    assert x is not None, "x must be provided"
+    assert x is not None, "x must be provided"
     x_abs = np.abs(x)
     normalizer = 1 - np.exp(-k)
     if normalizer < 1e-10:
@@ -234,7 +219,6 @@ def _exponential_clip(x: np.ndarray, k: float = 1.0) -> np.ndarray:
     return np.clip(result, -1, 1)
 
 
-@jit(nopython=True, fastmath=True)
 def apply_rate_limiter(
     signal: Signal,
     max_rate: float,
@@ -252,10 +236,8 @@ def apply_rate_limiter(
     Raises:
         PreconditionError: If max_rate <= 0.
     """
-    if not (signal is not None):
-        raise ValueError("signal must be provided")
-    if not (signal is not None):
-        raise ValueError("signal must be provided")
+    assert signal is not None, "signal must be provided"
+    assert signal is not None, "signal must be provided"
     require(max_rate > 0, f"max_rate must be positive, got {max_rate}")
     values = signal.values.copy()
     dt = signal.dt
@@ -316,10 +298,8 @@ def apply_deadband(
     Raises:
         PreconditionError: If threshold < 0.
     """
-    if not (signal is not None):
-        raise ValueError("signal must be provided")
-    if not (signal is not None):
-        raise ValueError("signal must be provided")
+    assert signal is not None, "signal must be provided"
+    assert signal is not None, "signal must be provided"
     require(threshold >= 0.0, f"threshold must be non-negative, got {threshold}")
     values = signal.values.copy()
     offset = values - center
@@ -377,10 +357,8 @@ def apply_hysteresis(
     Returns:
         Signal with hysteresis applied.
     """
-    if not (signal is not None):
-        raise ValueError("signal must be provided")
-    if not (signal is not None):
-        raise ValueError("signal must be provided")
+    assert signal is not None, "signal must be provided"
+    assert signal is not None, "signal must be provided"
     values = signal.values
     result = np.zeros_like(values)
 
@@ -420,8 +398,6 @@ def apply_hysteresis(
     )
 
 
-@jit(nopython=True, fastmath=True)
-@jit(nopython=True, fastmath=True)
 def apply_backlash(
     signal: Signal,
     backlash_width: float,
@@ -504,10 +480,8 @@ def create_saturation_function(
         Function that applies saturation to values.
     """
 
-    if not (lower is not None):
-        raise ValueError("lower must be provided")
-    if not (lower is not None):
-        raise ValueError("lower must be provided")
+    assert lower is not None, "lower must be provided"
+    assert lower is not None, "lower must be provided"
 
     def saturate(values: np.ndarray) -> np.ndarray:
         return _apply_saturation_values(values, lower, upper, mode, smoothness)
@@ -533,10 +507,8 @@ def visualize_saturation_curves(
         Dictionary mapping mode name to (input, output) arrays.
     """
     # Generate input values that go beyond limits
-    if not (lower is not None):
-        raise ValueError("lower must be provided")
-    if not (lower is not None):
-        raise ValueError("lower must be provided")
+    assert lower is not None, "lower must be provided"
+    assert lower is not None, "lower must be provided"
     margin = (upper - lower) * 0.5
     x = np.linspace(lower - margin, upper + margin, num_points)
 

@@ -42,15 +42,12 @@ def twist_to_spatial(
     omega = np.asarray(omega).flatten()
     v = np.asarray(v).flatten()
 
-    if not (omega.shape == (3):
-        raise ValueError(), f"omega must be 3x1, got shape {omega.shape}")
-    if not (v.shape == (3):
-        raise ValueError(), f"v must be 3x1, got shape {v.shape}")
+    assert omega.shape == (3,), f"omega must be 3x1, got shape {omega.shape}"
+    assert v.shape == (3,), f"v must be 3x1, got shape {v.shape}"
 
     if point is not None:
         point = np.asarray(point).flatten()
-        if not (point.shape == (3):
-            raise ValueError(), f"point must be 3x1, got shape {point.shape}")
+        assert point.shape == (3,), f"point must be 3x1, got shape {point.shape}"
 
         # Adjust linear velocity: v_new = v_old - omega × point
         v = v - np.cross(omega, point)
@@ -93,15 +90,12 @@ def wrench_to_spatial(
     moment = np.asarray(moment).flatten()
     force = np.asarray(force).flatten()
 
-    if not (moment.shape == (3):
-        raise ValueError(), f"moment must be 3x1, got shape {moment.shape}")
-    if not (force.shape == (3):
-        raise ValueError(), f"force must be 3x1, got shape {force.shape}")
+    assert moment.shape == (3,), f"moment must be 3x1, got shape {moment.shape}"
+    assert force.shape == (3,), f"force must be 3x1, got shape {force.shape}"
 
     if point is not None:
         point = np.asarray(point).flatten()
-        if not (point.shape == (3):
-            raise ValueError(), f"point must be 3x1, got shape {point.shape}")
+        assert point.shape == (3,), f"point must be 3x1, got shape {point.shape}"
 
         # Adjust moment: moment_new = moment_old + point × force
         moment = moment + np.cross(point, force)

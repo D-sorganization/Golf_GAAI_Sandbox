@@ -1,21 +1,17 @@
-# ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
-
 """Coordination and sequencing plotting renderer."""
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-from typing import Any  # noqa: E402
+from typing import Any
 
-import numpy as np  # noqa: E402
-from matplotlib.axes import Axes  # noqa: E402
-from matplotlib.colors import ListedColormap  # noqa: E402
-from matplotlib.figure import Figure  # noqa: E402
-from matplotlib.patches import Rectangle  # noqa: E402
+import numpy as np
+from matplotlib.axes import Axes
+from matplotlib.colors import ListedColormap
+from matplotlib.figure import Figure
+from matplotlib.patches import Rectangle
 
-from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
-from src.shared.python.plotting.renderers.base import BaseRenderer  # noqa: E402
+from src.shared.python.logging_pkg.logging_config import get_logger
+from src.shared.python.plotting.renderers.base import BaseRenderer
 
 logger = get_logger(__name__)
 
@@ -31,10 +27,8 @@ class CoordinationRenderer(BaseRenderer):
         ax: Axes | None = None,
     ) -> None:
         """Plot Coupling Angle time series (Vector Coding)."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         times, _ = self.data.get_series("joint_positions")
 
         if ax is None:
@@ -81,10 +75,8 @@ class CoordinationRenderer(BaseRenderer):
         title: str | None = None,
     ) -> None:
         """Plot coordination patterns as a color-coded strip over time."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         times, _ = self.data.get_series("joint_positions")
 
         if len(times) == 0 or len(coupling_angles) == 0:
@@ -164,10 +156,8 @@ class CoordinationRenderer(BaseRenderer):
         title: str | None = None,
     ) -> None:
         """Plot Continuous Relative Phase (CRP) time series."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         times, _ = self.data.get_series("joint_positions")
 
         if len(times) == 0 or len(crp_data) == 0:
@@ -211,10 +201,8 @@ class CoordinationRenderer(BaseRenderer):
         title: str = "Sequence Alignment",
     ) -> None:
         """Plot alignment between two sequences (DTW)."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         ax = fig.add_subplot(111)
 
         offset = np.max(data1) - np.min(data2) + 1.0
@@ -255,10 +243,8 @@ class CoordinationRenderer(BaseRenderer):
         title: str = "Cross Recurrence Plot",
     ) -> None:
         """Plot Cross Recurrence Plot."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         if recurrence_matrix.size == 0:
             ax = fig.add_subplot(111)
             ax.text(0.5, 0.5, "No CRP Data", ha="center", va="center")
@@ -290,10 +276,8 @@ class CoordinationRenderer(BaseRenderer):
         title: str = "Recurrence Plot",
     ) -> None:
         """Plot Recurrence Plot (binary matrix)."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         if recurrence_matrix.size == 0:
             ax = fig.add_subplot(111)
             ax.text(0.5, 0.5, "No Recurrence Data", ha="center", va="center")
@@ -322,10 +306,8 @@ class CoordinationRenderer(BaseRenderer):
         slope_val: float | None = None,
     ) -> None:
         """Plot Correlation Sum C(r) vs r on log-log scale."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         ax = fig.add_subplot(111)
 
         log_r = np.log(radii)
@@ -365,10 +347,8 @@ class CoordinationRenderer(BaseRenderer):
         max_lag: float = 0.5,
     ) -> None:
         """Plot time lag matrix between joints."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         try:
             from src.shared.python.validation_pkg.statistical_analysis import (
                 StatisticalAnalyzer,
@@ -423,7 +403,6 @@ class CoordinationRenderer(BaseRenderer):
         cbar.set_label("Time Lag (s)\n(Pos: Row leads Col)", rotation=270, labelpad=20)
         fig.tight_layout()
 
-    @jit(nopython=True, fastmath=True)
     def plot_kinematic_sequence(
         self,
         fig: Figure,
@@ -431,10 +410,8 @@ class CoordinationRenderer(BaseRenderer):
         analyzer_result: Any | None = None,
     ) -> None:
         """Plot kinematic sequence (normalized velocities)."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         times, velocities = self.data.get_series("joint_velocities")
         velocities = np.asarray(velocities)
 
@@ -514,10 +491,8 @@ class CoordinationRenderer(BaseRenderer):
         impact_time: float | None = None,
     ) -> None:
         """Plot kinematic sequence as a Gantt-style bar chart of peak times."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         times, velocities = self.data.get_series("joint_velocities")
         velocities = np.asarray(velocities)
 
@@ -591,10 +566,8 @@ class CoordinationRenderer(BaseRenderer):
         hip_idx: int,
     ) -> None:
         """Plot X-Factor Cycle (Stretch-Shortening Cycle)."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         times, positions = self.data.get_series("joint_positions")
         positions = np.asarray(positions)
 
@@ -645,17 +618,14 @@ class CoordinationRenderer(BaseRenderer):
         fig.colorbar(sc, ax=ax, label="Time (s)")
         fig.tight_layout()
 
-    @jit(nopython=True, fastmath=True)
     def plot_muscle_synergies(
         self,
         fig: Figure,
         synergy_result: Any,
     ) -> None:
         """Plot extracted muscle synergies (Weights and Activations)."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         if not hasattr(synergy_result, "weights") or not hasattr(
             synergy_result, "activations"
         ):
@@ -733,10 +703,8 @@ class CoordinationRenderer(BaseRenderer):
         data_type: str = "velocity",
     ) -> None:
         """Plot correlation matrix between joints."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         if data_type == "position":
             _, data = self.data.get_series("joint_positions")
             title = "Joint Position Correlation"
@@ -799,15 +767,12 @@ class CoordinationRenderer(BaseRenderer):
         window_size: int = 20,
     ) -> None:
         """Plot Rolling Correlation between two joint velocities."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         try:
             from src.shared.python.validation_pkg.statistical_analysis import (
                 StatisticalAnalyzer,
             )
-from numba import jit
         except ImportError:
             ax = fig.add_subplot(111)
             ax.text(0.5, 0.5, "Analysis module missing", ha="center", va="center")
@@ -871,10 +836,8 @@ from numba import jit
         dim2: int = 1,
     ) -> None:
         """Plot trajectory in synergy space (Activation 1 vs Activation 2)."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         if not hasattr(synergy_result, "activations"):
             ax = fig.add_subplot(111)
             ax.text(0.5, 0.5, "Invalid SynergyResult", ha="center", va="center")
@@ -916,10 +879,8 @@ from numba import jit
         modes_to_plot: int = 3,
     ) -> None:
         """Plot PCA/Principal Movements analysis results."""
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
-        if not (fig is not None):
-            raise ValueError("fig must be provided")
+        assert fig is not None, "fig must be provided"
+        assert fig is not None, "fig must be provided"
         gs = fig.add_gridspec(2, 1, height_ratios=[1, 2], hspace=0.3)
 
         ax1 = fig.add_subplot(gs[0])

@@ -1,25 +1,21 @@
-# ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
-
 """Drake GUI visualization mixin.
 
 Extracts vector drawing, ellipsoid rendering, analysis plots,
 and data export from DrakeSimApp (drake_gui_app.py).
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import contextlib  # noqa: E402
-from typing import TYPE_CHECKING, Any  # noqa: E402
+import contextlib
+from typing import TYPE_CHECKING, Any
 
-import numpy as np  # noqa: E402
+import numpy as np
 
-from src.shared.python.engine_core.engine_availability import (  # noqa: E402
+from src.shared.python.engine_core.engine_availability import (
     MATPLOTLIB_AVAILABLE,
     PYQT6_AVAILABLE,
 )
-from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
+from src.shared.python.logging_pkg.logging_config import get_logger
 
 HAS_QT = PYQT6_AVAILABLE
 HAS_MATPLOTLIB = MATPLOTLIB_AVAILABLE
@@ -111,16 +107,15 @@ class DrakeVisualizationMixin:
         plant_context = self.plant.GetMyContextFromRoot(self.context)
         self.plant.SetPositions(
             self.eval_context, self.plant.GetPositions(plant_context)
-        )  # noqa: E501
+        )
         self.plant.SetVelocities(
             self.eval_context, self.plant.GetVelocities(plant_context)
-        )  # noqa: E501
+        )
 
     def _draw_torque_vectors(self: Any) -> None:
         tau = self.plant.CalcGravityGeneralizedForces(self.eval_context)
         self._draw_accel_vectors(-tau, "torques", Rgba(0, 0, 1, 1), scale=0.05)
 
-    @jit(nopython=True, fastmath=True)
     def _draw_gravity_force_vectors(self: Any) -> None:
         for i in range(self.plant.num_bodies()):
             body = self.plant.get_body(BodyIndex(i))
@@ -147,10 +142,8 @@ class DrakeVisualizationMixin:
                 self.meshcat.SetLineSegments(path, points, 2.0, Rgba(0, 1, 0, 1))
 
     def _resolve_induced_accels(self: Any, analyzer, source):
-        if not (analyzer is not None):
-            raise ValueError("analyzer must be provided")
-        if not (analyzer is not None):
-            raise ValueError("analyzer must be provided")
+        assert analyzer is not None, "analyzer must be provided"
+        assert analyzer is not None, "analyzer must be provided"
         accels = np.zeros(self.plant.num_velocities())
 
         if source in ["gravity", "velocity", "total"]:
@@ -181,19 +174,15 @@ class DrakeVisualizationMixin:
         return accels
 
     def _draw_induced_vectors_viz(self: Any, analyzer) -> None:
-        if not (analyzer is not None):
-            raise ValueError("analyzer must be provided")
-        if not (analyzer is not None):
-            raise ValueError("analyzer must be provided")
+        assert analyzer is not None, "analyzer must be provided"
+        assert analyzer is not None, "analyzer must be provided"
         source = self.combo_induced_source.currentText()
         accels = self._resolve_induced_accels(analyzer, source)
         self._draw_accel_vectors(accels, "induced", Rgba(1, 0, 1, 1))
 
     def _draw_counterfactual_vectors(self: Any, analyzer) -> None:
-        if not (analyzer is not None):
-            raise ValueError("analyzer must be provided")
-        if not (analyzer is not None):
-            raise ValueError("analyzer must be provided")
+        assert analyzer is not None, "analyzer must be provided"
+        assert analyzer is not None, "analyzer must be provided"
         cf_type = self.combo_cf_type.currentText()
         res = analyzer.compute_counterfactuals(self.eval_context)
 
@@ -231,7 +220,6 @@ class DrakeVisualizationMixin:
         if self.chk_cf_vec.isChecked():
             self._draw_counterfactual_vectors(analyzer)
 
-    @jit(nopython=True, fastmath=True)
     def _draw_accel_vectors(
         self: Any,
         values: np.ndarray,
@@ -240,10 +228,8 @@ class DrakeVisualizationMixin:
         scale: float = 0.1,
     ) -> None:
         """Draw vectors at joints (accel, torque, etc)."""
-        if not (values is not None):
-            raise ValueError("values must be provided")
-        if not (values is not None):
-            raise ValueError("values must be provided")
+        assert values is not None, "values must be provided"
+        assert values is not None, "values must be provided"
         if not self.meshcat or self.plant is None:
             return
 
@@ -403,8 +389,8 @@ class DrakeVisualizationMixin:
             not self.meshcat
             or not self.manip_analyzer
             or not self.context
-            or not self.plant  # noqa: E501
-        ):  # noqa: E501
+            or not self.plant
+        ):
             return
 
         # We'll use a specific path prefix
@@ -550,7 +536,7 @@ class DrakeVisualizationMixin:
         if spec_induced:
             self.recorder.induced_accelerations["control"] = list(
                 np.array(spec_induced)
-            )  # noqa: E501
+            )
 
         joint_idx = 0
         if g_induced_arr.shape[1] > 2:
@@ -594,7 +580,7 @@ class DrakeVisualizationMixin:
 
             for q, v in zip(
                 self.recorder.q_history, self.recorder.v_history, strict=False
-            ):  # noqa: E501
+            ):
                 self.plant.SetPositions(self.eval_context, q)
                 self.plant.SetVelocities(self.eval_context, v)
 
@@ -682,7 +668,6 @@ class DrakeVisualizationMixin:
         from shared.python.validation_pkg.statistical_analysis import (
             StatisticalAnalyzer,
         )
-from numba import jit
 
         if not self.recorder.times:
             QtWidgets.QMessageBox.warning(
@@ -737,7 +722,7 @@ from numba import jit
         ax3 = fig.add_subplot(gs[1, :])
         ax3.text(
             0.5, 0.5, "Power Data Not Available in Drake", ha="center", va="center"
-        )  # noqa: E501
+        )
 
         plt.tight_layout()
         plt.show()

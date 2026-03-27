@@ -1,7 +1,3 @@
-# ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
-
 """
 PyQt6 GUI for Two-Stage PSA System Analysis.
 
@@ -9,23 +5,19 @@ This GUI provides interactive visualization and analysis of PSA system
 performance, including sensitivity analysis and O2 safety calculations.
 """
 
-import os  # noqa: E402
-import subprocess  # noqa: E402
-import sys  # noqa: E402
-import webbrowser  # noqa: E402
+import os
+import subprocess
+import sys
+import webbrowser
 
-import matplotlib  # noqa: E402
-import numpy as np  # noqa: E402
-from matplotlib.backends.backend_qtagg import (
-    FigureCanvasQTAgg as FigureCanvas,  # noqa: E402
-)
-from matplotlib.backends.backend_qtagg import (
-    NavigationToolbar2QT as NavigationToolbar,
-)  # noqa: E402
-from matplotlib.figure import Figure  # noqa: E402
-from PyQt6.QtCore import Qt  # noqa: E402
-from PyQt6.QtGui import QAction, QDoubleValidator, QFont, QPixmap  # noqa: E402
-from PyQt6.QtWidgets import (  # noqa: E402
+import matplotlib
+import numpy as np
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QAction, QDoubleValidator, QFont, QPixmap
+from PyQt6.QtWidgets import (
     QApplication,
     QCheckBox,
     QComboBox,
@@ -47,8 +39,8 @@ from PyQt6.QtWidgets import (  # noqa: E402
     QWidget,
 )
 
-from ...ui.utils.widget_factory import create_slider  # noqa: E402
-from .psa_model import (  # noqa: E402
+from ...ui.utils.widget_factory import create_slider
+from .psa_model import (
     DEFAULT_COMPONENTS,
     ComponentData,
     PSAModel,
@@ -67,10 +59,8 @@ class MplCanvas(FigureCanvas):
     def __init__(
         self, parent: QWidget | None = None, width: float = 8, height: float = 6
     ) -> None:
-        if not (width is not None):
-            raise ValueError("width must be provided")
-        if not (width is not None):
-            raise ValueError("width must be provided")
+        assert width is not None, "width must be provided"
+        assert width is not None, "width must be provided"
         self.fig = Figure(figsize=(width, height), dpi=100)
         super().__init__(self.fig)
         self.setParent(parent)
@@ -346,10 +336,8 @@ class ResultsPanel(QWidget):
 
     def update_results(self, results: PSAResults) -> None:
         """Update display with calculation results."""
-        if not (results is not None):
-            raise ValueError("results must be provided")
-        if not (results is not None):
-            raise ValueError("results must be provided")
+        assert results is not None, "results must be provided"
+        assert results is not None, "results must be provided"
         self._update_key_metrics(results)
         self._update_safety_metrics(results)
         self._update_flows_table(results)
@@ -357,10 +345,8 @@ class ResultsPanel(QWidget):
 
     def _update_key_metrics(self, results: PSAResults) -> None:
         """Update key performance metric labels."""
-        if not (results is not None):
-            raise ValueError("results must be provided")
-        if not (results is not None):
-            raise ValueError("results must be provided")
+        assert results is not None, "results must be provided"
+        assert results is not None, "results must be provided"
         self.h2_recovery_label.setText(f"{results.h2_recovery_pct:.2f}%")
         self.h2_purity_label.setText(f"{results.h2_purity_pct:.5f}%")
         self.net_product_label.setText(f"{results.total_net_product_scfm:.2f} SCFM")
@@ -369,10 +355,8 @@ class ResultsPanel(QWidget):
 
     def _update_safety_metrics(self, results: PSAResults) -> None:
         """Update safety/flammability metric labels and styling."""
-        if not (results is not None):
-            raise ValueError("results must be provided")
-        if not (results is not None):
-            raise ValueError("results must be provided")
+        assert results is not None, "results must be provided"
+        assert results is not None, "results must be provided"
         self.s2_tail_h2_label.setText(f"{results.s2_tail_h2_pct:.2f}%")
         self.s2_tail_o2_label.setText(f"{results.s2_tail_o2_pct:.2f}%")
 
@@ -394,10 +378,8 @@ class ResultsPanel(QWidget):
 
     def _update_flows_table(self, results: PSAResults) -> None:
         """Populate the flows table with component flow data and totals."""
-        if not (results is not None):
-            raise ValueError("results must be provided")
-        if not (results is not None):
-            raise ValueError("results must be provided")
+        assert results is not None, "results must be provided"
+        assert results is not None, "results must be provided"
         n_comp = len(results.component_names)
         self.flows_table.setRowCount(n_comp + 1)
 
@@ -440,10 +422,8 @@ class ResultsPanel(QWidget):
 
     def _update_compositions_table(self, results: PSAResults) -> None:
         """Populate the compositions table with component percentage data."""
-        if not (results is not None):
-            raise ValueError("results must be provided")
-        if not (results is not None):
-            raise ValueError("results must be provided")
+        assert results is not None, "results must be provided"
+        assert results is not None, "results must be provided"
         n_comp = len(results.component_names)
         self.comp_table.setRowCount(n_comp + 1)
 
@@ -752,7 +732,6 @@ class PFDWidget(QWidget):
         super().__init__(parent)
         self._setup_ui()
 
-    @jit(nopython=True, fastmath=True)
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
 
@@ -1057,7 +1036,6 @@ class PSAMainWindow(QMainWindow):
 def main() -> None:
     """Main entry point for the GUI application."""
     from shared.python.theme import setup_themed_app
-from numba import jit
 
     app = QApplication(sys.argv)
     app.setStyle("Fusion")

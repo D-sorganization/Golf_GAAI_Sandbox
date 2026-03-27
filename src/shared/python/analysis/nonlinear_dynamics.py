@@ -1,23 +1,19 @@
-# ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
-
 """Nonlinear dynamics and complexity analysis.
 
 Includes Lyapunov exponents, correlation dimension, recurrence quantification,
 entropy measures, fractal dimension, and local divergence rates.
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-from typing import Any, cast  # noqa: E402
+from typing import Any, cast
 
-import numpy as np  # noqa: E402
-from scipy.spatial import cKDTree  # noqa: E402
-from scipy.spatial.distance import pdist, squareform  # noqa: E402
+import numpy as np
+from scipy.spatial import cKDTree
+from scipy.spatial.distance import pdist, squareform
 
-from src.shared.python.analysis.dataclasses import RQAMetrics  # noqa: E402
-from src.shared.python.core.contracts import ensure, require  # noqa: E402
+from src.shared.python.analysis.dataclasses import RQAMetrics
+from src.shared.python.core.contracts import ensure, require
 
 
 class NonlinearDynamicsMixin:
@@ -35,8 +31,6 @@ class NonlinearDynamicsMixin:
     joint_velocities: np.ndarray
     dt: float
 
-    @jit(nopython=True, fastmath=True)
-    @jit(nopython=True, fastmath=True)
     def compute_local_divergence_rate(
         self,
         joint_idx: int = 0,
@@ -60,10 +54,8 @@ class NonlinearDynamicsMixin:
         Returns:
             Tuple of (times, divergence_rates)
         """
-        if not (joint_idx is not None):
-            raise ValueError("joint_idx must be provided")
-        if not (joint_idx is not None):
-            raise ValueError("joint_idx must be provided")
+        assert joint_idx is not None, "joint_idx must be provided"
+        assert joint_idx is not None, "joint_idx must be provided"
         if data_type == "position":
             data = self.joint_positions[:, joint_idx]
         else:
@@ -138,10 +130,8 @@ class NonlinearDynamicsMixin:
         Returns:
             Binary recurrence matrix (N, N).
         """
-        if not (threshold_ratio is not None):
-            raise ValueError("threshold_ratio must be provided")
-        if not (threshold_ratio is not None):
-            raise ValueError("threshold_ratio must be provided")
+        assert threshold_ratio is not None, "threshold_ratio must be provided"
+        assert threshold_ratio is not None, "threshold_ratio must be provided"
         if (
             self.joint_positions.shape[1] == 0
             or self.joint_velocities.shape[1] == 0
@@ -209,10 +199,8 @@ class NonlinearDynamicsMixin:
         Returns:
             Binary recurrence matrix (N, N)
         """
-        if not (joint_idx_1 is not None):
-            raise ValueError("joint_idx_1 must be provided")
-        if not (joint_idx_1 is not None):
-            raise ValueError("joint_idx_1 must be provided")
+        assert joint_idx_1 is not None, "joint_idx_1 must be provided"
+        assert joint_idx_1 is not None, "joint_idx_1 must be provided"
         s1 = np.column_stack(
             (
                 self.joint_positions[:, joint_idx_1],
@@ -251,10 +239,8 @@ class NonlinearDynamicsMixin:
         Returns:
             RQAMetrics object or None
         """
-        if not (recurrence_matrix is not None):
-            raise ValueError("recurrence_matrix must be provided")
-        if not (recurrence_matrix is not None):
-            raise ValueError("recurrence_matrix must be provided")
+        assert recurrence_matrix is not None, "recurrence_matrix must be provided"
+        assert recurrence_matrix is not None, "recurrence_matrix must be provided"
         if recurrence_matrix.size == 0:
             return None
 
@@ -303,7 +289,6 @@ class NonlinearDynamicsMixin:
             trapping_time=tt,
         )
 
-    @jit(nopython=True, fastmath=True)
     def compute_correlation_dimension(
         self, data: np.ndarray, tau: int = 1, dim: int = 3
     ) -> float:
@@ -317,10 +302,8 @@ class NonlinearDynamicsMixin:
         Returns:
             Estimated Correlation Dimension
         """
-        if not (data is not None):
-            raise ValueError("data must be provided")
-        if not (data is not None):
-            raise ValueError("data must be provided")
+        assert data is not None, "data must be provided"
+        assert data is not None, "data must be provided"
         N = len(data)
         M = N - (dim - 1) * tau
         if M < 20:
@@ -356,9 +339,6 @@ class NonlinearDynamicsMixin:
         slope, _ = np.polyfit(log_r[start:end], log_c[start:end], 1)
         return float(slope)
 
-    @jit(nopython=True, fastmath=True)
-    @jit(nopython=True, fastmath=True)
-    @jit(nopython=True, fastmath=True)
     def estimate_lyapunov_exponent(
         self,
         data: np.ndarray,
@@ -385,10 +365,8 @@ class NonlinearDynamicsMixin:
         Returns:
             Estimated LLE (nats/s)
         """
-        if not (data is not None):
-            raise ValueError("data must be provided")
-        if not (data is not None):
-            raise ValueError("data must be provided")
+        assert data is not None, "data must be provided"
+        assert data is not None, "data must be provided"
         require(tau >= 1, "tau must be >= 1", tau)
         require(dim >= 1, "dim must be >= 1", dim)
         require(window >= 1, "window must be >= 1", window)
@@ -408,7 +386,6 @@ class NonlinearDynamicsMixin:
         nearest_neighbors = np.zeros(M, dtype=int)
 
         from scipy.spatial.distance import cdist
-from numba import jit
 
         dists_mat = cdist(orbit, orbit, metric="euclidean")
 
@@ -460,8 +437,6 @@ from numba import jit
 
         return 0.0
 
-    @jit(nopython=True, fastmath=True)
-    @jit(nopython=True, fastmath=True)
     def compute_permutation_entropy(
         self,
         data: np.ndarray,
@@ -485,10 +460,8 @@ from numba import jit
         Returns:
             Entropy value (bits)
         """
-        if not (data is not None):
-            raise ValueError("data must be provided")
-        if not (data is not None):
-            raise ValueError("data must be provided")
+        assert data is not None, "data must be provided"
+        assert data is not None, "data must be provided"
         require(order >= 2, "permutation order must be >= 2", order)
         require(delay >= 1, "delay must be >= 1", delay)
 
@@ -545,10 +518,8 @@ from numba import jit
         Returns:
             Sample Entropy value
         """
-        if not (data is not None):
-            raise ValueError("data must be provided")
-        if not (data is not None):
-            raise ValueError("data must be provided")
+        assert data is not None, "data must be provided"
+        assert data is not None, "data must be provided"
         require(m >= 1, "template length m must be >= 1", m)
         require(r > 0, "tolerance r must be positive", r)
 
@@ -582,7 +553,6 @@ from numba import jit
         ensure(result >= 0, "sample entropy must be non-negative", result)
         return result
 
-    @jit(nopython=True, fastmath=True)
     def compute_multiscale_entropy(
         self,
         data: np.ndarray,
@@ -601,10 +571,8 @@ from numba import jit
         Returns:
             Tuple of (scales, entropy_values)
         """
-        if not (data is not None):
-            raise ValueError("data must be provided")
-        if not (data is not None):
-            raise ValueError("data must be provided")
+        assert data is not None, "data must be provided"
+        assert data is not None, "data must be provided"
         mse_values = []
         scales = np.arange(1, max_scale + 1)
 
@@ -633,8 +601,6 @@ from numba import jit
 
         return scales, np.array(mse_values)
 
-    @jit(nopython=True, fastmath=True)
-    @jit(nopython=True, fastmath=True)
     def compute_fractal_dimension(
         self,
         data: np.ndarray,
@@ -655,10 +621,8 @@ from numba import jit
         Returns:
             Fractal dimension (HFD) approx between 1.0 and 2.0
         """
-        if not (data is not None):
-            raise ValueError("data must be provided")
-        if not (data is not None):
-            raise ValueError("data must be provided")
+        assert data is not None, "data must be provided"
+        assert data is not None, "data must be provided"
         require(k_max >= 1, "k_max must be >= 1", k_max)
 
         N = len(data)

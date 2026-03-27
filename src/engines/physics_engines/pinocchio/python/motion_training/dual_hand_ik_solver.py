@@ -1,22 +1,18 @@
-from numba import jit
-
 """Dual-hand inverse kinematics solver for golf swing motion.
 
 This module implements IK solving with both hands as end-effectors that must
 track positions on a golf club grip as it moves through the swing trajectory.
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-from dataclasses import dataclass, field  # noqa: E402
-from pathlib import Path  # noqa: E402
-from typing import TYPE_CHECKING  # noqa: E402
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import TYPE_CHECKING
 
-import numpy as np  # noqa: E402
+import numpy as np
 
-from src.shared.python.engine_core.engine_availability import (
-    PINOCCHIO_AVAILABLE,  # noqa: E402
-)
+from src.shared.python.engine_core.engine_availability import PINOCCHIO_AVAILABLE
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -36,12 +32,9 @@ try:
 except ImportError:
     PINK_AVAILABLE = False
 
-import logging  # noqa: E402
+import logging
 
-from motion_training.club_trajectory_parser import (  # noqa: E402
-    ClubFrame,
-    ClubTrajectory,
-)
+from motion_training.club_trajectory_parser import ClubFrame, ClubTrajectory
 
 logger = logging.getLogger(__name__)
 
@@ -195,10 +188,8 @@ class DualHandIKSolver:
         Returns:
             Tuple of (left_hand_target, right_hand_target) as SE3 transforms
         """
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
+        assert frame is not None, "frame must be provided"
+        assert frame is not None, "frame must be provided"
         s = self.settings
 
         # Get grip orientation as rotation matrix
@@ -218,7 +209,6 @@ class DualHandIKSolver:
 
         return left_target, right_target
 
-    @jit(nopython=True, fastmath=True)
     def solve_frame(
         self,
         frame: ClubFrame,
@@ -233,10 +223,8 @@ class DualHandIKSolver:
         Returns:
             IKResult with solved configuration and error metrics
         """
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
+        assert frame is not None, "frame must be provided"
+        assert frame is not None, "frame must be provided"
         if q_init is None:
             q_init = self.q_ref.copy()
 
@@ -281,10 +269,10 @@ class DualHandIKSolver:
 
             left_error = np.linalg.norm(
                 left_current.translation - left_target.translation
-            )  # noqa: E501
+            )
             right_error = np.linalg.norm(
                 right_current.translation - right_target.translation
-            )  # noqa: E501
+            )
 
             # Check convergence
             if left_error < s.position_tolerance and right_error < s.position_tolerance:
@@ -305,7 +293,6 @@ class DualHandIKSolver:
             iterations=s.max_iterations,
         )
 
-    @jit(nopython=True, fastmath=True)
     def solve_trajectory(
         self,
         trajectory: ClubTrajectory,
@@ -322,10 +309,8 @@ class DualHandIKSolver:
         Returns:
             TrajectoryIKResult with all solved configurations
         """
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
+        assert trajectory is not None, "trajectory must be provided"
+        assert trajectory is not None, "trajectory must be provided"
         result = TrajectoryIKResult()
 
         q = q_init if q_init is not None else self.q_ref.copy()
@@ -378,10 +363,8 @@ class DualHandIKSolver:
         Returns:
             Tuple of (left_hand_pos, right_hand_pos)
         """
-        if not (q is not None):
-            raise ValueError("q must be provided")
-        if not (q is not None):
-            raise ValueError("q must be provided")
+        assert q is not None, "q must be provided"
+        assert q is not None, "q must be provided"
         pin.forwardKinematics(self.model, self.data, q)
         pin.updateFramePlacements(self.model, self.data)
 
@@ -423,17 +406,14 @@ class DualHandIKSolverFallback:
 
         self.q_ref = pin.neutral(self.model)
 
-    @jit(nopython=True, fastmath=True)
     def solve_frame(
         self,
         frame: ClubFrame,
         q_init: NDArray[np.float64] | None = None,
     ) -> IKResult:
         """Solve IK using damped least-squares."""
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
+        assert frame is not None, "frame must be provided"
+        assert frame is not None, "frame must be provided"
         if q_init is None:
             q_init = self.q_ref.copy()
 
@@ -507,7 +487,6 @@ class DualHandIKSolverFallback:
             iterations=s.max_iterations,
         )
 
-    @jit(nopython=True, fastmath=True)
     def solve_trajectory(
         self,
         trajectory: ClubTrajectory,
@@ -515,10 +494,8 @@ class DualHandIKSolverFallback:
         verbose: bool = False,
     ) -> TrajectoryIKResult:
         """Solve IK for entire trajectory."""
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
+        assert trajectory is not None, "trajectory must be provided"
+        assert trajectory is not None, "trajectory must be provided"
         result = TrajectoryIKResult()
 
         q = q_init if q_init is not None else self.q_ref.copy()
@@ -569,4 +546,4 @@ def create_ik_solver(
         logger.info("Pink not available, using fallback damped least-squares solver")
         return DualHandIKSolverFallback(
             urdf_path, left_hand_frame, right_hand_frame, settings
-        )  # noqa: E501
+        )

@@ -1,7 +1,3 @@
-# ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
-
 """
 Swing Optimizer Module
 
@@ -25,16 +21,16 @@ References:
 - MacKenzie (2012) Understanding the role of shaft stiffness
 """
 
-from collections.abc import Callable  # noqa: E402
-from dataclasses import dataclass, field  # noqa: E402
-from enum import Enum  # noqa: E402
-from typing import Any, cast  # noqa: E402
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, cast
 
-import numpy as np  # noqa: E402
-from scipy import optimize  # noqa: E402
+import numpy as np
+from scipy import optimize
 
-from src.shared.python.core.constants import GRAVITY_M_S2  # noqa: E402
-from src.shared.python.core.contracts import (  # noqa: E402
+from src.shared.python.core.constants import GRAVITY_M_S2
+from src.shared.python.core.contracts import (
     ContractChecker,
     invariant,
     postcondition,
@@ -272,10 +268,8 @@ class SwingOptimizer(ContractChecker):
             club: Golf club model
             config: Optimization configuration (uses defaults if not provided)
         """
-        if not (golfer is not None):
-            raise ValueError("golfer must be provided")
-        if not (golfer is not None):
-            raise ValueError("golfer must be provided")
+        assert golfer is not None, "golfer must be provided"
+        assert golfer is not None, "golfer must be provided"
         self.golfer = golfer
         self.club = club
         self.config = config or OptimizationConfig()
@@ -363,7 +357,6 @@ class SwingOptimizer(ContractChecker):
             OptimizationResult with optimal trajectory and metrics
         """
         import time
-from numba import jit
 
         start_time = time.time()
 
@@ -390,10 +383,8 @@ from numba import jit
         callback: Callable[[int, float], None] | None,
     ) -> tuple[Any, int]:
         """Execute the scipy minimization and return raw result + iterations."""
-        if not (x0 is not None):
-            raise ValueError("x0 must be provided")
-        if not (x0 is not None):
-            raise ValueError("x0 must be provided")
+        assert x0 is not None, "x0 must be provided"
+        assert x0 is not None, "x0 must be provided"
         bounds = self._get_bounds()
         constraints = self._build_constraints()
 
@@ -431,10 +422,8 @@ from numba import jit
         computation_time: float,
     ) -> OptimizationResult:
         """Extract trajectory and metrics from a successful optimization."""
-        if not (iterations is not None):
-            raise ValueError("iterations must be provided")
-        if not (iterations is not None):
-            raise ValueError("iterations must be provided")
+        assert iterations is not None, "iterations must be provided"
+        assert iterations is not None, "iterations must be provided"
         trajectory = self._vector_to_trajectory(result.x)
         metrics = self._compute_metrics(trajectory)
 
@@ -492,10 +481,8 @@ from numba import jit
         Returns:
             List of OptimizationResults representing the Pareto frontier
         """
-        if not (n_points is not None):
-            raise ValueError("n_points must be provided")
-        if not (n_points is not None):
-            raise ValueError("n_points must be provided")
+        assert n_points is not None, "n_points must be provided"
+        assert n_points is not None, "n_points must be provided"
         results = []
 
         # Vary weights between objectives
@@ -522,7 +509,6 @@ from numba import jit
 
         return results
 
-    @jit(nopython=True, fastmath=True)
     def _generate_initial_guess(self) -> np.ndarray:
         """Generate an initial guess for the optimization."""
         n_joints = len(self.JOINTS)
@@ -541,7 +527,6 @@ from numba import jit
             mid = (lo + hi) / 2
             amp = (hi - lo) / 4  # Use 1/4 of ROM
 
-            # OPTIMIZATION_TARGET: Migrate computationally bound loop to PyO3/Rust Core natively
             # Sinusoidal pattern: go to backswing position, then through to finish
             for j, tj in enumerate(t):
                 if tj <= t_top:
@@ -563,20 +548,16 @@ from numba import jit
 
     def _trajectory_to_vector(self, trajectory: SwingTrajectory) -> np.ndarray:
         """Convert a SwingTrajectory to optimization vector."""
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
+        assert trajectory is not None, "trajectory must be provided"
+        assert trajectory is not None, "trajectory must be provided"
         angles = np.array([trajectory.joint_angles[j] for j in self.JOINTS])
         velocities = np.array([trajectory.joint_velocities[j] for j in self.JOINTS])
         return np.concatenate([angles.flatten(), velocities.flatten()])
 
     def _vector_to_trajectory(self, x: np.ndarray) -> SwingTrajectory:
         """Convert optimization vector to SwingTrajectory."""
-        if not (x is not None):
-            raise ValueError("x must be provided")
-        if not (x is not None):
-            raise ValueError("x must be provided")
+        assert x is not None, "x must be provided"
+        assert x is not None, "x must be provided"
         n_joints = len(self.JOINTS)
         n_nodes = self.config.n_nodes
 
@@ -614,17 +595,14 @@ from numba import jit
             impact_time=t[impact_idx],
         )
 
-    @jit(nopython=True, fastmath=True)
     def _compute_clubhead_trajectory(
         self,
         joint_angles: dict[str, np.ndarray],
         time: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray]:
         """Compute clubhead position and velocity from joint angles."""
-        if not (joint_angles is not None):
-            raise ValueError("joint_angles must be provided")
-        if not (joint_angles is not None):
-            raise ValueError("joint_angles must be provided")
+        assert joint_angles is not None, "joint_angles must be provided"
+        assert joint_angles is not None, "joint_angles must be provided"
         n_frames = len(time)
         position = np.zeros((n_frames, 3))
         velocity = np.zeros((n_frames, 3))
@@ -668,13 +646,13 @@ from numba import jit
         for joint in self.JOINTS:
             lo, hi = self.joint_limits[joint]
             flex = self.golfer.flexibility_factor
-            bounds.extend([(lo * flex, hi * flex) for _ in range(self.config.n_nodes)])
+            for _ in range(self.config.n_nodes):
+                bounds.append((lo * flex, hi * flex))
 
         # Velocity bounds (generous limits)
         max_vel = 30.0  # rad/s (very fast)
-        bounds.extend(
-            [(-max_vel, max_vel) for _ in range(len(self.JOINTS) * self.config.n_nodes)]
-        )
+        for _ in range(len(self.JOINTS) * self.config.n_nodes):
+            bounds.append((-max_vel, max_vel))
 
         return bounds
 
@@ -699,10 +677,8 @@ from numba import jit
 
     def _torque_constraint(self, x: np.ndarray) -> np.ndarray:
         """Constraint: torques must be within limits."""
-        if not (x is not None):
-            raise ValueError("x must be provided")
-        if not (x is not None):
-            raise ValueError("x must be provided")
+        assert x is not None, "x must be provided"
+        assert x is not None, "x must be provided"
         trajectory = self._vector_to_trajectory(x)
         violations = []
 
@@ -716,10 +692,8 @@ from numba import jit
 
     def _kinematic_sequence_constraint(self, x: np.ndarray) -> np.ndarray:
         """Constraint: enforce proximal-to-distal sequencing."""
-        if not (x is not None):
-            raise ValueError("x must be provided")
-        if not (x is not None):
-            raise ValueError("x must be provided")
+        assert x is not None, "x must be provided"
+        assert x is not None, "x must be provided"
         trajectory = self._vector_to_trajectory(x)
 
         # During downswing, peak velocities should occur in order:
@@ -742,18 +716,16 @@ from numba import jit
         # Constraint: each peak should be after the previous
         # t_hip < t_trunk < t_shoulder < t_wrist
         violations = []
-        violations.extend(
-            [peak_times[i + 1] - peak_times[i] for i in range(len(peak_times) - 1)]
-        )
+        for i in range(len(peak_times) - 1):
+            # Constraint: t[i+1] - t[i] >= 0
+            violations.append(peak_times[i + 1] - peak_times[i])
 
         return np.array(violations)
 
     def _compute_objective(self, x: np.ndarray) -> float:
         """Compute the weighted objective function."""
-        if not (x is not None):
-            raise ValueError("x must be provided")
-        if not (x is not None):
-            raise ValueError("x must be provided")
+        assert x is not None, "x must be provided"
+        assert x is not None, "x must be provided"
         trajectory = self._vector_to_trajectory(x)
         objective = 0.0
 
@@ -780,10 +752,8 @@ from numba import jit
 
     def _compute_injury_risk(self, trajectory: SwingTrajectory) -> float:
         """Compute simplified injury risk score (0-100)."""
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
+        assert trajectory is not None, "trajectory must be provided"
+        assert trajectory is not None, "trajectory must be provided"
         risk = 0.0
 
         # Check joint velocities (high velocities = higher risk)
@@ -809,10 +779,8 @@ from numba import jit
 
     def _compute_energy_cost(self, trajectory: SwingTrajectory) -> float:
         """Compute metabolic energy cost of the swing."""
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
+        assert trajectory is not None, "trajectory must be provided"
+        assert trajectory is not None, "trajectory must be provided"
         total_work = 0.0
         dt = (
             trajectory.time[1] - trajectory.time[0]
@@ -841,10 +809,8 @@ from numba import jit
     def _compute_metrics(self, trajectory: SwingTrajectory) -> dict:
         """Compute all metrics for a trajectory."""
         # Clubhead speed at impact
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
+        assert trajectory is not None, "trajectory must be provided"
+        assert trajectory is not None, "trajectory must be provided"
         clubhead_speed = trajectory.impact_speed
 
         # Ball speed (simplified: 1.5x clubhead speed for driver)

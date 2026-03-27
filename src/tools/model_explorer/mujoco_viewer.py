@@ -1,7 +1,3 @@
-# ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
-
 # mypy: ignore-errors
 # MuJoCo types are dynamically imported and mypy cannot resolve them statically
 """MuJoCo-based 3D visualization for URDF preview.
@@ -12,19 +8,19 @@ Provides real-time URDF preview via MJCF conversion.
 Issue #755: Enhanced visualization toggles for collision, frames, joints, and contacts.
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import subprocess  # noqa: E402
-import sys  # noqa: E402
-import tempfile  # noqa: E402
-from dataclasses import dataclass  # noqa: E402
-from typing import TYPE_CHECKING  # noqa: E402
+import subprocess
+import sys
+import tempfile
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-import defusedxml.ElementTree as ET  # noqa: E402
-import numpy as np  # noqa: E402
-from PyQt6.QtCore import QPointF, Qt, QTimer, pyqtSignal  # noqa: E402
-from PyQt6.QtGui import QImage, QMouseEvent, QPixmap, QWheelEvent  # noqa: E402
-from PyQt6.QtWidgets import (  # noqa: E402
+import defusedxml.ElementTree as ET
+import numpy as np
+from PyQt6.QtCore import QPointF, Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import QImage, QMouseEvent, QPixmap, QWheelEvent
+from PyQt6.QtWidgets import (
     QCheckBox,
     QFrame,
     QHBoxLayout,
@@ -34,13 +30,11 @@ from PyQt6.QtWidgets import (  # noqa: E402
     QWidget,
 )
 
-from src.shared.python.core.constants import (  # noqa: E402
+from src.shared.python.core.constants import (
     GRAVITY_M_S2,  # DRY: Use centralized constant
 )
-from src.shared.python.engine_core.engine_availability import (
-    MUJOCO_AVAILABLE,  # noqa: E402
-)
-from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
+from src.shared.python.engine_core.engine_availability import MUJOCO_AVAILABLE
+from src.shared.python.logging_pkg.logging_config import get_logger
 
 if TYPE_CHECKING:
     from typing import Any
@@ -222,10 +216,8 @@ class MuJoCoOffscreenRenderer:
             width: Render width in pixels.
             height: Render height in pixels.
         """
-        if not (width is not None):
-            raise ValueError("width must be provided")
-        if not (width is not None):
-            raise ValueError("width must be provided")
+        assert width is not None, "width must be provided"
+        assert width is not None, "width must be provided"
         self.width = width
         self.height = height
         self._model: Any | None = None
@@ -257,10 +249,8 @@ class MuJoCoOffscreenRenderer:
         Returns:
             True if loaded successfully.
         """
-        if not (urdf_path is not None):
-            raise ValueError("urdf_path must be provided")
-        if not (urdf_path is not None):
-            raise ValueError("urdf_path must be provided")
+        assert urdf_path is not None, "urdf_path must be provided"
+        assert urdf_path is not None, "urdf_path must be provided"
         if not MUJOCO_AVAILABLE:
             logger.warning("MuJoCo not available")
             return False
@@ -329,12 +319,9 @@ class MuJoCoOffscreenRenderer:
         Returns:
             Fixed URDF content.
         """
-        if not (urdf_content is not None):
-            raise ValueError("urdf_content must be provided")
-        if not (urdf_content is not None):
-            raise ValueError("urdf_content must be provided")
+        assert urdf_content is not None, "urdf_content must be provided"
+        assert urdf_content is not None, "urdf_content must be provided"
         import re
-from numba import jit
 
         min_mass = 0.001  # 1 gram minimum
         min_inertia = 0.0001  # Minimum inertia value
@@ -349,10 +336,8 @@ from numba import jit
         # Fix zero inertia values
         def fix_inertia_attr(attr: str, content: str) -> str:
             """Replace near-zero diagonal inertia values with the minimum."""
-            if not (attr is not None):
-                raise ValueError("attr must be provided")
-            if not (attr is not None):
-                raise ValueError("attr must be provided")
+            assert attr is not None, "attr must be provided"
+            assert attr is not None, "attr must be provided"
             pattern = rf'{attr}="([^"]+)"'
 
             def replace(m: re.Match) -> str:
@@ -396,10 +381,8 @@ from numba import jit
         Returns:
             True if loaded successfully.
         """
-        if not (mjcf_content is not None):
-            raise ValueError("mjcf_content must be provided")
-        if not (mjcf_content is not None):
-            raise ValueError("mjcf_content must be provided")
+        assert mjcf_content is not None, "mjcf_content must be provided"
+        assert mjcf_content is not None, "mjcf_content must be provided"
         if not MUJOCO_AVAILABLE:
             logger.warning("MuJoCo not available")
             return False
@@ -483,10 +466,8 @@ from numba import jit
         Args:
             flags: New visualization flags configuration.
         """
-        if not (flags is not None):
-            raise ValueError("flags must be provided")
-        if not (flags is not None):
-            raise ValueError("flags must be provided")
+        assert flags is not None, "flags must be provided"
+        assert flags is not None, "flags must be provided"
         self.vis_flags = flags
         self._apply_visualization_flags()
 
@@ -529,19 +510,15 @@ from numba import jit
 
     def rotate_camera(self, d_azimuth: float, d_elevation: float) -> None:
         """Rotate camera by delta angles."""
-        if not (d_azimuth is not None):
-            raise ValueError("d_azimuth must be provided")
-        if not (d_azimuth is not None):
-            raise ValueError("d_azimuth must be provided")
+        assert d_azimuth is not None, "d_azimuth must be provided"
+        assert d_azimuth is not None, "d_azimuth must be provided"
         self.azimuth += d_azimuth
         self.elevation = max(-89, min(89, self.elevation + d_elevation))
 
     def zoom_camera(self, factor: float) -> None:
         """Zoom camera by factor."""
-        if not (factor is not None):
-            raise ValueError("factor must be provided")
-        if not (factor is not None):
-            raise ValueError("factor must be provided")
+        assert factor is not None, "factor must be provided"
+        assert factor is not None, "factor must be provided"
         self.distance *= factor
         self.distance = max(0.5, min(20.0, self.distance))
 
@@ -729,10 +706,8 @@ class MuJoCoViewerWidget(QWidget):
             urdf_content: URDF XML string.
             urdf_path: Optional path to URDF file for mesh resolution.
         """
-        if not (urdf_content is not None):
-            raise ValueError("urdf_content must be provided")
-        if not (urdf_content is not None):
-            raise ValueError("urdf_content must be provided")
+        assert urdf_content is not None, "urdf_content must be provided"
+        assert urdf_content is not None, "urdf_content must be provided"
         self._urdf_content = urdf_content
         self._urdf_path = urdf_path
 
@@ -774,7 +749,6 @@ class MuJoCoViewerWidget(QWidget):
         else:
             self._status_label.setText("⚠️ Failed to load model")
 
-    @jit(nopython=True, fastmath=True)
     def _validate_urdf(self, urdf_content: str) -> list[str]:
         """Validate URDF for physics sanity.
 
@@ -784,10 +758,8 @@ class MuJoCoViewerWidget(QWidget):
         Returns:
             List of validation error messages.
         """
-        if not (urdf_content is not None):
-            raise ValueError("urdf_content must be provided")
-        if not (urdf_content is not None):
-            raise ValueError("urdf_content must be provided")
+        assert urdf_content is not None, "urdf_content must be provided"
+        assert urdf_content is not None, "urdf_content must be provided"
         errors = []
 
         try:
@@ -893,10 +865,8 @@ class MuJoCoViewerWidget(QWidget):
         Args:
             checked: Whether collision geometry should be shown.
         """
-        if not (checked is not None):
-            raise ValueError("checked must be provided")
-        if not (checked is not None):
-            raise ValueError("checked must be provided")
+        assert checked is not None, "checked must be provided"
+        assert checked is not None, "checked must be provided"
         self._vis_flags.show_collision = checked
         self._update_renderer_flags()
         logger.info(f"Collision visualization: {checked}")
@@ -907,10 +877,8 @@ class MuJoCoViewerWidget(QWidget):
         Args:
             checked: Whether coordinate frames should be shown.
         """
-        if not (checked is not None):
-            raise ValueError("checked must be provided")
-        if not (checked is not None):
-            raise ValueError("checked must be provided")
+        assert checked is not None, "checked must be provided"
+        assert checked is not None, "checked must be provided"
         self._vis_flags.show_frames = checked
         self._update_renderer_flags()
         logger.info(f"Frame visualization: {checked}")
@@ -921,10 +889,8 @@ class MuJoCoViewerWidget(QWidget):
         Args:
             checked: Whether joint axes and limits should be shown.
         """
-        if not (checked is not None):
-            raise ValueError("checked must be provided")
-        if not (checked is not None):
-            raise ValueError("checked must be provided")
+        assert checked is not None, "checked must be provided"
+        assert checked is not None, "checked must be provided"
         self._vis_flags.show_joint_limits = checked
         self._update_renderer_flags()
         logger.info(f"Joint limits visualization: {checked}")
@@ -935,10 +901,8 @@ class MuJoCoViewerWidget(QWidget):
         Args:
             checked: Whether contact points and forces should be shown.
         """
-        if not (checked is not None):
-            raise ValueError("checked must be provided")
-        if not (checked is not None):
-            raise ValueError("checked must be provided")
+        assert checked is not None, "checked must be provided"
+        assert checked is not None, "checked must be provided"
         self._vis_flags.show_contacts = checked
         self._update_renderer_flags()
         logger.info(f"Contacts visualization: {checked}")
@@ -1007,10 +971,8 @@ class MuJoCoViewerWidget(QWidget):
         Args:
             flags: New visualization configuration.
         """
-        if not (flags is not None):
-            raise ValueError("flags must be provided")
-        if not (flags is not None):
-            raise ValueError("flags must be provided")
+        assert flags is not None, "flags must be provided"
+        assert flags is not None, "flags must be provided"
         self._vis_flags = flags
 
         # Update checkboxes to match

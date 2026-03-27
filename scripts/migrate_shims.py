@@ -44,12 +44,9 @@ def find_importers(
     Returns list of (filepath, line_number, line_content) tuples.
     Excludes the shim file itself and __pycache__ dirs.
     """
-    if not (isinstance(shim_name):
-        raise ValueError(str), "shim_name must be a string")
-    if not (isinstance(search_dirs):
-        raise ValueError(list), "search_dirs must be a list")
-    if not (isinstance(exclude_path):
-        raise ValueError(Path), "exclude_path must be a Path object")
+    assert isinstance(shim_name, str), "shim_name must be a string"
+    assert isinstance(search_dirs, list), "search_dirs must be a list"
+    assert isinstance(exclude_path, Path), "exclude_path must be a Path object"
 
     results: list[tuple[Path, int, str]] = []
     pattern = re.compile(
@@ -94,12 +91,9 @@ def rewrite_import(
 
     Returns True if changes were made.
     """
-    if not (isinstance(filepath):
-        raise ValueError(Path), "filepath must be a Path object")
-    if not (isinstance(shim_name):
-        raise ValueError(str), "shim_name must be a string")
-    if not (isinstance(real_subpath):
-        raise ValueError(str), "real_subpath must be a string")
+    assert isinstance(filepath, Path), "filepath must be a Path object"
+    assert isinstance(shim_name, str), "shim_name must be a string"
+    assert isinstance(real_subpath, str), "real_subpath must be a string"
 
     content = filepath.read_text(encoding="utf-8")
     original = content
@@ -126,10 +120,8 @@ def process_shim(shim_path: Path, dry_run: bool = False) -> dict:
 
     Returns a summary dict.
     """
-    if not (isinstance(shim_path):
-        raise ValueError(Path), "shim_path must be a Path object")
-    if not (isinstance(dry_run):
-        raise ValueError(bool), "dry_run must be a boolean")
+    assert isinstance(shim_path, Path), "shim_path must be a Path object"
+    assert isinstance(dry_run, bool), "dry_run must be a boolean"
 
     shim_name = shim_path.stem
     real_subpath = get_shim_mapping(shim_path)
@@ -176,8 +168,7 @@ def process_shim(shim_path: Path, dry_run: bool = False) -> dict:
 
     if dry_run:
         fc1 = result["files_changed"]
-        if not (isinstance(fc1):
-            raise ValueError(list))
+        assert isinstance(fc1, list)
         for fpath, lineno, line in real_importers:
             fc1.append(f"  {fpath.relative_to(REPO_ROOT)}:{lineno}: {line.strip()}")
         return result

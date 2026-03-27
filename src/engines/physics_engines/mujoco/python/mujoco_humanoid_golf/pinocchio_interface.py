@@ -1,5 +1,3 @@
-from numba import jit
-
 """Pinocchio interface for advanced dynamics algorithms.
 
 This module provides a bridge between MuJoCo and Pinocchio, enabling:
@@ -19,20 +17,18 @@ Usage:
     >>> jacobian = wrapper.compute_end_effector_jacobian(q, "club_head")
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import tempfile  # noqa: E402
-from pathlib import Path  # noqa: E402
+import tempfile
+from pathlib import Path
 
-import mujoco  # noqa: E402
-import numpy as np  # noqa: E402
+import mujoco
+import numpy as np
 
-from src.shared.python.engine_core.engine_availability import (
-    PINOCCHIO_AVAILABLE,  # noqa: E402
-)
-from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
+from src.shared.python.engine_core.engine_availability import PINOCCHIO_AVAILABLE
+from src.shared.python.logging_pkg.logging_config import get_logger
 
-from .urdf_io import export_model_to_urdf  # noqa: E402
+from .urdf_io import export_model_to_urdf
 
 logger = get_logger(__name__)
 
@@ -80,7 +76,7 @@ class PinocchioWrapper:
         """
         if not PINOCCHIO_AVAILABLE:
             msg = (
-                "Pinocchio is required but not installed. Install with: pip install pin"  # noqa: E501
+                "Pinocchio is required but not installed. Install with: pip install pin"
             )
             raise ImportError(msg)
 
@@ -168,16 +164,13 @@ class PinocchioWrapper:
         # The configuration should already be synchronized via sync_mujoco_to_pinocchio
         # This method exists for API completeness but is a no-op
 
-    @jit(nopython=True, fastmath=True)
     def _mujoco_q_to_pinocchio_q(self, q_mj: np.ndarray) -> np.ndarray:
         """Convert MuJoCo configuration to Pinocchio format.
 
         Handles quaternion conventions (MuJoCo: w,x,y,z vs Pinocchio: x,y,z,w).
         """
-        if not (q_mj is not None):
-            raise ValueError("q_mj must be provided")
-        if not (q_mj is not None):
-            raise ValueError("q_mj must be provided")
+        assert q_mj is not None, "q_mj must be provided"
+        assert q_mj is not None, "q_mj must be provided"
         q_pin = q_mj.copy()
 
         # MuJoCo uses freejoint for 7-DOF (3 pos + 4 quat)
@@ -204,16 +197,13 @@ class PinocchioWrapper:
 
         return q_pin
 
-    @jit(nopython=True, fastmath=True)
     def _pinocchio_q_to_mujoco_q(self, q_pin: np.ndarray) -> np.ndarray:
         """Convert Pinocchio configuration to MuJoCo format.
 
         Handles quaternion conventions (Pinocchio: x,y,z,w vs MuJoCo: w,x,y,z).
         """
-        if not (q_pin is not None):
-            raise ValueError("q_pin must be provided")
-        if not (q_pin is not None):
-            raise ValueError("q_pin must be provided")
+        assert q_pin is not None, "q_pin must be provided"
+        assert q_pin is not None, "q_pin must be provided"
         q_mj = q_pin.copy()
 
         # Convert back from Pinocchio [x, y, z, w] to MuJoCo [w, x, y, z]

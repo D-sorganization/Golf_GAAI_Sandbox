@@ -1,7 +1,3 @@
-# ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.  # noqa: E501
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.  # noqa: E501
-
 """Visualization system for golf swing motion and club trajectory.
 
 Provides visualization using:
@@ -9,18 +5,16 @@ Provides visualization using:
 2. Matplotlib (2D plots and static 3D views)
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-import time  # noqa: E402
-from dataclasses import dataclass  # noqa: E402
-from pathlib import Path  # noqa: E402
-from typing import TYPE_CHECKING, Any  # noqa: E402
+import time
+from dataclasses import dataclass
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
-import numpy as np  # noqa: E402
+import numpy as np
 
-from src.shared.python.engine_core.engine_availability import (
-    PINOCCHIO_AVAILABLE,  # noqa: E402
-)
+from src.shared.python.engine_core.engine_availability import PINOCCHIO_AVAILABLE
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -49,10 +43,10 @@ try:
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
 
-import logging  # noqa: E402
+import logging
 
-from motion_training.club_trajectory_parser import ClubTrajectory  # noqa: E402
-from motion_training.dual_hand_ik_solver import TrajectoryIKResult  # noqa: E402
+from motion_training.club_trajectory_parser import ClubTrajectory
+from motion_training.dual_hand_ik_solver import TrajectoryIKResult
 
 logger = logging.getLogger(__name__)
 
@@ -186,16 +180,14 @@ class MotionVisualizer:
     ) -> None:
         """Add a coordinate frame visualization."""
         # X axis (red)
-        if not (name is not None):
-            raise ValueError("name must be provided")
-        if not (name is not None):
-            raise ValueError("name must be provided")
+        assert name is not None, "name must be provided"
+        assert name is not None, "name must be provided"
         x_cyl = mcg.Cylinder(size, 0.002)
         x_mat = mcg.MeshBasicMaterial(color=0xFF0000)
         self.viewer[f"{name}/x"].set_object(x_cyl, x_mat)
         self.viewer[f"{name}/x"].set_transform(
             mctf.rotation_matrix(np.pi / 2, [0, 1, 0])
-            @ mctf.translation_matrix([size / 2, 0, 0])  # noqa: E501
+            @ mctf.translation_matrix([size / 2, 0, 0])
         )
 
         # Y axis (green)
@@ -204,7 +196,7 @@ class MotionVisualizer:
         self.viewer[f"{name}/y"].set_object(y_cyl, y_mat)
         self.viewer[f"{name}/y"].set_transform(
             mctf.rotation_matrix(-np.pi / 2, [1, 0, 0])
-            @ mctf.translation_matrix([0, size / 2, 0])  # noqa: E501
+            @ mctf.translation_matrix([0, size / 2, 0])
         )
 
         # Z axis (blue)
@@ -213,7 +205,7 @@ class MotionVisualizer:
         self.viewer[f"{name}/z"].set_object(z_cyl, z_mat)
         self.viewer[f"{name}/z"].set_transform(
             mctf.translation_matrix([0, 0, size / 2])
-        )  # noqa: E501
+        )
 
         if transform is not None:
             self.viewer[name].set_transform(transform)
@@ -223,10 +215,8 @@ class MotionVisualizer:
         trajectory: ClubTrajectory,
     ) -> None:
         """Add the club trajectory as a path visualization."""
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
+        assert trajectory is not None, "trajectory must be provided"
+        assert trajectory is not None, "trajectory must be provided"
         if not self.settings.show_trajectory_path:
             return
 
@@ -260,10 +250,8 @@ class MotionVisualizer:
 
     def _add_event_markers(self, trajectory: ClubTrajectory) -> None:
         """Add markers for swing events."""
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
+        assert trajectory is not None, "trajectory must be provided"
+        assert trajectory is not None, "trajectory must be provided"
         events = {
             "address": (0x00FF00, trajectory.events.address),  # Green
             "top": (0xFFFF00, trajectory.events.top),  # Yellow
@@ -287,10 +275,8 @@ class MotionVisualizer:
         name: str = "club",
     ) -> None:
         """Add club visualization at a specific frame."""
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
+        assert frame is not None, "frame must be provided"
+        assert frame is not None, "frame must be provided"
         s = self.settings
 
         # Club shaft
@@ -312,10 +298,8 @@ class MotionVisualizer:
 
     def _update_club_transform(self, frame, name: str = "club") -> None:
         """Update club transform based on frame data."""
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
+        assert frame is not None, "frame must be provided"
+        assert frame is not None, "frame must be provided"
         s = self.settings
 
         # Compute transform from grip frame
@@ -343,10 +327,8 @@ class MotionVisualizer:
         right_pos: NDArray[np.float64],
     ) -> None:
         """Add hand target visualizations."""
-        if not (left_pos is not None):
-            raise ValueError("left_pos must be provided")
-        if not (left_pos is not None):
-            raise ValueError("left_pos must be provided")
+        assert left_pos is not None, "left_pos must be provided"
+        assert left_pos is not None, "left_pos must be provided"
         s = self.settings
 
         if s.show_hand_targets:
@@ -379,7 +361,6 @@ class MotionVisualizer:
         if self.pin_viz is not None:
             self.pin_viz.display(q)
 
-    @jit(nopython=True, fastmath=True)
     def play_motion(
         self,
         trajectory: ClubTrajectory,
@@ -391,10 +372,8 @@ class MotionVisualizer:
             trajectory: Club trajectory
             ik_result: Optional IK result with body configurations
         """
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
+        assert trajectory is not None, "trajectory must be provided"
+        assert trajectory is not None, "trajectory must be provided"
         s = self.settings
 
         # Add trajectory path
@@ -406,7 +385,7 @@ class MotionVisualizer:
 
         logger.info(
             "Playing %s frames at %sx speed", trajectory.num_frames, s.playback_speed
-        )  # noqa: E501
+        )
         logger.info("Press Ctrl+C to stop")
 
         try:
@@ -421,7 +400,6 @@ class MotionVisualizer:
                     from motion_training.club_trajectory_parser import (
                         compute_hand_positions,
                     )
-from numba import jit
 
                     left_pos, right_pos = compute_hand_positions(frame)
                     self.add_hand_targets(left_pos, right_pos)
@@ -444,7 +422,6 @@ from numba import jit
         except KeyboardInterrupt:
             logger.info("\nPlayback stopped")
 
-    @jit(nopython=True, fastmath=True)
     def show_static_trajectory(
         self,
         trajectory: ClubTrajectory,
@@ -458,10 +435,8 @@ from numba import jit
             ik_result: Optional IK result
             num_frames_to_show: Number of frames to display
         """
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
+        assert trajectory is not None, "trajectory must be provided"
+        assert trajectory is not None, "trajectory must be provided"
         self.add_club_trajectory_path(trajectory)
 
         # Select frames to show
@@ -470,9 +445,7 @@ from numba import jit
         else:
             indices = np.linspace(
                 0, trajectory.num_frames - 1, num_frames_to_show
-            ).astype(  # noqa: E501
-                int
-            )  # noqa: E501
+            ).astype(int)
 
         for i, idx in enumerate(indices):
             frame = trajectory.frames[idx]
@@ -492,10 +465,8 @@ from numba import jit
         alpha: float,
     ) -> None:
         """Add a semi-transparent club visualization."""
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
+        assert frame is not None, "frame must be provided"
+        assert frame is not None, "frame must be provided"
         s = self.settings
 
         shaft = mcg.Cylinder(s.club_shaft_length, s.club_shaft_radius)
@@ -562,10 +533,8 @@ class MatplotlibVisualizer:
         Returns:
             Matplotlib figure
         """
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
+        assert trajectory is not None, "trajectory must be provided"
+        assert trajectory is not None, "trajectory must be provided"
         fig = plt.figure(figsize=figsize)
         ax = fig.add_subplot(111, projection="3d")
 
@@ -605,7 +574,7 @@ class MatplotlibVisualizer:
                     pos = frame.grip_position
                     ax.plot(
                         [pos[0]], [pos[1]], [pos[2]], marker, markersize=15, label=label
-                    )  # noqa: E501
+                    )
 
         ax.set_xlabel("X (m)")
         ax.set_ylabel("Y (m)")
@@ -642,10 +611,8 @@ class MatplotlibVisualizer:
         Returns:
             Matplotlib figure
         """
-        if not (ik_result is not None):
-            raise ValueError("ik_result must be provided")
-        if not (ik_result is not None):
-            raise ValueError("ik_result must be provided")
+        assert ik_result is not None, "ik_result must be provided"
+        assert ik_result is not None, "ik_result must be provided"
         fig, axes = plt.subplots(2, 1, figsize=figsize, sharex=True)
 
         times = np.array(ik_result.times)
@@ -664,7 +631,7 @@ class MatplotlibVisualizer:
         # Combined error
         combined = np.array(ik_result.left_hand_errors) + np.array(
             ik_result.right_hand_errors
-        )  # noqa: E501
+        )
         axes[1].plot(times, combined, "b-", label="Total Error")
         axes[1].set_xlabel("Time (s)")
         axes[1].set_ylabel("Combined Error (m)")
@@ -690,10 +657,8 @@ class MatplotlibVisualizer:
         Returns:
             Matplotlib figure
         """
-        if not (ik_result is not None):
-            raise ValueError("ik_result must be provided")
-        if not (ik_result is not None):
-            raise ValueError("ik_result must be provided")
+        assert ik_result is not None, "ik_result must be provided"
+        assert ik_result is not None, "ik_result must be provided"
         q_traj = ik_result.q_trajectory
         times = np.array(ik_result.times)
         n_joints = q_traj.shape[1]

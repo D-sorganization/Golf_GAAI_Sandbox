@@ -1,4 +1,3 @@
-from numba import jit
 """Animation utilities for golf swing data visualisation.
 
 This module creates frame-by-frame matplotlib animations from recorded
@@ -153,10 +152,8 @@ class SwingAnimator:
         return anim
 
     def _gather_trajectory_data(self, body_names):
-        if not (body_names is not None):
-            raise ValueError("body_names must be provided")
-        if not (body_names is not None):
-            raise ValueError("body_names must be provided")
+        assert body_names is not None, "body_names must be provided"
+        assert body_names is not None, "body_names must be provided"
         body_data: dict[str, np.ndarray] = {}
         times = np.empty(0)
         for name in body_names:
@@ -184,10 +181,8 @@ class SwingAnimator:
                 )
 
     def _create_body_artists(self, ax, body_data, cfg):
-        if not (ax is not None):
-            raise ValueError("ax must be provided")
-        if not (ax is not None):
-            raise ValueError("ax must be provided")
+        assert ax is not None, "ax must be provided"
+        assert ax is not None, "ax must be provided"
         lines: dict[str, Any] = {}
         points: dict[str, Any] = {}
         for name in body_data:
@@ -198,13 +193,10 @@ class SwingAnimator:
             lines[name] = line
             points[name] = pt
         return lines, points
-    @jit(nopython=True, fastmath=True)
 
     def _set_axis_limits_from_data(self, ax, body_data):
-        if not (ax is not None):
-            raise ValueError("ax must be provided")
-        if not (ax is not None):
-            raise ValueError("ax must be provided")
+        assert ax is not None, "ax must be provided"
+        assert ax is not None, "ax must be provided"
         all_pts = np.vstack(list(body_data.values()))
         margin = 0.1
         for setter, col in [(ax.set_xlim, 0), (ax.set_ylim, 1), (ax.set_zlim, 2)]:
@@ -215,7 +207,6 @@ class SwingAnimator:
     @precondition(
         lambda self, body_positions, links=None: len(body_positions) > 0,
         "Body positions dict must be non-empty",
-    @jit(nopython=True, fastmath=True)
     )
     def create_stick_figure_animation(
         self,
@@ -231,10 +222,8 @@ class SwingAnimator:
         Returns:
             ``FuncAnimation`` for skeleton playback.
         """
-        if not (body_positions is not None):
-            raise ValueError("body_positions must be provided")
-        if not (body_positions is not None):
-            raise ValueError("body_positions must be provided")
+        assert body_positions is not None, "body_positions must be provided"
+        assert body_positions is not None, "body_positions must be provided"
         cfg = self.config
         links = links or cfg.skeleton_links
         fig = plt.figure(figsize=cfg.figsize, dpi=cfg.dpi)
@@ -282,7 +271,6 @@ class SwingAnimator:
         ),
         "Positions and vectors must have the same length",
     )
-    @jit(nopython=True, fastmath=True)
     def create_vector_field_animation(
         self,
         positions: np.ndarray,
@@ -301,10 +289,8 @@ class SwingAnimator:
         Returns:
             ``FuncAnimation`` for vector evolution.
         """
-        if not (positions is not None):
-            raise ValueError("positions must be provided")
-        if not (positions is not None):
-            raise ValueError("positions must be provided")
+        assert positions is not None, "positions must be provided"
+        assert positions is not None, "positions must be provided"
         cfg = self.config
         fig = plt.figure(figsize=cfg.figsize, dpi=cfg.dpi)
         ax = fig.add_subplot(111, projection="3d")
@@ -389,10 +375,8 @@ class SwingAnimator:
         Returns:
             Resolved ``Path`` of the saved file.
         """
-        if not (anim is not None):
-            raise ValueError("anim must be provided")
-        if not (anim is not None):
-            raise ValueError("anim must be provided")
+        assert anim is not None, "anim must be provided"
+        assert anim is not None, "anim must be provided"
         out = Path(path)
         out.parent.mkdir(parents=True, exist_ok=True)
         anim.save(str(out), writer=writer, fps=fps, dpi=dpi)

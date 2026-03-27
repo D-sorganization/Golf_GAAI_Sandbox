@@ -1,22 +1,18 @@
-from numba import jit
-
 """MeshCat adapter for MuJoCo humanoid golf visualization.
 
 Provides a browser-based 3D visualization backend via MeshCat,
 wrapping MuJoCo model data for interactive display.
 """
 
-import os  # noqa: E402
-import webbrowser  # noqa: E402
-from typing import Any  # noqa: E402
+import os
+import webbrowser
+from typing import Any
 
-import mujoco  # noqa: E402
-import numpy as np  # noqa: E402
+import mujoco
+import numpy as np
 
-from src.shared.python.biomechanics.biomechanics_data import (
-    BiomechanicalData,  # noqa: E402
-)
-from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
+from src.shared.python.biomechanics.biomechanics_data import BiomechanicalData
+from src.shared.python.logging_pkg.logging_config import get_logger
 
 try:
     import meshcat
@@ -70,7 +66,6 @@ class MuJoCoMeshcatAdapter:
         if self.vis is not None:
             webbrowser.open(self.vis.url())
 
-    @jit(nopython=True, fastmath=True)
     def load_model_geometry(self) -> None:
         """
         Parses MuJoCo model geoms and creates corresponding Meshcat objects.
@@ -91,7 +86,7 @@ class MuJoCoMeshcatAdapter:
             # Material/Color
             material = g.MeshPhongMaterial(
                 color=self._rgba_to_hex(rgba), opacity=rgba[3]
-            )  # noqa: E501
+            )
 
             shape = None
 
@@ -217,14 +212,13 @@ class MuJoCoMeshcatAdapter:
             if show_force and np.linalg.norm(f) > 1e-3:
                 self._draw_arrow(
                     f"overlays/forces/{body_name}", pos, f * force_scale, 0xFF0000
-                )  # noqa: E501
+                )
 
             if show_torque and np.linalg.norm(t) > 1e-3:
                 self._draw_arrow(
                     f"overlays/torques/{body_name}", pos, t * torque_scale, 0x0000FF
-                )  # noqa: E501
+                )
 
-    @jit(nopython=True, fastmath=True)
     def draw_induced_vectors(
         self,
         data: mujoco.MjData,
@@ -290,9 +284,8 @@ class MuJoCoMeshcatAdapter:
             # Magenta
             self._draw_arrow(
                 f"overlays/induced/joint_{j}", joint_pos, arrow_dir, 0xFF00FF
-            )  # noqa: E501
+            )
 
-    @jit(nopython=True, fastmath=True)
     def draw_cf_vectors(
         self,
         data: mujoco.MjData,
@@ -471,7 +464,7 @@ class MuJoCoMeshcatAdapter:
 
     def _draw_arrow(
         self, path: str, start: np.ndarray, vec: np.ndarray, color_hex: int
-    ) -> None:  # noqa: E501
+    ) -> None:
         assert path is not None, "path must be provided"
         assert path is not None, "path must be provided"
         if self.vis is None:

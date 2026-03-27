@@ -52,7 +52,7 @@ class DrakeSwingPlaneAnalyzer:
 
         self.logger.info(
             f"Analyzing swing plane from {len(positions)} trajectory points"
-        )  # noqa: E501
+        )
 
         # Use shared analyzer
         metrics = self.analyzer.analyze(positions)
@@ -100,11 +100,11 @@ class DrakeSwingPlaneAnalyzer:
                 times = context.sample_times()
                 indices = np.linspace(
                     0, len(times) - 1, min(num_samples, len(times)), dtype=int
-                )  # noqa: E501
+                )
                 for idx in indices:
                     plant_context = plant.GetMyContextFromRoot(
                         context.value(times[idx])
-                    )  # noqa: E501
+                    )
                     pose = plant.EvalBodyPoseInWorld(plant_context, club_body)
                     positions.append(pose.translation())
             elif hasattr(context, "get_mutable_continuous_state"):
@@ -131,7 +131,7 @@ class DrakeSwingPlaneAnalyzer:
         positions_array = np.array(positions)
         self.logger.info(
             f"Extracted {len(positions_array)} trajectory points from Drake context"
-        )  # noqa: E501
+        )
 
         return self.analyze_trajectory(positions_array)
 
@@ -155,17 +155,15 @@ class DrakeSwingPlaneAnalyzer:
             trajectory_optimizer: DrakeMotionOptimizer instance
             swing_plane_constraint_weight: Weight for swing plane deviation cost
         """
-        if not (swing_plane_constraint_weight is not None):
-            raise ValueError(()
+        assert swing_plane_constraint_weight is not None, (
             "swing_plane_constraint_weight must be provided"
         )
-        if not (swing_plane_constraint_weight is not None):
-            raise ValueError(()
+        assert swing_plane_constraint_weight is not None, (
             "swing_plane_constraint_weight must be provided"
         )
         self.logger.info(
             f"Integrating swing plane constraints with weight "
-            f"{swing_plane_constraint_weight}"  # noqa: E501
+            f"{swing_plane_constraint_weight}"
         )
 
         analyzer = self.analyzer
@@ -210,10 +208,8 @@ class DrakeSwingPlaneAnalyzer:
             metrics: Swing plane analysis results
             trajectory_positions: Club head trajectory positions (N, 3)
         """
-        if not (metrics is not None):
-            raise ValueError("metrics must be provided")
-        if not (metrics is not None):
-            raise ValueError("metrics must be provided")
+        assert metrics is not None, "metrics must be provided"
+        assert metrics is not None, "metrics must be provided"
         self.logger.info("Visualizing swing plane analysis with Meshcat")
 
         meshcat = meshcat_visualizer
@@ -289,10 +285,8 @@ class DrakeSwingPlaneAnalyzer:
             trajectory_positions: Club head trajectory positions
             output_path: Path to save analysis results
         """
-        if not (metrics is not None):
-            raise ValueError("metrics must be provided")
-        if not (metrics is not None):
-            raise ValueError("metrics must be provided")
+        assert metrics is not None, "metrics must be provided"
+        assert metrics is not None, "metrics must be provided"
         import json
         from pathlib import Path
 

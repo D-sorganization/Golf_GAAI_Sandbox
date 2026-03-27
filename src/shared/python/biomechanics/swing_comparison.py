@@ -1,24 +1,20 @@
-from numba import jit
-
 """Swing comparison module for biomechanical analysis.
 
 This module provides tools to compare two swing datasets (e.g., Student vs Pro),
 quantifying similarities and differences in kinematics, timing, and coordination.
 """
 
-from __future__ import annotations  # noqa: E402, F404
+from __future__ import annotations
 
-from dataclasses import dataclass  # noqa: E402
-from typing import Any  # noqa: E402
+from dataclasses import dataclass
+from typing import Any
 
-import numpy as np  # noqa: E402
+import numpy as np
 
-from src.shared.python.core.contracts import ensure, require  # noqa: E402
-from src.shared.python.data_io import common_utils  # noqa: E402
-from src.shared.python.signal_toolkit import signal_processing  # noqa: E402
-from src.shared.python.validation_pkg.statistical_analysis import (
-    StatisticalAnalyzer,  # noqa: E402
-)
+from src.shared.python.core.contracts import ensure, require
+from src.shared.python.data_io import common_utils
+from src.shared.python.signal_toolkit import signal_processing
+from src.shared.python.validation_pkg.statistical_analysis import StatisticalAnalyzer
 
 # Constants for scoring
 EPSILON = 1e-9
@@ -61,10 +57,8 @@ class SwingComparator:
             reference_data: Reference swing data (Pro/Model)
             student_data: Student swing data (User)
         """
-        if not (reference_data is not None):
-            raise ValueError("reference_data must be provided")
-        if not (reference_data is not None):
-            raise ValueError("reference_data must be provided")
+        assert reference_data is not None, "reference_data must be provided"
+        assert reference_data is not None, "reference_data must be provided"
         self.ref = self._ensure_analyzer(reference_data)
         self.student = self._ensure_analyzer(student_data)
 
@@ -116,10 +110,8 @@ class SwingComparator:
         Returns:
             DTWResult object
         """
-        if not (joint_idx is not None):
-            raise ValueError("joint_idx must be provided")
-        if not (joint_idx is not None):
-            raise ValueError("joint_idx must be provided")
+        assert joint_idx is not None, "joint_idx must be provided"
+        assert joint_idx is not None, "joint_idx must be provided"
         if feature == "position":
             ref_data = self.ref.joint_positions
             stu_data = self.student.joint_positions
@@ -172,7 +164,6 @@ class SwingComparator:
         )
         return result
 
-    @jit(nopython=True, fastmath=True)
     def compare_peak_speeds(
         self,
         segment_indices: dict[str, int],
@@ -191,10 +182,8 @@ class SwingComparator:
         Returns:
             Dictionary of comparison metrics
         """
-        if not (segment_indices is not None):
-            raise ValueError("segment_indices must be provided")
-        if not (segment_indices is not None):
-            raise ValueError("segment_indices must be provided")
+        assert segment_indices is not None, "segment_indices must be provided"
+        assert segment_indices is not None, "segment_indices must be provided"
         require(
             len(segment_indices) > 0,
             "segment_indices must be non-empty",
