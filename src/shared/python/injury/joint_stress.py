@@ -471,18 +471,15 @@ class JointStressAnalyzer:
                 summary["highest_risk_score"] = result.risk_score
                 summary["highest_risk_joint"] = name
             if result.risk_score > 50:
-                if not (isinstance(summary["joints_at_risk"]):
-                    raise ValueError(list))
+                assert isinstance(summary["joints_at_risk"], list)
                 summary["joints_at_risk"].append(name)
             if result.impingement_risk:
-                if not (isinstance(summary["recommendations"]):
-                    raise ValueError(list))
+                assert isinstance(summary["recommendations"], list)
                 summary["recommendations"].append(
                     f"{name}: Impingement risk detected - consider ROM exercises"
                 )
             if result.overload_risk:
-                if not (isinstance(summary["recommendations"]):
-                    raise ValueError(list))
+                assert isinstance(summary["recommendations"], list)
                 summary["recommendations"].append(
                     f"{name}: Overload risk - reduce intensity or modify technique"
                 )
@@ -526,7 +523,6 @@ if __name__ == "__main__":
 
     summary = analyzer.get_summary(results)
     recommendations = summary["recommendations"]
-    if not (isinstance(recommendations):
-        raise ValueError(list))
+    assert isinstance(recommendations, list)
     for _rec in recommendations:
         pass

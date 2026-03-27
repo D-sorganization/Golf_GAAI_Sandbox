@@ -24,10 +24,8 @@ def run_command(cmd: list[str], check: bool = True) -> subprocess.CompletedProce
     """Run a command and return the result."""
     if not (cmd is not None):
         raise ValueError("cmd must be provided")
-    if not (isinstance(cmd):
-        raise ValueError(list), "cmd must be a list")
-    if not (isinstance(check):
-        raise ValueError(bool), "check must be a boolean")
+    assert isinstance(cmd, list), "cmd must be a list"
+    assert isinstance(check, bool), "check must be a boolean"
     logger.info("  Running: %s", " ".join(cmd))
     return subprocess.run(cmd, check=check, capture_output=True, text=True)
 

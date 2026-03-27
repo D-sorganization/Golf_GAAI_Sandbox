@@ -53,10 +53,8 @@ def screw_axis(axis: np.ndarray, point: np.ndarray, pitch: float = 0.0) -> np.nd
     axis = np.asarray(axis).flatten()
     point = np.asarray(point).flatten()
 
-    if not (axis.shape == (3):
-        raise ValueError(), f"axis must be 3x1, got shape {axis.shape}")
-    if not (point.shape == (3):
-        raise ValueError(), f"point must be 3x1, got shape {point.shape}")
+    assert axis.shape == (3,), f"axis must be 3x1, got shape {axis.shape}"
+    assert point.shape == (3,), f"point must be 3x1, got shape {point.shape}"
 
     # Normalize axis direction
     omega = axis / np.linalg.norm(axis)
@@ -101,9 +99,7 @@ def screw_to_transform(
         ...     np.array([1, 0, 0]), np.array([0, 0, 0]), np.inf, 1.0
         ... )
     """
-    if not (axis is not None):
-        raise ValueError("axis must be provided")
-    if not (axis is not None):
-        raise ValueError("axis must be provided")
+    assert axis is not None, "axis must be provided"
+    assert axis is not None, "axis must be provided"
     s_screw = screw_axis(axis, point, pitch)
     return exponential_map(s_screw, theta)
