@@ -281,7 +281,8 @@ def _build_force_vectors(
         raise ValueError("engine_manager must be provided")
     engine, state = _extract_engine_state(engine_manager)
     if engine is None:
-        return _build_demo_vectors(config)
+        demo: list[ForceVector3D] = _build_demo_vectors(config)
+        return demo
 
     positions = state.get("positions", [])
     torques = state.get("torques", [])
@@ -381,13 +382,9 @@ def _get_sim_time(engine_manager: EngineManager) -> float:
     response_model=ForceOverlayResponse,
 )
 @precondition(
-    lambda force_types="applied",
-    color_by_magnitude=True,
-    body_filter=None,
-    show_labels=False,
-    scale_factor=0.01,
-    engine_manager=None,
-    logger=None: (scale_factor > 0 and len(force_types.strip()) > 0),
+    lambda force_types="applied", color_by_magnitude=True, body_filter=None, show_labels=False, scale_factor=0.01, engine_manager=None, logger=None: (
+        scale_factor > 0 and len(force_types.strip()) > 0
+    ),
     "Scale factor must be positive and force_types must be non-empty",
 )
 @handle_api_errors

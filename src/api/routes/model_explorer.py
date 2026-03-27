@@ -266,7 +266,7 @@ def _resolve_model_path(model_path: str) -> Path:
         HTTPException: If file not found.
     """
     root = _find_project_root()
-    resolved = root / model_path
+    resolved: Path = root / model_path
     if resolved.exists():
         return resolved
 
@@ -277,7 +277,7 @@ def _resolve_model_path(model_path: str) -> Path:
 
     # Search in model directories
     for model_dir in _MODEL_DIRS:
-        candidate = root / model_dir / Path(model_path).name
+        candidate: Path = root / model_dir / Path(model_path).name
         if candidate.exists():
             return candidate
 
