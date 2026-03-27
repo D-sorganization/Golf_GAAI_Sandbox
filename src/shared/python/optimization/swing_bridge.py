@@ -29,9 +29,9 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-import numpy as np
-
 logger = logging.getLogger(__name__)
+
+import numpy as np  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Configuration
