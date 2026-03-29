@@ -19,6 +19,8 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from src.shared.python.core.physics_constants import AIR_DENSITY_SEA_LEVEL_KG_M3
+
 logger = logging.getLogger(__name__)
 
 # ── Try importing the Rust wheel ──────────────────────────────────────────────
@@ -123,7 +125,7 @@ def lerp(a: float, b: float, t: float) -> float:
 
 
 def create_air_properties(
-    density: float = 1.225,
+    density: float = float(AIR_DENSITY_SEA_LEVEL_KG_M3),
     viscosity: float = 1.81e-5,
     temperature: float = 288.15,
     pressure: float = 101325.0,

@@ -30,7 +30,8 @@ find_conda() {
     # Check if conda is in PATH
     if command -v conda &> /dev/null; then
         # Try to get conda base path
-        local conda_base=$(conda info --base 2>/dev/null)
+        local conda_base
+        conda_base=$(conda info --base 2>/dev/null)
         if [ -n "$conda_base" ] && [ -f "$conda_base/etc/profile.d/conda.sh" ]; then
             echo "$conda_base/etc/profile.d/conda.sh"
             return 0
@@ -41,7 +42,7 @@ find_conda() {
 }
 
 # Initialize conda
-CONDA_SCRIPT=$(find_conda)
+CONDA_SCRIPT="$(find_conda)"
 if [ -n "$CONDA_SCRIPT" ]; then
     echo "Found conda at: $CONDA_SCRIPT"
     source "$CONDA_SCRIPT"
@@ -85,10 +86,10 @@ python -m python.mujoco_humanoid_golf
 # Capture exit code
 EXIT_CODE=$?
 
-if [ $EXIT_CODE -ne 0 ]; then
+if [ "$EXIT_CODE" -ne 0 ]; then
     echo ""
     echo "Application exited with error code: $EXIT_CODE"
     echo ""
-    exit $EXIT_CODE
+    exit "$EXIT_CODE"
 fi
 

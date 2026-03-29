@@ -182,23 +182,15 @@ class OllamaAdapter(BaseAgentAdapter):
             )
             response.raise_for_status()
 
-        except Exception as e:  # noqa: BLE001
-            import httpx
-
-            if isinstance(e, httpx.ConnectError):
-                raise AIConnectionError(
-                    f"Cannot connect to Ollama at {self._host}. "
-                    "Is Ollama running? Start with: ollama serve",
-                    provider="ollama",
-                ) from e
-            if isinstance(e, httpx.TimeoutException):
-                raise AITimeoutError(
-                    f"Ollama request timed out after {self._timeout}s",
-                    provider="ollama",
-                    timeout=self._timeout,
-                ) from e
+        except ImportError as e:
             raise AIProviderError(
-                f"Ollama error: {e}",
+                "httpx not installed. Install with: pip install httpx",
+                provider="ollama",
+            ) from e
+        except OSError as e:
+            raise AIConnectionError(
+                f"Cannot connect to Ollama at {self._host}. "
+                "Is Ollama running? Start with: ollama serve",
                 provider="ollama",
             ) from e
 
@@ -333,15 +325,11 @@ class OllamaAdapter(BaseAgentAdapter):
 
         except AIProviderError:
             return False, ("httpx not installed. Install with: pip install httpx")
-        except Exception as e:  # noqa: BLE001
-            import httpx
-
-            if isinstance(e, httpx.ConnectError):
-                return False, (
-                    f"Cannot connect to Ollama at {self._host}. "
-                    "Is it running? Start with: ollama serve"
-                )
-            return False, f"Connection error: {e}"
+        except OSError as e:
+            return False, (
+                f"Cannot connect to Ollama at {self._host}. "
+                f"Is it running? Start with: ollama serve ({e})"
+            )
 
     def _format_messages(
         self,
@@ -459,7 +447,7 @@ class OllamaAdapter(BaseAgentAdapter):
             data = response.json()
             return [m.get("name", "") for m in data.get("models", [])]
 
-        except Exception as e:  # noqa: BLE001
+        except OSError as e:
             raise AIConnectionError(
                 f"Cannot list Ollama models: {e}",
                 provider="ollama",

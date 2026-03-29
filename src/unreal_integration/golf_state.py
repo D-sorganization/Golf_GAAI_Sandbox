@@ -10,6 +10,8 @@ import math
 from dataclasses import dataclass, field
 from typing import Any
 
+from src.shared.python.core.physics_constants import AIR_DENSITY_SEA_LEVEL_KG_M3
+
 from .geometry import Vector3
 
 
@@ -356,7 +358,7 @@ class EnvironmentState:
 
     def __post_init__(self) -> None:
         """Dynamically compute air density using Tetens equation and Ideal Gas Law."""
-        if self.air_density is None or self.air_density == 1.225:
+        if self.air_density is None or self.air_density == float(AIR_DENSITY_SEA_LEVEL_KG_M3):
             # Tetens formula for saturation vapor pressure (hPa)
             temp_c = self.temperature
             p_sat = 6.1078 * math.exp(17.27 * temp_c / (temp_c + 237.3))

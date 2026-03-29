@@ -1,8 +1,11 @@
 """Benchmark comparing trajectory-funnel RL policies across solver configurations."""
 
+from __future__ import annotations
+
 import logging
 
 import numpy as np
+from numpy.typing import NDArray
 
 logger = logging.getLogger(__name__)
 
@@ -15,33 +18,36 @@ class TrajectoryFunnelBenchmark:
     will drastically outperform agents using a clock-synchronized static destination reward.
     """
 
-    def __init__(self, mode="transverse"):
-        assert mode in [
-            "transverse",
-            "setpoint",
-        ], "Mode must be 'transverse' or 'setpoint'"
+    def __init__(self, mode: str = "transverse") -> None:
+        if mode not in ("transverse", "setpoint"):
+            raise ValueError("Mode must be 'transverse' or 'setpoint'")
         self.mode = mode
 
-    def setpoint_reward(self, current_state, target_state):
-        """
-        Classical control approach: Drive Euclidean distance to the destination to zero.
+    def setpoint_reward(
+        self, current_state: NDArray[np.floating], target_state: NDArray[np.floating]
+    ) -> float:
+        """Classical control approach: Drive Euclidean distance to the destination to zero.
+
         Ignores path geometry, heavily penalizes phase asynchrony.
         """
-        assert current_state is not None, "current_state must be provided"
-        assert current_state is not None, "current_state must be provided"
+        if current_state is None:
+            raise ValueError("current_state must be provided")
         error = current_state - target_state
-        return -np.sum(error**2)
+        return float(-np.sum(error**2))
 
     def trajectory_funnel_reward(
-        self, current_state, reference_trajectory, current_phase
-    ):
-        """
-        Geometric approach: Reward confinement to the trajectory tube (orbital stability).
+        self,
+        current_state: NDArray[np.floating],
+        reference_trajectory: NDArray[np.floating],
+        current_phase: int,
+    ) -> float:
+        """Geometric approach: Reward confinement to the trajectory tube (orbital stability).
+
         Uses transverse deviations and allows phase slippage.
         """
         # Find the geometrically closest point on the reference trajectory manifold
-        assert current_state is not None, "current_state must be provided"
-        assert current_state is not None, "current_state must be provided"
+        if current_state is None:
+            raise ValueError("current_state must be provided")
         distances = np.linalg.norm(reference_trajectory - current_state, axis=1)
         transverse_distance = np.min(distances)
         projected_phase_idx = np.argmin(distances)
@@ -54,9 +60,9 @@ class TrajectoryFunnelBenchmark:
 
         return transverse_cost + phase_velocity_reward
 
-    def simulate_agent_training_mock(self):
-        """
-        Mocks the RL convergence behavior discussed in Chapter 10.
+    def simulate_agent_training_mock(self) -> dict[str, float]:
+        """Mock the RL convergence behavior discussed in Chapter 10.
+
         This will be replaced with Stable Baselines3 + MuJoCo in future PRs.
         """
         # Configure basic logging to ensure output is visible

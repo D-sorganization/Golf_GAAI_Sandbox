@@ -150,11 +150,11 @@ if failures > 0 or errors > 0:
 PYEOF
 
 echo -e "\n${BOLD}=====================================================================${RESET}"
-if [ $TEST_EXIT -eq 0 ]; then
+if [ "$TEST_EXIT" -eq 0 ]; then
   echo -e "${GREEN}${BOLD} ✓ ALL HEAVY TESTS PASSED${RESET}"
 else
-  echo -e "${RED}${BOLD} ✗ HEAVY TESTS FAILED (exit $TEST_EXIT)${RESET}"
+  echo -e "${RED}${BOLD} ✗ HEAVY TESTS FAILED (exit "$TEST_EXIT")${RESET}"
   echo -e "${YELLOW}   Results saved to: ${RESULTS_DIR}/${RESET}"
 fi
 echo -e "${BOLD}=====================================================================${RESET}"
-exit $TEST_EXIT
+exit "$TEST_EXIT"

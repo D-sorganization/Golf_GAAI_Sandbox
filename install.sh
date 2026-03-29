@@ -18,8 +18,8 @@ echo "Detected: $OS $ARCH"
 # Check for Python 3.11+
 if command -v python3 &> /dev/null; then
     PY_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
-    PY_MAJOR=$(echo $PY_VERSION | cut -d. -f1)
-    PY_MINOR=$(echo $PY_VERSION | cut -d. -f2)
+    PY_MAJOR=$(echo "$PY_VERSION" | cut -d. -f1)
+    PY_MINOR=$(echo "$PY_VERSION" | cut -d. -f2)
 
     if [ "$PY_MAJOR" -ge 3 ] && [ "$PY_MINOR" -ge 11 ]; then
         echo "✓ Python $PY_VERSION found"
@@ -48,10 +48,10 @@ fi
 
 echo
 echo "Installing Golf Modeling Suite..."
-echo "  Command: $INSTALL_CMD"
+echo "  Command: ${INSTALL_CMD}"
 echo
 
-$INSTALL_CMD
+${INSTALL_CMD}
 
 echo
 echo "╔═══════════════════════════════════════════════════════════════╗"
