@@ -11,7 +11,7 @@ echo "Ensure VcXsrv is running on Windows with 'Disable access control' checked!
 # We override MUJOCO_GL to 'glfw' to use the window system instead of osmesa.
 # We set -w /workspace so the output video is saved to the mounted volume.
 docker run -it --rm \
-    -e DISPLAY=$DISPLAY \
+    -e DISPLAY="$DISPLAY" \
     -e MUJOCO_GL="glfw" \
     -v "$(pwd)":/workspace \
     -w /workspace \

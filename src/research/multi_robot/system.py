@@ -387,17 +387,15 @@ class MultiRobotSystem:
             raise ValueError("safety_distance must be provided")
         if not (safety_distance is not None):
             raise ValueError("safety_distance must be provided")
-        collisions = []
         robot_ids = list(self._robots.keys())
 
-        for i, id1 in enumerate(robot_ids):
-            for id2 in robot_ids[i + 1 :]:
-                pos1 = self._robot_poses[id1][:3]
-                pos2 = self._robot_poses[id2][:3]
-                distance = np.linalg.norm(pos1 - pos2)
-
-                if distance < safety_distance:
-                    collisions.append((id1, id2))
+        collisions = [
+            (id1, id2)
+            for i, id1 in enumerate(robot_ids)
+            for id2 in robot_ids[i + 1 :]
+            if np.linalg.norm(self._robot_poses[id1][:3] - self._robot_poses[id2][:3])
+            < safety_distance
+        ]
 
         return collisions
 

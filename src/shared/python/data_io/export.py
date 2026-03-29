@@ -94,7 +94,7 @@ def export_to_matlab(
 
         return True
 
-    except Exception as e:  # noqa: BLE001  # broad-catch intentional: any I/O error returns False
+    except (OSError, ValueError, TypeError) as e:
         logger.error(f"Failed to export to MATLAB: {e}")
         return False
 
@@ -170,7 +170,7 @@ def export_to_hdf5(
 
         return True
 
-    except Exception as e:  # noqa: BLE001  # broad-catch intentional: any I/O error returns False
+    except (OSError, ValueError, TypeError) as e:
         logger.error(f"Failed to export to HDF5: {e}")
         return False
 
@@ -351,16 +351,19 @@ def _export_to_c3d_py(
     num_frames = len(data.times)
     num_markers = data.joint_positions.shape[1]
 
+    # Pre-compute radii for all markers (vectorized)
+    radii = (np.arange(1, num_markers + 1) * 100).astype(float)
+
     for frame_idx in range(num_frames):
-        frame_points = []
-        for marker_idx in range(num_markers):
-            angle = data.joint_positions[frame_idx, marker_idx]
-            radius = (marker_idx + 1) * 100
-            x = radius * np.cos(angle)
-            y = radius * np.sin(angle)
-            z = frame_idx * 10
-            frame_points.append([x, y, z, 0.0, 0.0])
-        writer.add_frames([(np.array(frame_points), np.array([]))])
+        angles = data.joint_positions[frame_idx, :]
+        frame_points = np.column_stack([
+            radii * np.cos(angles),
+            radii * np.sin(angles),
+            np.full(num_markers, frame_idx * 10.0),
+            np.zeros(num_markers),
+            np.zeros(num_markers),
+        ])
+        writer.add_frames([(frame_points, np.array([]))])
 
     with open(output_path, "wb") as f:
         writer.write(f)

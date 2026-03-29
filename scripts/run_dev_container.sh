@@ -7,9 +7,9 @@
 IMAGE_NAME="upstream-drift:dev"
 
 # 1. Check if image exists, build if needed
-if [[ "$(docker images -q ${IMAGE_NAME} 2> /dev/null)" == "" ]]; then
+if [[ "$(docker images -q "${IMAGE_NAME}" 2> /dev/null)" == "" ]]; then
   echo "Image '${IMAGE_NAME}' not found. Building..."
-  docker build -t ${IMAGE_NAME} -f src/engines/physics_engines/mujoco/Dockerfile .
+  docker build -t "${IMAGE_NAME}" -f src/engines/physics_engines/mujoco/Dockerfile .
 else
   echo "Image '${IMAGE_NAME}' found."
 fi
@@ -22,4 +22,4 @@ echo "Mounting: $(pwd) -> /workspace"
 docker run -it --rm \
   -v "$(pwd)":/workspace \
   -w /workspace \
-  ${IMAGE_NAME} /bin/bash
+  "${IMAGE_NAME}" /bin/bash

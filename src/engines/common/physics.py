@@ -28,6 +28,7 @@ import numpy as np
 
 from src.shared.python.core.constants import GRAVITY
 from src.shared.python.core.contracts import postcondition, precondition
+from src.shared.python.core.physics_constants import AIR_DENSITY_SEA_LEVEL_KG_M3
 
 # ─── Physical Constants ────────────────────────────────────────────────
 STANDARD_GRAVITY: float = 9.80665  # m/s² (exact, per NIST)
@@ -46,7 +47,7 @@ class AirProperties:
         pressure: Air pressure [Pa]
     """
 
-    density: float = 1.225  # kg/m³ at sea level, 15°C
+    density: float = float(AIR_DENSITY_SEA_LEVEL_KG_M3)  # kg/m³ at sea level, 15°C
     viscosity: float = 1.81e-5  # Pa·s at 15°C
     temperature: float = 288.15  # K (15°C)
     pressure: float = 101325.0  # Pa (1 atm)

@@ -160,14 +160,10 @@ class ForceVectorRenderer:
             raise ValueError("forces must be provided")
         if not (forces is not None):
             raise ValueError("forces must be provided")
-        results: list[RenderData] = []
-
-        for force in forces:
-            if force.force_type == "torque":
-                render_data = self._render_torque(force)
-            else:
-                render_data = self._render_arrow(force)
-            results.append(render_data)
+        results: list[RenderData] = [
+            self._render_torque(force) if force.force_type == "torque" else self._render_arrow(force)
+            for force in forces
+        ]
 
         return results
 
@@ -265,17 +261,12 @@ class ForceVectorRenderer:
         perp1 = perp1 / np.linalg.norm(perp1)
         perp2 = np.cross(axis, perp1)
 
-        # Generate arc vertices
+        # Generate arc vertices (vectorized)
         arc_angle = min(2 * np.pi, force.magnitude * scale)
-        vertices = []
-        for i in range(arc_segments + 1):
-            angle = arc_angle * i / arc_segments
-            point = origin + arc_radius * (
-                np.cos(angle) * perp1 + np.sin(angle) * perp2
-            )
-            vertices.append(point)
-
-        vertices_array = np.array(vertices)
+        angles = np.linspace(0.0, arc_angle, arc_segments + 1)
+        cos_a = np.cos(angles)[:, np.newaxis]
+        sin_a = np.sin(angles)[:, np.newaxis]
+        vertices_array = origin + arc_radius * (cos_a * perp1 + sin_a * perp2)
 
         # Get color
         color = self.config.force_color_map.get("torque", (1.0, 0.5, 0.0, 1.0))
