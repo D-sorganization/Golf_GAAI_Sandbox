@@ -40,8 +40,6 @@ def setup_logging(name: str, level: int = logging.INFO) -> logging.Logger:
     """
     if not (name is not None):
         raise ValueError("name must be provided")
-    if not (name is not None):
-        raise ValueError("name must be provided")
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
@@ -77,8 +75,6 @@ def _build_base_processors() -> list[Any]:
 
 
 def _build_output_processors(json_output: bool, dev_mode: bool) -> list[Any]:
-    if not (json_output is not None):
-        raise ValueError("json_output must be provided")
     if not (json_output is not None):
         raise ValueError("json_output must be provided")
     if dev_mode and not json_output:
@@ -134,8 +130,6 @@ def setup_structured_logging(
         >>> logger = get_logger(__name__)
         >>> logger.info("simulation_started", engine="mujoco", duration=2.5)
     """
-    if not (level is not None):
-        raise ValueError("level must be provided")
     if not (level is not None):
         raise ValueError("level must be provided")
     import threading

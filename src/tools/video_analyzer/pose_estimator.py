@@ -94,8 +94,6 @@ class PoseEstimator:
         """
         if not (model_complexity is not None):
             raise ValueError("model_complexity must be provided")
-        if not (model_complexity is not None):
-            raise ValueError("model_complexity must be provided")
         self.model_complexity = model_complexity
         self.min_detection_confidence = min_detection_confidence
         self.min_tracking_confidence = min_tracking_confidence
@@ -148,8 +146,6 @@ class PoseEstimator:
         Returns:
             PoseFrame with landmarks, or None if no pose detected.
         """
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
         if not (frame is not None):
             raise ValueError("frame must be provided")
         if not self._initialized and not self.initialize():
@@ -208,8 +204,6 @@ class PoseEstimator:
         Returns:
             PoseFrame with world-space landmarks, or None if no pose detected.
         """
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
         if not (frame is not None):
             raise ValueError("frame must be provided")
         if not self._initialized and not self.initialize():
@@ -274,8 +268,6 @@ class PoseEstimator:
         Returns:
             Frame with landmarks drawn.
         """
-        if not (frame is not None):
-            raise ValueError("frame must be provided")
         if not (frame is not None):
             raise ValueError("frame must be provided")
         if not MEDIAPIPE_AVAILABLE:

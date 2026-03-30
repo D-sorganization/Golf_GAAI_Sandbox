@@ -51,8 +51,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         """Initialize the GUI."""
         if not (root is not None):
             raise ValueError("root must be provided")
-        if not (root is not None):
-            raise ValueError("root must be provided")
         self.root = root
         self.root.title("MuJoCo Golf Simulation Suite")
         self.root.geometry("900x750")
@@ -199,8 +197,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         """Create the simulation tab title section."""
         if not (parent is not None):
             raise ValueError("parent must be provided")
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         title_frame = ttk.Frame(parent, style="Modern.TFrame")
         title_frame.pack(fill="x", pady=(0, 20))
 
@@ -218,8 +214,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
     def _setup_sim_settings_card(self, parent) -> None:
         """Create the simulation settings card with control mode and live view."""
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         if not (parent is not None):
             raise ValueError("parent must be provided")
         settings_card = ttk.LabelFrame(
@@ -260,8 +254,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
     def _setup_sim_state_card(self, parent) -> None:
         """Create the state management card with load/save path entries."""
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         if not (parent is not None):
             raise ValueError("parent must be provided")
         state_card = ttk.LabelFrame(
@@ -334,8 +326,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         """Create the simulation control and results action buttons."""
         if not (parent is not None):
             raise ValueError("parent must be provided")
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         action_card = ttk.LabelFrame(
             parent, text="Simulation Controls", style="Modern.TLabelframe"
         )  # noqa: E501
@@ -348,8 +338,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         self._create_secondary_action_buttons(action_inner)
 
     def _create_primary_action_buttons(self, parent) -> None:
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         if not (parent is not None):
             raise ValueError("parent must be provided")
         primary_frame = ttk.Frame(parent, style="Modern.TFrame")
@@ -404,8 +392,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
     def _create_secondary_action_buttons(self, parent) -> None:
         if not (parent is not None):
             raise ValueError("parent must be provided")
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         secondary_frame = ttk.Frame(parent, style="Modern.TFrame")
         secondary_frame.pack(fill="x")
 
@@ -448,8 +434,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
     def _setup_sim_log_section(self, parent) -> None:
         """Create the simulation log section with text area and scrollbar."""
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         if not (parent is not None):
             raise ValueError("parent must be provided")
         log_card = ttk.LabelFrame(
@@ -536,8 +520,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         """Create the physical dimensions card with height and weight controls."""
         if not (parent is not None):
             raise ValueError("parent must be provided")
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         dimensions_card = ttk.LabelFrame(
             parent, text="Physical Dimensions", style="Modern.TLabelframe"
         )
@@ -551,8 +533,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
     def _setup_height_control(self, parent: ttk.Frame) -> None:
         """Create the height spinbox control."""
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         if not (parent is not None):
             raise ValueError("parent must be provided")
         height_frame = ttk.Frame(parent, style="Modern.TFrame")
@@ -579,8 +559,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
     def _setup_weight_control(self, parent: ttk.Frame) -> None:
         """Create the weight scale control with label."""
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         if not (parent is not None):
             raise ValueError("parent must be provided")
         weight_frame = ttk.Frame(parent, style="Modern.TFrame")
@@ -619,8 +597,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         """Create the body colors card with color pickers for each body part."""
         if not (parent is not None):
             raise ValueError("parent must be provided")
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         colors_card = ttk.LabelFrame(
             parent, text="Body Colors", style="Modern.TLabelframe"
         )  # noqa: E501
@@ -646,8 +622,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         self, parent: ttk.Frame, display_name: str, part_key: str
     ) -> None:  # noqa: E501
         """Create a single color picker row with label, swatch, and pick button."""
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         if not (parent is not None):
             raise ValueError("parent must be provided")
         color_row = ttk.Frame(parent, style="Modern.TFrame")
@@ -695,8 +669,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         """Create the save appearance settings button."""
         if not (parent is not None):
             raise ValueError("parent must be provided")
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         save_frame = ttk.Frame(parent, style="Modern.TFrame")
         save_frame.pack(fill="x", pady=20)
 
@@ -732,8 +704,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         self._create_equip_save_button(main_container)
 
     def _create_club_parameters_card(self, parent: ttk.Frame) -> None:
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         if not (parent is not None):
             raise ValueError("parent must be provided")
         club_card = ttk.LabelFrame(
@@ -776,8 +746,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
     ) -> None:
         if not (parent is not None):
             raise ValueError("parent must be provided")
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         frame = ttk.Frame(parent, style="Modern.TFrame")
         frame.pack(fill="x", pady=(0, bottom_pad))
 
@@ -806,8 +774,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         ).pack(fill="x")
 
     def _create_advanced_features_card(self, parent: ttk.Frame) -> None:
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         if not (parent is not None):
             raise ValueError("parent must be provided")
         features_card = ttk.LabelFrame(
@@ -849,8 +815,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
     def _create_equip_save_button(self, parent: ttk.Frame) -> None:
         if not (parent is not None):
             raise ValueError("parent must be provided")
-        if not (parent is not None):
-            raise ValueError("parent must be provided")
         save_frame = ttk.Frame(parent, style="Modern.TFrame")
         save_frame.pack(fill="x", pady=20)
 
@@ -873,8 +837,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         """Open file dialog to browse for file."""
         if not (var is not None):
             raise ValueError("var must be provided")
-        if not (var is not None):
-            raise ValueError("var must be provided")
         if save:
             path = filedialog.asksaveasfilename(
                 defaultextension=".json", filetypes=[("JSON State", "*.json")]
@@ -888,8 +850,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
         """Update color swatch."""
         if not (part is not None):
             raise ValueError("part must be provided")
-        if not (part is not None):
-            raise ValueError("part must be provided")
         rgba = self.colors[part]
         r, g, b = (int(c * 255) for c in rgba[:3])
         hex_color = f"#{r:02x}{g:02x}{b:02x}"
@@ -897,8 +857,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
     def pick_color(self, part) -> None:
         """Open color picker dialog."""
-        if not (part is not None):
-            raise ValueError("part must be provided")
         if not (part is not None):
             raise ValueError("part must be provided")
         current_rgba = self.colors[part]
@@ -918,8 +876,6 @@ class GolfSimulationGUI(StyleMixin, DockerMixin):
 
     def log(self, message) -> None:
         """Log message to GUI console."""
-        if not (message is not None):
-            raise ValueError("message must be provided")
         if not (message is not None):
             raise ValueError("message must be provided")
         self.log_text.insert(tk.END, message + "\n")
