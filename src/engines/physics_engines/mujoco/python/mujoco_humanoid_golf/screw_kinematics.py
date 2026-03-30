@@ -107,8 +107,6 @@ class ScrewKinematicsAnalyzer:
         """
         if not (model is not None):
             raise ValueError("model must be provided")
-        if not (model is not None):
-            raise ValueError("model must be provided")
         self.model = model
 
         # Thread-safe data structure
@@ -138,8 +136,6 @@ class ScrewKinematicsAnalyzer:
         Returns:
             Twist with angular and linear velocities
         """
-        if not (qpos is not None):
-            raise ValueError("qpos must be provided")
         if not (qpos is not None):
             raise ValueError("qpos must be provided")
         import mujoco
@@ -193,8 +189,6 @@ class ScrewKinematicsAnalyzer:
         Returns:
             ScrewAxis with complete representation
         """
-        if not (twist is not None):
-            raise ValueError("twist must be provided")
         if not (twist is not None):
             raise ValueError("twist must be provided")
         ω = twist.angular
@@ -268,8 +262,6 @@ class ScrewKinematicsAnalyzer:
         """
         if not (qpos is not None):
             raise ValueError("qpos must be provided")
-        if not (qpos is not None):
-            raise ValueError("qpos must be provided")
         import mujoco
 
         results = {}
@@ -306,8 +298,6 @@ class ScrewKinematicsAnalyzer:
         """
         if not (screw is not None):
             raise ValueError("screw must be provided")
-        if not (screw is not None):
-            raise ValueError("screw must be provided")
         if screw.is_singular:
             # Pure translation: draw along velocity direction
             start = screw.axis_point
@@ -336,8 +326,6 @@ class ScrewKinematicsAnalyzer:
         Returns:
             Manipulability measure (dimensionless)
         """
-        if not (qpos is not None):
-            raise ValueError("qpos must be provided")
         if not (qpos is not None):
             raise ValueError("qpos must be provided")
         import mujoco
@@ -392,8 +380,6 @@ def plot_screw_axis_3d(
         label: Label for legend
     """
     # Compute visualization points directly without __new__ code smell
-    if not (screw is not None):
-        raise ValueError("screw must be provided")
     if not (screw is not None):
         raise ValueError("screw must be provided")
     if screw.is_singular:

@@ -55,8 +55,6 @@ def precondition(
     """
     if not (condition is not None):
         raise ValueError("condition must be provided")
-    if not (condition is not None):
-        raise ValueError("condition must be provided")
     from .level import get_contract_level  # read live state via function
 
     def decorator(func: F) -> F:
@@ -131,8 +129,6 @@ def postcondition(
     """
     if not (condition is not None):
         raise ValueError("condition must be provided")
-    if not (condition is not None):
-        raise ValueError("condition must be provided")
     from .level import get_contract_level  # read live state via function
 
     def decorator(func: F) -> F:
@@ -197,8 +193,6 @@ def require_state(
         def step(self, dt: float) -> None:
             ...
     """
-    if not (state_check is not None):
-        raise ValueError("state_check must be provided")
     if not (state_check is not None):
         raise ValueError("state_check must be provided")
     from .exceptions import StateError

@@ -68,8 +68,6 @@ class StartupResults:
         """Create StartupResults from worker results dict."""
         if not (data is not None):
             raise ValueError("data must be provided")
-        if not (data is not None):
-            raise ValueError("data must be provided")
         results = cls()
         results.registry = data.get("registry")
         results.engine_manager = data.get("engine_manager")
@@ -133,8 +131,6 @@ class GolfSplashScreen(QSplashScreen):
         """Draw the logo image, title text, and subtitle."""
         if not (painter is not None):
             raise ValueError("painter must be provided")
-        if not (painter is not None):
-            raise ValueError("painter must be provided")
         center_x = self.width() // 2
         logo_y = 50
         if self.logo_pixmap and not self.logo_pixmap.isNull():
@@ -174,8 +170,6 @@ class GolfSplashScreen(QSplashScreen):
         """Draw the loading status text and progress bar."""
         if not (painter is not None):
             raise ValueError("painter must be provided")
-        if not (painter is not None):
-            raise ValueError("painter must be provided")
         status_font = (
             get_qfont(size=Sizes.SM, weight=Weights.MEDIUM)
             if THEME_AVAILABLE
@@ -207,8 +201,6 @@ class GolfSplashScreen(QSplashScreen):
 
     def _draw_version_labels(self, painter: QPainter, text_quaternary: str) -> None:
         """Draw the version and branding labels at the bottom."""
-        if not (painter is not None):
-            raise ValueError("painter must be provided")
         if not (painter is not None):
             raise ValueError("painter must be provided")
         version_font = (
@@ -249,8 +241,6 @@ class GolfSplashScreen(QSplashScreen):
         """Update the displayed loading message and progress percentage."""
         if not (message is not None):
             raise ValueError("message must be provided")
-        if not (message is not None):
-            raise ValueError("message must be provided")
         self.loading_message = message
         self.progress = progress
         self.showMessage(
@@ -268,8 +258,6 @@ class AsyncStartupWorker(QThread):
     error_signal = pyqtSignal(str)
 
     def __init__(self, repos_root: Path) -> None:
-        if not (repos_root is not None):
-            raise ValueError("repos_root must be provided")
         if not (repos_root is not None):
             raise ValueError("repos_root must be provided")
         super().__init__()

@@ -34,6 +34,7 @@ from src.shared.python.ai.config import (
 from src.shared.python.ai.exceptions import (
     AIConnectionError,
     AIProviderError,
+    AITimeoutError,
 )
 from src.shared.python.ai.types import (
     AgentChunk,
@@ -159,8 +160,6 @@ class OllamaAdapter(BaseAgentAdapter):
         """
         if not (message is not None):
             raise ValueError("message must be provided")
-        if not (message is not None):
-            raise ValueError("message must be provided")
         client = self._get_client()
 
         # Format messages for Ollama
@@ -192,6 +191,17 @@ class OllamaAdapter(BaseAgentAdapter):
                 "Is Ollama running? Start with: ollama serve",
                 provider="ollama",
             ) from e
+        except Exception as e:  # noqa: BLE001  # httpx.ConnectError / TimeoutException
+            exc_type = type(e).__name__
+            if "Timeout" in exc_type:
+                raise AITimeoutError(
+                    f"Request to Ollama timed out: {e}",
+                    provider="ollama",
+                ) from e
+            raise AIConnectionError(
+                f"Cannot connect to Ollama at {self._host}: {e}",
+                provider="ollama",
+            ) from e
 
         # Parse response
         data = response.json()
@@ -213,8 +223,6 @@ class OllamaAdapter(BaseAgentAdapter):
         Yields:
             AgentChunk instances as they arrive.
         """
-        if not (message is not None):
-            raise ValueError("message must be provided")
         if not (message is not None):
             raise ValueError("message must be provided")
         client = self._get_client()
@@ -329,6 +337,11 @@ class OllamaAdapter(BaseAgentAdapter):
                 f"Cannot connect to Ollama at {self._host}. "
                 f"Is it running? Start with: ollama serve ({e})"
             )
+        except Exception as e:  # noqa: BLE001  # httpx.ConnectError / network errors
+            return False, (
+                f"Cannot connect to Ollama at {self._host}. "
+                f"Is it running? Start with: ollama serve ({e})"
+            )
 
     def _format_messages(
         self,
@@ -346,8 +359,6 @@ class OllamaAdapter(BaseAgentAdapter):
         Returns:
             List of message dicts for Ollama.
         """
-        if not (context is not None):
-            raise ValueError("context must be provided")
         if not (context is not None):
             raise ValueError("context must be provided")
         messages: list[dict[str, str]] = []
@@ -392,8 +403,6 @@ class OllamaAdapter(BaseAgentAdapter):
         Returns:
             Parsed AgentResponse.
         """
-        if not (data is not None):
-            raise ValueError("data must be provided")
         if not (data is not None):
             raise ValueError("data must be provided")
         message = data.get("message", {})

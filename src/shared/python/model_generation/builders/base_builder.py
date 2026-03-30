@@ -49,8 +49,6 @@ class BuildResult:
         """Get a link by name."""
         if not (name is not None):
             raise ValueError("name must be provided")
-        if not (name is not None):
-            raise ValueError("name must be provided")
         for link in self.links:
             if link.name == name:
                 return link
@@ -58,8 +56,6 @@ class BuildResult:
 
     def get_joint(self, name: str) -> Joint | None:
         """Get a joint by name."""
-        if not (name is not None):
-            raise ValueError("name must be provided")
         if not (name is not None):
             raise ValueError("name must be provided")
         for joint in self.joints:
@@ -115,8 +111,6 @@ class BaseURDFBuilder(ABC):
         Args:
             robot_name: Name for the robot element
         """
-        if not (robot_name is not None):
-            raise ValueError("robot_name must be provided")
         if not (robot_name is not None):
             raise ValueError("robot_name must be provided")
         self._robot_name = robot_name
@@ -274,8 +268,6 @@ class BaseURDFBuilder(ABC):
         """
         if not (pretty_print is not None):
             raise ValueError("pretty_print must be provided")
-        if not (pretty_print is not None):
-            raise ValueError("pretty_print must be provided")
         from model_generation.builders.urdf_writer import URDFWriter
 
         writer = URDFWriter(pretty_print=pretty_print)
@@ -294,8 +286,6 @@ class BaseURDFBuilder(ABC):
         Returns:
             Path to saved file
         """
-        if not (path is not None):
-            raise ValueError("path must be provided")
         if not (path is not None):
             raise ValueError("path must be provided")
         path = Path(path)

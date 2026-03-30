@@ -321,8 +321,6 @@ class ProcessingMixin:
         """Update tangent line position from slider."""
         if not (value is not None):
             raise ValueError("value must be provided")
-        if not (value is not None):
-            raise ValueError("value must be provided")
         if self.current_signal is None:
             return
 
@@ -618,8 +616,6 @@ class ProcessingMixin:
         Args:
             signal: Signal object to load.
         """
-        if not (signal is not None):
-            raise ValueError("signal must be provided")
         if not (signal is not None):
             raise ValueError("signal must be provided")
         self.current_signal = signal

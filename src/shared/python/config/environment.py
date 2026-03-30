@@ -114,8 +114,6 @@ def get_env_bool(
     """
     if not (name is not None):
         raise ValueError("name must be provided")
-    if not (name is not None):
-        raise ValueError("name must be provided")
     value = os.environ.get(name)
 
     if value is None:
@@ -271,8 +269,6 @@ def get_env_list(
     Example:
         >>> hosts = get_env_list("ALLOWED_HOSTS", default=["localhost"])
     """
-    if not (name is not None):
-        raise ValueError("name must be provided")
     if not (name is not None):
         raise ValueError("name must be provided")
     value = os.environ.get(name)

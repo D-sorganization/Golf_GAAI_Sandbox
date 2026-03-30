@@ -84,8 +84,6 @@ class PlottingMixin:
         """Update the secondary plot."""
         if not (signal is not None):
             raise ValueError("signal must be provided")
-        if not (signal is not None):
-            raise ValueError("signal must be provided")
         self.canvas2.axes.clear()  # type: ignore[attr-defined]
         self.canvas2.setup_dark_theme()  # type: ignore[attr-defined]
 
@@ -108,8 +106,6 @@ class PlottingMixin:
 
     def set_joints(self, joints: list[str]) -> None:
         """Set the list of available joints."""
-        if not (joints is not None):
-            raise ValueError("joints must be provided")
         if not (joints is not None):
             raise ValueError("joints must be provided")
         self.joint_names = joints

@@ -140,8 +140,6 @@ class BallRollPhysics:
         """
         if not (ball_mass is not None):
             raise ValueError("ball_mass must be provided")
-        if not (ball_mass is not None):
-            raise ValueError("ball_mass must be provided")
         self.green = green
         self.turf = turf or (green.turf if green else TurfProperties())
         self.ball_mass = ball_mass
@@ -166,8 +164,6 @@ class BallRollPhysics:
         Returns:
             Current RollMode
         """
-        if not (state is not None):
-            raise ValueError("state must be provided")
         if not (state is not None):
             raise ValueError("state must be provided")
         speed = state.speed
@@ -216,8 +212,6 @@ class BallRollPhysics:
         """
         if not (state is not None):
             raise ValueError("state must be provided")
-        if not (state is not None):
-            raise ValueError("state must be provided")
         if state.speed < 1e-10:
             return np.zeros(2)
 
@@ -246,8 +240,6 @@ class BallRollPhysics:
         Returns:
             Friction force vector [N]
         """
-        if not (state is not None):
-            raise ValueError("state must be provided")
         if not (state is not None):
             raise ValueError("state must be provided")
         if state.speed < 1e-10:
@@ -287,8 +279,6 @@ class BallRollPhysics:
         """
         if not (position is not None):
             raise ValueError("position must be provided")
-        if not (position is not None):
-            raise ValueError("position must be provided")
         if self.green is None:
             return np.zeros(2)
 
@@ -310,8 +300,6 @@ class BallRollPhysics:
         Returns:
             New spin vector [rad/s]
         """
-        if not (state is not None):
-            raise ValueError("state must be provided")
         if not (state is not None):
             raise ValueError("state must be provided")
         speed = state.speed
@@ -362,8 +350,6 @@ class BallRollPhysics:
         """
         if not (state is not None):
             raise ValueError("state must be provided")
-        if not (state is not None):
-            raise ValueError("state must be provided")
         mode = self.determine_roll_mode(state)
 
         if mode == RollMode.STOPPED:
@@ -397,8 +383,6 @@ class BallRollPhysics:
         # Translational: 0.5 * m * v²
         if not (state is not None):
             raise ValueError("state must be provided")
-        if not (state is not None):
-            raise ValueError("state must be provided")
         translational = 0.5 * self.ball_mass * state.speed**2
 
         # Rotational: 0.5 * I * ω²
@@ -419,8 +403,6 @@ class BallRollPhysics:
         """
         if not (state is not None):
             raise ValueError("state must be provided")
-        if not (state is not None):
-            raise ValueError("state must be provided")
         if self.integrator == "rk4":
             return self._step_rk4(state, dt)
         if self.integrator == "verlet":
@@ -429,8 +411,6 @@ class BallRollPhysics:
 
     def _step_euler(self, state: BallState, dt: float) -> BallState:
         """Euler integration step."""
-        if not (state is not None):
-            raise ValueError("state must be provided")
         if not (state is not None):
             raise ValueError("state must be provided")
         mode = self.determine_roll_mode(state)
@@ -479,15 +459,11 @@ class BallRollPhysics:
 
         if not (state is not None):
             raise ValueError("state must be provided")
-        if not (state is not None):
-            raise ValueError("state must be provided")
 
         def derivatives(
             pos: np.ndarray, vel: np.ndarray
         ) -> tuple[np.ndarray, np.ndarray]:
             """Compute velocity and acceleration for the given state."""
-            if not (pos is not None):
-                raise ValueError("pos must be provided")
             if not (pos is not None):
                 raise ValueError("pos must be provided")
             temp_state = BallState(pos, vel, state.spin)
@@ -519,8 +495,6 @@ class BallRollPhysics:
     def _step_verlet(self, state: BallState, dt: float) -> BallState:
         """Velocity Verlet integration (better energy conservation)."""
         # Current acceleration
-        if not (state is not None):
-            raise ValueError("state must be provided")
         if not (state is not None):
             raise ValueError("state must be provided")
         accel = self.compute_total_acceleration(state)
@@ -566,8 +540,6 @@ class BallRollPhysics:
         Returns:
             Dictionary with trajectory data
         """
-        if not (initial_state is not None):
-            raise ValueError("initial_state must be provided")
         if not (initial_state is not None):
             raise ValueError("initial_state must be provided")
         positions = [initial_state.position.copy()]
