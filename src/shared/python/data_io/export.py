@@ -92,7 +92,7 @@ def export_to_matlab(
 
         return True
 
-    except (OSError, ValueError, TypeError) as e:
+    except Exception as e:  # noqa: BLE001  # OSError, ValueError, TypeError, or IO errors
         logger.error(f"Failed to export to MATLAB: {e}")
         return False
 
@@ -166,7 +166,7 @@ def export_to_hdf5(
 
         return True
 
-    except (OSError, ValueError, TypeError) as e:
+    except Exception as e:  # noqa: BLE001  # OSError, ValueError, TypeError, or IO errors
         logger.error(f"Failed to export to HDF5: {e}")
         return False
 
