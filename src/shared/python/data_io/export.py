@@ -356,13 +356,15 @@ def _export_to_c3d_py(
 
     for frame_idx in range(num_frames):
         angles = data.joint_positions[frame_idx, :]
-        frame_points = np.column_stack([
-            radii * np.cos(angles),
-            radii * np.sin(angles),
-            np.full(num_markers, frame_idx * 10.0),
-            np.zeros(num_markers),
-            np.zeros(num_markers),
-        ])
+        frame_points = np.column_stack(
+            [
+                radii * np.cos(angles),
+                radii * np.sin(angles),
+                np.full(num_markers, frame_idx * 10.0),
+                np.zeros(num_markers),
+                np.zeros(num_markers),
+            ]
+        )
         writer.add_frames([(frame_points, np.array([]))])
 
     with open(output_path, "wb") as f:

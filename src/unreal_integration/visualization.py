@@ -161,7 +161,9 @@ class ForceVectorRenderer:
         if not (forces is not None):
             raise ValueError("forces must be provided")
         results: list[RenderData] = [
-            self._render_torque(force) if force.force_type == "torque" else self._render_arrow(force)
+            self._render_torque(force)
+            if force.force_type == "torque"
+            else self._render_arrow(force)
             for force in forces
         ]
 

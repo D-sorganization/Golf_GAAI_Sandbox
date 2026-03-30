@@ -315,7 +315,7 @@ class PoseEstimator:
             self._pose = None
             self._initialized = False
 
-    def __enter__(self) -> "PoseEstimator":
+    def __enter__(self) -> PoseEstimator:
         """Context manager entry."""
         self.initialize()
         return self

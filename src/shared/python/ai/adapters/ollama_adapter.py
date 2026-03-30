@@ -34,7 +34,6 @@ from src.shared.python.ai.config import (
 from src.shared.python.ai.exceptions import (
     AIConnectionError,
     AIProviderError,
-    AITimeoutError,
 )
 from src.shared.python.ai.types import (
     AgentChunk,
