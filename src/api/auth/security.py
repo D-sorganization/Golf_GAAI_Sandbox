@@ -2,20 +2,17 @@
 
 import os
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+from typing import Any, cast
+
+import bcrypt
+import jwt
+from fastapi import HTTPException, status
 
 # Python 3.10 compatibility: timezone.utc was added in 3.11
 from src.api.utils.datetime_compat import UTC
 from src.shared.python.core.contracts import precondition
 from src.shared.python.logging_pkg.logging_config import get_logger
-
-from typing import Any
-
-from typing import cast
-
-import bcrypt
-import jwt
-from fastapi import HTTPException, status
 
 from .models import User, UserRole
 
@@ -146,9 +143,12 @@ class SecurityManager:
             True if password matches, False otherwise
         """
         try:
-            return cast(bool, bcrypt.checkpw(
-                plain_password.encode("utf-8"), hashed_password.encode("utf-8")
-            ))
+            return cast(
+                bool,
+                bcrypt.checkpw(
+                    plain_password.encode("utf-8"), hashed_password.encode("utf-8")
+                ),
+            )
         except (ValueError, TypeError):
             return False
 
@@ -286,9 +286,10 @@ class SecurityManager:
             True if key matches, False otherwise
         """
         try:
-            return cast(bool, bcrypt.checkpw(
-                api_key.encode("utf-8"), hashed_key.encode("utf-8")
-            ))
+            return cast(
+                bool,
+                bcrypt.checkpw(api_key.encode("utf-8"), hashed_key.encode("utf-8")),
+            )
         except (ValueError, TypeError):
             return False
 
