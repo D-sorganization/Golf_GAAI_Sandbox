@@ -328,4 +328,3 @@ class PoseEstimator:
     ) -> None:
         """Context manager exit."""
         self.close()
-        return False

@@ -372,10 +372,9 @@ class VideoProcessor:
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: object,
-    ) -> bool:
+    ) -> None:
         """Context manager exit."""
         self.close()
-        return False
 
     def __len__(self) -> int:
         """Return frame count."""
