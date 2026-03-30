@@ -158,6 +158,11 @@ INFRASTRUCTURE_REVIEW_INDEX.md
 REVIEW_SUMMARY.txt
 COMPREHENSIVE_REPO_AUDIT_*.md
 
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
 # ── Rust Build Artifacts ──
 /target/
 *.so

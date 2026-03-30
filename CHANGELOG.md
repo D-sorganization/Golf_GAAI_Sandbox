@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (2026-03-30 — A-N Assessment Remediation, closes #105)
+
+- **Infrastructure**: Add `.env` and `.env.*` to `.gitignore` to prevent secret leakage.
+- **DRY**: Extract `_apply_fixes_to_file()` from `run_agent()` in `scripts/mypy_autofix_agent.py`, reducing `run_agent` from 114 lines to ~55 lines.
+- **DbC**: Add `max_fixes >= 0` and `max_files >= 0` bounds checks to `run_agent()`.
+
 ### Security (CRITICAL - January 13, 2026)
 
 **Security Grade Improvement: D+ (68/100) → A- (92/100)**
