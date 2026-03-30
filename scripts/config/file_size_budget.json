@@ -72,6 +72,12 @@
       "owner": "@humanoid-builder",
       "reason": "Pre-existing over-budget file (1641 lines on main). Geometry generation split pending.",
       "expires_on": "2026-12-31"
+    },
+    {
+      "path": "src/shared/python/upstream_drift_tools/process_calculators/pressure_drop_calculator/pressure_drop_interface.py",
+      "owner": "@upstream-drift-tools",
+      "reason": "Pre-existing over-budget file (1404 lines on main before duplicate-guard removal). Orchestration/domain split pending.",
+      "expires_on": "2026-12-31"
     }
   ]
 }
