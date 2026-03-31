@@ -63,7 +63,7 @@ jobs:
       - name: Check for self-hosted runner
         id: check
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
         run: |
           ONLINE=$(gh api /orgs/${{ github.repository_owner }}/actions/runners \
             --jq '[.runners[] | select(.status == "online") | select(.labels[].name == "d-sorg-fleet")] | length' \
@@ -242,7 +242,7 @@ jobs:
       issues: write
       contents: read
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
       MAX_PARALLEL: ${{ vars.JULES_MAX_PARALLEL_ISSUES || '3' }}
       DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
     steps:
