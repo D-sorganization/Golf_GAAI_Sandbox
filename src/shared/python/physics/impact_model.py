@@ -271,8 +271,6 @@ class RigidBodyImpactModel(ImpactModel):
         Returns:
             Post-impact state
         """
-        if not (pre_state is not None):
-            raise ValueError("pre_state must be provided")
         m_club_effective = self._compute_effective_club_mass(pre_state)
 
         n = pre_state.clubhead_orientation / np.linalg.norm(
@@ -348,8 +346,6 @@ class SpringDamperImpactModel(ImpactModel):
                 Smaller values increase stability but decrease performance.
                 Typical range: 1e-8 to 1e-6 s.
         """
-        if not (dt is not None):
-            raise ValueError("dt must be provided")
         self.dt = dt
 
     @precondition(
@@ -377,8 +373,6 @@ class SpringDamperImpactModel(ImpactModel):
         Returns:
             Post-impact state
         """
-        if not (pre_state is not None):
-            raise ValueError("pre_state must be provided")
         m_ball = GOLF_BALL_MASS
         m_club = pre_state.clubhead_mass
 
@@ -540,8 +534,6 @@ def compute_gear_effect_spin(
     """
     # Horizontal offset creates hook/slice spin (vertical axis)
     # Vertical offset creates topspin/backspin
-    if not (impact_offset is not None):
-        raise ValueError("impact_offset must be provided")
     h_offset = impact_offset[0]  # + = toe side
     v_offset = impact_offset[1]  # + = high on face
 
@@ -877,8 +869,6 @@ class ImpactSolverAPI:
         Returns:
             Post-impact state
         """
-        if not (timestamp is not None):
-            raise ValueError("timestamp must be provided")
         if ball_velocity is None:
             ball_velocity = np.zeros(3)
         if ball_angular_velocity is None:

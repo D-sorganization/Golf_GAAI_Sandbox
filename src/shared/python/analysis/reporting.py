@@ -183,8 +183,6 @@ class ReportingMixin:
         Returns:
             (frequencies, psd_values)
         """
-        if not (data is not None):
-            raise ValueError("data must be provided")
         fs = 1.0 / self.dt if self.dt > 0 else 0.0
         if fs == 0.0:
             return np.array([]), np.array([])
@@ -330,8 +328,6 @@ class ReportingMixin:
         Returns:
             JerkMetrics object or None
         """
-        if not (joint_idx is not None):
-            raise ValueError("joint_idx must be provided")
         if (
             hasattr(self, "joint_accelerations")
             and self.joint_accelerations is not None
@@ -517,8 +513,6 @@ class ReportingMixin:
             filename: Output filename
             report: Statistics report (if None, generates new one)
         """
-        if not (filename is not None):
-            raise ValueError("filename must be provided")
         if report is None:
             report = self.generate_comprehensive_report()
 

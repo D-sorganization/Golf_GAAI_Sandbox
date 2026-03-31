@@ -332,8 +332,6 @@ class MuJoCoPhysicsEngine(PhysicsEngine):
         Returns:
             q_ddot_control: Control acceleration vector (nv,) [rad/s² or m/s²]
         """
-        if not (tau is not None):
-            raise ValueError("tau must be provided")
         if self.model is None or self.data is None:
             return np.array([])
 

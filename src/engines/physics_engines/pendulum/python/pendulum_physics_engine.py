@@ -214,8 +214,6 @@ class PendulumPhysicsEngine(BasePhysicsEngine):
     @postcondition(check_finite, "Inverse dynamics torques must contain finite values")
     def compute_inverse_dynamics(self, qacc: np.ndarray) -> np.ndarray:
         """Compute inverse dynamics tau = ID(q, v, a)."""
-        if not (qacc is not None):
-            raise ValueError("qacc must be provided")
         if len(qacc) < 2:
             return np.array([])
 
@@ -254,8 +252,6 @@ class PendulumPhysicsEngine(BasePhysicsEngine):
         Returns:
             Control acceleration vector (2,) [rad/s**2]
         """
-        if not (tau is not None):
-            raise ValueError("tau must be provided")
         if len(tau) < 2:
             return np.array([])
 

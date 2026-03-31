@@ -396,8 +396,6 @@ class AnalysisService:
         Simple heuristic-based phase detection. For production use,
         this should be replaced with ML-based detection.
         """
-        if not (state is not None):
-            raise ValueError("state must be provided")
         if not state:
             return None
 

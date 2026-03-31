@@ -471,8 +471,6 @@ class MeshInertiaCalculator:
         Returns:
             New InertiaResult in transformed frame
         """
-        if not (inertia is not None):
-            raise ValueError("inertia must be provided")
         I_original = inertia.as_matrix()
         mass = inertia.mass
         com = np.array(inertia.center_of_mass)

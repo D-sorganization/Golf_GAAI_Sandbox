@@ -222,8 +222,6 @@ class SwingAnimator:
         Returns:
             ``FuncAnimation`` for skeleton playback.
         """
-        if not (body_positions is not None):
-            raise ValueError("body_positions must be provided")
         cfg = self.config
         links = links or cfg.skeleton_links
         fig = plt.figure(figsize=cfg.figsize, dpi=cfg.dpi)
@@ -289,8 +287,6 @@ class SwingAnimator:
         Returns:
             ``FuncAnimation`` for vector evolution.
         """
-        if not (positions is not None):
-            raise ValueError("positions must be provided")
         cfg = self.config
         fig = plt.figure(figsize=cfg.figsize, dpi=cfg.dpi)
         ax = fig.add_subplot(111, projection="3d")
@@ -375,8 +371,6 @@ class SwingAnimator:
         Returns:
             Resolved ``Path`` of the saved file.
         """
-        if not (anim is not None):
-            raise ValueError("anim must be provided")
         out = Path(path)
         out.parent.mkdir(parents=True, exist_ok=True)
         anim.save(str(out), writer=writer, fps=fps, dpi=dpi)
