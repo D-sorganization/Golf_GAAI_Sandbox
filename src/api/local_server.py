@@ -17,7 +17,6 @@ Diagnostic Features:
 
 from __future__ import annotations
 
-import logging
 import mimetypes
 import os
 import time
@@ -49,6 +48,11 @@ from src.api.diagnostics import (  # noqa: E402
     APIDiagnostics,
     get_diagnostic_endpoint_html,
 )
+from src.api.logo import (  # noqa: E402
+    print_logo_animated,
+    print_matrix_status,
+    print_server_info,
+)
 from src.api.routes import (  # noqa: E402
     analysis,
     chat_ws,
@@ -58,10 +62,9 @@ from src.api.routes import (  # noqa: E402
     simulation_ws,
 )
 from src.api.services.chat_service import ChatService  # noqa: E402
+from src.api.templates import load_template  # noqa: E402
 from src.shared.python.engine_core.engine_manager import EngineManager  # noqa: E402
 from src.shared.python.logging_pkg.logging_config import get_logger  # noqa: E402
-
-logger = logging.getLogger(__name__)
 
 logger = get_logger(__name__)
 
@@ -118,193 +121,21 @@ def _register_api_routers(app: FastAPI) -> None:
     app.include_router(export.router, prefix="/api", tags=["Export"])
 
 
-def _load_launcher_manifest() -> dict[str, Any]:
-    """Load the launcher manifest JSON from the config directory.
-
-    Returns:
-        Parsed manifest dict, or a default empty manifest if not found.
-    """
-    import json
-
-    manifest_path = Path(__file__).parent.parent / "config" / "launcher_manifest.json"
-    if manifest_path.exists():
-        with open(manifest_path, encoding="utf-8") as f:
-            result: dict[str, Any] = json.load(f)
-            return result
-    return {"version": "1.0.0", "tiles": []}
-
-
-def _find_logo_file(logo_name: str) -> Path | None:
-    """Search for a logo file in known asset directories.
-
-    Args:
-        logo_name: Filename of the logo to find.
-
-    Returns:
-        Path to the logo file, or None if not found.
-    """
-    logos_dir = Path(__file__).parent.parent.parent / "assets" / "logos"
-    logo_path = logos_dir / logo_name
-    if logo_path.exists() and logo_path.is_file():
-        return logo_path
-    launcher_logos = Path(__file__).parent.parent / "launchers" / "assets"
-    alt_path = launcher_logos / logo_name
-    if alt_path.exists() and alt_path.is_file():
-        return alt_path
-    return None
-
-
-def _find_tile_in_manifest(tile_id: str) -> tuple[dict | None, dict | None]:
-    """Find a tile by ID in the launcher manifest.
-
-    Args:
-        tile_id: The tile identifier to search for.
-
-    Returns:
-        Tuple of (manifest dict, tile dict) or (None, None) if not found.
-    """
-    import json as _json
-
-    manifest_path = Path(__file__).parent.parent / "config" / "launcher_manifest.json"
-    if not manifest_path.exists():
-        logger.error("[launch] Manifest not found at %s", manifest_path)
-        return None, None
-
-    with open(manifest_path, encoding="utf-8") as f:
-        manifest = _json.load(f)
-
-    for t in manifest.get("tiles", []):
-        if t.get("id") == tile_id:
-            return manifest, t
-    return manifest, None
-
-
-def _execute_tile_launch(
-    tile_id: str, tile: dict, launcher_service: Any
-) -> dict[str, Any] | JSONResponse:
-    """Execute the launch of a tile using the appropriate handler.
-
-    Args:
-        tile_id: The tile identifier.
-        tile: Tile configuration dict from the manifest.
-        launcher_service: The launcher service managing handlers.
-
-    Returns:
-        Success dict or JSONResponse with error details.
-    """
-    if not (tile_id is not None):
-        raise ValueError("tile_id must be provided")
-    model_type = tile.get("type", "")
-    repo_path = Path(__file__).parent.parent.parent
-    logger.info(
-        "[launch] Resolved tile: name=%s type=%s path=%s",
-        tile.get("name"),
-        model_type,
-        tile.get("path"),
-    )
-
-    class _TileModel:
-        """Minimal model object compatible with handler.launch()."""
-
-        def __init__(self, data: dict) -> None:
-            for k, v in data.items():
-                setattr(self, k, v)
-
-    model = _TileModel(tile)
-
-    handler = launcher_service.get_handler(model_type)
-    if handler is None:
-        logger.error("[launch] No handler for type=%s (tile=%s)", model_type, tile_id)
-        return JSONResponse(
-            status_code=400,
-            content={"detail": f"No handler for type: {model_type}"},
-        )
-
-    logger.info(
-        "[launch] Using handler %s for tile %s",
-        type(handler).__name__,
-        tile_id,
-    )
-    success = handler.launch(model, repo_path, launcher_service.process_manager)
-    if success:
-        logger.info(
-            "[launch] Successfully launched tile %s (type=%s)", tile_id, model_type
-        )
-        return {"status": "launched", "tile_id": tile_id, "name": tile.get("name")}
-    logger.error(
-        "[launch] Handler returned failure for tile %s (type=%s)",
-        tile_id,
-        model_type,
-    )
-    return JSONResponse(
-        status_code=500,
-        content={"detail": f"Failed to launch {tile.get('name', tile_id)}"},
-    )
-
-
 def _register_launcher_endpoints(app: FastAPI) -> None:
-    """Register launcher manifest, logo, launch, process, and stop endpoints."""
-    from src.api.services.launcher_service import LauncherService
+    """Register launcher endpoints via the routes.launcher router.
 
-    _repo_root = Path(__file__).parent.parent.parent
-    _launcher_service = LauncherService(repo_root=_repo_root)
-    app.state.process_manager = _launcher_service.process_manager
+    Process management state (LauncherService) is now owned by
+    routes/launcher.py and shared across all callers via a module-level
+    singleton.  The app.state.process_manager is set here so that other
+    parts of the application can still access the process manager via
+    app.state if needed.
+    """
+    from src.api.routes import launcher as launcher_router
+    from src.api.routes.launcher import _get_launcher_service
 
-    @app.get("/api/launcher/manifest")
-    async def get_launcher_manifest() -> dict[str, Any]:
-        """Return the launcher manifest (tile configuration) for the web UI."""
-        return _load_launcher_manifest()
-
-    @app.get("/api/launcher/logos/{logo_name:path}")
-    async def get_launcher_logo(logo_name: str) -> Any:
-        """Serve logo images from assets/logos directory."""
-        from fastapi.responses import FileResponse
-
-        found = _find_logo_file(logo_name)
-        if found is not None:
-            return FileResponse(str(found))
-        return JSONResponse(
-            status_code=404, content={"detail": f"Logo not found: {logo_name}"}
-        )
-
-    @app.post("/api/launcher/launch/{tile_id}", response_model=None)
-    async def launch_tile(tile_id: str) -> dict[str, Any] | JSONResponse:
-        """Launch an engine or tool by tile ID.
-
-        Looks up the tile in the launcher manifest and uses the model
-        handler registry to spawn it as a subprocess.
-        """
-        logger.info("[launch] Received launch request for tile_id=%s", tile_id)
-
-        manifest, tile = _find_tile_in_manifest(tile_id)
-        if manifest is None:
-            return JSONResponse(
-                status_code=404,
-                content={"detail": "Launcher manifest not found"},
-            )
-        if tile is None:
-            logger.warning("[launch] Tile not found: %s", tile_id)
-            return JSONResponse(
-                status_code=404,
-                content={"detail": f"Tile not found: {tile_id}"},
-            )
-
-        return _execute_tile_launch(tile_id, tile, _launcher_service)
-
-    @app.get("/api/launcher/processes")
-    async def list_running_processes() -> dict[str, Any]:
-        """List currently running engine/tool processes."""
-        return {"processes": _launcher_service.get_running_processes()}
-
-    @app.post("/api/launcher/stop/{name}", response_model=None)
-    async def stop_process(name: str) -> dict[str, Any] | JSONResponse:
-        """Stop a running engine/tool process by name."""
-        if not _launcher_service.stop_process(name):
-            logger.warning("[stop] Process not found: %s", name)
-            return JSONResponse(
-                status_code=404, content={"detail": f"Process not found: {name}"}
-            )
-        return {"status": "stopped", "name": name}
+    app.include_router(launcher_router.router)
+    # Expose the process manager on app.state for backward compatibility
+    app.state.process_manager = _get_launcher_service().process_manager
 
 
 def _register_health_and_diagnostic_endpoints(
@@ -449,89 +280,12 @@ def _register_spa_catch_all(app: FastAPI, ui_path: Path) -> None:
 
 
 def _get_ui_not_built_html() -> str:
-    """Return an HTML page informing the user that the UI has not been built.
+    """Return the 'UI not built' HTML page loaded from the templates package.
 
     Returns:
         HTML string with setup instructions.
     """
-    return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Golf Modeling Suite - Setup Required</title>
-        <style>
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-                color: #f0f0f0;
-                margin: 0;
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .container {
-                text-align: center;
-                padding: 40px;
-                background: rgba(0,0,0,0.3);
-                border-radius: 16px;
-                max-width: 600px;
-            }
-            h1 { color: #0a84ff; margin-bottom: 10px; }
-            .emoji { font-size: 4em; margin-bottom: 20px; }
-            .code {
-                background: #0d0d0d;
-                padding: 15px 20px;
-                border-radius: 8px;
-                font-family: monospace;
-                margin: 20px 0;
-                text-align: left;
-            }
-            a {
-                color: #0a84ff;
-                text-decoration: none;
-            }
-            a:hover { text-decoration: underline; }
-            .btn {
-                display: inline-block;
-                background: #0a84ff;
-                color: white;
-                padding: 12px 24px;
-                border-radius: 8px;
-                margin-top: 20px;
-                text-decoration: none;
-            }
-            .btn:hover {
-                background: #0066cc;
-                text-decoration: none;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="emoji">\U0001f3cc\ufe0f\u200d\u2642\ufe0f</div>
-            <h1>Golf Modeling Suite</h1>
-            <h2>Web UI Setup Required</h2>
-            <p>The web interface has not been built yet. Run these commands:</p>
-            <div class="code">
-                cd ui<br>
-                npm install<br>
-                npm run build
-            </div>
-            <p>Then restart the server.</p>
-            <p style="color: #888; margin-top: 30px;">
-                <strong>API is working!</strong> Check:
-            </p>
-            <p>
-                <a href="/api/health">/api/health</a> |
-                <a href="/api/docs">/api/docs</a> |
-                <a href="/api/diagnostics/html">/api/diagnostics/html</a>
-            </p>
-            <a href="/api/diagnostics/html" class="btn">Run Diagnostics</a>
-        </div>
-    </body>
-    </html>
-    """
+    return load_template("ui_not_built.html")
 
 
 def _register_error_page_catch_all(app: FastAPI) -> None:
@@ -616,78 +370,6 @@ def create_local_app() -> FastAPI:
         "%Y-%m-%dT%H:%M:%SZ", time.gmtime()
     )
     return app
-
-
-def print_logo_animated() -> None:
-    """Print the Upstream Drift logo with scroll animation."""
-    import sys
-    import time
-
-    # ANSI escape codes
-    ORANGE = "\033[38;5;208m"
-    RESET = "\033[0m"
-
-    logo = [
-        r"██╗   ██╗██████╗ ███████╗████████╗██████╗ ███████╗ █████╗ ███╗   ███╗",
-        r"██║   ██║██╔══██╗██╔════╝╚══██╔══╝██╔══██╗██╔════╝██╔══██╗████╗ ████║",
-        r"██║   ██║██████╔╝███████╗   ██║   ██████╔╝█████╗  ███████║██╔████╔██║",
-        r"██║   ██║██╔═══╝ ╚════██║   ██║   ██╔══██╗██╔══╝  ██╔══██║██║╚██╔╝██║",
-        r"╚██████╔╝██║     ███████║   ██║   ██║  ██║███████╗██║  ██║██║ ╚═╝ ██║",
-        r" ╚═════╝ ╚═╝     ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝",
-        r"",
-        r"██████╗ ██████╗ ██╗███████╗████████╗",
-        r"██╔══██╗██╔══██╗██║██╔════╝╚══██╔══╝",
-        r"██║  ██║██████╔╝██║█████╗     ██║   ",
-        r"██║  ██║██╔══██╗██║██╔══╝     ██║   ",
-        r"██████╔╝██║  ██║██║██║        ██║   ",
-        r"╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ",
-    ]
-
-    logger.info("")
-    try:
-        for line in logo:
-            logger.info("    %s%s%s", ORANGE, line, RESET)
-            sys.stdout.flush()
-            time.sleep(0.03)  # Scroll effect
-    except UnicodeEncodeError:
-        logger.info("    %sUPSTREAM DRIFT%s", ORANGE, RESET)
-    logger.info("")
-
-
-def print_matrix_status(message: str, indent: int = 4) -> None:
-    """Print status message in matrix green style."""
-    if not (message is not None):
-        raise ValueError("message must be provided")
-    GREEN = "\033[38;5;46m"  # Bright matrix green
-    RESET = "\033[0m"
-    logger.info("%s%s>%s %s%s%s", " " * indent, GREEN, RESET, GREEN, message, RESET)
-
-
-def print_server_info(host: str, port: int) -> None:
-    """Print server info box."""
-    if not (host is not None):
-        raise ValueError("host must be provided")
-    CYAN = "\033[38;5;51m"
-    RESET = "\033[0m"
-
-    try:
-        logger.info(f"""
-{CYAN}    ┌─────────────────────────────────────────────────────────┐
-    │              Golf Modeling Suite - Local Server         │
-    ├─────────────────────────────────────────────────────────┤
-    │  Running at: http://{host}:{port:<5}                       │
-    │  API Docs:   http://{host}:{port}/api/docs               │
-    │                                                         │
-    │  Mode: LOCAL (no auth required)                         │
-    │  Press Ctrl+C to stop.                                  │
-    └─────────────────────────────────────────────────────────┘{RESET}
-    """)
-    except UnicodeEncodeError:
-        logger.info("\n    Golf Modeling Suite - Local Server")
-        logger.info("    Running at: http://%s:%s", host, port)
-        logger.info("    API Docs:   http://%s:%s/api/docs", host, port)
-        logger.info("    Mode: LOCAL (no auth required)")
-        logger.info("    Press Ctrl+C to stop.\n")
 
 
 def main() -> None:

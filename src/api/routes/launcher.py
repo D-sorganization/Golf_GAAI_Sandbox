@@ -6,9 +6,14 @@ enabling both launchers to derive their tile lists from a single source.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse
+import json
+from pathlib import Path
+from typing import Any
 
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse, JSONResponse
+
+from src.api.services.launcher_service import LauncherService
 from src.config.launcher_manifest_loader import ASSETS_DIR, LauncherManifest
 from src.shared.python.core.contracts import precondition
 from src.shared.python.logging_pkg.logging_config import get_logger
@@ -331,3 +336,145 @@ async def get_engine_capabilities(engine_id: str) -> dict[str, str]:
             detail=f"Engine not found: {engine_id}. Available: {list(caps.keys())}",
         )
     return caps[engine_id]
+
+
+# ---------------------------------------------------------------------------
+# Process management endpoints (launch / status / stop)
+# Extracted from local_server._register_launcher_endpoints (issue #110).
+# ---------------------------------------------------------------------------
+
+_REPO_ROOT: Path = Path(__file__).resolve().parents[3]
+_launcher_service: LauncherService | None = None
+
+
+def _get_launcher_service() -> LauncherService:
+    """Return the module-level LauncherService singleton, creating it on first call.
+
+    Returns:
+        Initialised LauncherService bound to the repository root.
+    """
+    global _launcher_service  # noqa: PLW0603
+    if _launcher_service is None:
+        _launcher_service = LauncherService(repo_root=_REPO_ROOT)
+    return _launcher_service
+
+
+def _find_tile(tile_id: str) -> dict[str, Any] | None:
+    """Look up a tile by ID in the launcher manifest.
+
+    Args:
+        tile_id: Tile identifier to search for.
+
+    Returns:
+        Tile dict from the manifest, or None if not found.
+    """
+
+    manifest_path = _REPO_ROOT / "src" / "config" / "launcher_manifest.json"
+    if not manifest_path.exists():
+        return None
+    with manifest_path.open(encoding="utf-8") as fh:
+        manifest: dict[str, Any] = json.load(fh)
+    tiles: list[dict[str, Any]] = manifest.get("tiles", [])
+    for tile in tiles:
+        if tile.get("id") == tile_id:
+            return tile
+    return None
+
+
+def _launch_tile(tile_id: str, tile: dict[str, Any]) -> dict[str, Any] | JSONResponse:
+    """Execute a tile launch using the appropriate model handler.
+
+    Args:
+        tile_id: Tile identifier.
+        tile: Tile configuration dict from the manifest.
+
+    Returns:
+        Success status dict, or a JSONResponse with an error status code.
+    """
+    service = _get_launcher_service()
+    model_type = tile.get("type", "")
+
+    class _TileModel:
+        """Minimal model object compatible with handler.launch()."""
+
+        def __init__(self, data: dict[str, Any]) -> None:
+            for key, value in data.items():
+                setattr(self, key, value)
+
+    model = _TileModel(tile)
+    handler = service.get_handler(model_type)
+    if handler is None:
+        logger.error("[launch] No handler for type=%s (tile=%s)", model_type, tile_id)
+        return JSONResponse(
+            status_code=400,
+            content={"detail": f"No handler for type: {model_type}"},
+        )
+
+    logger.info(
+        "[launch] Using handler %s for tile %s", type(handler).__name__, tile_id
+    )
+    success = handler.launch(model, _REPO_ROOT, service.process_manager)
+    if success:
+        logger.info("[launch] Launched tile %s (type=%s)", tile_id, model_type)
+        return {"status": "launched", "tile_id": tile_id, "name": tile.get("name")}
+    logger.error(
+        "[launch] Handler returned failure for tile %s (type=%s)", tile_id, model_type
+    )
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Failed to launch {tile.get('name', tile_id)}"},
+    )
+
+
+@router.post("/launch/{tile_id}", response_model=None)
+async def launch_tile(tile_id: str) -> dict[str, Any] | JSONResponse:
+    """Launch an engine or tool by tile ID.
+
+    Looks up the tile in the launcher manifest and uses the registered
+    model handler to spawn it as a subprocess.
+
+    Args:
+        tile_id: Identifier of the tile to launch.
+
+    Returns:
+        Status dict on success, or JSONResponse with an error code.
+    """
+    logger.info("[launch] Received launch request for tile_id=%s", tile_id)
+    tile = _find_tile(tile_id)
+    if tile is None:
+        logger.warning("[launch] Tile not found: %s", tile_id)
+        return JSONResponse(
+            status_code=404,
+            content={"detail": f"Tile not found: {tile_id}"},
+        )
+    return _launch_tile(tile_id, tile)
+
+
+@router.get("/processes")
+async def list_processes() -> dict[str, Any]:
+    """List currently running engine/tool processes.
+
+    Returns:
+        Dict with a ``processes`` key mapping names to status info.
+    """
+    service = _get_launcher_service()
+    return {"processes": service.get_running_processes()}
+
+
+@router.post("/stop/{name}", response_model=None)
+async def stop_process(name: str) -> dict[str, Any] | JSONResponse:
+    """Stop a running engine/tool process by name.
+
+    Args:
+        name: Process name to stop.
+
+    Returns:
+        Status dict on success, or a 404 JSONResponse if not found.
+    """
+    service = _get_launcher_service()
+    if not service.stop_process(name):
+        logger.warning("[stop] Process not found: %s", name)
+        return JSONResponse(
+            status_code=404, content={"detail": f"Process not found: {name}"}
+        )
+    return {"status": "stopped", "name": name}
