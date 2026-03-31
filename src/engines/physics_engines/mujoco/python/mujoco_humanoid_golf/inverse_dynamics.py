@@ -346,8 +346,6 @@ class InverseDynamicsSolver:
         Returns:
             InducedAccelerationResult with component accelerations.
         """
-        if not (qpos is not None):
-            raise ValueError("qpos must be provided")
         self._perturb_data.qpos[:] = qpos
         self._perturb_data.qvel[:] = qvel
 
@@ -385,8 +383,6 @@ class InverseDynamicsSolver:
         Returns:
             List of InverseDynamicsResult for each time step
         """
-        if not (times is not None):
-            raise ValueError("times must be provided")
         results = []
 
         for i in range(len(times)):
@@ -526,8 +522,6 @@ class InverseDynamicsSolver:
             End-effector force [3]
         """
         # Compute required torques
-        if not (qpos is not None):
-            raise ValueError("qpos must be provided")
         result = self.compute_required_torques(qpos, qvel, qacc)
 
         # Get Jacobian (configuration-dependent, must recompute for each qpos)

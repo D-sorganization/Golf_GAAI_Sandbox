@@ -152,8 +152,6 @@ class AnthropicAdapter(BaseAgentAdapter):
         Returns:
             AgentResponse with model's reply.
         """
-        if not (message is not None):
-            raise ValueError("message must be provided")
         client = self._get_client()
 
         # Format messages

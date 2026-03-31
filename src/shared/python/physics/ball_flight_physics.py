@@ -165,8 +165,6 @@ class BallFlightSimulator:
         is delegated to the native Rust implementation for performance.
         Otherwise, falls back to the Python/Numba implementation.
         """
-        if not (launch is not None):
-            raise ValueError("launch must be provided")
         from src.shared.python.physics.rust_kernel import is_rust_available
 
         if not is_rust_available():
@@ -316,8 +314,6 @@ class BallFlightSimulator:
     )
     def analyze_trajectory(self, trajectory: list[TrajectoryPoint]) -> dict:
         """Generate comprehensive analysis dictionary."""
-        if not (trajectory is not None):
-            raise ValueError("trajectory must be provided")
         return {
             "carry_distance": self.calculate_carry_distance(trajectory),
             "max_height": self.calculate_max_height(trajectory),
@@ -554,8 +550,6 @@ class EnhancedBallFlightSimulator:
             List of TrajectoryPoint objects representing the flight path
         """
         # Convert launch conditions to initial state
-        if not (launch is not None):
-            raise ValueError("launch must be provided")
         v0 = launch.velocity
         ca, sa = np.cos(launch.azimuth_angle), np.sin(launch.azimuth_angle)
         cv, sv = np.cos(launch.launch_angle), np.sin(launch.launch_angle)
@@ -751,8 +745,6 @@ class EnhancedBallFlightSimulator:
         Returns:
             List of analysis dictionaries for each run
         """
-        if not (launch is not None):
-            raise ValueError("launch must be provided")
         from src.shared.python.physics.aerodynamics import (
             AerodynamicsEngine,
             EnvironmentRandomizer,

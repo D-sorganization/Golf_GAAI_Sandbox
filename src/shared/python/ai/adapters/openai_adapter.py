@@ -167,8 +167,6 @@ class OpenAIAdapter(BaseAgentAdapter):
             AIRateLimitError: If rate limit exceeded.
             AITimeoutError: If request times out.
         """
-        if not (message is not None):
-            raise ValueError("message must be provided")
         client = self._get_client()
 
         # Format messages

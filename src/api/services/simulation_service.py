@@ -208,8 +208,6 @@ class SimulationService:
         Returns:
             Dictionary containing simulation data
         """
-        if not (recorder is not None):
-            raise ValueError("recorder must be provided")
         data = {}
 
         try:

@@ -212,8 +212,6 @@ def _parse_urdf_tree(urdf_content: str, file_path: str) -> ModelExplorerResponse
     Raises:
         ValueError: If the URDF cannot be parsed.
     """
-    if not (urdf_content is not None):
-        raise ValueError("urdf_content must be provided")
     try:
         root = ElementTree.fromstring(urdf_content)
     except ElementTree.ParseError as e:

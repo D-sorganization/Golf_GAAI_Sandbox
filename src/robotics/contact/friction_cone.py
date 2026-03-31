@@ -119,8 +119,6 @@ def _compute_cone_generators(
     Returns:
         Generator matrix (3, num_sides).
     """
-    if not (normal is not None):
-        raise ValueError("normal must be provided")
     normal = np.asarray(normal, dtype=np.float64)
     normal = normal / np.linalg.norm(normal)
 
@@ -188,8 +186,6 @@ def linearize_friction_cone(
         Tuple of (A, b) such that A @ f <= b enforces friction cone.
         A has shape (num_faces, 3), b has shape (num_faces,).
     """
-    if not (mu is not None):
-        raise ValueError("mu must be provided")
     normal = np.asarray(normal, dtype=np.float64)
     normal = normal / np.linalg.norm(normal)
 
@@ -241,8 +237,6 @@ def compute_friction_cone_constraint(
             - 'normal': Contact normal (3,)
             - 'generators': Cone generators (3, num_faces)
     """
-    if not (contact_normal is not None):
-        raise ValueError("contact_normal must be provided")
     contact_normal = np.asarray(contact_normal, dtype=np.float64)
     contact_normal = contact_normal / np.linalg.norm(contact_normal)
 

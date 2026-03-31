@@ -151,8 +151,6 @@ class Inertia:
             mass: Mass in kg
             size_x, size_y, size_z: Full dimensions in meters
         """
-        if not (mass is not None):
-            raise ValueError("mass must be provided")
         ixx = (mass / 12.0) * (size_y**2 + size_z**2)
         iyy = (mass / 12.0) * (size_x**2 + size_z**2)
         izz = (mass / 12.0) * (size_x**2 + size_y**2)
@@ -175,8 +173,6 @@ class Inertia:
             axis: Cylinder axis ('x', 'y', or 'z')
         """
         # Inertia about cylinder axis
-        if not (mass is not None):
-            raise ValueError("mass must be provided")
         i_axial = 0.5 * mass * radius**2
         # Inertia about perpendicular axes
         i_perp = (mass / 12.0) * (3 * radius**2 + length**2)
@@ -199,8 +195,6 @@ class Inertia:
             mass: Mass in kg
             radius: Radius in meters
         """
-        if not (mass is not None):
-            raise ValueError("mass must be provided")
         i = (2.0 / 5.0) * mass * radius**2
         return cls(ixx=i, iyy=i, izz=i, mass=mass)
 
@@ -221,8 +215,6 @@ class Inertia:
             axis: Capsule axis ('x', 'y', or 'z')
         """
         # Volume fractions
-        if not (mass is not None):
-            raise ValueError("mass must be provided")
         v_cyl = math.pi * radius**2 * length
         v_sphere = (4.0 / 3.0) * math.pi * radius**3
         v_total = v_cyl + v_sphere

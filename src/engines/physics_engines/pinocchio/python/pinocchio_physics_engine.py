@@ -288,8 +288,6 @@ class PinocchioPhysicsEngine(BasePhysicsEngine):
     )
     def compute_inverse_dynamics(self, qacc: np.ndarray) -> np.ndarray:
         """Compute inverse dynamics tau = ID(q, v, a)."""
-        if not (qacc is not None):
-            raise ValueError("qacc must be provided")
         if self.model is None or self.data is None:
             return np.array([])
 
@@ -381,8 +379,6 @@ class PinocchioPhysicsEngine(BasePhysicsEngine):
         Returns:
             q_ddot_control: Control acceleration vector (nv,)
         """
-        if not (tau is not None):
-            raise ValueError("tau must be provided")
         if self.model is None or self.data is None:
             return np.array([])
 

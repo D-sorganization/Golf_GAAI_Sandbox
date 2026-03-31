@@ -395,8 +395,6 @@ class ModelLibrary:
         Returns:
             ParsedModel or None if not found
         """
-        if not (model_id is not None):
-            raise ValueError("model_id must be provided")
         entry = self._entries.get(model_id)
         if not entry:
             logger.warning(f"Model not found: {model_id}")
@@ -768,8 +766,6 @@ class ModelLibrary:
         Returns:
             New ModelEntry for the editable copy
         """
-        if not (model_id is not None):
-            raise ValueError("model_id must be provided")
         source_entry = self._entries.get(model_id)
         if not source_entry:
             return None
@@ -840,8 +836,6 @@ class ModelLibrary:
         Returns:
             True if removed successfully
         """
-        if not (model_id is not None):
-            raise ValueError("model_id must be provided")
         entry = self._entries.get(model_id)
         if not entry:
             return False

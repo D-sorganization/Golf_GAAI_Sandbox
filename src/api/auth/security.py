@@ -114,8 +114,6 @@ class SecurityManager:
         Returns:
             Hashed password
         """
-        if not (password is not None):
-            raise ValueError("password must be provided")
         salt = bcrypt.gensalt(rounds=BCRYPT_ROUNDS)
         hashed = bcrypt.hashpw(password.encode("utf-8"), salt)
         return cast(str, hashed.decode("utf-8"))
@@ -168,8 +166,6 @@ class SecurityManager:
         Returns:
             Encoded JWT token
         """
-        if not (data is not None):
-            raise ValueError("data must be provided")
         to_encode = data.copy()
 
         # SECURITY FIX: Use timezone-aware datetime instead of deprecated utcnow()
@@ -352,8 +348,6 @@ class UsageTracker:
         Returns:
             True if user has quota remaining
         """
-        if not (user is not None):
-            raise ValueError("user must be provided")
         from .models import SUBSCRIPTION_QUOTAS
 
         user_role = UserRole(user.role)

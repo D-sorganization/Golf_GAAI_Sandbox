@@ -488,8 +488,6 @@ class JointEditorPanel(QWidget):
     )
     def set_joint(self, joint: JointInfo) -> None:
         """Set the joint to edit."""
-        if not (joint is not None):
-            raise ValueError("joint must be provided")
         self.current_joint = joint
 
         self.name_edit.setText(joint.name)
@@ -658,8 +656,6 @@ class JointManipulatorWidget(QWidget):
     )
     def load_urdf(self, content: str) -> None:
         """Load URDF content and auto-detect joints."""
-        if not (content is not None):
-            raise ValueError("content must be provided")
         self.urdf_content = content
         self._on_auto_load()
 

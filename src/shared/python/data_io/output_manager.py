@@ -208,8 +208,6 @@ class OutputManager:
         Returns:
             Path to saved file
         """
-        if not (results is not None):
-            raise ValueError("results must be provided")
         engine_dir = self.directories["simulations"] / engine
         engine_dir.mkdir(parents=True, exist_ok=True)
 
@@ -590,8 +588,6 @@ class OutputManager:
         Returns:
             Path to exported report
         """
-        if not (analysis_data is not None):
-            raise ValueError("analysis_data must be provided")
         report_dir = self.directories["reports"] / format_type
         report_dir.mkdir(parents=True, exist_ok=True)
 
@@ -700,8 +696,6 @@ class OutputManager:
         Returns:
             Number of files cleaned up
         """
-        if not (max_age_days is not None):
-            raise ValueError("max_age_days must be provided")
         cutoff_date = now_local() - timedelta(days=max_age_days)
         cleaned_count = 0
 

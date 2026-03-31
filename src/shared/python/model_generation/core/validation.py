@@ -186,8 +186,6 @@ class Validator:
         Returns:
             ValidationResult
         """
-        if not (inertia is not None):
-            raise ValueError("inertia must be provided")
         result = ValidationResult(is_valid=True)
 
         # Check mass
@@ -250,8 +248,6 @@ class Validator:
         Returns:
             ValidationResult
         """
-        if not (link is not None):
-            raise ValueError("link must be provided")
         result = ValidationResult(is_valid=True)
 
         # Validate inertia
@@ -281,8 +277,6 @@ class Validator:
         Returns:
             ValidationResult
         """
-        if not (joint is not None):
-            raise ValueError("joint must be provided")
         result = ValidationResult(is_valid=True)
 
         # Check parent exists
@@ -363,8 +357,6 @@ class Validator:
         Returns:
             ValidationResult
         """
-        if not (links is not None):
-            raise ValueError("links must be provided")
         result = ValidationResult(is_valid=True)
 
         link_names = [link.name for link in links]
@@ -484,8 +476,6 @@ class Validator:
         Returns:
             ValidationResult
         """
-        if not (links is not None):
-            raise ValueError("links must be provided")
         result = ValidationResult(is_valid=True)
 
         # Validate hierarchy
