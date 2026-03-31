@@ -116,8 +116,6 @@ class KinematicTree:
     )
     def build_from_urdf(self, urdf_content: str) -> None:
         """Build the tree from URDF XML content."""
-        if not (urdf_content is not None):
-            raise ValueError("urdf_content must be provided")
         try:
             root_elem = DefusedET.fromstring(urdf_content)
         except ET.ParseError as e:
@@ -206,8 +204,6 @@ class KinematicTree:
         Returns:
             List of nodes in the chain (may be empty if no path exists)
         """
-        if not (from_link is not None):
-            raise ValueError("from_link must be provided")
         if from_link not in self.nodes or to_link not in self.nodes:
             return []
 
@@ -696,8 +692,6 @@ class ChainManipulationWidget(QWidget):
     )
     def load_urdf(self, content: str) -> None:
         """Load URDF content and build the kinematic tree."""
-        if not (content is not None):
-            raise ValueError("content must be provided")
         self.urdf_content = content
         self.tree.build_from_urdf(content)
         self._update_info()

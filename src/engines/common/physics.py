@@ -168,8 +168,6 @@ class AerodynamicsCalculator:
         Returns:
             Tuple of (drag, lift, magnus) force vectors [N]
         """
-        if not (velocity is not None):
-            raise ValueError("velocity must be provided")
         drag = self.compute_drag(velocity)
         lift = self.compute_lift(velocity, spin)
         magnus = self.compute_magnus(velocity, spin)
@@ -416,8 +414,6 @@ class BallPhysics:
             Total force vector [N]
         """
         # Gravity
-        if not (velocity is not None):
-            raise ValueError("velocity must be provided")
         F_gravity = self.ball.mass * self.gravity
 
         # Aerodynamic forces
@@ -446,8 +442,6 @@ class BallPhysics:
         Returns:
             Updated spin after decay [rad/s]
         """
-        if not (spin is not None):
-            raise ValueError("spin must be provided")
         decay_factor = np.exp(-self.ball.spin_decay_rate * dt)
         return spin * decay_factor
 
@@ -488,8 +482,6 @@ class BallPhysics:
             Tuple of (new_position, new_velocity, new_spin)
         """
         # Compute forces
-        if not (position is not None):
-            raise ValueError("position must be provided")
         force = self.compute_total_force(velocity, spin)
         acceleration = force / self.ball.mass
 

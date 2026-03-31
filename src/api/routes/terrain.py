@@ -179,8 +179,6 @@ def _build_putting_green(
     width: float, length: float, slope: float, direction: float
 ) -> Terrain:
     """Build a putting green environment."""
-    if not (width is not None):
-        raise ValueError("width must be provided")
     elevation = ElevationMap.sloped(
         width=width,
         length=length,

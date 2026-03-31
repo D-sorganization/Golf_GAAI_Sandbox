@@ -291,8 +291,6 @@ class OpenSimPhysicsEngine(PhysicsEngine):
     @postcondition(check_finite, "Inverse dynamics torques must contain finite values")
     def compute_inverse_dynamics(self, qacc: np.ndarray) -> np.ndarray:
         """Compute required torques for the given joint accelerations."""
-        if not (qacc is not None):
-            raise ValueError("qacc must be provided")
         if not self._model or not self._state:
             return np.array([])
 
@@ -531,8 +529,6 @@ class OpenSimPhysicsEngine(PhysicsEngine):
         Returns:
             q_ddot_control: Control acceleration vector (nv,) [rad/s² or m/s²]
         """
-        if not (tau is not None):
-            raise ValueError("tau must be provided")
         if not self._model or not self._state:
             logger.warning("Model or state not initialized")
             return np.array([])

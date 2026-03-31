@@ -350,8 +350,6 @@ class DrakePhysicsEngine(PhysicsEngine):
     @postcondition(check_finite, "Inverse dynamics must contain finite values")
     def compute_inverse_dynamics(self, qacc: np.ndarray) -> np.ndarray:
         """Compute inverse dynamics tau = ID(q, v, a)."""
-        if not (qacc is not None):
-            raise ValueError("qacc must be provided")
         if not self.plant_context:
             return np.array([])
 
