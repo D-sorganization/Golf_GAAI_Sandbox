@@ -54,8 +54,9 @@ def _reset_startup_metrics():
 @pytest.fixture()
 def client(_reset_startup_metrics):
     """Create a TestClient for the local FastAPI app with mocked process management."""
-    import src.api.routes.launcher as launcher_module
     from fastapi.testclient import TestClient
+
+    import src.api.routes.launcher as launcher_module
 
     # Reset the launcher service singleton so each test gets fresh mocks
     original_launcher_service = launcher_module._launcher_service
