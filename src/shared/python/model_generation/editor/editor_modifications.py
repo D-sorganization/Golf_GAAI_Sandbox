@@ -108,8 +108,6 @@ class ModificationMixin:
         Returns:
             True if deleted
         """
-        if not (model_id is not None):
-            raise ValueError("model_id must be provided")
         model = self._get_writable_model(model_id)
         if not model:
             return False
@@ -186,8 +184,6 @@ class ModificationMixin:
         Returns:
             True if deleted
         """
-        if not (model_id is not None):
-            raise ValueError("model_id must be provided")
         model = self._get_writable_model(model_id)
         if not model:
             return False
@@ -246,8 +242,6 @@ class ModificationMixin:
         Returns:
             True if renamed
         """
-        if not (model_id is not None):
-            raise ValueError("model_id must be provided")
         if old_name == new_name:
             return True  # No-op
 
@@ -313,8 +307,6 @@ class ModificationMixin:
         Returns:
             True if renamed
         """
-        if not (model_id is not None):
-            raise ValueError("model_id must be provided")
         if old_name == new_name:
             return True  # No-op
 
@@ -363,8 +355,6 @@ class ModificationMixin:
         Returns:
             True if modified
         """
-        if not (model_id is not None):
-            raise ValueError("model_id must be provided")
         model = self._get_writable_model(model_id)
         if not model:
             return False
@@ -451,8 +441,6 @@ class ModificationMixin:
         Returns:
             True if attached
         """
-        if not (model_id is not None):
-            raise ValueError("model_id must be provided")
         model = self._get_writable_model(model_id)
         if not model:
             return False
@@ -516,8 +504,6 @@ class ModificationMixin:
         Returns:
             True if detached
         """
-        if not (model_id is not None):
-            raise ValueError("model_id must be provided")
         model = self._get_writable_model(model_id)
         if not model:
             return False
@@ -566,8 +552,6 @@ class ModificationMixin:
         Returns:
             True if applied
         """
-        if not (model_id is not None):
-            raise ValueError("model_id must be provided")
         model = self._get_writable_model(model_id)
         if not model:
             return False

@@ -261,8 +261,6 @@ class UnifiedModelLoader:
         Returns:
             LoadResult with the parsed model or error information.
         """
-        if not (file_path is not None):
-            raise ValueError("file_path must be provided")
         path = Path(file_path)
         if not path.exists():
             return LoadResult(

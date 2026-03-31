@@ -265,8 +265,6 @@ class FootstepPlanner(ContractChecker):
         Returns:
             FootstepPlan to reach goal.
         """
-        if not (start is not None):
-            raise ValueError("start must be provided")
         start = np.asarray(start, dtype=np.float64)
         goal = np.asarray(goal, dtype=np.float64)
 
@@ -345,8 +343,6 @@ class FootstepPlanner(ContractChecker):
         Returns:
             FootstepPlan following velocity command.
         """
-        if not (current_position is not None):
-            raise ValueError("current_position must be provided")
         current_position = np.asarray(current_position, dtype=np.float64)
         velocity_command = np.asarray(velocity_command, dtype=np.float64)
 
@@ -449,8 +445,6 @@ class FootstepPlanner(ContractChecker):
         Returns:
             FootstepPlan for rotation.
         """
-        if not (current_position is not None):
-            raise ValueError("current_position must be provided")
         current_position = np.asarray(current_position, dtype=np.float64)
 
         # Compute rotation needed

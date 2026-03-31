@@ -211,8 +211,6 @@ class SwingCaptureImporter:
             marker_mapping: Custom marker-to-joint mapping. Uses default if None.
             target_frame_rate: Target frame rate for resampled output.
         """
-        if not (target_frame_rate is not None):
-            raise ValueError("target_frame_rate must be provided")
         self.marker_mapping = marker_mapping or DEFAULT_GOLF_MAPPING
         self.target_frame_rate = target_frame_rate
 
@@ -554,8 +552,6 @@ class SwingCaptureImporter:
         Returns:
             Tuple of (resampled_positions, resampled_velocities, new_times).
         """
-        if not (positions is not None):
-            raise ValueError("positions must be provided")
         from scipy.interpolate import interp1d
 
         duration = times[-1] - times[0]
@@ -647,8 +643,6 @@ class SwingCaptureImporter:
         Returns:
             Dictionary with demonstration data ready for DemonstrationDataset.
         """
-        if not (trajectories is not None):
-            raise ValueError("trajectories must be provided")
         demonstrations = []
 
         for traj in trajectories:

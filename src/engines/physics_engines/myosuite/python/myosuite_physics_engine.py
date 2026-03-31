@@ -381,10 +381,6 @@ class MyoSuitePhysicsEngine(PhysicsEngine):
         """Compute inverse dynamics torques for the given acceleration."""
         # Requires calling mj_inverse
 
-        if not (qacc is not None):
-            raise ValueError("qacc must be provided")
-        if not (qacc is not None):
-            raise ValueError("qacc must be provided")
         if not self.sim:
             return np.array([])
 
@@ -515,10 +511,6 @@ class MyoSuitePhysicsEngine(PhysicsEngine):
 
         """
 
-        if not (tau is not None):
-            raise ValueError("tau must be provided")
-        if not (tau is not None):
-            raise ValueError("tau must be provided")
         if not self.sim:
             logger.warning("Simulation not initialized")
 

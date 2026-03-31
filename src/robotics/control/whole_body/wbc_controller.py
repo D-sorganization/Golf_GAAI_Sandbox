@@ -193,8 +193,6 @@ class WholeBodyController:
         Returns:
             True if task was removed, False if not found.
         """
-        if not (name is not None):
-            raise ValueError("name must be provided")
         for i, task in enumerate(self._tasks):
             if task.name == name:
                 self._tasks.pop(i)

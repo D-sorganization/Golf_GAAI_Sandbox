@@ -578,8 +578,6 @@ def compute_cwt(
         times: Array of time points
         cwt_matrix: Complex CWT coefficients (freqs x time)
     """
-    if not (data is not None):
-        raise ValueError("data must be provided")
     _validate_cwt_inputs(fs, freq_range)
 
     freqs = np.geomspace(freq_range[0], freq_range[1], num=num_freqs)
@@ -889,8 +887,6 @@ class KalmanFilter:
             P: Error covariance matrix (dim_x, dim_x)
             x: Initial state (dim_x,)
         """
-        if not (dim_x is not None):
-            raise ValueError("dim_x must be provided")
         self.dim_x = dim_x
         self.dim_z = dim_z
 

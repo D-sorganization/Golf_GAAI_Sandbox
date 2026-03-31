@@ -992,8 +992,6 @@ class AerodynamicsEngine:
         Returns:
             Dictionary with 'drag', 'lift', 'magnus', and 'total' forces [N]
         """
-        if not (velocity is not None):
-            raise ValueError("velocity must be provided")
         if position is None:
             position = np.zeros(3)
 
@@ -1068,8 +1066,6 @@ class AerodynamicsEngine:
         Raises:
             PreconditionError: If mass <= 0
         """
-        if not (velocity is not None):
-            raise ValueError("velocity must be provided")
         forces = self.compute_forces(velocity, spin, t, position, resample)
         return forces["total"] / mass
 

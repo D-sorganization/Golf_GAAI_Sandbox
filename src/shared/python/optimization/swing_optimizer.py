@@ -485,8 +485,6 @@ class SwingOptimizer(ContractChecker):
         Returns:
             List of OptimizationResults representing the Pareto frontier
         """
-        if not (n_points is not None):
-            raise ValueError("n_points must be provided")
         results = []
 
         # Vary weights between objectives
