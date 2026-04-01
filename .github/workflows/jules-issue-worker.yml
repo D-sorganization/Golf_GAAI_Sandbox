@@ -36,10 +36,34 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  process-issue:
+
+  # ── Dispatcher: route to self-hosted if available ──────────────────────────
+  pick-runner:
     runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      runner: ${{ steps.check.outputs.runner }}
+    steps:
+      - name: Check for self-hosted runner
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
+        run: |
+          ONLINE=$(gh api /orgs/${{ github.repository_owner }}/actions/runners \
+            --jq '[.runners[] | select(.status == "online") | select(.labels[].name == "d-sorg-fleet")] | length' \
+            2>/dev/null || echo "0")
+          if [[ "$ONLINE" -gt 0 ]]; then
+            echo "runner=d-sorg-fleet" >> $GITHUB_OUTPUT
+            echo "Self-hosted runner online — routing locally"
+          else
+            echo "runner=ubuntu-latest" >> $GITHUB_OUTPUT
+            echo "No self-hosted runner — using GitHub-hosted"
+          fi
+  process-issue:
+    needs: pick-runner
+    runs-on: ${{ needs.pick-runner.outputs.runner }}
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
       ISSUE_NUMBER: ${{ inputs.issue_number || github.event.inputs.issue_number }}
       DRY_RUN: ${{ inputs.dry_run || github.event.inputs.dry_run || false }}
       DEFAULT_BRANCH: ${{ vars.JULES_DEFAULT_BRANCH || 'main' }}
