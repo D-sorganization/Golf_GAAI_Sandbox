@@ -52,9 +52,33 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  triage:
-    if: github.event_name != 'schedule'
+
+  # ── Dispatcher: route to self-hosted if available ──────────────────────────
+  pick-runner:
     runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      runner: ${{ steps.check.outputs.runner }}
+    steps:
+      - name: Check for self-hosted runner
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
+        run: |
+          ONLINE=$(gh api /orgs/${{ github.repository_owner }}/actions/runners \
+            --jq '[.runners[] | select(.status == "online") | select(.labels[].name == "d-sorg-fleet")] | length' \
+            2>/dev/null || echo "0")
+          if [[ "$ONLINE" -gt 0 ]]; then
+            echo "runner=d-sorg-fleet" >> $GITHUB_OUTPUT
+            echo "Self-hosted runner online — routing locally"
+          else
+            echo "runner=ubuntu-latest" >> $GITHUB_OUTPUT
+            echo "No self-hosted runner — using GitHub-hosted"
+          fi
+  triage:
+    needs: pick-runner
+    if: github.event_name != 'schedule'
+    runs-on: ${{ needs.pick-runner.outputs.runner }}
     outputs:
       target: ${{ steps.decide.outputs.target }}
       issue_number: ${{ steps.decide.outputs.issue_number }}
@@ -210,14 +234,15 @@ jobs:
     secrets: inherit
 
   queue-sweep:
+    needs: pick-runner
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && needs.triage.result == 'success' && needs.triage.outputs.target == 'queue-sweep')
-    runs-on: ubuntu-latest
+    runs-on: ${{ needs.pick-runner.outputs.runner }}
     permissions:
       actions: write
       issues: write
       contents: read
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
       MAX_PARALLEL: ${{ vars.JULES_MAX_PARALLEL_ISSUES || '3' }}
       DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
     steps:
