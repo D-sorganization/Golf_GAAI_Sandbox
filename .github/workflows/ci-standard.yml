@@ -3,16 +3,12 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - "docs/**"
-      - "**.md"
       - "LICENSE"
       - ".gitignore"
       - ".github/**"
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     paths-ignore:
-      - "docs/**"
-      - "**.md"
       - "LICENSE"
       - ".gitignore"
       - ".github/**"
