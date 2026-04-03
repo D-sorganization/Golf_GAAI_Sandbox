@@ -121,8 +121,9 @@ In addition to the standard framework, specialized audits monitor specific quali
 
 ### Specialized Assessments
 
-| Date       | Topic                                    | Report File                                                                   |
-| ---------- | ---------------------------------------- | ----------------------------------------------------------------------------- |
+| Date       | Topic                      | Report File                                       |
+| ---------- | -------------------------- | ------------------------------------------------- |
+| 2026-04-02 | Comprehensive A-N Review   | `docs/assessments/A-N_Assessment_2026-04-02.md`   |
 | 2025-02-24 | Physics Audit                            | `docs/assessments/physics/Physics_Audit_2025-02-24.md`                        |
 | 2025-05-24 | Implementation Gaps Review 2025          | `docs/assessments/implementation_gaps_review_2025.md`                         |
 | 2026-02-17 | Implementation Gaps                      | `docs/assessments/implementation_gaps_report.md`                              |
