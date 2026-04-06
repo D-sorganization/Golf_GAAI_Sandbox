@@ -1,7 +1,7 @@
 """Comprehensive tests for kinematic forces module."""
 
-from pathlib import Path
 import warnings
+from pathlib import Path
 
 import mujoco
 import numpy as np

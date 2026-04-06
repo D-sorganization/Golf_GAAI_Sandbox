@@ -150,6 +150,11 @@ from __future__ import annotations
 import mujoco
 import numpy as np
 
+from src.shared.python.core.numerical_constants import (
+    EPSILON_FINITE_DIFF_JACOBIAN,
+    EPSILON_SINGULARITY_DETECTION,
+)
+
 from ._kinematic_force_context import (
     KinematicForceData,
     MjDataContext,
@@ -168,11 +173,12 @@ from ._kinematic_force_jacobians import (
     initialize_jacobian_buffers,
 )
 
-# Import numerical constants (Assessment B-004, B-007)
-from src.shared.python.core.numerical_constants import (
-    EPSILON_FINITE_DIFF_JACOBIAN,
-    EPSILON_SINGULARITY_DETECTION,
-)
+__all__ = [
+    "KinematicForceAnalyzer",
+    "KinematicForceData",
+    "MjDataContext",
+    "export_kinematic_forces_to_csv",
+]
 
 
 # Validate MuJoCo version on module import (Issue F-003)
