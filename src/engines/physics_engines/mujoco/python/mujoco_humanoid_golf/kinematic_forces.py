@@ -240,8 +240,8 @@ class KinematicForceAnalyzer:
         # Pre-allocate Jacobian buffers to avoid repeated allocation
         # Detect API version to use correct array shape
         self.nv = model.nv
-        self._use_reshaped_arrays, self._jacp, self._jacr = (
-            initialize_jacobian_buffers(model, data)
+        self._use_reshaped_arrays, self._jacp, self._jacr = initialize_jacobian_buffers(
+            model, data
         )
 
     def _find_body_id(self, name_pattern: str) -> int | None:
