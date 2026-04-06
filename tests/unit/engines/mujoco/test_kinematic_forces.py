@@ -1,6 +1,7 @@
 """Comprehensive tests for kinematic forces module."""
 
 import warnings
+from pathlib import Path
 
 import mujoco
 import numpy as np
@@ -8,6 +9,8 @@ import pytest
 from mujoco_humanoid_golf.kinematic_forces import (
     KinematicForceAnalyzer,
     KinematicForceData,
+    MjDataContext,
+    export_kinematic_forces_to_csv,
 )
 from mujoco_humanoid_golf.models import DOUBLE_PENDULUM_XML
 
@@ -212,3 +215,46 @@ class TestKinematicForceAnalyzer:
         assert "coriolis_power" in power_data
         assert "centrifugal_power" in power_data
         assert all(isinstance(v, float) for v in power_data.values())
+
+    def test_mj_data_context_restores_state(self, model_and_data) -> None:
+        """Test state isolation contract for temporary MuJoCo mutations."""
+        model, data = model_and_data
+        qpos_before = data.qpos.copy()
+        qvel_before = data.qvel.copy()
+        qacc_before = data.qacc.copy()
+        ctrl_before = data.ctrl.copy()
+        time_before = data.time
+
+        with MjDataContext(model, data):
+            data.qpos[:] = 0.25
+            data.qvel[:] = 0.5
+            data.qacc[:] = 0.75
+            data.ctrl[:] = 0.1
+            data.time = 1.23
+
+        np.testing.assert_array_equal(data.qpos, qpos_before)
+        np.testing.assert_array_equal(data.qvel, qvel_before)
+        np.testing.assert_array_equal(data.qacc, qacc_before)
+        np.testing.assert_array_equal(data.ctrl, ctrl_before)
+        assert data.time == time_before
+
+    def test_export_kinematic_forces_to_csv(self, tmp_path: Path) -> None:
+        """Test CSV export from public facade."""
+        output_path = tmp_path / "kinematic_forces.csv"
+        force_data = [
+            KinematicForceData(
+                time=0.1,
+                coriolis_forces=np.array([1.0, 2.0]),
+                gravity_forces=np.array([3.0, 4.0]),
+                centrifugal_forces=np.array([5.0, 6.0]),
+                club_head_coriolis_force=np.array([0.1, 0.2, 0.3]),
+                club_head_centrifugal_force=np.array([0.4, 0.5, 0.6]),
+            )
+        ]
+
+        export_kinematic_forces_to_csv(force_data, str(output_path))
+
+        csv_text = output_path.read_text()
+        assert "coriolis_force_0" in csv_text
+        assert "club_centrifugal_z" in csv_text
+        assert "0.1" in csv_text
