@@ -376,15 +376,21 @@ class KinematicForceAnalyzer:
         if not (qpos is not None):
             raise ValueError("qpos must be provided")
         total_coriolis = self.compute_coriolis_forces(qpos, qvel)
-        centrifugal = sum(
-            (
-                self._compute_single_axis_coriolis(qpos, qvel, axis_index)
-                for axis_index in range(self.model.nv)
-            ),
-            start=np.zeros(self.model.nv),
-        )
+        centrifugal = self._compute_centrifugal_component(qpos, qvel)
         coupling = total_coriolis - centrifugal
         return centrifugal, coupling
+
+    def _compute_centrifugal_component(
+        self,
+        qpos: np.ndarray,
+        qvel: np.ndarray,
+    ) -> np.ndarray:
+        centrifugal = np.zeros(self.model.nv)
+        for index in range(self.model.nv):
+            qvel_single = np.zeros(self.model.nv)
+            qvel_single[index] = qvel[index]
+            centrifugal += self.compute_coriolis_forces(qpos, qvel_single)
+        return centrifugal
 
     def compute_mass_matrix(self, qpos: np.ndarray) -> np.ndarray:
         """Compute configuration-dependent mass matrix M(q).
@@ -452,14 +458,61 @@ class KinematicForceAnalyzer:
             raise ValueError("qpos must be provided")
         if self.club_head_id is None:
             return np.zeros(3), np.zeros(3), np.zeros(3)
-        jacp_curr, club_pos = self._compute_club_head_state(qpos, qvel)
-        jacp_dot = self._compute_club_head_jacobian_time_derivative(qpos, qvel)
+        jacp_curr, club_pos = self._prepare_club_head_state(qpos, qvel)
+        jacp_dot = self._compute_club_head_jacobian_derivative(qpos, qvel)
+        return self._compute_apparent_force_components(
+            qpos, qvel, jacp_curr, jacp_dot, club_pos
+        )
+
+    def _prepare_club_head_state(
+        self, qpos: np.ndarray, qvel: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
+        self._perturb_data.qpos[:] = qpos
+        self._perturb_data.qvel[:] = qvel
+        mujoco.mj_forward(self.model, self._perturb_data)
+        jacp, _ = self._compute_jacobian(self.club_head_id, data=self._perturb_data)
+        return jacp.copy(), self._perturb_data.xpos[self.club_head_id].copy()
+
+    def _compute_club_head_jacobian_derivative(
+        self,
+        qpos: np.ndarray,
+        qvel: np.ndarray,
+    ) -> np.ndarray:
+        epsilon = EPSILON_FINITE_DIFF_JACOBIAN
+        jacp_forward = self._compute_perturbed_club_head_jacobian(qpos, qvel, epsilon)
+        jacp_backward = self._compute_perturbed_club_head_jacobian(qpos, qvel, -epsilon)
+        return (jacp_forward - jacp_backward) / (2.0 * epsilon)
+
+    def _compute_perturbed_club_head_jacobian(
+        self,
+        qpos: np.ndarray,
+        qvel: np.ndarray,
+        epsilon: float,
+    ) -> np.ndarray:
+        self._perturb_data.qpos[:] = qpos + epsilon * qvel
+        self._perturb_data.qvel[:] = qvel
+        mujoco.mj_forward(self.model, self._perturb_data)
+        jacp, _ = self._compute_jacobian(self.club_head_id, data=self._perturb_data)
+        return jacp.copy()
+
+    def _compute_apparent_force_components(
+        self,
+        qpos: np.ndarray,
+        qvel: np.ndarray,
+        jacp_curr: np.ndarray,
+        jacp_dot: np.ndarray,
+        club_pos: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         coriolis_accel = jacp_dot @ qvel
         club_head_mass = self.model.body_mass[self.club_head_id]
         coriolis_force = -club_head_mass * coriolis_accel
         joint_coriolis = self.compute_coriolis_forces(qpos, qvel)
         apparent_force = jacp_curr.T @ joint_coriolis[: self.model.nv]
-        centrifugal_force = self._compute_centrifugal_force(apparent_force, club_pos)
+        centrifugal_direction = club_pos / (
+            np.linalg.norm(club_pos) + EPSILON_SINGULARITY_DETECTION
+        )
+        centrifugal_magnitude = np.dot(apparent_force, centrifugal_direction)
+        centrifugal_force = centrifugal_magnitude * centrifugal_direction
         return coriolis_force, centrifugal_force, apparent_force
 
     def compute_kinematic_power(
@@ -572,14 +625,41 @@ class KinematicForceAnalyzer:
         if not (times is not None):
             raise ValueError("times must be provided")
         return [
-            self._analyze_trajectory_step(
-                times[index],
-                positions[index],
-                velocities[index],
-                accelerations[index],
+            self._analyze_time_step(
+                times[index], positions[index], velocities[index], accelerations[index]
             )
             for index in range(len(times))
         ]
+
+    def _analyze_time_step(
+        self,
+        time_point: float,
+        qpos: np.ndarray,
+        qvel: np.ndarray,
+        qacc: np.ndarray,
+    ) -> KinematicForceData:
+        coriolis = self.compute_coriolis_forces(qpos, qvel)
+        gravity = self.compute_gravity_forces(qpos)
+        centrifugal, coupling = self.decompose_coriolis_forces(qpos, qvel)
+        club_coriolis, club_centrifugal, club_apparent = (
+            self.compute_club_head_apparent_forces(qpos, qvel, qacc)
+        )
+        power_dict = self.compute_kinematic_power(qpos, qvel)
+        ke_dict = self.compute_kinetic_energy_components(qpos, qvel)
+        return KinematicForceData(
+            time=time_point,
+            coriolis_forces=coriolis,
+            gravity_forces=gravity,
+            centrifugal_forces=centrifugal,
+            velocity_coupling_forces=coupling,
+            club_head_coriolis_force=club_coriolis,
+            club_head_centrifugal_force=club_centrifugal,
+            club_head_apparent_force=club_apparent,
+            coriolis_power=power_dict["coriolis_power"],
+            centrifugal_power=power_dict["centrifugal_power"],
+            rotational_kinetic_energy=ke_dict["rotational"],
+            translational_kinetic_energy=ke_dict["translational"],
+        )
 
     def _validate_effective_mass_direction(self, direction: np.ndarray) -> np.ndarray:
         return validate_effective_mass_direction(direction)
@@ -595,81 +675,10 @@ class KinematicForceAnalyzer:
     ) -> float:
         return compute_effective_mass_value(direction, jacp, M)
 
-    def _compute_club_head_state(
-        self, qpos: np.ndarray, qvel: np.ndarray
-    ) -> tuple[np.ndarray, np.ndarray]:
-        self._perturb_data.qpos[:] = qpos
-        self._perturb_data.qvel[:] = qvel
-        mujoco.mj_forward(self.model, self._perturb_data)
-        jacp, _ = self._compute_jacobian(self.club_head_id, data=self._perturb_data)
-        return jacp.copy(), self._perturb_data.xpos[self.club_head_id].copy()
-
-    def _compute_club_head_jacobian_time_derivative(
-        self, qpos: np.ndarray, qvel: np.ndarray
-    ) -> np.ndarray:
-        epsilon = EPSILON_FINITE_DIFF_JACOBIAN
-        self._perturb_data.qpos[:] = qpos + epsilon * qvel
-        self._perturb_data.qvel[:] = qvel
-        mujoco.mj_forward(self.model, self._perturb_data)
-        jacp_forward, _ = self._compute_jacobian(
-            self.club_head_id, data=self._perturb_data
-        )
-        self._perturb_data.qpos[:] = qpos - epsilon * qvel
-        self._perturb_data.qvel[:] = qvel
-        mujoco.mj_forward(self.model, self._perturb_data)
-        jacp_backward, _ = self._compute_jacobian(
-            self.club_head_id, data=self._perturb_data
-        )
-        return (jacp_forward.copy() - jacp_backward) / (2.0 * epsilon)
-
-    def _compute_centrifugal_force(
-        self, apparent_force: np.ndarray, club_pos: np.ndarray
-    ) -> np.ndarray:
-        centrifugal_direction = club_pos / (
-            np.linalg.norm(club_pos) + EPSILON_SINGULARITY_DETECTION
-        )
-        centrifugal_magnitude = np.dot(apparent_force, centrifugal_direction)
-        return centrifugal_magnitude * centrifugal_direction
-
-    def _analyze_trajectory_step(
-        self, time_value: float, qpos: np.ndarray, qvel: np.ndarray, qacc: np.ndarray
-    ) -> KinematicForceData:
-        coriolis = self.compute_coriolis_forces(qpos, qvel)
-        gravity = self.compute_gravity_forces(qpos)
-        centrifugal, coupling = self.decompose_coriolis_forces(qpos, qvel)
-        club_coriolis, club_centrifugal, club_apparent = (
-            self.compute_club_head_apparent_forces(qpos, qvel, qacc)
-        )
-        power_dict = self.compute_kinematic_power(qpos, qvel)
-        ke_dict = self.compute_kinetic_energy_components(qpos, qvel)
-        return KinematicForceData(
-            time=time_value,
-            coriolis_forces=coriolis,
-            gravity_forces=gravity,
-            centrifugal_forces=centrifugal,
-            velocity_coupling_forces=coupling,
-            club_head_coriolis_force=club_coriolis,
-            club_head_centrifugal_force=club_centrifugal,
-            club_head_apparent_force=club_apparent,
-            coriolis_power=power_dict["coriolis_power"],
-            centrifugal_power=power_dict["centrifugal_power"],
-            rotational_kinetic_energy=ke_dict["rotational"],
-            translational_kinetic_energy=ke_dict["translational"],
-        )
-
     def _resolve_effective_mass_body_id(self, body_id: int | None) -> int | None:
-        return self.club_head_id if body_id is None else body_id
-
-    def _compute_effective_mass_inputs(
-        self, qpos: np.ndarray, body_id: int
-    ) -> tuple[np.ndarray, np.ndarray]:
-        mass_matrix = self.compute_mass_matrix(qpos)
-        self._check_mass_matrix_conditioning(mass_matrix)
-        self._perturb_data.qpos[:] = qpos
-        mujoco.mj_forward(self.model, self._perturb_data)
-        jacp, _ = self._compute_jacobian(body_id, data=self._perturb_data)
-        self._check_jacobian_rank(jacp)
-        return jacp, mass_matrix
+        if body_id is None:
+            return self.club_head_id
+        return body_id
 
     def compute_effective_mass(
         self,
@@ -677,12 +686,30 @@ class KinematicForceAnalyzer:
         direction: np.ndarray,
         body_id: int | None = None,
     ) -> float:
-        """Compute effective mass in a given direction."""
+        """Compute directional effective mass using the current mass matrix and Jacobian."""
         if not (qpos is not None):
             raise ValueError("qpos must be provided")
         body_id = self._resolve_effective_mass_body_id(body_id)
         if body_id is None:
             return 0.0
         direction = self._validate_effective_mass_direction(direction)
-        jacp, mass_matrix = self._compute_effective_mass_inputs(qpos, body_id)
-        return self._compute_effective_mass_value(direction, jacp, mass_matrix)
+        M, jacp = self._prepare_effective_mass_inputs(qpos, body_id)
+        self._check_jacobian_rank(jacp)
+        return self._compute_effective_mass_value(direction, jacp, M)
+
+    def _resolve_effective_mass_body_id(self, body_id: int | None) -> int | None:
+        if body_id is None:
+            return self.club_head_id
+        return body_id
+
+    def _prepare_effective_mass_inputs(
+        self,
+        qpos: np.ndarray,
+        body_id: int,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        mass_matrix = self.compute_mass_matrix(qpos)
+        self._check_mass_matrix_conditioning(mass_matrix)
+        self._perturb_data.qpos[:] = qpos
+        mujoco.mj_forward(self.model, self._perturb_data)
+        jacp, _ = self._compute_jacobian(body_id, data=self._perturb_data)
+        return mass_matrix, jacp
