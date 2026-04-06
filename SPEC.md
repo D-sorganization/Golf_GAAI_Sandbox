@@ -10,7 +10,7 @@
 | Primary Language(s) | Python 3.10+, Rust, TypeScript, MATLAB |
 | License | MIT |
 | Current Version | `2.1.0` |
-| Spec Version | `1.0.1` |
+| Spec Version | `1.0.2` |
 | Last Spec Update | `2026-04-06` |
 
 ## 2. Purpose
@@ -130,6 +130,6 @@ The repository is organized around a Python application core with multiple front
 
 | Date | Version | Changes |
 | --- | --- | --- |
+| 2026-04-06 | 1.0.2 | Split the MuJoCo kinematic-forces helper surfaces into smaller internal modules and standardized examples on module-style execution without inline `sys.path` shims. |
 | 2026-04-06 | 1.0.1 | Corrected the repository URL and tightened the root-spec identity block. |
 | 2026-04-06 | 1.0.0 | Initial root spec for `Golf_GAAI_Sandbox` documenting the current Python, UI, Rust, and legacy model layout. |
-

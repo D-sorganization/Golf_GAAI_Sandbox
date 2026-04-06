@@ -2,19 +2,13 @@
 
 Usage::
 
-    python3 examples/topography_demo.py
+    python3 -m examples.topography_demo
 
 Creates three terrain types (flat, sloped, undulating), queries elevation
 at a grid of sample points, and prints a small ASCII cross-section.
 """
 
 from __future__ import annotations
-
-import sys
-from pathlib import Path
-
-project_root = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(project_root))
 
 import numpy as np  # noqa: E402
 

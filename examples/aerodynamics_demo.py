@@ -2,19 +2,13 @@
 
 Usage::
 
-    python3 examples/aerodynamics_demo.py
+    python3 -m examples.aerodynamics_demo
 
 Prints drag, lift, Magnus, and total force magnitudes for a range of
 ball speeds, and shows the effect of toggling individual force components.
 """
 
 from __future__ import annotations
-
-import sys
-from pathlib import Path
-
-project_root = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(project_root))
 
 import numpy as np  # noqa: E402
 

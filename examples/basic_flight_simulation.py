@@ -2,19 +2,13 @@
 
 Usage::
 
-    python3 examples/basic_flight_simulation.py
+    python3 -m examples.basic_flight_simulation
 
 Prints a summary table of trajectory points (time, x, z, speed) and
 the estimated carry distance to landing.
 """
 
 from __future__ import annotations
-
-import sys
-from pathlib import Path
-
-# Allow running from repo root without installing the package
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import numpy as np
 
