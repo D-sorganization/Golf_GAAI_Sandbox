@@ -45,7 +45,7 @@ jobs:
       - name: Check for self-hosted runner
         id: check
         env:
-          GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
+          GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN || github.token }}
         run: |
           ONLINE=$(gh api /orgs/${{ github.repository_owner }}/actions/runners \
             --jq '[.runners[] | select(.status == "online") | select(.labels[].name == "d-sorg-fleet")] | length' \
@@ -61,7 +61,7 @@ jobs:
     needs: pick-runner
     runs-on: ${{ needs.pick-runner.outputs.runner }}
     env:
-      GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
+      GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN || github.token }}
       INPUT_PR: ${{ inputs.pr_number || github.event.inputs.pr_number || '' }}
       DRY_RUN: ${{ inputs.dry_run || github.event.inputs.dry_run || false }}
       DEFAULT_BRANCH: ${{ vars.JULES_DEFAULT_BRANCH || 'main' }}
