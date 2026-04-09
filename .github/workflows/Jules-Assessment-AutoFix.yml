@@ -47,7 +47,7 @@ jobs:
       - name: Check for self-hosted runner
         id: check
         env:
-          GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
+          GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN || github.token }}
         run: |
           ONLINE=$(gh api /orgs/${{ github.repository_owner }}/actions/runners \
             --jq '[.runners[] | select(.status == "online") | select(.labels[].name == "d-sorg-fleet")] | length' \
@@ -188,7 +188,7 @@ jobs:
 
       - name: Commit Assessment Reports
         env:
-          GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
+          GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN || github.token }}
         run: |
           git config user.name "Jules Assessment Bot"
           git config user.email "jules-bot@gasification-model.local"
@@ -466,7 +466,7 @@ jobs:
     steps:
       - name: Close superseded PR
         env:
-          GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
+          GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN || github.token }}
         run: |
           SOURCE_PR="${{ inputs.source_pr_to_close }}"
 
@@ -509,7 +509,7 @@ jobs:
     steps:
       - name: Generate dry run report
         env:
-          GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
+          GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN || github.token }}
         run: |
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
           # 🔍 Dry Run Summary
