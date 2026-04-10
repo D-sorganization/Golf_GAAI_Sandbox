@@ -2,11 +2,44 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from model_generation.api.models import APIRequest, APIResponse
 
 
 class ConversionHandlersMixin:
     """Mixin providing format conversion endpoints."""
+
+    def _extract_simscape_content(
+        self,
+        request: APIRequest,
+        body: dict[str, object],
+    ) -> tuple[str | None, str]:
+        """Extract uploaded or inline Simscape content and format."""
+        if "file" in request.files:
+            content = request.files["file"].decode("utf-8", errors="ignore")
+            format_type = "xml" if content.strip().startswith(("<?xml", "<")) else "mdl"
+            return content, format_type
+        if "content" in body:
+            return str(body["content"]), str(body.get("format", "mdl"))
+        return None, "mdl"
+
+    def _build_simscape_response(self, request: APIRequest, result: Any) -> APIResponse:
+        """Build the successful Simscape conversion response."""
+        response_data = {
+            "success": True,
+            "robot_name": result.robot_name,
+            "links": len(result.links),
+            "joints": len(result.joints),
+            "warnings": result.warnings,
+            "urdf": result.urdf_string,
+        }
+        if (
+            request.query_params.get("download") == "true"
+            and result.urdf_string is not None
+        ):
+            return APIResponse.file(result.urdf_string, f"{result.robot_name}.urdf")
+        return APIResponse.ok(response_data)
 
     def convert_simscape_to_urdf(self, request: APIRequest) -> APIResponse:
         """Convert SimScape MDL/SLX to URDF."""
@@ -19,47 +52,20 @@ class ConversionHandlersMixin:
 
         body = request.body or {}
 
-        content = None
-        format_type = "mdl"
-
-        if "file" in request.files:
-            content = request.files["file"].decode("utf-8", errors="ignore")
-            if content.strip().startswith("<?xml") or content.strip().startswith("<"):
-                format_type = "xml"
-        elif "content" in body:
-            content = body["content"]
-            format_type = body.get("format", "mdl")
-        else:
+        content, format_type = self._extract_simscape_content(request, body)
+        if not content:
             return APIResponse.error("Missing model content or file")
 
-        robot_name = body.get("robot_name", "converted_robot")
+        robot_name = str(body.get("robot_name", "converted_robot"))
         config = ConversionConfig(robot_name=robot_name)
-
-        converter = SimscapeToURDFConverter(config)
-        result = converter.convert_string(content, format_type)  # type: ignore[arg-type]
+        result = SimscapeToURDFConverter(config).convert_string(content, format_type)
 
         if not result.success:
             return APIResponse.error(
                 "; ".join(result.errors),
                 status_code=422,
             )
-
-        response_data = {
-            "success": True,
-            "robot_name": result.robot_name,
-            "links": len(result.links),
-            "joints": len(result.joints),
-            "warnings": result.warnings,
-            "urdf": result.urdf_string,
-        }
-
-        if (
-            request.query_params.get("download") == "true"
-            and result.urdf_string is not None
-        ):
-            return APIResponse.file(result.urdf_string, f"{result.robot_name}.urdf")
-
-        return APIResponse.ok(response_data)
+        return self._build_simscape_response(request, result)
 
     def convert_mjcf_to_urdf(self, request: APIRequest) -> APIResponse:
         """Convert MJCF to URDF."""

@@ -112,115 +112,184 @@ class ModelGenerationAPI(
 
         self._register_routes()
 
+    def _add_routes(
+        self,
+        routes: list[
+            tuple[
+                HTTPMethod,
+                str,
+                Callable[[APIRequest], APIResponse],
+                str,
+                list[str],
+            ]
+        ],
+    ) -> None:
+        """Register a batch of routes with shared metadata structure."""
+        for method, path, handler, description, tags in routes:
+            self.add_route(method, path, handler, description, tags)
+
+    def _core_routes(
+        self,
+    ) -> list[
+        tuple[HTTPMethod, str, Callable[[APIRequest], APIResponse], str, list[str]]
+    ]:
+        """Return the core API route definitions."""
+        return (
+            self._health_and_generation_routes()
+            + self._conversion_and_validation_routes()
+        )
+
+    def _health_and_generation_routes(
+        self,
+    ) -> list[
+        tuple[HTTPMethod, str, Callable[[APIRequest], APIResponse], str, list[str]]
+    ]:
+        """Return health and generation route definitions."""
+        return [
+            (HTTPMethod.GET, "/health", self.health_check, "Health check", []),
+            (HTTPMethod.GET, "/info", self.get_api_info, "API information", []),
+            (
+                HTTPMethod.POST,
+                "/generate/humanoid",
+                self.generate_humanoid,
+                "Generate humanoid URDF",
+                ["generation"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/generate/from-params",
+                self.generate_from_params,
+                "Generate URDF from parameters",
+                ["generation"],
+            ),
+        ]
+
+    def _conversion_and_validation_routes(
+        self,
+    ) -> list[
+        tuple[HTTPMethod, str, Callable[[APIRequest], APIResponse], str, list[str]]
+    ]:
+        """Return conversion and validation route definitions."""
+        return [
+            (
+                HTTPMethod.POST,
+                "/convert/simscape-to-urdf",
+                self.convert_simscape_to_urdf,
+                "Convert SimScape to URDF",
+                ["conversion"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/convert/mjcf-to-urdf",
+                self.convert_mjcf_to_urdf,
+                "Convert MJCF to URDF",
+                ["conversion"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/convert/urdf-to-mjcf",
+                self.convert_urdf_to_mjcf,
+                "Convert URDF to MJCF",
+                ["conversion"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/validate",
+                self.validate_urdf,
+                "Validate URDF content",
+                ["validation"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/parse",
+                self.parse_urdf,
+                "Parse URDF and return structure",
+                ["parsing"],
+            ),
+        ]
+
+    def _inertia_and_library_routes(
+        self,
+    ) -> list[
+        tuple[HTTPMethod, str, Callable[[APIRequest], APIResponse], str, list[str]]
+    ]:
+        """Return inertia and library route definitions."""
+        return self._inertia_routes() + self._library_routes()
+
+    def _inertia_routes(
+        self,
+    ) -> list[
+        tuple[HTTPMethod, str, Callable[[APIRequest], APIResponse], str, list[str]]
+    ]:
+        """Return inertia route definitions."""
+        return [
+            (
+                HTTPMethod.POST,
+                "/inertia/calculate",
+                self.calculate_inertia,
+                "Calculate inertia for shape",
+                ["inertia"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/inertia/from-mesh",
+                self.inertia_from_mesh,
+                "Calculate inertia from mesh file",
+                ["inertia"],
+            ),
+        ]
+
+    def _library_routes(
+        self,
+    ) -> list[
+        tuple[HTTPMethod, str, Callable[[APIRequest], APIResponse], str, list[str]]
+    ]:
+        """Return library route definitions."""
+        return [
+            (
+                HTTPMethod.GET,
+                "/library/models",
+                self.library_list_models,
+                "List available models",
+                ["library"],
+            ),
+            (
+                HTTPMethod.GET,
+                "/library/models/{model_id}",
+                self.library_get_model,
+                "Get model details",
+                ["library"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/library/models",
+                self.library_add_model,
+                "Add model to library",
+                ["library"],
+            ),
+            (
+                HTTPMethod.DELETE,
+                "/library/models/{model_id}",
+                self.library_remove_model,
+                "Remove model from library",
+                ["library"],
+            ),
+            (
+                HTTPMethod.GET,
+                "/library/models/{model_id}/download",
+                self.library_download_model,
+                "Download model URDF",
+                ["library"],
+            ),
+        ]
+
     def _register_core_routes(self) -> None:
         """Register health, generation, conversion, validation, and parsing routes."""
-        self.add_route(HTTPMethod.GET, "/health", self.health_check, "Health check")
-        self.add_route(HTTPMethod.GET, "/info", self.get_api_info, "API information")
-
-        self.add_route(
-            HTTPMethod.POST,
-            "/generate/humanoid",
-            self.generate_humanoid,
-            "Generate humanoid URDF",
-            ["generation"],
-        )
-        self.add_route(
-            HTTPMethod.POST,
-            "/generate/from-params",
-            self.generate_from_params,
-            "Generate URDF from parameters",
-            ["generation"],
-        )
-
-        self.add_route(
-            HTTPMethod.POST,
-            "/convert/simscape-to-urdf",
-            self.convert_simscape_to_urdf,
-            "Convert SimScape to URDF",
-            ["conversion"],
-        )
-        self.add_route(
-            HTTPMethod.POST,
-            "/convert/mjcf-to-urdf",
-            self.convert_mjcf_to_urdf,
-            "Convert MJCF to URDF",
-            ["conversion"],
-        )
-        self.add_route(
-            HTTPMethod.POST,
-            "/convert/urdf-to-mjcf",
-            self.convert_urdf_to_mjcf,
-            "Convert URDF to MJCF",
-            ["conversion"],
-        )
-
-        self.add_route(
-            HTTPMethod.POST,
-            "/validate",
-            self.validate_urdf,
-            "Validate URDF content",
-            ["validation"],
-        )
-        self.add_route(
-            HTTPMethod.POST,
-            "/parse",
-            self.parse_urdf,
-            "Parse URDF and return structure",
-            ["parsing"],
-        )
+        self._add_routes(self._core_routes())
 
     def _register_inertia_and_library_routes(self) -> None:
         """Register inertia calculation and library management routes."""
-        self.add_route(
-            HTTPMethod.POST,
-            "/inertia/calculate",
-            self.calculate_inertia,
-            "Calculate inertia for shape",
-            ["inertia"],
-        )
-        self.add_route(
-            HTTPMethod.POST,
-            "/inertia/from-mesh",
-            self.inertia_from_mesh,
-            "Calculate inertia from mesh file",
-            ["inertia"],
-        )
-
-        self.add_route(
-            HTTPMethod.GET,
-            "/library/models",
-            self.library_list_models,
-            "List available models",
-            ["library"],
-        )
-        self.add_route(
-            HTTPMethod.GET,
-            "/library/models/{model_id}",
-            self.library_get_model,
-            "Get model details",
-            ["library"],
-        )
-        self.add_route(
-            HTTPMethod.POST,
-            "/library/models",
-            self.library_add_model,
-            "Add model to library",
-            ["library"],
-        )
-        self.add_route(
-            HTTPMethod.DELETE,
-            "/library/models/{model_id}",
-            self.library_remove_model,
-            "Remove model from library",
-            ["library"],
-        )
-        self.add_route(
-            HTTPMethod.GET,
-            "/library/models/{model_id}/download",
-            self.library_download_model,
-            "Download model URDF",
-            ["library"],
-        )
+        self._add_routes(self._inertia_and_library_routes())
 
     def _register_editor_routes(self) -> None:
         """Register editor-related routes."""
@@ -338,59 +407,60 @@ class ModelGenerationAPI(
             "max-age=31536000; includeSubDomains"
         )
 
+    def _finalize_response(self, response: APIResponse) -> APIResponse:
+        """Attach standard headers before returning a response."""
+        self._add_security_headers(response)
+        self._add_cors_headers(response)
+        return response
+
+    def _process_security_prechecks(self, request: APIRequest) -> APIResponse | None:
+        """Run authentication and rate-limit checks."""
+        auth_error = self._check_api_key(request)
+        if auth_error is not None:
+            return self._finalize_response(auth_error)
+
+        rate_error = self._check_rate_limit(request)
+        if rate_error is not None:
+            return self._finalize_response(rate_error)
+        return None
+
+    def _match_route(self, route: Route, request: APIRequest) -> bool:
+        """Match a route against a request path and collect path params."""
+        route_parts = route.path.split("/")
+        request_parts = request.path.split("/")
+        if len(route_parts) != len(request_parts):
+            return False
+
+        params: dict[str, str] = {}
+        for route_part, request_part in zip(route_parts, request_parts, strict=False):
+            if route_part.startswith("{") and route_part.endswith("}"):
+                params[route_part[1:-1]] = request_part
+                continue
+            if route_part != request_part:
+                return False
+
+        request.query_params.update(params)
+        return True
+
     def handle_request(self, request: APIRequest) -> APIResponse:
         """Handle an API request."""
         if not (request is not None):
             raise ValueError("request must be provided")
-        auth_error = self._check_api_key(request)
-        if auth_error is not None:
-            self._add_security_headers(auth_error)
-            self._add_cors_headers(auth_error)
-            return auth_error
-
-        rate_error = self._check_rate_limit(request)
-        if rate_error is not None:
-            self._add_security_headers(rate_error)
-            self._add_cors_headers(rate_error)
-            return rate_error
+        precheck_error = self._process_security_prechecks(request)
+        if precheck_error is not None:
+            return precheck_error
 
         for route in self._routes:
-            if route.method != request.method:
+            if route.method != request.method or not self._match_route(route, request):
                 continue
 
-            route_parts = route.path.split("/")
-            request_parts = request.path.split("/")
+            try:
+                response = route.handler(request)
+            except (ValueError, TypeError, KeyError, RuntimeError, OSError) as exc:
+                logger.exception("Error handling request")
+                response = APIResponse.error(str(exc), 500)
+            return self._finalize_response(response)
 
-            if len(route_parts) != len(request_parts):
-                continue
-
-            params = {}
-            match = True
-            for rp, reqp in zip(route_parts, request_parts, strict=False):
-                if rp.startswith("{") and rp.endswith("}"):
-                    param_name = rp[1:-1]
-                    params[param_name] = reqp
-                elif rp != reqp:
-                    match = False
-                    break
-
-            if match:
-                request.query_params.update(params)
-                try:
-                    response = route.handler(request)
-                    self._add_security_headers(response)
-                    self._add_cors_headers(response)
-                    return response
-                except (ValueError, TypeError, KeyError, RuntimeError, OSError) as e:
-                    logger.exception("Error handling request")
-                    response = APIResponse.error(str(e), 500)
-                    self._add_security_headers(response)
-                    self._add_cors_headers(response)
-                    return response
-
-        response = APIResponse.not_found(
-            f"No route for {request.method.value} {request.path}"
+        return self._finalize_response(
+            APIResponse.not_found(f"No route for {request.method.value} {request.path}")
         )
-        self._add_security_headers(response)
-        self._add_cors_headers(response)
-        return response
