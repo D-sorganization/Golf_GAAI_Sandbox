@@ -245,6 +245,7 @@ In addition to the standard framework, specialized audits monitor specific quali
 | 3.0     | 2026-02 | Consolidated Implementation Gaps and Inaccuracies Report     |
 | 3.1     | 2026-03 | Removed stale assessments and archives older than 2026-03-08 |
 | 3.2     | 2026-03 | Added Completist Audit Report 2026-03-29                     |
+| 3.3     | 2026-04 | Added A-N Assessment 2026-04-10 refresh (see `A-N_Assessment_2026-04-10.md`) |
 
 ---
 
