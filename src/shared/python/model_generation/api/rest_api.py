@@ -1,7 +1,3 @@
-# ARCHITECTURE_DEBT:
-# This module historically exceeds standard length metrics and accumulates excessive domain responsibility.
-# It requires domain-aware structural extraction to isolate its internal classes appropriately.
-
 """
 REST API for model_generation package.
 
@@ -13,98 +9,50 @@ from __future__ import annotations
 
 import logging
 import os
-import tempfile
 import time
 from collections.abc import Callable
-from dataclasses import dataclass, field
-from enum import Enum
-from pathlib import Path
-from typing import Any
 
 logger = logging.getLogger(__name__)
 
+# Re-export models so existing imports from this module continue to work.
+# Re-export adapters for the same backwards-compatibility reason.
+from model_generation.api.adapters import FastAPIAdapter, FlaskAdapter  # noqa: E402
+from model_generation.api.handlers import (  # noqa: E402
+    ConversionHandlersMixin,
+    CoreHandlersMixin,
+    EditorHandlersMixin,
+    GenerationHandlersMixin,
+    InertiaHandlersMixin,
+    LibraryHandlersMixin,
+    ValidationHandlersMixin,
+)
+from model_generation.api.models import (  # noqa: E402
+    APIRequest,
+    APIResponse,
+    HTTPMethod,
+    Route,
+)
 
-class HTTPMethod(Enum):
-    """HTTP methods."""
-
-    GET = "GET"
-    POST = "POST"
-    PUT = "PUT"
-    DELETE = "DELETE"
-    PATCH = "PATCH"
-
-
-@dataclass
-class APIRequest:
-    """Abstraction for HTTP request."""
-
-    method: HTTPMethod
-    path: str
-    query_params: dict[str, str] = field(default_factory=dict)
-    body: dict[str, Any] | None = None
-    files: dict[str, bytes] = field(default_factory=dict)
-    headers: dict[str, str] = field(default_factory=dict)
-
-
-@dataclass
-class APIResponse:
-    """Abstraction for HTTP response."""
-
-    status_code: int
-    body: dict[str, Any] | str | bytes
-    content_type: str = "application/json"
-    headers: dict[str, str] = field(default_factory=dict)
-
-    @classmethod
-    def ok(cls, data: dict[str, Any]) -> APIResponse:
-        """Create a 200 OK response with *data* as the JSON body."""
-        return cls(status_code=200, body=data)
-
-    @classmethod
-    def created(cls, data: dict[str, Any]) -> APIResponse:
-        """Create a 201 Created response with *data* as the JSON body."""
-        return cls(status_code=201, body=data)
-
-    @classmethod
-    def error(cls, message: str, status_code: int = 400) -> APIResponse:
-        """Create an error response with the given *status_code* (default 400)."""
-        return cls(status_code=status_code, body={"error": message})
-
-    @classmethod
-    def not_found(cls, message: str = "Not found") -> APIResponse:
-        """Create a 404 Not Found response with *message*."""
-        return cls(status_code=404, body={"error": message})
-
-    @classmethod
-    def file(
-        cls,
-        content: str | bytes,
-        filename: str,
-        content_type: str = "application/xml",
-    ) -> APIResponse:
-        """Create a file-download response with a Content-Disposition header."""
-        return cls(
-            status_code=200,
-            body=content if isinstance(content, bytes) else content.encode(),
-            content_type=content_type,
-            headers={
-                "Content-Disposition": f'attachment; filename="{filename}"',
-            },
-        )
+__all__ = [
+    "ModelGenerationAPI",
+    "APIRequest",
+    "APIResponse",
+    "HTTPMethod",
+    "Route",
+    "FlaskAdapter",
+    "FastAPIAdapter",
+]
 
 
-@dataclass
-class Route:
-    """API route definition."""
-
-    method: HTTPMethod
-    path: str
-    handler: Callable[[APIRequest], APIResponse]
-    description: str = ""
-    tags: list[str] = field(default_factory=list)
-
-
-class ModelGenerationAPI:
+class ModelGenerationAPI(
+    CoreHandlersMixin,
+    GenerationHandlersMixin,
+    ConversionHandlersMixin,
+    ValidationHandlersMixin,
+    InertiaHandlersMixin,
+    LibraryHandlersMixin,
+    EditorHandlersMixin,
+):
     """
     REST API for model generation operations.
 
@@ -164,115 +112,184 @@ class ModelGenerationAPI:
 
         self._register_routes()
 
+    def _add_routes(
+        self,
+        routes: list[
+            tuple[
+                HTTPMethod,
+                str,
+                Callable[[APIRequest], APIResponse],
+                str,
+                list[str],
+            ]
+        ],
+    ) -> None:
+        """Register a batch of routes with shared metadata structure."""
+        for method, path, handler, description, tags in routes:
+            self.add_route(method, path, handler, description, tags)
+
+    def _core_routes(
+        self,
+    ) -> list[
+        tuple[HTTPMethod, str, Callable[[APIRequest], APIResponse], str, list[str]]
+    ]:
+        """Return the core API route definitions."""
+        return (
+            self._health_and_generation_routes()
+            + self._conversion_and_validation_routes()
+        )
+
+    def _health_and_generation_routes(
+        self,
+    ) -> list[
+        tuple[HTTPMethod, str, Callable[[APIRequest], APIResponse], str, list[str]]
+    ]:
+        """Return health and generation route definitions."""
+        return [
+            (HTTPMethod.GET, "/health", self.health_check, "Health check", []),
+            (HTTPMethod.GET, "/info", self.get_api_info, "API information", []),
+            (
+                HTTPMethod.POST,
+                "/generate/humanoid",
+                self.generate_humanoid,
+                "Generate humanoid URDF",
+                ["generation"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/generate/from-params",
+                self.generate_from_params,
+                "Generate URDF from parameters",
+                ["generation"],
+            ),
+        ]
+
+    def _conversion_and_validation_routes(
+        self,
+    ) -> list[
+        tuple[HTTPMethod, str, Callable[[APIRequest], APIResponse], str, list[str]]
+    ]:
+        """Return conversion and validation route definitions."""
+        return [
+            (
+                HTTPMethod.POST,
+                "/convert/simscape-to-urdf",
+                self.convert_simscape_to_urdf,
+                "Convert SimScape to URDF",
+                ["conversion"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/convert/mjcf-to-urdf",
+                self.convert_mjcf_to_urdf,
+                "Convert MJCF to URDF",
+                ["conversion"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/convert/urdf-to-mjcf",
+                self.convert_urdf_to_mjcf,
+                "Convert URDF to MJCF",
+                ["conversion"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/validate",
+                self.validate_urdf,
+                "Validate URDF content",
+                ["validation"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/parse",
+                self.parse_urdf,
+                "Parse URDF and return structure",
+                ["parsing"],
+            ),
+        ]
+
+    def _inertia_and_library_routes(
+        self,
+    ) -> list[
+        tuple[HTTPMethod, str, Callable[[APIRequest], APIResponse], str, list[str]]
+    ]:
+        """Return inertia and library route definitions."""
+        return self._inertia_routes() + self._library_routes()
+
+    def _inertia_routes(
+        self,
+    ) -> list[
+        tuple[HTTPMethod, str, Callable[[APIRequest], APIResponse], str, list[str]]
+    ]:
+        """Return inertia route definitions."""
+        return [
+            (
+                HTTPMethod.POST,
+                "/inertia/calculate",
+                self.calculate_inertia,
+                "Calculate inertia for shape",
+                ["inertia"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/inertia/from-mesh",
+                self.inertia_from_mesh,
+                "Calculate inertia from mesh file",
+                ["inertia"],
+            ),
+        ]
+
+    def _library_routes(
+        self,
+    ) -> list[
+        tuple[HTTPMethod, str, Callable[[APIRequest], APIResponse], str, list[str]]
+    ]:
+        """Return library route definitions."""
+        return [
+            (
+                HTTPMethod.GET,
+                "/library/models",
+                self.library_list_models,
+                "List available models",
+                ["library"],
+            ),
+            (
+                HTTPMethod.GET,
+                "/library/models/{model_id}",
+                self.library_get_model,
+                "Get model details",
+                ["library"],
+            ),
+            (
+                HTTPMethod.POST,
+                "/library/models",
+                self.library_add_model,
+                "Add model to library",
+                ["library"],
+            ),
+            (
+                HTTPMethod.DELETE,
+                "/library/models/{model_id}",
+                self.library_remove_model,
+                "Remove model from library",
+                ["library"],
+            ),
+            (
+                HTTPMethod.GET,
+                "/library/models/{model_id}/download",
+                self.library_download_model,
+                "Download model URDF",
+                ["library"],
+            ),
+        ]
+
     def _register_core_routes(self) -> None:
         """Register health, generation, conversion, validation, and parsing routes."""
-        self.add_route(HTTPMethod.GET, "/health", self.health_check, "Health check")
-        self.add_route(HTTPMethod.GET, "/info", self.get_api_info, "API information")
-
-        self.add_route(
-            HTTPMethod.POST,
-            "/generate/humanoid",
-            self.generate_humanoid,
-            "Generate humanoid URDF",
-            ["generation"],
-        )
-        self.add_route(
-            HTTPMethod.POST,
-            "/generate/from-params",
-            self.generate_from_params,
-            "Generate URDF from parameters",
-            ["generation"],
-        )
-
-        self.add_route(
-            HTTPMethod.POST,
-            "/convert/simscape-to-urdf",
-            self.convert_simscape_to_urdf,
-            "Convert SimScape to URDF",
-            ["conversion"],
-        )
-        self.add_route(
-            HTTPMethod.POST,
-            "/convert/mjcf-to-urdf",
-            self.convert_mjcf_to_urdf,
-            "Convert MJCF to URDF",
-            ["conversion"],
-        )
-        self.add_route(
-            HTTPMethod.POST,
-            "/convert/urdf-to-mjcf",
-            self.convert_urdf_to_mjcf,
-            "Convert URDF to MJCF",
-            ["conversion"],
-        )
-
-        self.add_route(
-            HTTPMethod.POST,
-            "/validate",
-            self.validate_urdf,
-            "Validate URDF content",
-            ["validation"],
-        )
-        self.add_route(
-            HTTPMethod.POST,
-            "/parse",
-            self.parse_urdf,
-            "Parse URDF and return structure",
-            ["parsing"],
-        )
+        self._add_routes(self._core_routes())
 
     def _register_inertia_and_library_routes(self) -> None:
         """Register inertia calculation and library management routes."""
-        self.add_route(
-            HTTPMethod.POST,
-            "/inertia/calculate",
-            self.calculate_inertia,
-            "Calculate inertia for shape",
-            ["inertia"],
-        )
-        self.add_route(
-            HTTPMethod.POST,
-            "/inertia/from-mesh",
-            self.inertia_from_mesh,
-            "Calculate inertia from mesh file",
-            ["inertia"],
-        )
-
-        self.add_route(
-            HTTPMethod.GET,
-            "/library/models",
-            self.library_list_models,
-            "List available models",
-            ["library"],
-        )
-        self.add_route(
-            HTTPMethod.GET,
-            "/library/models/{model_id}",
-            self.library_get_model,
-            "Get model details",
-            ["library"],
-        )
-        self.add_route(
-            HTTPMethod.POST,
-            "/library/models",
-            self.library_add_model,
-            "Add model to library",
-            ["library"],
-        )
-        self.add_route(
-            HTTPMethod.DELETE,
-            "/library/models/{model_id}",
-            self.library_remove_model,
-            "Remove model from library",
-            ["library"],
-        )
-        self.add_route(
-            HTTPMethod.GET,
-            "/library/models/{model_id}/download",
-            self.library_download_model,
-            "Download model URDF",
-            ["library"],
-        )
+        self._add_routes(self._inertia_and_library_routes())
 
     def _register_editor_routes(self) -> None:
         """Register editor-related routes."""
@@ -328,7 +345,7 @@ class ModelGenerationAPI:
         if not (request is not None):
             raise ValueError("request must be provided")
         if not self._api_key:
-            return None  # No API key configured, skip auth
+            return None
         provided_key = request.headers.get("X-API-Key")
         if not provided_key or provided_key != self._api_key:
             return APIResponse.error("Unauthorized: invalid or missing API key", 401)
@@ -350,9 +367,8 @@ class ModelGenerationAPI:
             request.headers.get("X-Forwarded-For", "unknown").split(",")[0].strip()
         )
         now = time.time()
-        window_start = now - 60.0  # 1-minute sliding window
+        window_start = now - 60.0
 
-        # Prune old entries
         timestamps = self._rate_limit_windows.setdefault(client_ip, [])
         self._rate_limit_windows[client_ip] = [
             ts for ts in timestamps if ts > window_start
@@ -391,900 +407,60 @@ class ModelGenerationAPI:
             "max-age=31536000; includeSubDomains"
         )
 
-    def handle_request(self, request: APIRequest) -> APIResponse:
-        """Handle an API request."""
-        # Security pre-flight checks
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        auth_error = self._check_api_key(request)
-        if auth_error is not None:
-            self._add_security_headers(auth_error)
-            self._add_cors_headers(auth_error)
-            return auth_error
-
-        rate_error = self._check_rate_limit(request)
-        if rate_error is not None:
-            self._add_security_headers(rate_error)
-            self._add_cors_headers(rate_error)
-            return rate_error
-
-        # Find matching route
-        for route in self._routes:
-            if route.method != request.method:
-                continue
-
-            # Simple path matching (handles {param} patterns)
-            route_parts = route.path.split("/")
-            request_parts = request.path.split("/")
-
-            if len(route_parts) != len(request_parts):
-                continue
-
-            params = {}
-            match = True
-            for rp, reqp in zip(route_parts, request_parts, strict=False):
-                if rp.startswith("{") and rp.endswith("}"):
-                    param_name = rp[1:-1]
-                    params[param_name] = reqp
-                elif rp != reqp:
-                    match = False
-                    break
-
-            if match:
-                # Add path params to query params
-                request.query_params.update(params)
-                try:
-                    response = route.handler(request)
-                    self._add_security_headers(response)
-                    self._add_cors_headers(response)
-                    return response
-                except (ValueError, TypeError, KeyError, RuntimeError, OSError) as e:
-                    logger.exception("Error handling request")
-                    response = APIResponse.error(str(e), 500)
-                    self._add_security_headers(response)
-                    self._add_cors_headers(response)
-                    return response
-
-        response = APIResponse.not_found(
-            f"No route for {request.method.value} {request.path}"
-        )
+    def _finalize_response(self, response: APIResponse) -> APIResponse:
+        """Attach standard headers before returning a response."""
         self._add_security_headers(response)
         self._add_cors_headers(response)
         return response
 
-    # ============================================================
-    # Health/Info Handlers
-    # ============================================================
+    def _process_security_prechecks(self, request: APIRequest) -> APIResponse | None:
+        """Run authentication and rate-limit checks."""
+        auth_error = self._check_api_key(request)
+        if auth_error is not None:
+            return self._finalize_response(auth_error)
 
-    def health_check(self, request: APIRequest) -> APIResponse:
-        """Health check endpoint."""
-        return APIResponse.ok({"status": "healthy", "service": "model_generation"})
+        rate_error = self._check_rate_limit(request)
+        if rate_error is not None:
+            return self._finalize_response(rate_error)
+        return None
 
-    def get_api_info(self, request: APIRequest) -> APIResponse:
-        """Get API information."""
-        return APIResponse.ok(
-            {
-                "name": "Model Generation API",
-                "version": "1.0.0",
-                "description": "REST API for URDF generation, conversion, and manipulation",
-                "endpoints": [
-                    {
-                        "method": r.method.value,
-                        "path": r.path,
-                        "description": r.description,
-                        "tags": r.tags,
-                    }
-                    for r in self._routes
-                ],
-            }
-        )
+    def _match_route(self, route: Route, request: APIRequest) -> bool:
+        """Match a route against a request path and collect path params."""
+        route_parts = route.path.split("/")
+        request_parts = request.path.split("/")
+        if len(route_parts) != len(request_parts):
+            return False
 
-    # ============================================================
-    # Generation Handlers
-    # ============================================================
+        params: dict[str, str] = {}
+        for route_part, request_part in zip(route_parts, request_parts, strict=False):
+            if route_part.startswith("{") and route_part.endswith("}"):
+                params[route_part[1:-1]] = request_part
+                continue
+            if route_part != request_part:
+                return False
 
-    def generate_humanoid(self, request: APIRequest) -> APIResponse:
-        """Generate humanoid URDF."""
+        request.query_params.update(params)
+        return True
+
+    def handle_request(self, request: APIRequest) -> APIResponse:
+        """Handle an API request."""
         if not (request is not None):
             raise ValueError("request must be provided")
-        from model_generation.builders.parametric_builder import ParametricBuilder
+        precheck_error = self._process_security_prechecks(request)
+        if precheck_error is not None:
+            return precheck_error
 
-        body = request.body or {}
-        robot_name = body.get("name", "humanoid")
-        height = body.get("height", 1.7)
-        mass = body.get("mass", 70.0)
+        for route in self._routes:
+            if route.method != request.method or not self._match_route(route, request):
+                continue
 
-        builder = ParametricBuilder(robot_name=robot_name)
-
-        # Apply parameters including proportions if provided
-        proportions = body.get("proportions", {})
-        builder.set_parameters(height_m=height, mass_kg=mass, **proportions)
-
-        builder.add_humanoid_segments()
-        result = builder.build()
-
-        if not result.success:
-            return APIResponse.error(result.error_message or "Build failed")
-
-        urdf_string = result.urdf_xml
-
-        # Return as file or JSON based on query param
-        if request.query_params.get("download") == "true" and urdf_string is not None:
-            return APIResponse.file(urdf_string, f"{robot_name}.urdf")
-
-        return APIResponse.ok(
-            {
-                "robot_name": robot_name,
-                "links": len(result.links),
-                "joints": len(result.joints),
-                "urdf": urdf_string,
-            }
-        )
-
-    def generate_from_params(self, request: APIRequest) -> APIResponse:
-        """Generate URDF from detailed parameters."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.builders.manual_builder import ManualBuilder
-        from model_generation.core.types import (
-            Joint,
-            Link,
-        )
-
-        body = request.body or {}
-
-        if "links" not in body:
-            return APIResponse.error("Missing 'links' in request body")
-
-        robot_name = body.get("name", "robot")
-        builder = ManualBuilder(robot_name=robot_name)
-
-        # Add links
-        for link_data in body.get("links", []):
-            link = Link.from_dict(link_data)
-            builder.add_link(link)
-
-        # Add joints
-        for joint_data in body.get("joints", []):
-            joint = Joint.from_dict(joint_data)
-            builder.add_joint(joint)
-
-        result = builder.build()
-
-        if not result.success:
-            return APIResponse.error(result.error_message or "Build failed")
-
-        urdf_string = result.urdf_xml
-
-        if request.query_params.get("download") == "true" and urdf_string is not None:
-            return APIResponse.file(urdf_string, f"{robot_name}.urdf")
-
-        return APIResponse.ok(
-            {
-                "robot_name": robot_name,
-                "links": len(result.links),
-                "joints": len(result.joints),
-                "urdf": urdf_string,
-            }
-        )
-
-    # ============================================================
-    # Conversion Handlers
-    # ============================================================
-
-    def convert_simscape_to_urdf(self, request: APIRequest) -> APIResponse:
-        """Convert SimScape MDL/SLX to URDF."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.converters.simscape import (
-            ConversionConfig,
-            SimscapeToURDFConverter,
-        )
-
-        body = request.body or {}
-
-        # Get content from file upload or body
-        content = None
-        format_type = "mdl"
-
-        if "file" in request.files:
-            content = request.files["file"].decode("utf-8", errors="ignore")
-            # Detect format from content
-            if content.strip().startswith("<?xml") or content.strip().startswith("<"):
-                format_type = "xml"
-        elif "content" in body:
-            content = body["content"]
-            format_type = body.get("format", "mdl")
-        else:
-            return APIResponse.error("Missing model content or file")
-
-        robot_name = body.get("robot_name", "converted_robot")
-        config = ConversionConfig(robot_name=robot_name)
-
-        converter = SimscapeToURDFConverter(config)
-        result = converter.convert_string(content, format_type)  # type: ignore[arg-type]
-
-        if not result.success:
-            return APIResponse.error(
-                "; ".join(result.errors),
-                status_code=422,
-            )
-
-        response_data = {
-            "success": True,
-            "robot_name": result.robot_name,
-            "links": len(result.links),
-            "joints": len(result.joints),
-            "warnings": result.warnings,
-            "urdf": result.urdf_string,
-        }
-
-        if (
-            request.query_params.get("download") == "true"
-            and result.urdf_string is not None
-        ):
-            return APIResponse.file(result.urdf_string, f"{result.robot_name}.urdf")
-
-        return APIResponse.ok(response_data)
-
-    def convert_mjcf_to_urdf(self, request: APIRequest) -> APIResponse:
-        """Convert MJCF to URDF."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.converters.mjcf_converter import MJCFConverter
-
-        body = request.body or {}
-
-        content = body.get("content") or (
-            request.files.get("file", b"").decode("utf-8") if request.files else None
-        )
-
-        if not content:
-            return APIResponse.error("Missing MJCF content")
-
-        converter = MJCFConverter()
-
-        try:
-            urdf_string = converter.mjcf_to_urdf(content)
-        except (ValueError, KeyError, OSError) as e:
-            return APIResponse.error(f"Conversion failed: {e}", 422)
-
-        robot_name = body.get("robot_name", "converted")
-
-        if request.query_params.get("download") == "true":
-            return APIResponse.file(urdf_string, f"{robot_name}.urdf")
-
-        return APIResponse.ok({"urdf": urdf_string})
-
-    def convert_urdf_to_mjcf(self, request: APIRequest) -> APIResponse:
-        """Convert URDF to MJCF."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.converters.mjcf_converter import MJCFConverter
-
-        body = request.body or {}
-
-        content = body.get("content") or (
-            request.files.get("file", b"").decode("utf-8") if request.files else None
-        )
-
-        if not content:
-            return APIResponse.error("Missing URDF content")
-
-        converter = MJCFConverter()
-
-        try:
-            mjcf_string = converter.urdf_to_mjcf(content)
-        except (ValueError, KeyError, OSError) as e:
-            return APIResponse.error(f"Conversion failed: {e}", 422)
-
-        robot_name = body.get("robot_name", "converted")
-
-        if request.query_params.get("download") == "true":
-            return APIResponse.file(mjcf_string, f"{robot_name}.xml", "application/xml")
-
-        return APIResponse.ok({"mjcf": mjcf_string})
-
-    # ============================================================
-    # Validation Handler
-    # ============================================================
-
-    def validate_urdf(self, request: APIRequest) -> APIResponse:
-        """Validate URDF content."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.editor.text_editor import (
-            URDFTextEditor,
-            ValidationSeverity,
-        )
-
-        body = request.body or {}
-
-        content = body.get("content") or (
-            request.files.get("file", b"").decode("utf-8") if request.files else None
-        )
-
-        if not content:
-            return APIResponse.error("Missing URDF content")
-
-        editor = URDFTextEditor()
-        editor.load_string(content)
-
-        messages = editor.validate()
-
-        has_errors = any(m.severity == ValidationSeverity.ERROR for m in messages)
-
-        return APIResponse.ok(
-            {
-                "valid": not has_errors,
-                "error_count": sum(
-                    1 for m in messages if m.severity == ValidationSeverity.ERROR
-                ),
-                "warning_count": sum(
-                    1 for m in messages if m.severity == ValidationSeverity.WARNING
-                ),
-                "messages": [
-                    {
-                        "severity": m.severity.value,
-                        "line": m.line,
-                        "column": m.column,
-                        "message": m.message,
-                        "element": m.element,
-                    }
-                    for m in messages
-                ],
-            }
-        )
-
-    # ============================================================
-    # Parse Handler
-    # ============================================================
-
-    def parse_urdf(self, request: APIRequest) -> APIResponse:
-        """Parse URDF and return structure."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.converters.urdf_parser import URDFParser
-
-        body = request.body or {}
-
-        content = body.get("content") or (
-            request.files.get("file", b"").decode("utf-8") if request.files else None
-        )
-
-        if not content:
-            return APIResponse.error("Missing URDF content")
-
-        parser = URDFParser()
-
-        try:
-            model = parser.parse(content)
-        except (ValueError, KeyError, OSError) as e:
-            return APIResponse.error(f"Parse failed: {e}", 422)
-
-        root = model.get_root_link()
-
-        return APIResponse.ok(
-            {
-                "name": model.name,
-                "root_link": root.name if root else None,
-                "links": [link.to_dict() for link in model.links],
-                "joints": [j.to_dict() for j in model.joints],
-                "materials": {k: v.to_dict() for k, v in model.materials.items()},
-                "warnings": model.warnings,
-            }
-        )
-
-    # ============================================================
-    # Inertia Handlers
-    # ============================================================
-
-    def calculate_inertia(self, request: APIRequest) -> APIResponse:
-        """Calculate inertia for primitive shape."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.core.types import Inertia
-
-        body = request.body or {}
-
-        shape = body.get("shape")
-        mass = body.get("mass", 1.0)
-        dimensions = body.get("dimensions", [])
-
-        if not shape:
-            return APIResponse.error("Missing 'shape' parameter")
-
-        try:
-            if shape == "box":
-                if len(dimensions) != 3:
-                    return APIResponse.error("Box requires 3 dimensions")
-                inertia = Inertia.from_box(mass, *dimensions)
-
-            elif shape == "cylinder":
-                if len(dimensions) != 2:
-                    return APIResponse.error(
-                        "Cylinder requires 2 dimensions (radius, length)"
-                    )
-                inertia = Inertia.from_cylinder(mass, dimensions[0], dimensions[1])
-
-            elif shape == "sphere":
-                if len(dimensions) != 1:
-                    return APIResponse.error("Sphere requires 1 dimension (radius)")
-                inertia = Inertia.from_sphere(mass, dimensions[0])
-
-            elif shape == "capsule":
-                if len(dimensions) != 2:
-                    return APIResponse.error(
-                        "Capsule requires 2 dimensions (radius, length)"
-                    )
-                inertia = Inertia.from_capsule(mass, dimensions[0], dimensions[1])
-
-            else:
-                return APIResponse.error(f"Unknown shape: {shape}")
-
-        except (KeyError, ValueError, TypeError) as e:
-            return APIResponse.error(f"Calculation failed: {e}")
-
-        return APIResponse.ok(
-            {
-                "shape": shape,
-                "mass": mass,
-                "dimensions": dimensions,
-                "inertia": {
-                    "ixx": inertia.ixx,
-                    "iyy": inertia.iyy,
-                    "izz": inertia.izz,
-                    "ixy": inertia.ixy,
-                    "ixz": inertia.ixz,
-                    "iyz": inertia.iyz,
-                },
-                "is_positive_definite": inertia.is_positive_definite(),
-                "satisfies_triangle_inequality": inertia.satisfies_triangle_inequality(),
-            }
-        )
-
-    def inertia_from_mesh(self, request: APIRequest) -> APIResponse:
-        """Calculate inertia from mesh file."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        body = request.body or {}
-
-        mesh_content = request.files.get("mesh")
-        if not mesh_content:
-            return APIResponse.error("Missing mesh file")
-
-        mass = body.get("mass")
-        density = body.get("density")
-
-        if not mass and not density:
-            return APIResponse.error("Must provide either 'mass' or 'density'")
-
-        # Try to use trimesh for mesh-based inertia
-        try:
-            import trimesh
-
-            # Save to temp file
-            with tempfile.NamedTemporaryFile(suffix=".stl", delete=False) as f:
-                f.write(mesh_content)
-                temp_path = f.name
-
-            mesh: Any = trimesh.load(temp_path)
-
-            if density:
-                mesh.density = density
-                inertia_tensor = mesh.moment_inertia
-                calculated_mass = mesh.mass
-            else:
-                # Scale inertia to specified mass
-                volume = mesh.volume
-                inertia_tensor = mesh.moment_inertia * (mass / mesh.mass)
-                calculated_mass = mass
-
-            # Clean up
-            Path(temp_path).unlink()
-
-            return APIResponse.ok(
-                {
-                    "mass": calculated_mass,
-                    "volume": volume if density else mesh.volume,
-                    "center_of_mass": mesh.center_mass.tolist(),
-                    "inertia": {
-                        "ixx": float(inertia_tensor[0, 0]),
-                        "iyy": float(inertia_tensor[1, 1]),
-                        "izz": float(inertia_tensor[2, 2]),
-                        "ixy": float(inertia_tensor[0, 1]),
-                        "ixz": float(inertia_tensor[0, 2]),
-                        "iyz": float(inertia_tensor[1, 2]),
-                    },
-                }
-            )
-
-        except ImportError:
-            return APIResponse.error(
-                "trimesh library not available for mesh-based inertia calculation",
-                501,
-            )
-        except (PermissionError, OSError) as e:
-            return APIResponse.error(f"Mesh processing failed: {e}")
-
-    # ============================================================
-    # Library Handlers
-    # ============================================================
-
-    def library_list_models(self, request: APIRequest) -> APIResponse:
-        """List models in library."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.library import ModelLibrary
-
-        library = ModelLibrary()
-
-        category = request.query_params.get("category")
-        source = request.query_params.get("source")
-        search = request.query_params.get("search")
-        tags = (
-            request.query_params.get("tags", "").split(",")
-            if request.query_params.get("tags")
-            else None
-        )
-
-        models = library.list_models(
-            category=category,  # type: ignore[arg-type]
-            source=source,  # type: ignore[arg-type]
-            search=search,
-            tags=tags,
-        )
-
-        return APIResponse.ok(
-            {
-                "count": len(models),
-                "models": [
-                    {
-                        "id": m.id,
-                        "name": m.name,
-                        "category": m.category.value,
-                        "source": m.source.value if m.source else None,
-                        "tags": m.tags,
-                        "description": m.description,
-                    }
-                    for m in models
-                ],
-            }
-        )
-
-    def library_get_model(self, request: APIRequest) -> APIResponse:
-        """Get model details."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.library import ModelLibrary
-
-        model_id = request.query_params.get("model_id")
-        if not model_id:
-            return APIResponse.error("Missing model_id")
-
-        library = ModelLibrary()
-        models = library.list_models()
-
-        for m in models:
-            if m.name == model_id or getattr(m, "model_id", m.name) == model_id:  # type: ignore[attr-defined]
-                return APIResponse.ok(
-                    {
-                        "id": getattr(m, "model_id", m.name),  # type: ignore[attr-defined]
-                        "name": m.name,
-                        "category": m.category.value,
-                        "source": m.source.value if m.source else None,
-                        "tags": m.tags,
-                        "description": m.description,
-                        "path": str(m.urdf_path) if m.urdf_path else None,
-                    }
-                )
-
-        return APIResponse.not_found(f"Model not found: {model_id}")
-
-    def library_add_model(self, request: APIRequest) -> APIResponse:
-        """Add model to library."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.library import ModelCategory, ModelLibrary
-
-        body = request.body or {}
-
-        content = body.get("content") or (
-            request.files.get("file", b"").decode("utf-8") if request.files else None
-        )
-
-        if not content:
-            return APIResponse.error("Missing URDF content")
-
-        name = body.get("name", "unnamed")
-        category_str = body.get("category", "other")
-        tags = body.get("tags", [])
-
-        # Parse category
-        try:
-            category = ModelCategory(category_str)
-        except ValueError:
-            category = ModelCategory.OTHER
-
-        # Save to temp file and add
-        library = ModelLibrary()
-
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".urdf", delete=False) as f:
-            f.write(content)
-            temp_path = f.name
-
-        try:
-            entry = library.add_local_model(
-                urdf_path=Path(temp_path),
-                name=name,
-                category=category,
-                tags=tags,
-            )
-
-            if entry:
-                return APIResponse.created(
-                    {
-                        "id": entry.model_id,
-                        "name": entry.name,
-                        "category": entry.category.value,
-                    }
-                )
-            return APIResponse.error("Failed to add model")
-        finally:
-            Path(temp_path).unlink(missing_ok=True)
-
-    def library_remove_model(self, request: APIRequest) -> APIResponse:
-        """Remove model from library."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.library import ModelLibrary
-
-        model_id = request.query_params.get("model_id")
-        if not model_id:
-            return APIResponse.error("Missing model_id")
-
-        ModelLibrary()
-
-        # Note: This would need implementation in ModelLibrary
-        # For now, return not implemented
-        return APIResponse.error("Remove not implemented", 501)
-
-    def library_download_model(self, request: APIRequest) -> APIResponse:
-        """Download model URDF."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.library import ModelLibrary
-
-        model_id = request.query_params.get("model_id")
-        if not model_id:
-            return APIResponse.error("Missing model_id")
-
-        library = ModelLibrary()
-        model = library.load_model(model_id)
-
-        if not model:
-            return APIResponse.not_found(f"Model not found: {model_id}")
-
-        urdf_string = model.to_urdf()
-
-        return APIResponse.file(urdf_string, f"{model.name}.urdf")
-
-    # ============================================================
-    # Editor Handlers
-    # ============================================================
-
-    def compose_models(self, request: APIRequest) -> APIResponse:
-        """Compose model from multiple sources."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.editor import FrankensteinEditor
-
-        body = request.body or {}
-
-        sources = body.get("sources", {})
-        operations = body.get("operations", [])
-        output_name = body.get("name", "composed_robot")
-
-        if not sources:
-            return APIResponse.error("Missing 'sources' in request body")
-
-        editor = FrankensteinEditor()
-
-        # Load source models
-        for model_id, content in sources.items():
             try:
-                editor.load_model(model_id, content, read_only=True)
-            except (ValueError, KeyError, OSError) as e:
-                return APIResponse.error(f"Failed to load model '{model_id}': {e}")
+                response = route.handler(request)
+            except (ValueError, TypeError, KeyError, RuntimeError, OSError) as exc:
+                logger.exception("Error handling request")
+                response = APIResponse.error(str(exc), 500)
+            return self._finalize_response(response)
 
-        # Create output model
-        editor.create_model("output", output_name)
-
-        # Process operations
-        for op in operations:
-            op_type = op.get("type")
-
-            if op_type == "copy_subtree":
-                editor.copy_subtree(op["source"], op["link"])
-            elif op_type == "paste":
-                editor.paste(
-                    "output",
-                    attach_to=op.get("attach_to"),
-                    prefix=op.get("prefix", ""),
-                )
-            elif op_type == "delete_subtree":
-                editor.delete_subtree("output", op["link"])
-            elif op_type == "rename":
-                editor.rename_link("output", op["old_name"], op["new_name"])
-
-        # Export
-        urdf_string = editor.export_model("output")
-        stats = editor.get_model_statistics("output")
-
-        if request.query_params.get("download") == "true":
-            return APIResponse.file(urdf_string, f"{output_name}.urdf")
-
-        return APIResponse.ok(
-            {
-                "name": output_name,
-                "links": stats.get("link_count", 0),
-                "joints": stats.get("joint_count", 0),
-                "urdf": urdf_string,
-            }
+        return self._finalize_response(
+            APIResponse.not_found(f"No route for {request.method.value} {request.path}")
         )
-
-    def diff_urdfs(self, request: APIRequest) -> APIResponse:
-        """Compare two URDF files."""
-        if not (request is not None):
-            raise ValueError("request must be provided")
-        from model_generation.editor.text_editor import URDFTextEditor
-
-        body = request.body or {}
-
-        content_a = body.get("content_a")
-        content_b = body.get("content_b")
-
-        if not content_a or not content_b:
-            return APIResponse.error("Missing content_a or content_b")
-
-        editor = URDFTextEditor()
-        editor.load_string(content_a)
-
-        diff_result = editor.get_diff_with_string(content_b)
-
-        return APIResponse.ok(
-            {
-                "has_changes": diff_result.has_changes,
-                "additions": diff_result.additions,
-                "deletions": diff_result.deletions,
-                "hunks": len(diff_result.hunks),
-                "unified_diff": diff_result.unified_diff,
-            }
-        )
-
-
-# ============================================================
-# Framework Adapters
-# ============================================================
-
-
-class FlaskAdapter:
-    """Adapter for Flask framework."""
-
-    def __init__(self, api: ModelGenerationAPI) -> None:
-        if not (api is not None):
-            raise ValueError("api must be provided")
-        self.api = api
-
-    def register(self, app: Any) -> None:
-        """Register routes with Flask app."""
-        from flask import jsonify, make_response
-        from flask import request as flask_request
-
-        for route in self.api.get_routes():
-            endpoint = route.path.replace("/", "_").replace("{", "").replace("}", "")
-
-            def make_handler(r: Route) -> Callable[..., Any]:
-                def handler(**kwargs: Any) -> Any:
-                    # Build APIRequest
-                    api_request = APIRequest(
-                        method=HTTPMethod(flask_request.method),
-                        path=flask_request.path,
-                        query_params={**flask_request.args, **kwargs},
-                        body=flask_request.get_json(silent=True),
-                        files={k: v.read() for k, v in flask_request.files.items()},
-                        headers=dict(flask_request.headers),
-                    )
-
-                    response = self.api.handle_request(api_request)
-
-                    if isinstance(response.body, bytes):
-                        flask_response = make_response(response.body)
-                    elif isinstance(response.body, dict):
-                        flask_response = make_response(jsonify(response.body))
-                    else:
-                        flask_response = make_response(response.body)
-
-                    flask_response.status_code = response.status_code
-                    flask_response.content_type = response.content_type
-
-                    for k, v in response.headers.items():
-                        flask_response.headers[k] = v
-
-                    return flask_response
-
-                return handler
-
-            # Convert path params from {param} to <param>
-            flask_path = route.path.replace("{", "<").replace("}", ">")
-            app.add_url_rule(
-                flask_path,
-                endpoint=endpoint,
-                view_func=make_handler(route),
-                methods=[route.method.value],
-            )
-
-
-class FastAPIAdapter:
-    """Adapter for FastAPI framework."""
-
-    def __init__(self, api: ModelGenerationAPI) -> None:
-        if not (api is not None):
-            raise ValueError("api must be provided")
-        self.api = api
-
-    def register(self, app: Any) -> None:
-        """Register routes with FastAPI app."""
-        from fastapi import Request, Response
-        from fastapi.responses import JSONResponse
-
-        for route in self.api.get_routes():
-
-            async def make_handler(r: Route) -> Callable[..., Any]:
-                async def handler(request: Request, **kwargs: Any) -> Any:
-                    body = None
-                    try:
-                        body = await request.json()
-                    except (ValueError, UnicodeDecodeError) as e:
-                        logger.debug("Failed to parse request JSON body: %s", e)
-
-                    files = {}
-                    form = await request.form()
-                    for key, value in form.items():
-                        if hasattr(value, "read"):
-                            files[key] = await value.read()
-
-                    api_request = APIRequest(
-                        method=HTTPMethod(request.method),
-                        path=request.url.path,
-                        query_params={**request.query_params, **kwargs},
-                        body=body,
-                        files=files,
-                        headers=dict(request.headers),
-                    )
-
-                    response = self.api.handle_request(api_request)
-
-                    if isinstance(response.body, bytes):
-                        return Response(
-                            content=response.body,
-                            status_code=response.status_code,
-                            media_type=response.content_type,
-                            headers=response.headers,
-                        )
-                    return JSONResponse(
-                        content=response.body,
-                        status_code=response.status_code,
-                        headers=response.headers,
-                    )
-
-                return handler
-
-            # FastAPI uses {param} format already
-            app.add_api_route(
-                route.path,
-                make_handler(route),
-                methods=[route.method.value],
-                tags=route.tags,
-                summary=route.description,
-            )
