@@ -153,15 +153,19 @@ def draw_rounded_rect_with_text(
     return pixels
 
 
-def draw_letter(pixels: list, width: int, x: int, y: int, size: int, char: str) -> None:
-    """Draw a simple blocky letter representation."""
-    if not (pixels is not None):
-        raise ValueError("pixels must be provided")
-    white = (255, 255, 255, 255)
-    thickness = max(3, size // 6)
+def _get_letter_patterns(
+    size: int, thickness: int
+) -> dict[str, list[tuple[int, int, int, int]]]:
+    """Return blocky rectangle patterns for supported characters.
 
-    # Simple letter patterns (blocky style)
-    patterns = {
+    Args:
+        size: Cell size in pixels.
+        thickness: Stroke thickness in pixels.
+
+    Returns:
+        Mapping from character to list of (rx, ry, rw, rh) rectangles.
+    """
+    return {
         "M": [
             (0, 0, thickness, size),
             (size - thickness, 0, thickness, size),
@@ -240,18 +244,46 @@ def draw_letter(pixels: list, width: int, x: int, y: int, size: int, char: str) 
         ],
     }
 
-    letter_pattern = patterns.get(char, [(0, 0, size, size)])  # Default: filled square
 
-    for rect in letter_pattern:
-        rx, ry, rw, rh = rect
+def _stamp_rectangles(
+    pixels: list,
+    width: int,
+    x: int,
+    y: int,
+    size: int,
+    rects: list[tuple[int, int, int, int]],
+) -> None:
+    """Stamp white rectangles onto the pixel buffer.
+
+    Args:
+        pixels: Flat RGBA pixel list (mutated in place).
+        width: Image width in pixels.
+        x: Top-left x of the character cell.
+        y: Top-left y of the character cell.
+        size: Character cell size.
+        rects: List of (rx, ry, rw, rh) rectangles to stamp.
+    """
+    white = (255, 255, 255, 255)
+    height = len(pixels) // width
+    for rx, ry, rw, rh in rects:
         for py in range(ry, min(ry + rh, size)):
             for px in range(rx, min(rx + rw, size)):
                 pixel_x = x + px
                 pixel_y = y + py
-                if 0 <= pixel_x < width and 0 <= pixel_y < len(pixels) // width:
+                if 0 <= pixel_x < width and 0 <= pixel_y < height:
                     idx = pixel_y * width + pixel_x
                     if idx < len(pixels):
                         pixels[idx] = white
+
+
+def draw_letter(pixels: list, width: int, x: int, y: int, size: int, char: str) -> None:
+    """Draw a simple blocky letter representation."""
+    if not (pixels is not None):
+        raise ValueError("pixels must be provided")
+    thickness = max(3, size // 6)
+    patterns = _get_letter_patterns(size, thickness)
+    letter_rects = patterns.get(char, [(0, 0, size, size)])
+    _stamp_rectangles(pixels, width, x, y, size, letter_rects)
 
 
 def generate_all_tiles() -> None:

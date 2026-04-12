@@ -185,14 +185,33 @@ _capabilities_state: dict[str, dict[str, dict[str, str]] | None] = {"cache": Non
 
 
 def _build_engine_profiles() -> dict:
+    """Build capability profiles for all known physics engines.
+
+    Returns:
+        Dictionary mapping engine ID to its EngineCapabilities.
+    """
     from src.engines.common.capabilities import CapabilityLevel, EngineCapabilities
 
     F = CapabilityLevel.FULL
     P = CapabilityLevel.PARTIAL
     N = CapabilityLevel.NONE
 
+    profiles: dict[str, EngineCapabilities] = {}
+    profiles.update(_build_full_capability_engines(EngineCapabilities, F, P, N))
+    profiles.update(_build_partial_capability_engines(EngineCapabilities, F, P))
+    profiles.update(_build_special_capability_engines(EngineCapabilities, F, P, N))
+    return profiles
+
+
+def _build_full_capability_engines(
+    EC: type,
+    F: Any,
+    P: Any,
+    N: Any,
+) -> dict:
+    """Engines with full force/visualization support (MuJoCo, Pinocchio)."""
     return {
-        "mujoco": EngineCapabilities(
+        "mujoco": EC(
             engine_name="MuJoCo",
             mass_matrix=F,
             jacobian=F,
@@ -205,20 +224,7 @@ def _build_engine_profiles() -> dict:
             model_positioning=F,
             measurements=F,
         ),
-        "drake": EngineCapabilities(
-            engine_name="Drake",
-            mass_matrix=F,
-            jacobian=F,
-            contact_forces=P,
-            inverse_dynamics=F,
-            drift_acceleration=F,
-            video_export=P,
-            dataset_export=F,
-            force_visualization=P,
-            model_positioning=F,
-            measurements=F,
-        ),
-        "pinocchio": EngineCapabilities(
+        "pinocchio": EC(
             engine_name="Pinocchio",
             mass_matrix=F,
             jacobian=F,
@@ -231,7 +237,30 @@ def _build_engine_profiles() -> dict:
             model_positioning=F,
             measurements=F,
         ),
-        "opensim": EngineCapabilities(
+    }
+
+
+def _build_partial_capability_engines(
+    EC: type,
+    F: Any,
+    P: Any,
+) -> dict:
+    """Engines with partial contact/visualization (Drake, OpenSim, MyoSuite)."""
+    return {
+        "drake": EC(
+            engine_name="Drake",
+            mass_matrix=F,
+            jacobian=F,
+            contact_forces=P,
+            inverse_dynamics=F,
+            drift_acceleration=F,
+            video_export=P,
+            dataset_export=F,
+            force_visualization=P,
+            model_positioning=F,
+            measurements=F,
+        ),
+        "opensim": EC(
             engine_name="OpenSim",
             mass_matrix=F,
             jacobian=F,
@@ -244,7 +273,7 @@ def _build_engine_profiles() -> dict:
             model_positioning=P,
             measurements=F,
         ),
-        "myosuite": EngineCapabilities(
+        "myosuite": EC(
             engine_name="MyoSuite",
             mass_matrix=F,
             jacobian=F,
@@ -257,7 +286,18 @@ def _build_engine_profiles() -> dict:
             model_positioning=P,
             measurements=F,
         ),
-        "pendulum": EngineCapabilities(
+    }
+
+
+def _build_special_capability_engines(
+    EC: type,
+    F: Any,
+    P: Any,
+    N: Any,
+) -> dict:
+    """Engines with unique capability profiles (Pendulum, Putting Green)."""
+    return {
+        "pendulum": EC(
             engine_name="Pendulum",
             mass_matrix=F,
             jacobian=F,
@@ -270,7 +310,7 @@ def _build_engine_profiles() -> dict:
             model_positioning=F,
             measurements=F,
         ),
-        "putting_green": EngineCapabilities(
+        "putting_green": EC(
             engine_name="Putting Green",
             mass_matrix=F,
             jacobian=F,
