@@ -92,13 +92,13 @@ import sys
 import os
 try:
     import {module_name}
-    sys.stdout.write("OK")
+    print("OK")
 except ImportError as e:
-    sys.stdout.write(f"ImportError: {{e}}")
+    print(f"ImportError: {{e}}")
 except OSError as e:
-    sys.stdout.write(f"OSError: {{e}}")
+    print(f"OSError: {{e}}")
 except (RuntimeError, TypeError, AttributeError) as e:
-    sys.stdout.write(f"Error: {{type(e).__name__}}: {{e}}")
+    print(f"Error: {{type(e).__name__}}: {{e}}")
 """
         try:
             result = subprocess.run(
