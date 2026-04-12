@@ -250,3 +250,5 @@ In addition to the standard framework, specialized audits monitor specific quali
 ---
 
 _See individual Assessment_Prompt_X.md files for detailed prompts._
+
+| 2026-04-12 | Completist Audit Report                  | `docs/assessments/completist/Completist_Report_2026-04-12.md`                 |
