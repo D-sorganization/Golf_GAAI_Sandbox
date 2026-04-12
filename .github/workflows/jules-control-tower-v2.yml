@@ -55,7 +55,7 @@ jobs:
 
   # ── Dispatcher: route to self-hosted if available ──────────────────────────
   pick-runner:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 2
     outputs:
       runner: ${{ steps.check.outputs.runner }}
@@ -78,7 +78,7 @@ jobs:
   triage:
     needs: pick-runner
     if: github.event_name != 'schedule'
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     outputs:
       target: ${{ steps.decide.outputs.target }}
       issue_number: ${{ steps.decide.outputs.issue_number }}
@@ -236,7 +236,7 @@ jobs:
   queue-sweep:
     needs: pick-runner
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && needs.triage.result == 'success' && needs.triage.outputs.target == 'queue-sweep')
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     permissions:
       actions: write
       issues: write

@@ -39,7 +39,7 @@ jobs:
 
   # ── Dispatcher: route to self-hosted if available ──────────────────────────
   pick-runner:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 2
     outputs:
       runner: ${{ steps.check.outputs.runner }}
@@ -61,7 +61,7 @@ jobs:
           fi
   process-issue:
     needs: pick-runner
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     env:
       GH_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
       ISSUE_NUMBER: ${{ inputs.issue_number || github.event.inputs.issue_number }}

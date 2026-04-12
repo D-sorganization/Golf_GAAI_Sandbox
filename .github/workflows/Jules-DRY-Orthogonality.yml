@@ -36,7 +36,7 @@ jobs:
 
   # ── Dispatcher: route to self-hosted if available ──────────────────────────
   pick-runner:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 2
     outputs:
       runner: ${{ steps.check.outputs.runner }}
@@ -58,7 +58,7 @@ jobs:
           fi
   analyze:
     needs: pick-runner
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     outputs:
       violations_found: ${{ steps.analyze.outputs.violations_found }}
       summary: ${{ steps.analyze.outputs.summary }}
@@ -208,7 +208,7 @@ jobs:
   create-issues:
     needs: [pick-runner, analyze]
     if: needs.analyze.outputs.violations_found == 'true' && inputs.create_issues != false
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     strategy:
       matrix:
         category: [path, logging, imports, datetime, config, exceptions, env]
@@ -283,7 +283,7 @@ jobs:
   summary:
     needs: [pick-runner, analyze, create-issues]
     if: always()
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     steps:
       - name: Final Summary
         env:

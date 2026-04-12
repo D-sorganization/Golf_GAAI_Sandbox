@@ -38,7 +38,7 @@ jobs:
 
   # ── Dispatcher: route to self-hosted if available ──────────────────────────
   pick-runner:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 2
     outputs:
       runner: ${{ steps.check.outputs.runner }}
@@ -61,7 +61,7 @@ jobs:
   analyze-assessment-issues:
     needs: pick-runner
     name: Analyze Assessment Issues
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     if: hashFiles('.github/WORKFLOWS_PAUSED') == ''
     outputs:
       top_issues: ${{ steps.prioritize.outputs.top_issues }}
@@ -189,7 +189,7 @@ jobs:
   auto-fix-code-quality:
     name: Auto-Fix Code Quality Issues
     needs: [pick-runner, analyze-assessment-issues]
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     if: contains(needs.analyze-assessment-issues.outputs.code_quality_issues, '526') || github.event.inputs.focus_area == 'code-quality' || github.event.inputs.focus_area == 'all'
     steps:
       - name: Checkout
@@ -300,7 +300,7 @@ jobs:
   create-test-coverage-fix-pr:
     name: Create Test Coverage Improvement PR
     needs: [pick-runner, analyze-assessment-issues]
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     if: contains(needs.analyze-assessment-issues.outputs.test_issues, '520') || github.event.inputs.focus_area == 'testing' || github.event.inputs.focus_area == 'all'
     steps:
       - name: Checkout
@@ -415,7 +415,7 @@ jobs:
   create-documentation-pr:
     name: Create Documentation Improvements
     needs: [pick-runner, analyze-assessment-issues]
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     if: contains(needs.analyze-assessment-issues.outputs.doc_issues, '525') || github.event.inputs.focus_area == 'documentation' || github.event.inputs.focus_area == 'all'
     steps:
       - name: Checkout
@@ -631,7 +631,7 @@ jobs:
         create-test-coverage-fix-pr,
         create-documentation-pr,
       ]
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     if: always()
     steps:
       - name: Create summary

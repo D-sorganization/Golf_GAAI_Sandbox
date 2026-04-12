@@ -24,7 +24,7 @@ jobs:
 
   # ── Dispatcher: route to self-hosted if available ──────────────────────────
   pick-runner:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 2
     outputs:
       runner: ${{ steps.check.outputs.runner }}
@@ -47,7 +47,7 @@ jobs:
   prioritize-issues:
     needs: pick-runner
     name: Prioritize Issues for Remediation
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     outputs:
       issue_list: ${{ steps.prioritize.outputs.issues }}
     steps:
@@ -133,7 +133,7 @@ jobs:
   fix-ruff-violations:
     name: Auto-Fix Ruff Violations
     needs: [pick-runner, prioritize-issues]
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     if: contains(needs.prioritize-issues.outputs.issue_list, '526') || contains(github.event.inputs.issue_numbers, '526')
     steps:
       - name: Checkout repository
@@ -233,7 +233,7 @@ jobs:
   add-security-headers:
     name: Add API Security Headers
     needs: [pick-runner, prioritize-issues]
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     if: contains(needs.prioritize-issues.outputs.issue_list, '521') || contains(github.event.inputs.issue_numbers, '521')
     steps:
       - name: Checkout repository
@@ -344,7 +344,7 @@ jobs:
   generate-api-documentation:
     name: Auto-Generate API Documentation
     needs: [pick-runner, prioritize-issues]
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     if: contains(needs.prioritize-issues.outputs.issue_list, '525') || contains(github.event.inputs.issue_numbers, '525')
     steps:
       - name: Checkout repository
@@ -443,7 +443,7 @@ jobs:
         add-security-headers,
         generate-api-documentation,
       ]
-    runs-on: ${{ needs.pick-runner.outputs.runner }}
+    runs-on: self-hosted
     if: always()
     steps:
       - name: Generate summary
