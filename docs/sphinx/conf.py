@@ -38,3 +38,8 @@ autodoc_mock_imports = [
     "matplotlib",
     "scipy",
 ]
+
+# -- Custom JavaScript files -------------------------------------------------
+html_js_files = [
+    "https://code.jquery.com/jquery-3.7.1.min.js",
+]
