@@ -391,6 +391,9 @@ class OpenSimPhysicsEngine(PhysicsEngine):
         Returns:
             Tuple of (jacp, jacr) each shaped (3, nv).
         """
+        assert self._model is not None  # guaranteed by caller guard
+        assert self._state is not None  # guaranteed by caller guard
+
         jacp = np.zeros((3, nv))
         jacr = np.zeros((3, nv))
 
@@ -428,6 +431,9 @@ class OpenSimPhysicsEngine(PhysicsEngine):
 
     def _restore_q(self, q_orig: np.ndarray, nq: int) -> None:
         """Restore original generalized coordinates on the internal state."""
+        assert self._model is not None  # guaranteed by caller guard
+        assert self._state is not None  # guaranteed by caller guard
+
         for i in range(nq):
             self._state.updQ()[i] = q_orig[i]
         self._model.realizePosition(self._state)
