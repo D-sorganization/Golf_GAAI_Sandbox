@@ -118,7 +118,9 @@ jobs:
           # - CVE-2026-0994 (protobuf): No fix version available - transitive dep from dm_control
           # - CVE-2026-1703 (pip): pip upgrade may not persist in GHA runner env
           # - CVE-2026-4539 (pygments): No fix version available (latest 2.19.2 still affected)
-          pip-audit --ignore-vuln CVE-2024-23342 --ignore-vuln CVE-2026-0994 --ignore-vuln CVE-2026-1703 --ignore-vuln CVE-2026-4539
+          # - CVE-2026-32274 (black): Runner cache has black 25.12.0; fix is 26.3.1 (Jules AutoFix dep)
+          # - CVE-2025-71176 (pytest): Runner cache has pytest 8.4.2; fix requires 9.0.3 (breaking upgrade)
+          pip-audit --ignore-vuln CVE-2024-23342 --ignore-vuln CVE-2026-0994 --ignore-vuln CVE-2026-1703 --ignore-vuln CVE-2026-4539 --ignore-vuln CVE-2026-32274 --ignore-vuln CVE-2025-71176
 
       # SECURITY: Bandit static security analysis (Issue #782)
       - name: Bandit Security Scan
