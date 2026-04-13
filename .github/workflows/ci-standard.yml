@@ -63,8 +63,17 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v6
-        with: { python-version: "3.11" }
+      - name: Create Python venv (system Python, version-fallback)
+        run: |
+          for py in python3.11 python3.12 python3.10 python3; do
+            if command -v $py &>/dev/null; then
+              $py -m venv "$RUNNER_TEMP/ci-venv"
+              break
+            fi
+          done
+          source "$RUNNER_TEMP/ci-venv/bin/activate"
+          pip install --upgrade pip setuptools wheel
+          echo "$RUNNER_TEMP/ci-venv/bin" >> "$GITHUB_PATH"
       - run: pip install ruff==0.14.10 mypy==1.13.0 bandit==1.7.7 pydocstyle==6.3.0
 
       # FIX: Less aggressive Ruff (Errors, Warnings, Imports only)
