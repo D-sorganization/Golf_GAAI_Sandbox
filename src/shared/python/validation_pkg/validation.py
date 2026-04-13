@@ -227,13 +227,78 @@ def validate_friction_coefficient(mu: float, param_name: str = "friction") -> No
         )
 
 
+def _validate_param(param_name: str, param_value: Any) -> None:
+    """Apply all physical validation rules to a single named parameter.
+
+    Checks mass, timestep, inertia, and friction constraints by name convention.
+
+    Args:
+        param_name: Name of the parameter.
+        param_value: Value to validate.
+    """
+    if not (param_name is not None):
+        raise ValueError("param_name must be provided")
+    if param_name in ("self", "cls"):
+        return
+
+    if "mass" in param_name.lower() and isinstance(param_value, int | float):
+        validate_mass(float(param_value), param_name)
+
+    if param_name in ("dt", "timestep") and isinstance(param_value, int | float):
+        validate_timestep(float(param_value))
+
+    if (
+        "inertia" in param_name.lower()
+        and isinstance(param_value, np.ndarray)
+        and param_value.shape == (3, 3)
+    ):
+        validate_inertia_matrix(param_value, param_name)
+
+    if "friction" in param_name.lower() and isinstance(param_value, int | float):
+        validate_friction_coefficient(float(param_value), param_name)
+
+
+def _collect_and_validate_params(
+    sig: Any,
+    bound_args: Any,
+) -> None:
+    """Validate individual params and joint-limit pairs from bound arguments.
+
+    Args:
+        sig: The :class:`inspect.Signature` of the wrapped function.
+        bound_args: The :class:`inspect.BoundArguments` for the call.
+    """
+    import inspect
+
+    all_params: dict[str, Any] = {}
+    for param_name, param_value in bound_args.arguments.items():
+        param_obj = sig.parameters.get(param_name)
+        is_var_kw = (
+            param_obj is not None
+            and param_obj.kind == inspect.Parameter.VAR_KEYWORD
+            and isinstance(param_value, dict)
+        )
+        if is_var_kw:
+            for kw_name, kw_value in param_value.items():
+                _validate_param(kw_name, kw_value)
+            all_params.update(param_value)
+        else:
+            _validate_param(param_name, param_value)
+            all_params[param_name] = param_value
+
+    if "q_min" in all_params and "q_max" in all_params:
+        q_min, q_max = all_params["q_min"], all_params["q_max"]
+        if isinstance(q_min, np.ndarray) and isinstance(q_max, np.ndarray):
+            validate_joint_limits(q_min, q_max)
+
+
 def validate_physical_bounds(func: F) -> F:
     """Decorator to validate physical parameters at API boundaries.
 
     Automatically validates common physics parameters based on naming conventions:
     - 'mass' or '*_mass': Must be > 0
     - 'dt' or 'timestep': Must be > 0
-    - 'inertia' or '*_inertia': Must be symmetric positive definite (3×3)
+    - 'inertia' or '*_inertia': Must be symmetric positive definite (3x3)
     - 'q_min', 'q_max': Must satisfy q_min < q_max
     - 'friction' or '*_friction': Must be >= 0
 
@@ -259,71 +324,7 @@ def validate_physical_bounds(func: F) -> F:
         sig = inspect.signature(func)
         bound_args = sig.bind(*args, **kwargs)
         bound_args.apply_defaults()
-
-        def _validate_param(param_name: str, param_value: Any) -> None:
-            """Apply all physical validation rules to a single named parameter."""
-            if not (param_name is not None):
-                raise ValueError("param_name must be provided")
-            if param_name in ("self", "cls"):
-                return
-
-            # Mass validation
-            if "mass" in param_name.lower() and isinstance(param_value, int | float):
-                validate_mass(float(param_value), param_name)
-
-            # Timestep validation
-            if param_name in ("dt", "timestep") and isinstance(
-                param_value, int | float
-            ):
-                validate_timestep(float(param_value))
-
-            # Inertia validation
-            if (
-                "inertia" in param_name.lower()
-                and isinstance(param_value, np.ndarray)
-                and param_value.shape == (3, 3)
-            ):
-                validate_inertia_matrix(param_value, param_name)
-
-            # Friction validation
-            if "friction" in param_name.lower() and isinstance(
-                param_value, int | float
-            ):
-                validate_friction_coefficient(float(param_value), param_name)
-
-        # Validate parameters by name — normal and **kwargs parameters
-        for param_name, param_value in bound_args.arguments.items():
-            # Detect VAR_KEYWORD parameters (i.e. **kwargs in the function signature)
-            # For these, param_value is a dict — iterate its contents too.
-            param_obj = sig.parameters.get(param_name)
-            if (
-                param_obj is not None
-                and param_obj.kind == inspect.Parameter.VAR_KEYWORD
-                and isinstance(param_value, dict)
-            ):
-                for kw_name, kw_value in param_value.items():
-                    _validate_param(kw_name, kw_value)
-            else:
-                _validate_param(param_name, param_value)
-
-        # Joint limits validation (needs both q_min and q_max together)
-        all_params: dict[str, Any] = {}
-        for param_name, param_value in bound_args.arguments.items():
-            param_obj = sig.parameters.get(param_name)
-            if (
-                param_obj is not None
-                and param_obj.kind == inspect.Parameter.VAR_KEYWORD
-                and isinstance(param_value, dict)
-            ):
-                all_params.update(param_value)
-            else:
-                all_params[param_name] = param_value
-
-        if "q_min" in all_params and "q_max" in all_params:
-            q_min, q_max = all_params["q_min"], all_params["q_max"]
-            if isinstance(q_min, np.ndarray) and isinstance(q_max, np.ndarray):
-                validate_joint_limits(q_min, q_max)
-
+        _collect_and_validate_params(sig, bound_args)
         return func(*args, **kwargs)
 
     return wrapper  # type: ignore

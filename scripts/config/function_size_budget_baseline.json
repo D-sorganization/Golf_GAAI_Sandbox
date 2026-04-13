@@ -1159,5 +1159,12 @@
   "src/unreal_integration/visualization.py:170:_render_arrow": 57,
   "src/unreal_integration/visualization.py:228:_render_torque": 57,
   "src/unreal_integration/visualization.py:306:render": 59,
-  "src/unreal_integration/visualization.py:433:_build_hud_panels": 54
+  "src/unreal_integration/visualization.py:433:_build_hud_panels": 54,
+  "src/launchers/assets/generate_tile_images.py:156:_get_letter_patterns": 90,
+  "src/engines/physics_engines/opensim/python/opensim_physics_engine.py:376:_jacobian_finite_diff": 55,
+  "src/engines/physics_engines/opensim/python/opensim_physics_engine.py:441:_rotation_difference": 54,
+  "src/engines/physics_engines/mujoco/python/mujoco_humanoid_golf/sim_rendering_mixin.py:254:_overlay_screw": 53,
+  "src/engines/physics_engines/mujoco/python/mujoco_humanoid_golf/sim_rendering_mixin.py:520:_add_manipulation_overlays": 61,
+  "src/engines/physics_engines/mujoco/python/mujoco_humanoid_golf/sim_rendering_mixin.py:627:_add_swing_plane_overlays": 52,
+  "src/engines/physics_engines/mujoco/python/mujoco_humanoid_golf/sim_rendering_mixin.py:680:_add_frame_and_com_overlays": 60
 }

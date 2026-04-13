@@ -165,7 +165,7 @@ class SimRenderingMixin:
         selected_id = (
             getattr(self.manipulator, "selected_body_id", None)
             if self.manipulator
-            else None  # noqa: E501
+            else None
         )
         if selected_id is None or selected_id < 0:
             return rgb
@@ -184,84 +184,126 @@ class SimRenderingMixin:
         y_offset = 30
 
         if getattr(self, "show_live_euler", False):
-            # Convert rotation matrix to xyz euler
-            sy = np.sqrt(mat[0, 0] * mat[0, 0] + mat[1, 0] * mat[1, 0])
-            singular = sy < 1e-6
-            if not singular:
-                x_e = np.arctan2(mat[2, 1], mat[2, 2])
-                y_e = np.arctan2(-mat[2, 0], sy)
-                z_e = np.arctan2(mat[1, 0], mat[0, 0])
-            else:
-                x_e = np.arctan2(-mat[1, 2], mat[1, 1])
-                y_e = np.arctan2(-mat[2, 0], sy)
-                z_e = 0
-            msg = (
-                f"Euler (xyz): [{np.rad2deg(x_e):.1f}, "
-                f"{np.rad2deg(y_e):.1f}, {np.rad2deg(z_e):.1f}] deg"
-            )
-            cv2.putText(
-                img,
-                msg,
-                (x + 10, y + y_offset),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.4,
-                (0, 255, 255),
-                1,
-            )
-            y_offset += 15
-
+            y_offset = self._overlay_euler(cv2, img, mat, x, y, y_offset)
         if getattr(self, "show_live_quat", False):
-            msg = (
-                f"Quat (w,x,y,z): [{quat[0]:.2f}, "
-                f"{quat[1]:.2f}, {quat[2]:.2f}, {quat[3]:.2f}]"  # noqa: E501
-            )
+            y_offset = self._overlay_quat(cv2, img, quat, x, y, y_offset)
+        if getattr(self, "show_live_screw", False):
+            self._overlay_screw(cv2, img, mat, pos, body_id, x, y, y_offset)
+        return img
+
+    def _overlay_euler(
+        self: Any,
+        cv2: Any,
+        img: np.ndarray,
+        mat: np.ndarray,
+        x: int,
+        y: int,
+        y_offset: int,
+    ) -> int:
+        """Render Euler angle text overlay and return the updated y_offset."""
+        sy = np.sqrt(mat[0, 0] * mat[0, 0] + mat[1, 0] * mat[1, 0])
+        singular = sy < 1e-6
+        if not singular:
+            x_e = np.arctan2(mat[2, 1], mat[2, 2])
+            y_e = np.arctan2(-mat[2, 0], sy)
+            z_e = np.arctan2(mat[1, 0], mat[0, 0])
+        else:
+            x_e = np.arctan2(-mat[1, 2], mat[1, 1])
+            y_e = np.arctan2(-mat[2, 0], sy)
+            z_e = 0
+        msg = (
+            f"Euler (xyz): [{np.rad2deg(x_e):.1f}, "
+            f"{np.rad2deg(y_e):.1f}, {np.rad2deg(z_e):.1f}] deg"
+        )
+        cv2.putText(
+            img,
+            msg,
+            (x + 10, y + y_offset),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.4,
+            (0, 255, 255),
+            1,
+        )
+        return y_offset + 15
+
+    def _overlay_quat(
+        self: Any,
+        cv2: Any,
+        img: np.ndarray,
+        quat: np.ndarray,
+        x: int,
+        y: int,
+        y_offset: int,
+    ) -> int:
+        """Render quaternion text overlay and return the updated y_offset."""
+        msg = (
+            f"Quat (w,x,y,z): [{quat[0]:.2f}, "
+            f"{quat[1]:.2f}, {quat[2]:.2f}, {quat[3]:.2f}]"
+        )
+        cv2.putText(
+            img,
+            msg,
+            (x + 10, y + y_offset),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.4,
+            (255, 255, 0),
+            1,
+        )
+        return y_offset + 15
+
+    def _overlay_screw(
+        self: Any,
+        cv2: Any,
+        img: np.ndarray,
+        mat: np.ndarray,
+        pos: np.ndarray,
+        body_id: int,
+        x: int,
+        y: int,
+        y_offset: int,
+    ) -> None:
+        """Render screw-axis arrow and angle text overlay."""
+        T2 = np.eye(4)
+        T2[:3, :3] = mat
+        T2[:3, 3] = pos
+        prev_T = self._prev_body_ts.get(body_id)
+        self._prev_body_ts[body_id] = T2
+
+        if prev_T is None:
+            return
+
+        R_rel = prev_T[:3, :3].T @ T2[:3, :3]
+        tr = np.trace(R_rel)
+        theta = np.arccos(np.clip((tr - 1) / 2.0, -1.0, 1.0))
+        if abs(theta) > 1e-6:
+            axis = np.array(
+                [
+                    R_rel[2, 1] - R_rel[1, 2],
+                    R_rel[0, 2] - R_rel[2, 0],
+                    R_rel[1, 0] - R_rel[0, 1],
+                ]
+            ) / (2 * np.sin(theta))
+            world_axis = prev_T[:3, :3] @ axis
+            vec_end = pos + world_axis * 0.5
+            end_px = self._world_to_screen(vec_end)
+            if end_px:
+                cv2.arrowedLine(
+                    img,
+                    (x, y),
+                    end_px,
+                    (255, 0, 255),
+                    2,
+                    tipLength=0.2,
+                )
             cv2.putText(
                 img,
-                msg,
+                f"Screw Angle: {np.rad2deg(theta):.2f} deg",
                 (x + 10, y + y_offset),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.4,
-                (255, 255, 0),
+                (255, 0, 255),
                 1,
             )
-            y_offset += 15
-
-        if getattr(self, "show_live_screw", False):
-            T2 = np.eye(4)
-            T2[:3, :3] = mat
-            T2[:3, 3] = pos
-            prev_T = self._prev_body_ts.get(body_id)
-            self._prev_body_ts[body_id] = T2
-
-            if prev_T is not None:
-                R_rel = prev_T[:3, :3].T @ T2[:3, :3]
-                tr = np.trace(R_rel)
-                theta = np.arccos(np.clip((tr - 1) / 2.0, -1.0, 1.0))
-                if abs(theta) > 1e-6:
-                    axis = np.array(
-                        [
-                            R_rel[2, 1] - R_rel[1, 2],
-                            R_rel[0, 2] - R_rel[2, 0],
-                            R_rel[1, 0] - R_rel[0, 1],
-                        ]
-                    ) / (2 * np.sin(theta))
-                    world_axis = prev_T[:3, :3] @ axis
-                    vec_end = pos + world_axis * 0.5
-                    end_px = self._world_to_screen(vec_end)
-                    if end_px:
-                        cv2.arrowedLine(
-                            img, (x, y), end_px, (255, 0, 255), 2, tipLength=0.2
-                        )  # noqa: E501
-                    cv2.putText(
-                        img,
-                        f"Screw Angle: {np.rad2deg(theta):.2f} deg",
-                        (x + 10, y + y_offset),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.4,
-                        (255, 0, 255),
-                        1,
-                    )
-        return img
 
     def _update_background_colors(self: Any) -> None:
         if self.scene is not None:

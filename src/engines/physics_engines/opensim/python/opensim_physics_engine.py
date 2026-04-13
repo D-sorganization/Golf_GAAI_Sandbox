@@ -339,9 +339,9 @@ class OpenSimPhysicsEngine(PhysicsEngine):
 
         Returns:
             Dictionary with:
-            - 'linear': Position Jacobian (3 × nv) [m/rad or m/m]
-            - 'angular': Rotation Jacobian (3 × nv) [rad/rad or rad/m]
-            - 'spatial': Combined [angular; linear] (6 × nv)
+            - 'linear': Position Jacobian (3 x nv) [m/rad or m/m]
+            - 'angular': Rotation Jacobian (3 x nv) [rad/rad or rad/m]
+            - 'spatial': Combined [angular; linear] (6 x nv)
         """
         if not (body_name is not None):
             raise ValueError("body_name must be provided")
@@ -349,90 +349,94 @@ class OpenSimPhysicsEngine(PhysicsEngine):
             return None
 
         try:
-            # Get the body
             body_set = self._model.getBodySet()
             body = body_set.get(body_name)
-
-            # Realize to position stage
             self._model.realizePosition(self._state)
 
-            # Number of generalized coordinates (nq for positions, nv for velocities)
             nq = self._state.getNQ()
             nv = self._state.getNU()
 
-            # Build Jacobian using finite differences (OpenSim doesn't expose
-            # direct Jacobian computation as easily as MuJoCo)
-            # For each generalized coordinate, compute d(body_position)/dq
-            jacp = np.zeros((3, nv))
-            jacr = np.zeros((3, nv))
-
-            # Get current body transform
-            transform = body.getTransformInGround(self._state)
-            pos_0 = np.array([transform.p()[0], transform.p()[1], transform.p()[2]])
-
-            # Extract rotation as axis-angle for numerical differentiation
-            rotation_0 = transform.R()
-
-            # Finite difference perturbation: use sqrt(machine epsilon) for double
-            # precision to balance truncation and round-off errors for first-order
-            # finite differences. See Nocedal & Wright, Numerical Optimization, Ch 8.
-            eps = np.sqrt(np.finfo(float).eps)  # ~1.49e-8 for float64
-
-            # Store original state
             q_orig = np.zeros(nq)
             for i in range(nq):
                 q_orig[i] = self._state.getQ()[i]
 
-            for i in range(nv):
-                # Perturb coordinate i
-                q_pert = q_orig.copy()
-                # Scale the finite-difference step so large-angle states do not
-                # collapse to machine-noise perturbations.
-                local_eps = eps * max(1.0, abs(q_orig[i]))
-                q_pert[i] += local_eps
+            jacp, jacr = self._jacobian_finite_diff(body, nq, nv, q_orig)
 
-                # Set perturbed state
-                for j in range(nq):
-                    self._state.updQ()[j] = q_pert[j]
-                self._model.realizePosition(self._state)
-
-                # Get perturbed transform
-                transform_pert = body.getTransformInGround(self._state)
-                pos_pert = np.array(
-                    [
-                        transform_pert.p()[0],
-                        transform_pert.p()[1],
-                        transform_pert.p()[2],
-                    ]
-                )
-
-                # Position Jacobian column
-                jacp[:, i] = (pos_pert - pos_0) / local_eps
-
-                # Angular Jacobian (using rotation matrix difference)
-                rotation_pert = transform_pert.R()
-
-                # Compute angular velocity from rotation difference
-                # R_pert = R_0 * exp([w] * local_eps) => [w] ≈ logm(R_0^T * R_pert) / local_eps
-                # Simplified: use axis-angle representation difference
-                jacr[:, i] = (
-                    self._rotation_difference(rotation_0, rotation_pert) / local_eps
-                )
-
-            # Restore original state
-            for i in range(nq):
-                self._state.updQ()[i] = q_orig[i]
-            self._model.realizePosition(self._state)
+            self._restore_q(q_orig, nq)
 
             return {
                 "linear": jacp,
                 "angular": jacr,
-                "spatial": np.vstack([jacr, jacp]),  # [Angular; Linear] convention
+                "spatial": np.vstack([jacr, jacp]),
             }
-
         except ImportError as e:
             logger.error(f"Failed to compute Jacobian for '{body_name}': {e}")
             return None
+
+    def _jacobian_finite_diff(
+        self,
+        body: Any,
+        nq: int,
+        nv: int,
+        q_orig: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Compute position and rotation Jacobians via finite differences.
+
+        Args:
+            body: OpenSim body object.
+            nq: Number of generalized coordinates.
+            nv: Number of generalized speeds.
+            q_orig: Original coordinate values (nq,).
+
+        Returns:
+            Tuple of (jacp, jacr) each shaped (3, nv).
+        """
+        assert self._model is not None  # guaranteed by caller guard
+        assert self._state is not None  # guaranteed by caller guard
+
+        jacp = np.zeros((3, nv))
+        jacr = np.zeros((3, nv))
+
+        transform = body.getTransformInGround(self._state)
+        pos_0 = np.array([transform.p()[0], transform.p()[1], transform.p()[2]])
+        rotation_0 = transform.R()
+
+        eps = np.sqrt(np.finfo(float).eps)
+
+        for i in range(nv):
+            q_pert = q_orig.copy()
+            local_eps = eps * max(1.0, abs(q_orig[i]))
+            q_pert[i] += local_eps
+
+            for j in range(nq):
+                self._state.updQ()[j] = q_pert[j]
+            self._model.realizePosition(self._state)
+
+            transform_pert = body.getTransformInGround(self._state)
+            pos_pert = np.array(
+                [
+                    transform_pert.p()[0],
+                    transform_pert.p()[1],
+                    transform_pert.p()[2],
+                ]
+            )
+            jacp[:, i] = (pos_pert - pos_0) / local_eps
+
+            rotation_pert = transform_pert.R()
+            jacr[:, i] = (
+                self._rotation_difference(rotation_0, rotation_pert) / local_eps
+            )
+
+        return jacp, jacr
+
+    def _restore_q(self, q_orig: np.ndarray, nq: int) -> None:
+        """Restore original generalized coordinates on the internal state."""
+        assert self._model is not None  # guaranteed by caller guard
+        assert self._state is not None  # guaranteed by caller guard
+
+        for i in range(nq):
+            self._state.updQ()[i] = q_orig[i]
+        self._model.realizePosition(self._state)
 
     def _rotation_difference(self, R0: Any, R1: Any) -> np.ndarray:
         """Compute rotation difference as angular velocity vector.
