@@ -35,7 +35,7 @@ jobs:
 
   # ── Dispatcher: route to self-hosted if available ──────────────────────────
   pick-runner:
-    runs-on: ubuntu-latest
+    runs-on: d-sorg-fleet
     timeout-minutes: 2
     outputs:
       runner: ${{ steps.check.outputs.runner }}
@@ -63,8 +63,17 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v6
-        with: { python-version: "3.11" }
+      - name: Create Python venv (system Python, version-fallback)
+        run: |
+          for py in python3.11 python3.12 python3.10 python3; do
+            if command -v $py &>/dev/null; then
+              $py -m venv "$RUNNER_TEMP/ci-venv"
+              break
+            fi
+          done
+          source "$RUNNER_TEMP/ci-venv/bin/activate"
+          pip install --upgrade pip setuptools wheel
+          echo "$RUNNER_TEMP/ci-venv/bin" >> "$GITHUB_PATH"
       - run: pip install ruff==0.14.10 mypy==1.13.0 bandit==1.7.7 pydocstyle==6.3.0
 
       # FIX: Less aggressive Ruff (Errors, Warnings, Imports only)
@@ -118,7 +127,9 @@ jobs:
           # - CVE-2026-0994 (protobuf): No fix version available - transitive dep from dm_control
           # - CVE-2026-1703 (pip): pip upgrade may not persist in GHA runner env
           # - CVE-2026-4539 (pygments): No fix version available (latest 2.19.2 still affected)
-          pip-audit --ignore-vuln CVE-2024-23342 --ignore-vuln CVE-2026-0994 --ignore-vuln CVE-2026-1703 --ignore-vuln CVE-2026-4539
+          # - CVE-2026-32274 (black): Runner cache has black 25.12.0; fix is 26.3.1 (Jules AutoFix dep)
+          # - CVE-2025-71176 (pytest): Runner cache has pytest 8.4.2; fix requires 9.0.3 (breaking upgrade)
+          pip-audit --ignore-vuln CVE-2024-23342 --ignore-vuln CVE-2026-0994 --ignore-vuln CVE-2026-1703 --ignore-vuln CVE-2026-4539 --ignore-vuln CVE-2026-32274 --ignore-vuln CVE-2025-71176
 
       # SECURITY: Bandit static security analysis (Issue #782)
       - name: Bandit Security Scan
