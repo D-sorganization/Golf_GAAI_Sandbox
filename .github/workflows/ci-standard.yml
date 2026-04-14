@@ -5,13 +5,19 @@ on:
     paths-ignore:
       - "LICENSE"
       - ".gitignore"
-      - ".github/**"
+      # .github/** is NOT ignored so CI-fix PRs can satisfy required checks
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/PULL_REQUEST_TEMPLATE/**"
+      - ".github/FUNDING.yml"
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     paths-ignore:
       - "LICENSE"
       - ".gitignore"
-      - ".github/**"
+      # .github/** is NOT ignored so CI-fix PRs can satisfy required checks
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/PULL_REQUEST_TEMPLATE/**"
+      - ".github/FUNDING.yml"
   workflow_dispatch:
   schedule:
     # Weekly run every Monday at 06:00 UTC — catches test drift and
@@ -149,10 +155,17 @@ jobs:
         python: ["3.11"]
     steps:
       - uses: actions/checkout@v6
+      - name: Reject Raw Merge Conflict Markers
+        run: |
+          if grep -rne '<<<<<<< HEAD' . --exclude-dir=.git --exclude-dir=.github; then
+            echo "::error::Raw git merge conflict markers found!"
+            exit 1
+          fi
+
       - name: Install System Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get -o DPkg::Lock::Timeout=300 update
+          sudo apt-get -o DPkg::Lock::Timeout=300 install -y \
             libegl1 libgl1 xvfb \
             libxkbcommon-x11-0 \
             libxcb-cursor0 \
@@ -254,10 +267,17 @@ jobs:
           path: _tools_dep
       - name: Symlink Tools for Workspace
         run: bash "$GITHUB_WORKSPACE/scripts/setup_tools_workspace.sh"
+      - name: Reject Raw Merge Conflict Markers
+        run: |
+          if grep -rne '<<<<<<< HEAD' . --exclude-dir=.git --exclude-dir=.github; then
+            echo "::error::Raw git merge conflict markers found!"
+            exit 1
+          fi
+
       - name: Install System Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get -o DPkg::Lock::Timeout=300 update
+          sudo apt-get -o DPkg::Lock::Timeout=300 install -y \
             libegl1 libgl1 xvfb \
             libxkbcommon-x11-0 \
             libxcb-cursor0 \
