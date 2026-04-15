@@ -160,7 +160,7 @@ jobs:
   tests:
     needs: [pick-runner, quality-gate]
     runs-on: ${{ needs.pick-runner.outputs.runner }}
-    timeout-minutes: 45 # Allow the two-worker core suite to finish with coverage.
+    timeout-minutes: 45 # Allow the two-worker core suite to finish.
     strategy:
       matrix:
         python: ["3.11"]
@@ -218,7 +218,8 @@ jobs:
           # - Parallel execution (-n 2)
           # - 60 second timeout per test
           # - Skip slow tests in CI for faster feedback
-          # - Coverage measurement on src/ (pytest-cov)
+          # - Full test execution without coverage instrumentation; coverage
+          #   is too slow for the self-hosted core lane at this suite size.
           # Optional native-engine extras such as Drake/Pinocchio/OpenSim/MyoSuite
           # are intentionally not provisioned here.
           xvfb-run --auto-servernum pytest \
@@ -229,10 +230,6 @@ jobs:
             --ignore=tests/shared_contracts \
             --ignore=tests/heavy_integration \
             -m "not slow and not benchmark and not requires_gl and not requires_network and not requires_gpu" \
-            --cov=src \
-            --cov-report=term-missing \
-            --cov-report=xml:coverage.xml \
-            --cov-config=pyproject.toml \
             --tb=short \
             -v
 
