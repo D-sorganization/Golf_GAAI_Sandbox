@@ -210,14 +210,9 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: |
           export COVERAGE_FILE="$RUNNER_TEMP/.coverage"
-          PYTEST_XDIST_ARGS="-n 4"
-          if [ "${{ needs.pick-runner.outputs.runner }}" = "ubuntu-latest" ]; then
-            # Hosted fallback has been dropping xdist workers; use a smaller fan-out there.
-            PYTEST_XDIST_ARGS="-n 2"
-          fi
 
           # Run the default, dependency-light CI lane:
-          # - Bounded parallel execution for runner stability
+          # - Serial execution for runner and coverage stability
           # - 60 second timeout per test
           # - Skip slow tests in CI for faster feedback
           # - Coverage measurement on src/ (pytest-cov)
@@ -226,7 +221,7 @@ jobs:
           xvfb-run --auto-servernum pytest \
             -p no:xvfb \
             -p no:pytest_xvfb \
-            $PYTEST_XDIST_ARGS \
+            -n 0 \
             --timeout=60 \
             --timeout-method=thread \
             --ignore=tests/shared_contracts \
