@@ -275,7 +275,7 @@ def _export_to_c3d_ezc3d(
     data: C3DExportData,
 ) -> bool:
     """Export using ezc3d library."""
-    if not (output_path is not None):
+    if output_path is None:
         raise ValueError("output_path must be provided")
     import ezc3d
 
@@ -327,7 +327,7 @@ def _export_to_c3d_py(
     data: C3DExportData,
 ) -> bool:
     """Export using c3d library (fallback)."""
-    if not (output_path is not None):
+    if output_path is None:
         raise ValueError("output_path must be provided")
     import c3d
 
@@ -361,7 +361,7 @@ def _export_json(output_path: Path, data_dict: dict[str, Any]) -> bool:
 
     Converts numpy arrays to lists for JSON serialization.
     """
-    if not (output_path is not None):
+    if output_path is None:
         raise ValueError("output_path must be provided")
     import json
 
@@ -425,7 +425,7 @@ def _flatten_dict_for_csv(data_dict: dict[str, Any]) -> dict[str, Any]:
 
 def _export_csv(output_path: Path, data_dict: dict[str, Any]) -> bool:
     """Export data dictionary to CSV format."""
-    if not (output_path is not None):
+    if output_path is None:
         raise ValueError("output_path must be provided")
     import pandas as pd
 

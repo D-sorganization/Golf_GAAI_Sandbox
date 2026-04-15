@@ -111,7 +111,7 @@ class ContractViolationError(AssertionError, ValueError):
         message: str,
         value: Any = None,
     ) -> None:
-        if not (condition_type is not None):
+        if condition_type is None:
             raise ValueError("condition_type must be provided")
         self.condition_type = condition_type
         self.message = message
@@ -126,7 +126,7 @@ class PreconditionError(ContractViolationError):
     """Raised when a pre-condition is violated."""
 
     def __init__(self, message: str, value: Any = None) -> None:
-        if not (message is not None):
+        if message is None:
             raise ValueError("message must be provided")
         super().__init__("pre-condition", message, value)
 
@@ -135,7 +135,7 @@ class PostconditionError(ContractViolationError):
     """Raised when a post-condition is violated."""
 
     def __init__(self, message: str, value: Any = None) -> None:
-        if not (message is not None):
+        if message is None:
             raise ValueError("message must be provided")
         super().__init__("post-condition", message, value)
 
@@ -144,7 +144,7 @@ class InvariantError(ContractViolationError):
     """Raised when a class or loop invariant is violated."""
 
     def __init__(self, message: str, value: Any = None) -> None:
-        if not (message is not None):
+        if message is None:
             raise ValueError("message must be provided")
         super().__init__("invariant", message, value)
 
@@ -177,7 +177,7 @@ def _handle_violation(
 
 def require(condition: bool, message: str, value: Any = None) -> None:
     """Assert a pre-condition at function entry."""
-    if not (condition is not None):
+    if condition is None:
         raise ValueError("condition must be provided")
     if DBC_LEVEL == ContractLevel.OFF:
         return
@@ -187,7 +187,7 @@ def require(condition: bool, message: str, value: Any = None) -> None:
 
 def ensure(condition: bool, message: str, value: Any = None) -> None:
     """Assert a post-condition before function return."""
-    if not (condition is not None):
+    if condition is None:
         raise ValueError("condition must be provided")
     if DBC_LEVEL == ContractLevel.OFF:
         return
@@ -197,7 +197,7 @@ def ensure(condition: bool, message: str, value: Any = None) -> None:
 
 def invariant(condition: bool, message: str, value: Any = None) -> None:
     """Assert a class or loop invariant."""
-    if not (condition is not None):
+    if condition is None:
         raise ValueError("condition must be provided")
     if DBC_LEVEL == ContractLevel.OFF:
         return
@@ -222,7 +222,7 @@ def _evaluate_precondition(
     Falls back to positional call only when the condition accepts all args.
     """
     # Always try name-based binding first using the decorated function's sig
-    if not (condition is not None):
+    if condition is None:
         raise ValueError("condition must be provided")
     try:
         func_sig = inspect.signature(func)
@@ -259,7 +259,7 @@ def precondition(
     decorated function, or a subset matched by parameter name.
     """
 
-    if not (condition is not None):
+    if condition is None:
         raise ValueError("condition must be provided")
 
     def decorator(func: F) -> F:
@@ -293,7 +293,7 @@ def postcondition(
 ) -> Callable[[F], F]:
     """Decorator to enforce a postcondition on a function's return value."""
 
-    if not (condition is not None):
+    if condition is None:
         raise ValueError("condition must be provided")
 
     def decorator(func: F) -> F:
@@ -349,7 +349,7 @@ def contract(
             return x ** 0.5
     """
 
-    if not (pre_msg is not None):
+    if pre_msg is None:
         raise ValueError("pre_msg must be provided")
 
     def decorator(func: F) -> F:
@@ -402,7 +402,7 @@ def _wrap_method_with_invariant(
 ) -> Callable[..., Any]:
     """Wrap a single method to check the class invariant after execution."""
 
-    if not (orig_method is not None):
+    if orig_method is None:
         raise ValueError("orig_method must be provided")
 
     @functools.wraps(orig_method)
@@ -437,7 +437,7 @@ def class_invariant(
                 self.count -= 1
     """
 
-    if not (condition is not None):
+    if condition is None:
         raise ValueError("condition must be provided")
 
     def class_decorator(cls: type) -> type:

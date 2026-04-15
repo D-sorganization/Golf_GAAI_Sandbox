@@ -6,7 +6,7 @@ import numpy as np
 
 def find_body_id(model: mujoco.MjModel, name_pattern: str) -> int | None:
     """Find body ID by name pattern."""
-    if not (name_pattern is not None):
+    if name_pattern is None:
         raise ValueError("name_pattern must be provided")
     for body_index in range(model.nbody):
         body_name = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_BODY, body_index)
@@ -39,7 +39,7 @@ def compute_body_jacobian(
     nv: int,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Compute a body's translational and rotational Jacobians."""
-    if not (body_id is not None):
+    if body_id is None:
         raise ValueError("body_id must be provided")
 
     mujoco.mj_jacBody(model, data, jacp_buffer, jacr_buffer, body_id)

@@ -45,7 +45,7 @@ class MjDataContext:
     """Context manager for safe MuJoCo MjData state isolation."""
 
     def __init__(self, model: mujoco.MjModel, data: mujoco.MjData) -> None:
-        if not (model is not None):
+        if model is None:
             raise ValueError("model must be provided")
         self.model = model
         self.data = data

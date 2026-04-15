@@ -160,7 +160,7 @@ jobs:
   tests:
     needs: [pick-runner, quality-gate]
     runs-on: ${{ needs.pick-runner.outputs.runner }}
-    timeout-minutes: 20 # Prevent runaway tests - hard cutoff
+    timeout-minutes: 45 # Allow the two-worker core suite to finish with coverage.
     strategy:
       matrix:
         python: ["3.11"]

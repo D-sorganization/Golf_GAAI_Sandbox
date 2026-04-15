@@ -67,7 +67,7 @@ class Origin:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Origin:
         """Create from dictionary."""
-        if not (data is not None):
+        if data is None:
             raise ValueError("data must be provided")
         xyz = data.get("xyz", (0.0, 0.0, 0.0))
         rpy = data.get("rpy", (0.0, 0.0, 0.0))
@@ -245,7 +245,7 @@ class Inertia:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Inertia:
         """Create from dictionary."""
-        if not (data is not None):
+        if data is None:
             raise ValueError("data must be provided")
         return cls(
             ixx=data.get("ixx", 0.1),
@@ -332,7 +332,7 @@ class Material:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Material:
         """Create from dictionary."""
-        if not (data is not None):
+        if data is None:
             raise ValueError("data must be provided")
         color = data.get("color", (0.8, 0.8, 0.8, 1.0))
         if isinstance(color, list):
@@ -352,7 +352,7 @@ class Material:
 
     def to_urdf_string(self, inline: bool = False) -> str:
         """Generate URDF material element string."""
-        if not (inline is not None):
+        if inline is None:
             raise ValueError("inline must be provided")
         rgba_str = " ".join(f"{v:.4g}" for v in self.color)
         if inline:
@@ -432,7 +432,7 @@ class Geometry:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Geometry:
         """Create from dictionary."""
-        if not (data is not None):
+        if data is None:
             raise ValueError("data must be provided")
         geom_type = GeometryType(data.get("type", "box"))
         dims = data.get("dimensions", ())
@@ -499,7 +499,7 @@ class JointLimits:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> JointLimits:
         """Create from dictionary."""
-        if not (data is not None):
+        if data is None:
             raise ValueError("data must be provided")
         return cls(
             lower=data.get("lower", -math.pi),
@@ -535,7 +535,7 @@ class JointDynamics:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> JointDynamics:
         """Create from dictionary."""
-        if not (data is not None):
+        if data is None:
             raise ValueError("data must be provided")
         return cls(
             damping=data.get("damping", 0.5),
@@ -573,7 +573,7 @@ class Link:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Link:
         """Create from dictionary."""
-        if not (data is not None):
+        if data is None:
             raise ValueError("data must be provided")
         inertia_data = data.get("inertia", {})
         if "mass" not in inertia_data:
@@ -650,7 +650,7 @@ class Joint:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Joint:
         """Create from dictionary."""
-        if not (data is not None):
+        if data is None:
             raise ValueError("data must be provided")
         joint_type = JointType(data.get("type", "revolute"))
         axis = data.get("axis", (0.0, 0.0, 1.0))

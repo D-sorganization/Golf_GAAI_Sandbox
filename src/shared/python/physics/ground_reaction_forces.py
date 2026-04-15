@@ -233,7 +233,7 @@ def compute_cop_from_grf(
         COP position [m] (3,)
     """
     # Avoid division by zero for small vertical forces
-    if not (force is not None):
+    if force is None:
         raise ValueError("force must be provided")
     min_vertical_force = 10.0  # [N] threshold
     fz = force[2]
@@ -301,7 +301,7 @@ class GRFAnalyzer:
             golfer_com: Golfer COM positions over time [m] (N, 3)
             system_com: Golfer+club system COM positions over time [m] (N, 3)
         """
-        if not (golfer_com is not None):
+        if golfer_com is None:
             raise ValueError("golfer_com must be provided")
         self.golfer_com_trajectory = golfer_com
         self.system_com_trajectory = (
@@ -454,7 +454,7 @@ def extract_grf_from_contacts(
     Returns:
         GroundReactionForce at current simulation time
     """
-    if not (engine is not None):
+    if engine is None:
         raise ValueError("engine must be provided")
     total_force = np.zeros(3)
     total_moment = np.zeros(3)
@@ -537,7 +537,7 @@ def validate_grf_cross_engine(
     Returns:
         Dictionary of validation results per metric
     """
-    if not (grf_a is not None):
+    if grf_a is None:
         raise ValueError("grf_a must be provided")
     results = {}
 

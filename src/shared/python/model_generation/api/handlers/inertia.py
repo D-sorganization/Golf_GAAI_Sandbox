@@ -74,7 +74,7 @@ class InertiaHandlersMixin:
 
     def calculate_inertia(self, request: APIRequest) -> APIResponse:
         """Calculate inertia for primitive shape."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.core.types import Inertia
 
@@ -107,7 +107,7 @@ class InertiaHandlersMixin:
 
     def inertia_from_mesh(self, request: APIRequest) -> APIResponse:
         """Calculate inertia from mesh file."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         body = request.body or {}
 

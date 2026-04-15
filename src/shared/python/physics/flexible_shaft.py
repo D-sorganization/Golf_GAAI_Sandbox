@@ -163,7 +163,7 @@ def compute_section_inertia(
     Returns:
         Second moment of area [m⁴]
     """
-    if not (outer_diameter is not None):
+    if outer_diameter is None:
         raise ValueError("outer_diameter must be provided")
     d_outer = outer_diameter
     d_inner = outer_diameter - 2 * wall_thickness
@@ -189,7 +189,7 @@ def compute_section_area(
     Returns:
         Cross-sectional area [m²]
     """
-    if not (outer_diameter is not None):
+    if outer_diameter is None:
         raise ValueError("outer_diameter must be provided")
     d_outer = outer_diameter
     d_inner = outer_diameter - 2 * wall_thickness
@@ -271,7 +271,7 @@ def create_standard_shaft(
         ShaftProperties with linear taper
     """
     # Linear station positions from tip to butt
-    if not (material is not None):
+    if material is None:
         raise ValueError("material must be provided")
     stations = np.linspace(0, length, n_stations)
 
@@ -338,7 +338,7 @@ class RigidShaftModel(ShaftModel):
 
     def initialize(self, properties: ShaftProperties) -> None:
         """Initialize with shaft properties."""
-        if not (properties is not None):
+        if properties is None:
             raise ValueError("properties must be provided")
         self.properties = properties
         self.n_stations = len(properties.station_positions)
@@ -361,7 +361,7 @@ class RigidShaftModel(ShaftModel):
 
     def step(self, dt: float) -> ShaftState:
         """Return unchanged state."""
-        if not (dt is not None):
+        if dt is None:
             raise ValueError("dt must be provided")
         return self.get_state()
 
@@ -379,7 +379,7 @@ class ModalShaftModel(ShaftModel):
         Args:
             n_modes: Number of bending modes to include
         """
-        if not (n_modes is not None):
+        if n_modes is None:
             raise ValueError("n_modes must be provided")
         self.n_modes = n_modes
         self.properties: ShaftProperties | None = None
@@ -394,7 +394,7 @@ class ModalShaftModel(ShaftModel):
 
         Uses approximate analytical mode shapes for cantilevered beam.
         """
-        if not (properties is not None):
+        if properties is None:
             raise ValueError("properties must be provided")
         self.properties = properties
         self.n_stations = len(properties.station_positions)
@@ -472,7 +472,7 @@ class ModalShaftModel(ShaftModel):
         moment: np.ndarray | None = None,
     ) -> None:
         """Apply modal forces from physical load."""
-        if not (position is not None):
+        if position is None:
             raise ValueError("position must be provided")
         if not self.modes or self.properties is None:
             return
@@ -493,7 +493,7 @@ class ModalShaftModel(ShaftModel):
 
     def step(self, dt: float) -> ShaftState:
         """Advance modal coordinates by dt."""
-        if not (dt is not None):
+        if dt is None:
             raise ValueError("dt must be provided")
         self.time += dt
 
@@ -531,7 +531,7 @@ class FiniteElementShaftModel(ShaftModel):
         Args:
             n_elements: Number of finite elements
         """
-        if not (n_elements is not None):
+        if n_elements is None:
             raise ValueError("n_elements must be provided")
         self.n_elements = n_elements
         self.n_nodes = n_elements + 1
@@ -565,7 +565,7 @@ class FiniteElementShaftModel(ShaftModel):
         Args:
             properties: Shaft properties
         """
-        if not (properties is not None):
+        if properties is None:
             raise ValueError("properties must be provided")
         self.properties = properties
         self._create_elements()
@@ -624,7 +624,7 @@ class FiniteElementShaftModel(ShaftModel):
         Returns:
             4x4 stiffness matrix
         """
-        if not (element is not None):
+        if element is None:
             raise ValueError("element must be provided")
         EI = element.EI
         L = element.length
@@ -660,7 +660,7 @@ class FiniteElementShaftModel(ShaftModel):
         Returns:
             4x4 mass matrix
         """
-        if not (element is not None):
+        if element is None:
             raise ValueError("element must be provided")
         mu = element.mass_per_length
         L = element.length
@@ -769,7 +769,7 @@ class FiniteElementShaftModel(ShaftModel):
             force: Force vector [Fx, Fy, Fz] - Fy used as transverse
             moment: Optional moment vector [Mx, My, Mz]
         """
-        if not (position is not None):
+        if position is None:
             raise ValueError("position must be provided")
         if self.properties is None:
             return
@@ -805,7 +805,7 @@ class FiniteElementShaftModel(ShaftModel):
         Returns:
             Updated shaft state
         """
-        if not (dt is not None):
+        if dt is None:
             raise ValueError("dt must be provided")
         self.time += dt
 
@@ -868,7 +868,7 @@ class FiniteElementShaftModel(ShaftModel):
         Returns:
             List of natural frequencies [Hz]
         """
-        if not (n_modes is not None):
+        if n_modes is None:
             raise ValueError("n_modes must be provided")
         from scipy.linalg import eigh
 
@@ -898,7 +898,7 @@ class FiniteElementShaftModel(ShaftModel):
             Static equilibrium state
         """
         # Save current state
-        if not (load_position is not None):
+        if load_position is None:
             raise ValueError("load_position must be provided")
         u_saved = self.u.copy()
         v_saved = self.v.copy()
@@ -946,7 +946,7 @@ def compute_static_deflection(
     Returns:
         Deflection at each station [m]
     """
-    if not (properties is not None):
+    if properties is None:
         raise ValueError("properties must be provided")
     EI = compute_EI_profile(properties)
     EI_avg = float(np.mean(EI))  # Use average for simplicity
@@ -980,7 +980,7 @@ def create_shaft_model(
     Returns:
         Initialized shaft model
     """
-    if not (model_type is not None):
+    if model_type is None:
         raise ValueError("model_type must be provided")
     if properties is None:
         properties = create_standard_shaft()

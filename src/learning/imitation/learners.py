@@ -81,7 +81,7 @@ class ImitationLearner(ABC):
             config: Training configuration.
             device: Compute device.
         """
-        if not (observation_dim is not None):
+        if observation_dim is None:
             raise ValueError("observation_dim must be provided")
         self.observation_dim = observation_dim
         self.action_dim = action_dim
@@ -109,7 +109,7 @@ class ImitationLearner(ABC):
         Returns:
             Imitation learner instance.
         """
-        if not (observation_space is not None):
+        if observation_space is None:
             raise ValueError("observation_space must be provided")
         obs_dim = int(np.prod(observation_space.shape))
         act_dim = int(np.prod(action_space.shape))
@@ -188,7 +188,7 @@ class BehaviorCloning(ImitationLearner):
         device: str = "cpu",
     ) -> None:
         """Initialize behavior cloning learner."""
-        if not (observation_dim is not None):
+        if observation_dim is None:
             raise ValueError("observation_dim must be provided")
         super().__init__(observation_dim, action_dim, config, device)
         self._build_policy()
@@ -229,7 +229,7 @@ class BehaviorCloning(ImitationLearner):
         Returns:
             Predicted actions.
         """
-        if not (x is not None):
+        if x is None:
             raise ValueError("x must be provided")
         for i, layer in enumerate(self._policy):
             x = x @ layer["W"] + layer["b"]
@@ -252,7 +252,7 @@ class BehaviorCloning(ImitationLearner):
         Returns:
             Mean squared error loss.
         """
-        if not (observations is not None):
+        if observations is None:
             raise ValueError("observations must be provided")
         predictions = self._forward(observations)
         return float(np.mean((predictions - actions) ** 2))
@@ -271,7 +271,7 @@ class BehaviorCloning(ImitationLearner):
         Returns:
             List of gradient dictionaries for each layer.
         """
-        if not (observations is not None):
+        if observations is None:
             raise ValueError("observations must be provided")
         batch_size = len(observations)
 
@@ -318,7 +318,7 @@ class BehaviorCloning(ImitationLearner):
             Training history.
         """
         # Get training data
-        if not (dataset is not None):
+        if dataset is None:
             raise ValueError("dataset must be provided")
         observations, actions = dataset.to_state_action_pairs()
 
@@ -393,7 +393,7 @@ class BehaviorCloning(ImitationLearner):
         Returns:
             Predicted action.
         """
-        if not (observation is not None):
+        if observation is None:
             raise ValueError("observation must be provided")
         if observation.ndim == 1:
             observation = observation.reshape(1, -1)
@@ -411,7 +411,7 @@ class BehaviorCloning(ImitationLearner):
         Args:
             path: Path to save file.
         """
-        if not (path is not None):
+        if path is None:
             raise ValueError("path must be provided")
         path = Path(path)
         data = {
@@ -437,7 +437,7 @@ class BehaviorCloning(ImitationLearner):
         Args:
             path: Path to load file.
         """
-        if not (path is not None):
+        if path is None:
             raise ValueError("path must be provided")
         path = Path(path)
         data = np.load(path, allow_pickle=True)
@@ -469,7 +469,7 @@ class DAgger(ImitationLearner):
         device: str = "cpu",
     ) -> None:
         """Initialize DAgger learner."""
-        if not (observation_dim is not None):
+        if observation_dim is None:
             raise ValueError("observation_dim must be provided")
         super().__init__(observation_dim, action_dim, config, device)
         self._bc = BehaviorCloning(observation_dim, action_dim, config, device)
@@ -491,7 +491,7 @@ class DAgger(ImitationLearner):
         Returns:
             Training history.
         """
-        if not (dataset is not None):
+        if dataset is None:
             raise ValueError("dataset must be provided")
         self._aggregated_dataset = dataset
         return self._bc.train(dataset, validation_split)
@@ -499,7 +499,7 @@ class DAgger(ImitationLearner):
     @staticmethod
     def _compute_beta(iteration: int, iterations: int, schedule: str) -> float:
         """Compute the expert-mixing probability for a DAgger iteration."""
-        if not (iteration is not None):
+        if iteration is None:
             raise ValueError("iteration must be provided")
         if schedule == "linear":
             return 1.0 - iteration / iterations
@@ -513,7 +513,7 @@ class DAgger(ImitationLearner):
         max_steps: int,
     ) -> tuple[Demonstration, float]:
         """Roll out one trajectory, mixing policy and expert actions."""
-        if not (expert is not None):
+        if expert is None:
             raise ValueError("expert must be provided")
         obs, info = env.reset()
         demo_timestamps = [0.0]
@@ -616,19 +616,19 @@ class DAgger(ImitationLearner):
         Returns:
             Predicted action.
         """
-        if not (observation is not None):
+        if observation is None:
             raise ValueError("observation must be provided")
         return self._bc.predict(observation, deterministic)
 
     def save(self, path: str | Path) -> None:
         """Save policy."""
-        if not (path is not None):
+        if path is None:
             raise ValueError("path must be provided")
         self._bc.save(path)
 
     def load(self, path: str | Path) -> None:
         """Load policy."""
-        if not (path is not None):
+        if path is None:
             raise ValueError("path must be provided")
         self._bc.load(path)
 
@@ -651,7 +651,7 @@ class GAIL(ImitationLearner):
         device: str = "cpu",
     ) -> None:
         """Initialize GAIL learner."""
-        if not (observation_dim is not None):
+        if observation_dim is None:
             raise ValueError("observation_dim must be provided")
         super().__init__(observation_dim, action_dim, config, device)
         self._policy: list[dict[str, NDArray[np.floating]]] = []
@@ -704,7 +704,7 @@ class GAIL(ImitationLearner):
 
     def _forward_policy(self, x: NDArray[np.floating]) -> NDArray[np.floating]:
         """Forward pass through policy network."""
-        if not (x is not None):
+        if x is None:
             raise ValueError("x must be provided")
         for i, layer in enumerate(self._policy):
             x = x @ layer["W"] + layer["b"]
@@ -716,7 +716,7 @@ class GAIL(ImitationLearner):
         self, state: NDArray[np.floating], action: NDArray[np.floating]
     ) -> NDArray[np.floating]:
         """Forward pass through discriminator."""
-        if not (state is not None):
+        if state is None:
             raise ValueError("state must be provided")
         x = np.concatenate([state, action], axis=-1)
         for i, layer in enumerate(self._discriminator):
@@ -745,7 +745,7 @@ class GAIL(ImitationLearner):
             Training history.
         """
         # Get expert data
-        if not (dataset is not None):
+        if dataset is None:
             raise ValueError("dataset must be provided")
         expert_states, expert_actions = dataset.to_state_action_pairs()
 
@@ -805,7 +805,7 @@ class GAIL(ImitationLearner):
         Returns:
             Predicted action.
         """
-        if not (observation is not None):
+        if observation is None:
             raise ValueError("observation must be provided")
         if observation.ndim == 1:
             observation = observation.reshape(1, -1)
@@ -834,7 +834,7 @@ class GAIL(ImitationLearner):
         Returns:
             GAIL reward value.
         """
-        if not (state is not None):
+        if state is None:
             raise ValueError("state must be provided")
         if state.ndim == 1:
             state = state.reshape(1, -1)
@@ -847,7 +847,7 @@ class GAIL(ImitationLearner):
 
     def save(self, path: str | Path) -> None:
         """Save GAIL networks."""
-        if not (path is not None):
+        if path is None:
             raise ValueError("path must be provided")
         path = Path(path)
         data = {
@@ -866,7 +866,7 @@ class GAIL(ImitationLearner):
 
     def load(self, path: str | Path) -> None:
         """Load GAIL networks."""
-        if not (path is not None):
+        if path is None:
             raise ValueError("path must be provided")
         path = Path(path)
         data = np.load(path, allow_pickle=True)

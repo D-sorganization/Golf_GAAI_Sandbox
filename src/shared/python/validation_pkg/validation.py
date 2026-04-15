@@ -236,7 +236,7 @@ def _validate_param(param_name: str, param_value: Any) -> None:
         param_name: Name of the parameter.
         param_value: Value to validate.
     """
-    if not (param_name is not None):
+    if param_name is None:
         raise ValueError("param_name must be provided")
     if param_name in ("self", "cls"):
         return

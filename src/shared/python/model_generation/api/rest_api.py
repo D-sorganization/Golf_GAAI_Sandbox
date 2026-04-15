@@ -87,7 +87,7 @@ class ModelGenerationAPI(
         Args:
             prefix: URL prefix for all routes
         """
-        if not (prefix is not None):
+        if prefix is None:
             raise ValueError("prefix must be provided")
         self.prefix = prefix
         self._routes: list[Route] = []
@@ -342,7 +342,7 @@ class ModelGenerationAPI(
 
         Returns None if auth passes, or a 401 APIResponse if auth fails.
         """
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         if not self._api_key:
             return None
@@ -358,7 +358,7 @@ class ModelGenerationAPI(
         is extracted from the X-Forwarded-For header or defaults to
         "unknown".
         """
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         if self._rate_limit is None:
             return None
@@ -387,7 +387,7 @@ class ModelGenerationAPI(
         environment variable (comma-separated list).  If not set, defaults
         to an empty string (no cross-origin access).
         """
-        if not (response is not None):
+        if response is None:
             raise ValueError("response must be provided")
         origin = self._cors_origins.split(",")[0].strip() if self._cors_origins else ""
         response.headers["Access-Control-Allow-Origin"] = origin
@@ -398,7 +398,7 @@ class ModelGenerationAPI(
 
     def _add_security_headers(self, response: APIResponse) -> None:
         """Add security headers to response."""
-        if not (response is not None):
+        if response is None:
             raise ValueError("response must be provided")
         response.headers["Content-Security-Policy"] = "default-src 'self'"
         response.headers["X-Content-Type-Options"] = "nosniff"
@@ -444,7 +444,7 @@ class ModelGenerationAPI(
 
     def handle_request(self, request: APIRequest) -> APIResponse:
         """Handle an API request."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         precheck_error = self._process_security_prechecks(request)
         if precheck_error is not None:

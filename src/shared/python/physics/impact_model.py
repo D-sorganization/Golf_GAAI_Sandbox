@@ -173,7 +173,7 @@ class RigidBodyImpactModel(ImpactModel):
         # Known limitation: this uses a simplified scalar effective mass model.
         # It ignores the full 3D inertia tensor and the direction of the impact force.
         # Should be replaced with J = (1/m + r x (I^-1 * (r x n)))^-1 * (1 + e) * v_rel
-        if not (pre_state is not None):
+        if pre_state is None:
             raise ValueError("pre_state must be provided")
         m_club = pre_state.clubhead_mass
         club_moi = pre_state.clubhead_moi
@@ -191,7 +191,7 @@ class RigidBodyImpactModel(ImpactModel):
         m_club_effective: float,
         cor: float,
     ) -> tuple[float, float]:
-        if not (v_rel is not None):
+        if v_rel is None:
             raise ValueError("v_rel must be provided")
         v_approach = np.dot(v_rel, n)
         m_eff = (GOLF_BALL_MASS * m_club_effective) / (
@@ -209,7 +209,7 @@ class RigidBodyImpactModel(ImpactModel):
         j: float,
         friction_coefficient: float,
     ) -> np.ndarray:
-        if not (pre_state is not None):
+        if pre_state is None:
             raise ValueError("pre_state must be provided")
         v_tangent = v_rel - v_approach * n
         tangent_mag = np.linalg.norm(v_tangent)
@@ -231,7 +231,7 @@ class RigidBodyImpactModel(ImpactModel):
         pre_ball_velocity: np.ndarray,
         post_ball_velocity: np.ndarray,
     ) -> float:
-        if not (pre_ball_velocity is not None):
+        if pre_ball_velocity is None:
             raise ValueError("pre_ball_velocity must be provided")
         ke_pre = 0.5 * GOLF_BALL_MASS * np.dot(pre_ball_velocity, pre_ball_velocity)
         ke_post = 0.5 * GOLF_BALL_MASS * np.dot(post_ball_velocity, post_ball_velocity)
@@ -481,7 +481,7 @@ class FiniteTimeImpactModel(ImpactModel):
         """
         # For finite-time model, we use the rigid body result
         # but report the specified contact duration
-        if not (pre_state is not None):
+        if pre_state is None:
             raise ValueError("pre_state must be provided")
         rigid_model = RigidBodyImpactModel()
         result = rigid_model.solve(pre_state, params)
@@ -577,7 +577,7 @@ def validate_energy_balance(
     Returns:
         Dictionary with energy analysis results
     """
-    if not (pre_state is not None):
+    if pre_state is None:
         raise ValueError("pre_state must be provided")
     m_ball = GOLF_BALL_MASS
     m_club = pre_state.clubhead_mass
@@ -708,7 +708,7 @@ class ImpactRecorder:
         Returns:
             Recorded ImpactEvent
         """
-        if not (timestamp is not None):
+        if timestamp is None:
             raise ValueError("timestamp must be provided")
         energy_balance = validate_energy_balance(pre_state, post_state, params)
 
@@ -814,7 +814,7 @@ class ImpactSolverAPI:
             model_type: Type of impact model to use
             params: Impact parameters (uses defaults if None)
         """
-        if not (model_type is not None):
+        if model_type is None:
             raise ValueError("model_type must be provided")
         self.model_type = model_type
         self.model = create_impact_model(model_type)
@@ -918,7 +918,7 @@ class ImpactSolverAPI:
             Post-impact state with gear effect spin added
         """
         # Solve base impact
-        if not (timestamp is not None):
+        if timestamp is None:
             raise ValueError("timestamp must be provided")
         post_state = self.solve_impact(
             timestamp,
@@ -1023,7 +1023,7 @@ class ImpactSolverAPI:
         Returns:
             Validation result with pass/fail and details
         """
-        if not (tolerance is not None):
+        if tolerance is None:
             raise ValueError("tolerance must be provided")
         if not self.recorder.events:
             return {"valid": False, "error": "No impacts recorded"}
@@ -1073,7 +1073,7 @@ class ImpactSolverAPI:
         Returns:
             Validation result with pass/fail and details
         """
-        if not (max_spin_rpm is not None):
+        if max_spin_rpm is None:
             raise ValueError("max_spin_rpm must be provided")
         if not self.recorder.events:
             return {"valid": False, "error": "No impacts recorded"}

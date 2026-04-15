@@ -67,7 +67,7 @@ class EditorHandlersMixin:
 
     def compose_models(self, request: APIRequest) -> APIResponse:
         """Compose model from multiple sources."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.editor import FrankensteinEditor
 
@@ -92,7 +92,7 @@ class EditorHandlersMixin:
 
     def diff_urdfs(self, request: APIRequest) -> APIResponse:
         """Compare two URDF files."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.editor.text_editor import URDFTextEditor
 
