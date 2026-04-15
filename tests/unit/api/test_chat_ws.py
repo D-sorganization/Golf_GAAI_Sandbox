@@ -171,6 +171,32 @@ class TestWebSocket:
             assert "Unknown action" in error["detail"]
 
 
+class TestChatActionHelpers:
+    """Tests for focused WebSocket action helpers."""
+
+    def test_resolve_new_session(self, mock_chat_service):
+        """The session resolver should create a session for the new sentinel."""
+        assert chat_ws._resolve_session_id(mock_chat_service, "new") == (
+            "test-session-123"
+        )
+        mock_chat_service.get_or_create_session.assert_called_with(None)
+
+    async def test_create_new_session_sends_response(self, mock_chat_service):
+        """The new-session helper should return and emit the created session."""
+        sent: list[dict] = []
+
+        class FakeWebSocket:
+            async def send_json(self, payload):
+                sent.append(payload)
+
+        session_id = await chat_ws._create_new_session(FakeWebSocket(), mock_chat_service)
+
+        assert session_id == "test-session-123"
+        assert sent == [
+            {"type": "session_created", "session_id": "test-session-123"}
+        ]
+
+
 class TestRESTEndpoints:
     """Tests for the REST fallback endpoints."""
 
