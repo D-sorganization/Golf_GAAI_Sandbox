@@ -473,8 +473,10 @@ class TestSMPLXVertexValidation:
             SMPLXMeshGenerator,
         )
 
+        # Logger lives on smplx_mesh_generator after the #136 extraction;
+        # mesh_generator only re-exports the class.
         with patch(
-            "humanoid_character_builder.generators.mesh_generator.logger"
+            "humanoid_character_builder.generators.smplx_mesh_generator.logger"
         ) as mock_logger:
             SMPLXMeshGenerator.load_part_segmentation(Path("/nonexistent/path"))
             mock_logger.warning.assert_called()
