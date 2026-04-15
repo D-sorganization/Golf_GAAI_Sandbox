@@ -237,6 +237,7 @@ class TestPinocchioIntegrationAudit:
         engine = PinocchioPhysicsEngine()
         assert not engine.is_initialized
 
+    @pytest.mark.slow
     @skip_if_unavailable("pinocchio")
     def test_pinocchio_contact_forces_raises(self) -> None:
         """compute_contact_forces must raise NotImplementedError (not fake zeros)."""

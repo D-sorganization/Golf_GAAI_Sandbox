@@ -59,10 +59,13 @@ if PINOCCHIO_AVAILABLE:
     import pinocchio
 
 # Skip all tests if either engine is missing
-pytestmark = pytest.mark.skipif(
-    not (PINOCCHIO_AVAILABLE and MUJOCO_AVAILABLE),
-    reason="Requires both MuJoCo and Pinocchio",
-)
+pytestmark = [
+    pytest.mark.skipif(
+        not (PINOCCHIO_AVAILABLE and MUJOCO_AVAILABLE),
+        reason="Requires both MuJoCo and Pinocchio",
+    ),
+    pytest.mark.slow,
+]
 
 
 def create_simple_pendulum_mujoco() -> tuple[Any, Any]:

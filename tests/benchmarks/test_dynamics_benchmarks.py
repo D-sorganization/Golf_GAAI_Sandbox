@@ -8,6 +8,8 @@ import pytest
 from src.shared.python.core.constants import GRAVITY_M_S2
 from src.shared.python.engine_core.engine_availability import MUJOCO_AVAILABLE
 
+pytestmark = pytest.mark.benchmark
+
 # Check if pytest-benchmark is installed, otherwise skip
 if importlib.util.find_spec("pytest_benchmark") is None:
     pytest.skip("pytest-benchmark not installed", allow_module_level=True)
