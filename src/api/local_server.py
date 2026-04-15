@@ -143,7 +143,7 @@ def _register_health_and_diagnostic_endpoints(
 ) -> None:
     """Register health check and diagnostic endpoints."""
 
-    if not (app is not None):
+    if app is None:
         raise ValueError("app must be provided")
 
     @app.get("/api/health")
@@ -235,7 +235,7 @@ def _mount_assets_directory(app: FastAPI, ui_path: Path) -> None:
         app: The FastAPI application instance.
         ui_path: Path to the UI build directory.
     """
-    if not (app is not None):
+    if app is None:
         raise ValueError("app must be provided")
     assets_path = ui_path / "assets"
     if assets_path.exists():
@@ -257,7 +257,7 @@ def _register_spa_catch_all(app: FastAPI, ui_path: Path) -> None:
         app: The FastAPI application instance.
         ui_path: Path to the UI build directory.
     """
-    if not (app is not None):
+    if app is None:
         raise ValueError("app must be provided")
     index_html = ui_path / "index.html"
     if index_html.exists():
@@ -266,7 +266,7 @@ def _register_spa_catch_all(app: FastAPI, ui_path: Path) -> None:
         @app.get("/{full_path:path}")
         async def serve_spa(request: Request, full_path: str) -> Any:
             """Serve the SPA index.html for all non-API routes."""
-            if not (request is not None):
+            if request is None:
                 raise ValueError("request must be provided")
             if full_path.startswith("api/"):
                 return JSONResponse(
@@ -300,7 +300,7 @@ def _register_error_page_catch_all(app: FastAPI) -> None:
         request: Request, full_path: str
     ) -> HTMLResponse | JSONResponse:
         """Serve a helpful error page when UI is not built."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         if full_path.startswith("api/"):
             return JSONResponse(

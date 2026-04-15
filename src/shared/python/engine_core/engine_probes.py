@@ -274,7 +274,7 @@ class DrakeProbe(EngineProbe):
         version, error = self._check_pydrake_import()
         if error is not None:
             return error
-        if not (version is not None):
+        if version is None:
             raise ValueError("DbC Blocked: Precondition failed.")
 
         available_port = self._check_meshcat_port()

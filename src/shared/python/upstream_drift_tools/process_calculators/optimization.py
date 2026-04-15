@@ -40,7 +40,7 @@ def _build_override_mapping(
 ) -> dict[str, float]:
     """Create a mapping of parameter names to their associated values."""
 
-    if not (parameter_names is not None):
+    if parameter_names is None:
         raise ValueError("parameter_names must be provided")
     override = {
         name: value
@@ -67,7 +67,7 @@ def _compute_gradient_component(
     Selects forward, backward, or central differencing depending on
     whether the current value lies at a parameter bound.
     """
-    if not (index is not None):
+    if index is None:
         raise ValueError("index must be provided")
     lower = float(cfg["min"])
     upper = float(cfg["max"])
@@ -158,7 +158,7 @@ def _init_adam_state(
     maximize: bool,
 ) -> _AdamState:
     """Extract parameters, build bounds, and initialise Adam moment vectors."""
-    if not (analysis_params is not None):
+    if analysis_params is None:
         raise ValueError("analysis_params must be provided")
     parameter_names = [cfg["name"] for cfg in parameter_configs]
     lower_bounds = np.array([cfg["min"] for cfg in parameter_configs], dtype=float)
@@ -193,7 +193,7 @@ def _evaluate_and_record(
 
     Returns the (possibly clamped) objective value.
     """
-    if not (st is not None):
+    if st is None:
         raise ValueError("st must be provided")
     overrides = _build_override_mapping(st.parameter_names, st.values.tolist())
     objective, composition, state = evaluate_output(
@@ -235,7 +235,7 @@ def _adam_update(
     epsilon: float,
 ) -> None:
     """Apply one Adam parameter update in-place."""
-    if not (st is not None):
+    if st is None:
         raise ValueError("st must be provided")
     st.m = beta1 * st.m + (1 - beta1) * gradient
     st.v = beta2 * st.v + (1 - beta2) * (gradient**2)
@@ -245,6 +245,97 @@ def _adam_update(
     sign = 1.0 if maximize else -1.0
     update = sign * learning_rate * m_hat / (np.sqrt(v_hat) + epsilon)
     st.values = np.clip(st.values + update, st.lower_bounds, st.upper_bounds)
+
+
+def _compute_finite_difference_gradient(
+    st: _AdamState,
+    objective: float,
+    parameter_configs: Sequence[dict[str, Any]],
+    gradient_step: float,
+    engine: Any,
+    manual_hhv: float,
+) -> np.ndarray:
+    """Compute the full finite-difference gradient vector.
+
+    Returns a zero vector when *objective* is non-finite; otherwise
+    delegates component-wise to :func:`_compute_gradient_component`.
+    """
+    gradient = np.zeros_like(st.values)
+    if not np.isfinite(objective):
+        return gradient
+    for idx, cfg in enumerate(parameter_configs):
+        gradient[idx] = _compute_gradient_component(
+            idx,
+            cfg,
+            st.values,
+            objective,
+            gradient_step,
+            st.parameter_names,
+            engine,
+            st.base_params,
+            manual_hhv,
+            st.output_name,
+        )
+    return gradient
+
+
+def _run_adam_loop(
+    st: _AdamState,
+    engine: Any,
+    manual_hhv: float,
+    parameter_configs: Sequence[dict[str, Any]],
+    *,
+    maximize: bool,
+    learning_rate: float,
+    beta1: float,
+    beta2: float,
+    epsilon: float,
+    gradient_step: float,
+    max_iterations: int,
+    tolerance: float,
+    gradient_tolerance: float,
+) -> None:
+    """Execute the Adam iteration loop, mutating *st* in place.
+
+    Terminates early when the gradient norm or parameter-update norm
+    drops below their respective tolerances.
+    """
+    for iteration in range(1, max_iterations + 1):
+        objective = _evaluate_and_record(st, iteration, engine, manual_hhv, maximize)
+        gradient = _compute_finite_difference_gradient(
+            st, objective, parameter_configs, gradient_step, engine, manual_hhv
+        )
+        if np.linalg.norm(gradient) < gradient_tolerance:
+            break
+        _adam_update(
+            st,
+            gradient,
+            iteration,
+            maximize=maximize,
+            learning_rate=learning_rate,
+            beta1=beta1,
+            beta2=beta2,
+            epsilon=epsilon,
+        )
+        if np.linalg.norm(st.values - st.previous_values) < tolerance:
+            break
+        st.previous_values = st.values.copy()
+
+
+def _build_optimization_results(st: _AdamState) -> OptimizationResults:
+    """Serialize an Adam state into the public :class:`OptimizationResults` TypedDict."""
+    return {
+        "best_output": st.best_output,
+        "best_parameters": st.best_parameters,
+        "best_state": st.best_state,
+        "best_composition": st.best_composition,
+        "history": st.history,
+        "final_parameters": _build_override_mapping(
+            st.parameter_names,
+            st.values.tolist(),
+        ),
+        "iterations": len(st.history),
+    }
 
 
 def run_adam_optimization(
@@ -265,95 +356,34 @@ def run_adam_optimization(
 ) -> OptimizationResults:
     """Run an Adam-based search across operating parameters.
 
-    Parameters
-    ----------
-    engine:
-        Calculation engine.
-    analysis_params:
-        Dict with ``"base_params"`` and ``"output_variable"``.
-    manual_hhv:
-        User-specified HHV [Btu/lb].
-    parameter_configs:
-        Sequence of dicts with ``"name"``, ``"min"``, ``"max"``,
-        ``"initial"``.
-    maximize:
-        ``True`` to maximize, ``False`` to minimize.
-    learning_rate, beta1, beta2, epsilon:
-        Adam hyperparameters (Kingma & Ba, 2014).
-    gradient_step:
-        Finite-difference step size.
-    max_iterations:
-        Maximum iterations.
-    tolerance:
-        Convergence tolerance on parameter updates.
-    gradient_tolerance:
-        Convergence tolerance on gradient norm (defaults to
-        *tolerance*).
-
-    Returns
-    -------
-    OptimizationResults
-        Best objective, parameters, state, composition, history,
-        final parameters, and iteration count.
+    Drives iterative gradient descent (or ascent when *maximize* is
+    ``True``) using finite-difference gradients of the engine output,
+    Adam moment tracking (Kingma & Ba, 2014), and dual convergence
+    criteria on parameter delta / gradient norm. See module helpers
+    :func:`_init_adam_state`, :func:`_run_adam_loop`, and
+    :func:`_build_optimization_results` for stage-level details.
     """
     if not parameter_configs:
         raise ValueError("At least one parameter must be provided")
-
     st = _init_adam_state(analysis_params, parameter_configs, maximize)
-
-    if gradient_tolerance is None:
-        gradient_tolerance = tolerance
-
-    for iteration in range(1, max_iterations + 1):
-        objective = _evaluate_and_record(st, iteration, engine, manual_hhv, maximize)
-
-        # Finite-difference gradient
-        gradient = np.zeros_like(st.values)
-        if np.isfinite(objective):
-            for idx, cfg in enumerate(parameter_configs):
-                gradient[idx] = _compute_gradient_component(
-                    idx,
-                    cfg,
-                    st.values,
-                    objective,
-                    gradient_step,
-                    st.parameter_names,
-                    engine,
-                    st.base_params,
-                    manual_hhv,
-                    st.output_name,
-                )
-
-        if np.linalg.norm(gradient) < gradient_tolerance:
-            break
-
-        _adam_update(
-            st,
-            gradient,
-            iteration,
-            maximize=maximize,
-            learning_rate=learning_rate,
-            beta1=beta1,
-            beta2=beta2,
-            epsilon=epsilon,
-        )
-
-        if np.linalg.norm(st.values - st.previous_values) < tolerance:
-            break
-        st.previous_values = st.values.copy()
-
-    return {
-        "best_output": st.best_output,
-        "best_parameters": st.best_parameters,
-        "best_state": st.best_state,
-        "best_composition": st.best_composition,
-        "history": st.history,
-        "final_parameters": _build_override_mapping(
-            st.parameter_names,
-            st.values.tolist(),
-        ),
-        "iterations": len(st.history),
-    }
+    _run_adam_loop(
+        st,
+        engine,
+        manual_hhv,
+        parameter_configs,
+        maximize=maximize,
+        learning_rate=learning_rate,
+        beta1=beta1,
+        beta2=beta2,
+        epsilon=epsilon,
+        gradient_step=gradient_step,
+        max_iterations=max_iterations,
+        tolerance=tolerance,
+        gradient_tolerance=gradient_tolerance
+        if gradient_tolerance is not None
+        else tolerance,
+    )
+    return _build_optimization_results(st)
 
 
 # =============================================================================

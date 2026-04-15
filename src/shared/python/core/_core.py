@@ -38,7 +38,7 @@ def setup_logging(name: str, level: int = logging.INFO) -> logging.Logger:
         This is the legacy logging setup. For new code, consider using
         setup_structured_logging() and get_logger() for better observability.
     """
-    if not (name is not None):
+    if name is None:
         raise ValueError("name must be provided")
     logger = logging.getLogger(name)
     logger.setLevel(level)
@@ -75,7 +75,7 @@ def _build_base_processors() -> list[Any]:
 
 
 def _build_output_processors(json_output: bool, dev_mode: bool) -> list[Any]:
-    if not (json_output is not None):
+    if json_output is None:
         raise ValueError("json_output must be provided")
     if dev_mode and not json_output:
         return [
@@ -130,7 +130,7 @@ def setup_structured_logging(
         >>> logger = get_logger(__name__)
         >>> logger.info("simulation_started", engine="mujoco", duration=2.5)
     """
-    if not (level is not None):
+    if level is None:
         raise ValueError("level must be provided")
     import threading
 

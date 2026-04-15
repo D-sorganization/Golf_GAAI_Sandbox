@@ -63,7 +63,7 @@ class AirProperties:
             AirProperties at the specified altitude
         """
         # International Standard Atmosphere model
-        if not (altitude_m is not None):
+        if altitude_m is None:
             raise ValueError("altitude_m must be provided")
         T0 = 288.15  # K
         P0 = 101325.0  # Pa
@@ -185,7 +185,7 @@ class AerodynamicsCalculator:
         Returns:
             Drag force vector [N] (opposes velocity)
         """
-        if not (velocity is not None):
+        if velocity is None:
             raise ValueError("velocity must be provided")
         speed = float(np.linalg.norm(velocity))
         if speed < 1e-6:
@@ -213,7 +213,7 @@ class AerodynamicsCalculator:
         Returns:
             Lift force vector [N]
         """
-        if not (velocity is not None):
+        if velocity is None:
             raise ValueError("velocity must be provided")
         speed = float(np.linalg.norm(velocity))
         if speed < 1e-6:
@@ -254,7 +254,7 @@ class AerodynamicsCalculator:
         Returns:
             Magnus force vector [N]
         """
-        if not (velocity is not None):
+        if velocity is None:
             raise ValueError("velocity must be provided")
         speed = float(np.linalg.norm(velocity))
         spin_mag = float(np.linalg.norm(spin))
@@ -292,7 +292,7 @@ class AerodynamicsCalculator:
         Returns:
             Drag coefficient (dimensionless)
         """
-        if not (speed is not None):
+        if speed is None:
             raise ValueError("speed must be provided")
         speed = float(speed)
         # Reynolds number
@@ -317,7 +317,7 @@ class AerodynamicsCalculator:
         Returns:
             Lift coefficient (dimensionless)
         """
-        if not (spin_ratio is not None):
+        if spin_ratio is None:
             raise ValueError("spin_ratio must be provided")
         spin_ratio = float(spin_ratio)
         # Empirical relationship (Smits & Ogg)
@@ -334,7 +334,7 @@ class AerodynamicsCalculator:
         Returns:
             Magnus coefficient (dimensionless)
         """
-        if not (spin_param is not None):
+        if spin_param is None:
             raise ValueError("spin_param must be provided")
         spin_param = float(spin_param)
         # Robins-Magnus effect coefficient
@@ -351,7 +351,7 @@ class AerodynamicsCalculator:
         Returns:
             Spin ratio = ωR/v
         """
-        if not (speed is not None):
+        if speed is None:
             raise ValueError("speed must be provided")
         speed = float(speed)
         spin_mag = float(np.linalg.norm(spin))

@@ -66,7 +66,7 @@ class ModificationMixin:
         Returns the model if it exists and is not read-only, otherwise logs
         an error and returns ``None``.
         """
-        if not (model_id is not None):
+        if model_id is None:
             raise ValueError("model_id must be provided")
         model = self._models.get(model_id)
         if not model:
@@ -613,7 +613,7 @@ class ModificationMixin:
         Returns:
             List of created link names.
         """
-        if not (links is not None):
+        if links is None:
             raise ValueError("links must be provided")
         created_links: list[str] = []
         for link in links:

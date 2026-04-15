@@ -10,7 +10,7 @@ class GenerationHandlersMixin:
 
     def generate_humanoid(self, request: APIRequest) -> APIResponse:
         """Generate humanoid URDF."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.builders.parametric_builder import ParametricBuilder
 
@@ -46,7 +46,7 @@ class GenerationHandlersMixin:
 
     def generate_from_params(self, request: APIRequest) -> APIResponse:
         """Generate URDF from detailed parameters."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.builders.manual_builder import ManualBuilder
         from model_generation.core.types import Joint, Link

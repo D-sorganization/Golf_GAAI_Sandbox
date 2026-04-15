@@ -43,7 +43,7 @@ class ConversionHandlersMixin:
 
     def convert_simscape_to_urdf(self, request: APIRequest) -> APIResponse:
         """Convert SimScape MDL/SLX to URDF."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.converters.simscape import (
             ConversionConfig,
@@ -69,7 +69,7 @@ class ConversionHandlersMixin:
 
     def convert_mjcf_to_urdf(self, request: APIRequest) -> APIResponse:
         """Convert MJCF to URDF."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.converters.mjcf_converter import MJCFConverter
 
@@ -98,7 +98,7 @@ class ConversionHandlersMixin:
 
     def convert_urdf_to_mjcf(self, request: APIRequest) -> APIResponse:
         """Convert URDF to MJCF."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.converters.mjcf_converter import MJCFConverter
 

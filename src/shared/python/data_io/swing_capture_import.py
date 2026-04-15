@@ -424,7 +424,7 @@ class SwingCaptureImporter:
         Returns:
             Angle in radians, or 0.0 if vectors are degenerate.
         """
-        if not (positions is not None):
+        if positions is None:
             raise ValueError("positions must be provided")
         p1 = positions[frame, marker_indices[0]]
         p2 = positions[frame, marker_indices[1]]  # vertex
@@ -452,7 +452,7 @@ class SwingCaptureImporter:
         Returns:
             JointTrajectory with computed joint angles.
         """
-        if not (marker_data is not None):
+        if marker_data is None:
             raise ValueError("marker_data must be provided")
         n_frames = marker_data.n_frames
         marker_name_to_idx = {
@@ -587,7 +587,7 @@ class SwingCaptureImporter:
             SwingPhaseLabels with frame indices for each phase.
         """
         # Use total angular velocity as a proxy for swing phase detection
-        if not (trajectory is not None):
+        if trajectory is None:
             raise ValueError("trajectory must be provided")
         total_velocity = np.sum(np.abs(trajectory.velocities), axis=1)
 
@@ -696,7 +696,7 @@ class SwingCaptureImporter:
         Returns:
             Path to the exported file.
         """
-        if not (trajectory is not None):
+        if trajectory is None:
             raise ValueError("trajectory must be provided")
         output_path = Path(output_path)
         output_path.parent.mkdir(parents=True, exist_ok=True)

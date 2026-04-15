@@ -259,7 +259,40 @@ class SwingOptimizationBridge:
             ValueError: If *initial_state* has the wrong shape or contains
                 non-finite values.
         """
-        # --- Preconditions (DbC) ---
+        self._validate_initial_state(initial_state)
+
+        t_start = time.perf_counter()
+        controls = [
+            np.zeros(self._control_dim) for _ in range(self._config.horizon_steps)
+        ]
+        best_cost, converged, iteration = self._run_optimization_loop(
+            controls, initial_state
+        )
+
+        # Final evaluation
+        trajectory, clubhead_vel = self._evaluate_trajectory(controls, initial_state)
+        computation_time = time.perf_counter() - t_start
+
+        return SwingOptimizationResult(
+            optimal_torques=controls,
+            trajectory=trajectory,
+            clubhead_velocity=clubhead_vel,
+            total_cost=best_cost,
+            converged=converged,
+            iterations=iteration,
+            computation_time_s=computation_time,
+        )
+
+    # -- decomposition helpers for optimize_swing ---------------------------
+
+    def _validate_initial_state(self, initial_state: np.ndarray) -> None:
+        """Validate the initial-state precondition (DbC).
+
+        Raises:
+            TypeError: If *initial_state* is not a numpy array.
+            ValueError: If *initial_state* has the wrong shape or contains
+                non-finite values.
+        """
         if not isinstance(initial_state, np.ndarray):
             raise TypeError(
                 f"initial_state must be np.ndarray, got {type(initial_state).__name__}"
@@ -276,83 +309,80 @@ class SwingOptimizationBridge:
         if not np.all(np.isfinite(initial_state)):
             raise ValueError("initial_state must contain only finite values")
 
-        t_start = time.perf_counter()
+    def _compute_total_cost(
+        self,
+        controls: list[np.ndarray],
+        clubhead_vel: float,
+    ) -> tuple[float, float]:
+        """Compute total (running + terminal) cost for current controls.
 
-        # Initialise controls to zero
-        controls = [
-            np.zeros(self._control_dim) for _ in range(self._config.horizon_steps)
-        ]
+        Returns:
+            Tuple ``(total_cost, velocity_error)`` where *velocity_error*
+            is the signed gap between target and achieved clubhead speed.
+        """
+        running_cost = sum(float(u @ self._R @ u) for u in controls)
+        velocity_error = self._config.target_clubhead_velocity - clubhead_vel
+        terminal_cost = self._config.terminal_cost_weight * velocity_error**2
+        return running_cost + terminal_cost, velocity_error
 
+    def _has_converged(
+        self,
+        best_cost: float,
+        total_cost: float,
+        iteration: int,
+    ) -> bool:
+        """Return ``True`` when relative improvement falls below tolerance."""
+        if best_cost == float("inf") or iteration <= 1:
+            return False
+        relative_improvement = (best_cost - total_cost) / (abs(best_cost) + 1e-12)
+        return abs(relative_improvement) < self._config.convergence_tol
+
+    def _apply_gradient_step(
+        self,
+        controls: list[np.ndarray],
+        velocity_error: float,
+        iteration: int,
+    ) -> None:
+        """Apply a decayed gradient step to the last quarter of the horizon.
+
+        Mutates *controls* in-place.
+        """
+        grad_scale = (
+            2.0 * self._config.terminal_cost_weight * velocity_error * self._config.dt
+        )
+        start_idx = int(0.75 * self._config.horizon_steps)
+        alpha = 0.1 / (1.0 + 0.01 * iteration)
+        grad_terminal = -grad_scale * np.ones(self._control_dim)
+        for k in range(start_idx, self._config.horizon_steps):
+            grad_control = 2.0 * self._R @ controls[k]
+            gradient = grad_control + grad_terminal
+            controls[k] = controls[k] - alpha * gradient
+
+    def _run_optimization_loop(
+        self,
+        controls: list[np.ndarray],
+        initial_state: np.ndarray,
+    ) -> tuple[float, bool, int]:
+        """Run the iterative cost-descent loop and update *controls* in place.
+
+        Returns:
+            Tuple ``(best_cost, converged, iteration)``.
+        """
         best_cost = float("inf")
         converged = False
         iteration = 0
-
         for iteration in range(1, self._config.max_iterations + 1):
-            # Forward-simulate current controls
-            trajectory, clubhead_vel = self._evaluate_trajectory(
-                controls, initial_state
+            _, clubhead_vel = self._evaluate_trajectory(controls, initial_state)
+            total_cost, velocity_error = self._compute_total_cost(
+                controls, clubhead_vel
             )
-
-            # Compute running cost (sum of quadratic control cost)
-            running_cost = sum(float(u @ self._R @ u) for u in controls)
-
-            # Terminal cost: penalise deviation from target velocity
-            velocity_error = self._config.target_clubhead_velocity - clubhead_vel
-            terminal_cost = self._config.terminal_cost_weight * velocity_error**2
-
-            total_cost = running_cost + terminal_cost
-
-            # Check convergence
-            if best_cost < float("inf"):
-                relative_improvement = (best_cost - total_cost) / (
-                    abs(best_cost) + 1e-12
-                )
-                if (
-                    abs(relative_improvement) < self._config.convergence_tol
-                    and iteration > 1
-                ):
-                    converged = True
-                    best_cost = min(best_cost, total_cost)
-                    break
-
+            if self._has_converged(best_cost, total_cost, iteration):
+                converged = True
+                best_cost = min(best_cost, total_cost)
+                break
             best_cost = min(best_cost, total_cost)
-
-            # Simple gradient step on controls
-            # Gradient of terminal cost w.r.t. clubhead velocity
-            grad_scale = (
-                2.0
-                * self._config.terminal_cost_weight
-                * velocity_error
-                * self._config.dt
-            )
-
-            # Distribute gradient to last-quarter of horizon (most impact)
-            start_idx = int(0.75 * self._config.horizon_steps)
-            for k in range(start_idx, self._config.horizon_steps):
-                # Gradient includes control-cost regularisation
-                grad_control = 2.0 * self._R @ controls[k]
-                # Add terminal velocity gradient contribution
-                grad_terminal = -grad_scale * np.ones(self._control_dim)
-                gradient = grad_control + grad_terminal
-
-                # Step size with decay
-                alpha = 0.1 / (1.0 + 0.01 * iteration)
-                controls[k] = controls[k] - alpha * gradient
-
-        # Final evaluation
-        trajectory, clubhead_vel = self._evaluate_trajectory(controls, initial_state)
-
-        computation_time = time.perf_counter() - t_start
-
-        return SwingOptimizationResult(
-            optimal_torques=controls,
-            trajectory=trajectory,
-            clubhead_velocity=clubhead_vel,
-            total_cost=best_cost,
-            converged=converged,
-            iterations=iteration,
-            computation_time_s=computation_time,
-        )
+            self._apply_gradient_step(controls, velocity_error, iteration)
+        return best_cost, converged, iteration
 
     # -- internal helpers ---------------------------------------------------
 
@@ -407,7 +437,7 @@ class SwingOptimizationBridge:
             is a list of state vectors and *clubhead_velocity* is the
             speed of the last joint at the terminal time-step.
         """
-        if not (controls is not None):
+        if controls is None:
             raise ValueError("controls must be provided")
         n = self._config.n_joints
         dt = self._config.dt

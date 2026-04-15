@@ -13,6 +13,30 @@ from src.shared.python.logging_pkg.logging_config import get_logger
 
 logger = get_logger(__name__)
 
+# Project-root markers. We climb the filesystem tree from this module until
+# we hit a directory containing one of these files, rather than relying on a
+# brittle fixed-depth parent walk (`current.parent.parent.parent.parent.parent`).
+# `.git` and `AGENTS.md` live *only* at the repo root, which is what we want;
+# `pyproject.toml` alone would be ambiguous because nested packages under
+# `src/shared/python/` have their own pyproject.toml files.
+_PROJECT_ROOT_MARKERS = (".git", "AGENTS.md")
+
+
+def _locate_project_root(start: Path | None = None) -> Path:
+    """Walk up from ``start`` until a directory containing a root marker is found.
+
+    Raises ``FileNotFoundError`` if no marker is reached before filesystem
+    root. The default start is this module's own location.
+    """
+    current = (start or Path(__file__)).resolve()
+    for ancestor in (current, *current.parents):
+        if any((ancestor / m).exists() for m in _PROJECT_ROOT_MARKERS):
+            return ancestor
+    raise FileNotFoundError(
+        f"Could not locate project root from {current} (looked for {_PROJECT_ROOT_MARKERS})"
+    )
+
+
 # PyQt6 imports
 try:
     from PyQt6 import QtCore, QtGui, QtWidgets
@@ -269,9 +293,7 @@ class ClubDataTab(QtWidgets.QWidget):  # type: ignore[misc]
         """Automatically load data from default location if available."""
         if self._data_dir is None:
             try:
-                current = Path(__file__).resolve()
-                project_root = current.parent.parent.parent.parent.parent
-                self._data_dir = project_root / "data"
+                self._data_dir = _locate_project_root() / "data"
             except (FileNotFoundError, OSError):
                 return
 
@@ -537,7 +559,7 @@ class ClubDataTab(QtWidgets.QWidget):  # type: ignore[misc]
             velocity_error: Velocity error in m/s (optional)
             phase: Current swing phase name (optional)
         """
-        if not (position_error is not None):
+        if position_error is None:
             raise ValueError("position_error must be provided")
         self.lbl_position_error.setText(f"{position_error:.4f} m")
 

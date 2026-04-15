@@ -243,7 +243,7 @@ class OutputManager:
             raise
 
     def _sanitize_filename(self, filename, format_type):
-        if not (filename is not None):
+        if filename is None:
             raise ValueError("filename must be provided")
         if "OutputFormat." in filename:
             filename = filename.split(".")[-1]
@@ -280,7 +280,7 @@ class OutputManager:
         provenance: ProvenanceInfo,
     ) -> None:
         """Save results in CSV format with provenance header."""
-        if not (results is not None):
+        if results is None:
             raise ValueError("results must be provided")
         is_df = False
         try:
@@ -308,7 +308,7 @@ class OutputManager:
     ) -> None:
         """Save results in JSON format with provenance and metadata."""
 
-        if not (results is not None):
+        if results is None:
             raise ValueError("results must be provided")
 
         def json_serializer(obj: Any) -> Any:
@@ -392,7 +392,7 @@ class OutputManager:
         Returns:
             Future that resolves to the saved file path
         """
-        if not (results is not None):
+        if results is None:
             raise ValueError("results must be provided")
         executor = self._get_io_executor()
 
@@ -444,7 +444,7 @@ class OutputManager:
             on_error: Called with exception on failure
         """
 
-        if not (results is not None):
+        if results is None:
             raise ValueError("results must be provided")
 
         def _callback(result: Path | Exception) -> None:
@@ -661,7 +661,7 @@ class OutputManager:
             Path objects for all files found
         """
 
-        if not (directory is not None):
+        if directory is None:
             raise ValueError("directory must be provided")
 
         def _scan_recursive(path: Path, depth: int = 0) -> Iterator[Path]:
@@ -749,7 +749,7 @@ class OutputManager:
 
     def _generate_html_report(self, data: dict[str, Any], title: str) -> str:
         """Generate basic HTML report."""
-        if not (data is not None):
+        if data is None:
             raise ValueError("data must be provided")
         timestamp_str = timestamp_display(utc=False)
         html = f"""
@@ -822,7 +822,7 @@ def save_results(
 
     TYPE-001: Replaced Any with Union type for better type safety.
     """
-    if not (results is not None):
+    if results is None:
         raise ValueError("results must be provided")
     manager = OutputManager()
     # Cast to the type expected by save_simulation_results if needed,
@@ -856,7 +856,7 @@ def load_results(
 
     TYPE-001: Replaced Any with Union type for better type safety.
     """
-    if not (filename is not None):
+    if filename is None:
         raise ValueError("filename must be provided")
     manager = OutputManager()
     result = manager.load_simulation_results(

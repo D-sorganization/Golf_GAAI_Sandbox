@@ -105,7 +105,7 @@ class ScrewKinematicsAnalyzer:
         Args:
             model: MuJoCo model
         """
-        if not (model is not None):
+        if model is None:
             raise ValueError("model must be provided")
         self.model = model
 
@@ -136,7 +136,7 @@ class ScrewKinematicsAnalyzer:
         Returns:
             Twist with angular and linear velocities
         """
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         import mujoco
 
@@ -189,7 +189,7 @@ class ScrewKinematicsAnalyzer:
         Returns:
             ScrewAxis with complete representation
         """
-        if not (twist is not None):
+        if twist is None:
             raise ValueError("twist must be provided")
         ω = twist.angular
         v = twist.linear
@@ -260,7 +260,7 @@ class ScrewKinematicsAnalyzer:
         Returns:
             Dict mapping body name to (twist, screw_axis) tuple
         """
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         import mujoco
 
@@ -296,7 +296,7 @@ class ScrewKinematicsAnalyzer:
         Returns:
             Tuple of (start_point, end_point) for line segment [3], [3]
         """
-        if not (screw is not None):
+        if screw is None:
             raise ValueError("screw must be provided")
         if screw.is_singular:
             # Pure translation: draw along velocity direction
@@ -326,7 +326,7 @@ class ScrewKinematicsAnalyzer:
         Returns:
             Manipulability measure (dimensionless)
         """
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         import mujoco
 
@@ -380,7 +380,7 @@ def plot_screw_axis_3d(
         label: Label for legend
     """
     # Compute visualization points directly without __new__ code smell
-    if not (screw is not None):
+    if screw is None:
         raise ValueError("screw must be provided")
     if screw.is_singular:
         # Pure translation: draw along velocity direction

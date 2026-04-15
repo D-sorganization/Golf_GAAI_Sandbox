@@ -62,7 +62,7 @@ class URDFModel:
     @classmethod
     def from_file(cls, file_path: Path) -> URDFModel:
         """Load a URDF model from file."""
-        if not (file_path is not None):
+        if file_path is None:
             raise ValueError("file_path must be provided")
         tree = DefusedET.parse(file_path)
         root = tree.getroot()
@@ -71,7 +71,7 @@ class URDFModel:
     @classmethod
     def from_element(cls, root: ET.Element, file_path: Path | None = None) -> URDFModel:
         """Create model from XML element."""
-        if not (root is not None):
+        if root is None:
             raise ValueError("root must be provided")
         robot_name = root.get("name", "unnamed_robot")
 
@@ -145,7 +145,7 @@ class URDFModel:
         Returns:
             The name used for the link
         """
-        if not (link is not None):
+        if link is None:
             raise ValueError("link must be provided")
         link_copy = copy.deepcopy(link)
         name = new_name or link_copy.get("name") or "unnamed_link"
@@ -178,7 +178,7 @@ class URDFModel:
         Returns:
             The name used for the joint
         """
-        if not (joint is not None):
+        if joint is None:
             raise ValueError("joint must be provided")
         joint_copy = copy.deepcopy(joint)
         name = new_name or joint_copy.get("name") or "unnamed_joint"
@@ -212,7 +212,7 @@ class URDFModel:
 
     def add_material(self, material: ET.Element) -> str:
         """Add a material to the model."""
-        if not (material is not None):
+        if material is None:
             raise ValueError("material must be provided")
         material_copy = copy.deepcopy(material)
         name = material_copy.get("name", "unnamed_material")
@@ -225,7 +225,7 @@ class URDFModel:
 
     def remove_link(self, name: str) -> bool:
         """Remove a link and its connected joints."""
-        if not (name is not None):
+        if name is None:
             raise ValueError("name must be provided")
         if name not in self.links:
             return False
@@ -250,7 +250,7 @@ class URDFModel:
 
     def remove_joint(self, name: str) -> bool:
         """Remove a joint."""
-        if not (name is not None):
+        if name is None:
             raise ValueError("name must be provided")
         if name not in self.joints:
             return False
@@ -276,7 +276,7 @@ class ModelPanel(QWidget):
 
     def __init__(self, title: str, parent: QWidget | None = None) -> None:
         """Initialize the model panel."""
-        if not (title is not None):
+        if title is None:
             raise ValueError("title must be provided")
         super().__init__(parent)
         self.title = title
@@ -417,7 +417,7 @@ class ModelPanel(QWidget):
 
     def _on_item_double_clicked(self, item: QTreeWidgetItem, column: int) -> None:
         """Handle double-click for stealing component."""
-        if not (item is not None):
+        if item is None:
             raise ValueError("item must be provided")
         element = item.data(0, Qt.ItemDataRole.UserRole)
         if element is not None:
@@ -450,7 +450,7 @@ class ModelPanel(QWidget):
 
     def _emit_copy(self, item: QTreeWidgetItem) -> None:
         """Emit signal to copy component."""
-        if not (item is not None):
+        if item is None:
             raise ValueError("item must be provided")
         element = item.data(0, Qt.ItemDataRole.UserRole)
         if element is not None:
@@ -460,7 +460,7 @@ class ModelPanel(QWidget):
 
     def _remove_component(self, item: QTreeWidgetItem) -> None:
         """Remove a component from the model."""
-        if not (item is not None):
+        if item is None:
             raise ValueError("item must be provided")
         if not self.model:
             return
@@ -558,7 +558,7 @@ class ModelPanel(QWidget):
         Returns:
             The name used, or None if failed
         """
-        if not (comp_type is not None):
+        if comp_type is None:
             raise ValueError("comp_type must be provided")
         if not self.model:
             self.model = URDFModel.create_empty()
@@ -693,7 +693,7 @@ class FrankensteinEditor(QWidget):
 
     def _on_copy_to_right(self, comp_type: str, name: str, element: ET.Element) -> None:
         """Copy component from left to right panel."""
-        if not (comp_type is not None):
+        if comp_type is None:
             raise ValueError("comp_type must be provided")
         result = self.right_panel.add_component(comp_type, element)
         if result:
@@ -755,7 +755,7 @@ class FrankensteinEditor(QWidget):
         Returns:
             Number of components copied
         """
-        if not (source_model is not None):
+        if source_model is None:
             raise ValueError("source_model must be provided")
         if name_mapping is None:
             name_mapping = {}
@@ -981,7 +981,7 @@ class FrankensteinEditor(QWidget):
         Returns:
             Number of components removed
         """
-        if not (model is not None):
+        if model is None:
             raise ValueError("model must be provided")
         count = 0
 
@@ -1100,7 +1100,7 @@ class StealComponentDialog(QDialog):
         parent: QWidget | None = None,
     ) -> None:
         """Initialize the dialog."""
-        if not (comp_type is not None):
+        if comp_type is None:
             raise ValueError("comp_type must be provided")
         super().__init__(parent)
         self.setWindowTitle("Copy Component")

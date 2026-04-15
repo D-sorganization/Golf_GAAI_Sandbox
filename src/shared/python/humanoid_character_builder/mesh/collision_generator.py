@@ -185,79 +185,119 @@ class CollisionGeometryGenerator:
         Returns:
             CollisionGeometryResult with generated geometry
         """
-        # Convert string enum values
-        if not (method is not None):
+        method, _, max_primitives, max_triangles, max_hulls = (
+            self._resolve_generate_parameters(
+                method, target_complexity, max_primitives, max_triangles, max_hulls
+            )
+        )
+        mesh = self._load_mesh(visual_mesh)
+        if mesh is None:
+            return self._build_error_result(method, 0, "Failed to load mesh")
+
+        original_triangles = len(mesh.faces) if hasattr(mesh, "faces") else 0
+        original_volume = mesh.volume if hasattr(mesh, "volume") else 0.0
+        if method == SimplificationMethod.AUTO:
+            method = self._select_best_method(mesh, max_primitives, max_triangles)
+
+        try:
+            result = self._dispatch_generation(
+                mesh, method, max_primitives, max_triangles, max_hulls, vhacd_params
+            )
+        except (ValueError, TypeError, RuntimeError, OSError) as e:
+            logger.error(f"Collision generation failed: {e}")
+            return self._build_error_result(method, original_triangles, str(e))
+
+        return self._build_success_result(
+            mesh, result, method, original_triangles, original_volume
+        )
+
+    # -- decomposition helpers for generate ---------------------------------
+
+    def _resolve_generate_parameters(
+        self,
+        method: str | SimplificationMethod | None,
+        target_complexity: str | ComplexityLevel,
+        max_primitives: int | None,
+        max_triangles: int | None,
+        max_hulls: int | None,
+    ) -> tuple[SimplificationMethod, ComplexityLevel, int, int, int]:
+        """Normalise method/complexity enums and apply preset overrides.
+
+        Returns the fully-resolved tuple of
+        ``(method, target_complexity, max_primitives, max_triangles, max_hulls)``.
+        """
+        if method is None:
             raise ValueError("method must be provided")
         if isinstance(method, str):
             method = SimplificationMethod[method.upper()]
         if isinstance(target_complexity, str):
             target_complexity = ComplexityLevel[target_complexity.upper()]
 
-        # Get complexity preset
         preset = self.COMPLEXITY_PRESETS[target_complexity]
         max_primitives = max_primitives or preset["max_primitives"]
         max_triangles = max_triangles or preset["max_triangles"]
         max_hulls = max_hulls or preset["max_hulls"]
+        return method, target_complexity, max_primitives, max_triangles, max_hulls
 
-        # Load mesh if path
-        mesh = self._load_mesh(visual_mesh)
-        if mesh is None:
-            return CollisionGeometryResult(
-                success=False,
-                method_used=method,
-                components=[],
-                original_triangles=0,
-                final_triangles=0,
-                reduction_ratio=1.0,
-                volume_preservation=0.0,
-                hausdorff_distance=float("inf"),
-                errors=["Failed to load mesh"],
-            )
+    def _dispatch_generation(
+        self,
+        mesh: Any,
+        method: SimplificationMethod,
+        max_primitives: int,
+        max_triangles: int,
+        max_hulls: int,
+        vhacd_params: VHACDParameters | None,
+    ) -> CollisionGeometryResult:
+        """Dispatch to the simplification backend selected by *method*.
 
-        original_triangles = len(mesh.faces) if hasattr(mesh, "faces") else 0
-        original_volume = mesh.volume if hasattr(mesh, "volume") else 0.0
+        Defaults to mesh decimation for unknown methods.
+        """
+        if method == SimplificationMethod.VHACD:
+            return self._generate_vhacd(mesh, max_hulls, vhacd_params)
+        if method == SimplificationMethod.PRIMITIVES:
+            return self._generate_primitives(mesh, max_primitives)
+        if method == SimplificationMethod.DECIMATION:
+            return self._generate_decimated(mesh, max_triangles)
+        if method == SimplificationMethod.CONVEX_HULL:
+            return self._generate_convex_hull(mesh)
+        if method == SimplificationMethod.HYBRID:
+            return self._generate_hybrid(mesh, max_primitives, max_triangles)
+        return self._generate_decimated(mesh, max_triangles)
 
-        # Select method
-        if method == SimplificationMethod.AUTO:
-            method = self._select_best_method(mesh, max_primitives, max_triangles)
+    @staticmethod
+    def _build_error_result(
+        method: SimplificationMethod,
+        original_triangles: int,
+        error: str,
+    ) -> CollisionGeometryResult:
+        """Build a failure :class:`CollisionGeometryResult` carrying *error*."""
+        return CollisionGeometryResult(
+            success=False,
+            method_used=method,
+            components=[],
+            original_triangles=original_triangles,
+            final_triangles=0,
+            reduction_ratio=1.0,
+            volume_preservation=0.0,
+            hausdorff_distance=float("inf"),
+            errors=[error],
+        )
 
-        # Generate collision geometry
-        try:
-            if method == SimplificationMethod.VHACD:
-                result = self._generate_vhacd(mesh, max_hulls, vhacd_params)
-            elif method == SimplificationMethod.PRIMITIVES:
-                result = self._generate_primitives(mesh, max_primitives)
-            elif method == SimplificationMethod.DECIMATION:
-                result = self._generate_decimated(mesh, max_triangles)
-            elif method == SimplificationMethod.CONVEX_HULL:
-                result = self._generate_convex_hull(mesh)
-            elif method == SimplificationMethod.HYBRID:
-                result = self._generate_hybrid(mesh, max_primitives, max_triangles)
-            else:
-                result = self._generate_decimated(mesh, max_triangles)
-
-        except (ValueError, TypeError, RuntimeError, OSError) as e:
-            logger.error(f"Collision generation failed: {e}")
-            return CollisionGeometryResult(
-                success=False,
-                method_used=method,
-                components=[],
-                original_triangles=original_triangles,
-                final_triangles=0,
-                reduction_ratio=1.0,
-                volume_preservation=0.0,
-                hausdorff_distance=float("inf"),
-                errors=[str(e)],
-            )
-
-        # Compute metrics
+    def _build_success_result(
+        self,
+        mesh: Any,
+        result: CollisionGeometryResult,
+        method: SimplificationMethod,
+        original_triangles: int,
+        original_volume: float,
+    ) -> CollisionGeometryResult:
+        """Compute reduction / preservation metrics and build the success result."""
         final_triangles = self._count_triangles(result.components)
         reduction_ratio = 1.0 - (final_triangles / max(original_triangles, 1))
         volume_preservation = self._compute_volume_preservation(
             mesh, result.components, original_volume
         )
         hausdorff = self._compute_hausdorff_distance(mesh, result.components)
-
         return CollisionGeometryResult(
             success=True,
             method_used=method,
@@ -297,7 +337,7 @@ class CollisionGeometryGenerator:
 
         Based on mesh complexity and shape characteristics.
         """
-        if not (max_primitives is not None):
+        if max_primitives is None:
             raise ValueError("max_primitives must be provided")
         n_faces = len(mesh.faces) if hasattr(mesh, "faces") else 0
 
@@ -331,7 +371,7 @@ class CollisionGeometryGenerator:
 
     def _primitives_would_fit(self, mesh: Any, max_primitives: int) -> bool:
         """Estimate if primitive fitting would work well."""
-        if not (max_primitives is not None):
+        if max_primitives is None:
             raise ValueError("max_primitives must be provided")
         try:
             extents = mesh.extents
@@ -360,7 +400,7 @@ class CollisionGeometryGenerator:
         vhacd_params: VHACDParameters | None,
     ) -> CollisionGeometryResult:
         """Generate collision geometry using VHACD."""
-        if not (max_hulls is not None):
+        if max_hulls is None:
             raise ValueError("max_hulls must be provided")
         import trimesh
 
@@ -402,7 +442,7 @@ class CollisionGeometryGenerator:
         params: VHACDParameters,
     ) -> list[Any]:
         """Use pybullet for VHACD decomposition."""
-        if not (params is not None):
+        if params is None:
             raise ValueError("params must be provided")
         import os
         import tempfile
@@ -439,7 +479,7 @@ class CollisionGeometryGenerator:
         max_primitives: int,
     ) -> CollisionGeometryResult:
         """Generate collision geometry using fitted primitives."""
-        if not (max_primitives is not None):
+        if max_primitives is None:
             raise ValueError("max_primitives must be provided")
         primitives = []
         primitive_fits = []
@@ -590,7 +630,7 @@ class CollisionGeometryGenerator:
 
     def _primitive_to_mesh(self, fit: PrimitiveFit) -> Any:
         """Convert primitive fit to mesh."""
-        if not (fit is not None):
+        if fit is None:
             raise ValueError("fit must be provided")
         import trimesh
 
@@ -623,7 +663,7 @@ class CollisionGeometryGenerator:
         max_triangles: int,
     ) -> CollisionGeometryResult:
         """Generate collision geometry via mesh decimation."""
-        if not (max_triangles is not None):
+        if max_triangles is None:
             raise ValueError("max_triangles must be provided")
         if len(mesh.faces) <= max_triangles:
             return CollisionGeometryResult(
@@ -686,7 +726,7 @@ class CollisionGeometryGenerator:
     ) -> CollisionGeometryResult:
         """Combine primitives and mesh decimation."""
         # Start with primitive fitting
-        if not (max_primitives is not None):
+        if max_primitives is None:
             raise ValueError("max_primitives must be provided")
         prim_result = self._generate_primitives(mesh, max_primitives)
 
@@ -702,7 +742,7 @@ class CollisionGeometryGenerator:
 
     def _count_triangles(self, components: list[Any]) -> int:
         """Count total triangles in components."""
-        if not (components is not None):
+        if components is None:
             raise ValueError("components must be provided")
         total = 0
         for comp in components:
@@ -717,7 +757,7 @@ class CollisionGeometryGenerator:
         original_volume: float,
     ) -> float:
         """Compute volume preservation ratio."""
-        if not (components is not None):
+        if components is None:
             raise ValueError("components must be provided")
         if original_volume <= 0:
             return 1.0

@@ -223,7 +223,7 @@ class KinematicForceAnalyzer:
             model: MuJoCo model
             data: MuJoCo data (shared reference, not modified by compute methods)
         """
-        if not (model is not None):
+        if model is None:
             raise ValueError("model must be provided")
         self.model = model
         self.data = data
@@ -261,7 +261,7 @@ class KinematicForceAnalyzer:
             Tuple of (jacp, jacr) as (3, nv) arrays.
             Note: Returns views into internal buffers or copies depending on usage.
         """
-        if not (body_id is not None):
+        if body_id is None:
             raise ValueError("body_id must be provided")
         if data is None:
             data = self.data
@@ -317,7 +317,7 @@ class KinematicForceAnalyzer:
             Coriolis forces [nv]
         """
         # Use private/scratch data structure
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         self._perturb_data.qpos[:] = qpos
         self._perturb_data.qvel[:] = qvel
@@ -350,7 +350,7 @@ class KinematicForceAnalyzer:
             Gravity forces [nv]
         """
         # FIXED: Use private/scratch data structure
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         self._perturb_data.qpos[:] = qpos
         self._perturb_data.qvel[:] = 0.0
@@ -373,7 +373,7 @@ class KinematicForceAnalyzer:
         qvel: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray]:
         """Split Coriolis forces into diagonal and coupling contributions."""
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         total_coriolis = self.compute_coriolis_forces(qpos, qvel)
         centrifugal = sum(
@@ -398,7 +398,7 @@ class KinematicForceAnalyzer:
             Mass matrix [nv x nv]
         """
         # FIXED: Use private data structure
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         self._perturb_data.qpos[:] = qpos
         mujoco.mj_forward(self.model, self._perturb_data)
@@ -423,7 +423,7 @@ class KinematicForceAnalyzer:
         """
         # Use finite differences to estimate C
         # (Deprecated - use RNE-based method instead)
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         epsilon = EPSILON_FINITE_DIFF_JACOBIAN
         C = np.zeros((self.model.nv, self.model.nv))
@@ -448,7 +448,7 @@ class KinematicForceAnalyzer:
         qacc: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Compute apparent club-head forces from the current kinematic state."""
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         if self.club_head_id is None:
             return np.zeros(3), np.zeros(3), np.zeros(3)
@@ -477,7 +477,7 @@ class KinematicForceAnalyzer:
             Dictionary with power contributions
         """
         # Coriolis forces
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         coriolis_forces = self.compute_coriolis_forces(qpos, qvel)
 
@@ -519,7 +519,7 @@ class KinematicForceAnalyzer:
             Dictionary with kinetic energy components
         """
         # FIXED: Use private data structure
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         self._perturb_data.qpos[:] = qpos
         self._perturb_data.qvel[:] = qvel
@@ -569,7 +569,7 @@ class KinematicForceAnalyzer:
         Returns:
             List of KinematicForceData for each time step
         """
-        if not (times is not None):
+        if times is None:
             raise ValueError("times must be provided")
         return [
             self._analyze_trajectory_step(
@@ -678,7 +678,7 @@ class KinematicForceAnalyzer:
         body_id: int | None = None,
     ) -> float:
         """Compute effective mass in a given direction."""
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         body_id = self._resolve_effective_mass_body_id(body_id)
         if body_id is None:

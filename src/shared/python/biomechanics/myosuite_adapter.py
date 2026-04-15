@@ -71,7 +71,7 @@ class MuscleDrivenEnv:
             task: Task type ("tracking", "reach", "swing")
             dt: Simulation timestep [s]
         """
-        if not (muscle_system is not None):
+        if muscle_system is None:
             raise ValueError("muscle_system must be provided")
         self.muscle_system = muscle_system
         self.task = task
@@ -123,7 +123,7 @@ class MuscleDrivenEnv:
             (observation, reward, done, info)
         """
         # Convert action to muscle excitations
-        if not (action is not None):
+        if action is None:
             raise ValueError("action must be provided")
         excitations = self._action_to_excitations(action)
 
@@ -216,11 +216,8 @@ class MuscleDrivenEnv:
     def _get_muscle_names(self) -> list[str]:
         """Get list of muscle names in system."""
         if isinstance(self.muscle_system, AntagonistPair):
-            names = list(self.muscle_system.agonist.muscles.keys())
-            names.extend(self.muscle_system.antagonist.muscles.keys())
-        else:
-            names = list(self.muscle_system.muscles.keys())
-        return names
+            return self.muscle_system.muscle_names()
+        return list(self.muscle_system.muscles.keys())
 
     def _action_to_excitations(self, action: np.ndarray) -> dict[str, float]:
         """Convert RL action to muscle excitations.
@@ -231,7 +228,7 @@ class MuscleDrivenEnv:
         Returns:
             Excitation dict {muscle_name: excitation}
         """
-        if not (action is not None):
+        if action is None:
             raise ValueError("action must be provided")
         muscle_names = sorted(self._get_muscle_names())
         excitations = {}
@@ -276,7 +273,7 @@ def train_muscle_policy(env: MuscleDrivenEnv, total_timesteps: int = 100000) -> 
         >>> policy = train_muscle_policy(env, total_timesteps=50000)
         >>> # Policy can now control muscles via neural network
     """
-    if not (env is not None):
+    if env is None:
         raise ValueError("env must be provided")
     if not MYOSUITE_AVAILABLE:
         logger.error("Cannot train policy: MyoSuite/gym not installed")
