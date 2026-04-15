@@ -6,10 +6,18 @@ import pytest
 
 import src.engines.physics_engines.mujoco.python.mujoco_humanoid_golf.telemetry as _telemetry_mod
 from src.engines.physics_engines.mujoco.python.mujoco_humanoid_golf.telemetry import (
+    SimulationSample,
     TelemetryRecorder,
     export_telemetry_csv,
     export_telemetry_json,
 )
+
+if isinstance(mujoco, MagicMock):
+    mujoco.mjtObj.mjOBJ_ACTUATOR = 1
+    mujoco.mjtObj.mjOBJ_BODY = 2
+    mujoco.mjtObj.mjOBJ_JOINT = 3
+    mujoco.mjtTrn.mjTRN_JOINT = 1
+    mujoco.mjtTrn.mjTRN_JOINTINP = 2
 
 
 @pytest.fixture
@@ -78,6 +86,20 @@ def test_telemetry_recorder_record_step(mock_mujoco_model_data) -> None:
     assert sample.constraint_torques["obj_0"] == 5.0
     assert sample.body_forces["obj_1"] is not None
     assert sample.custom_metrics["test_metric"] == 123.45
+
+
+def test_simulation_sample_defaults_custom_metrics_to_empty_dict() -> None:
+    sample = SimulationSample(
+        time=0.0,
+        joint_positions=np.array([]),
+        joint_velocities=np.array([]),
+        controls=np.array([]),
+        actuator_torques={},
+        constraint_torques={},
+        body_forces={},
+    )
+
+    assert sample.custom_metrics == {}
 
 
 def test_telemetry_report_generation(mock_mujoco_model_data) -> None:
