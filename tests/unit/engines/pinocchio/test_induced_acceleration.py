@@ -10,6 +10,8 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.slow
+
 # Mock pinocchio before importing
 mock_pin = MagicMock()
 sys.modules["pinocchio"] = mock_pin

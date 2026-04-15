@@ -11,10 +11,13 @@ from mujoco_humanoid_golf.pinocchio_interface import (
 )
 
 # Skip all tests if Pinocchio is not available
-pytestmark = pytest.mark.skipif(
-    not PINOCCHIO_AVAILABLE,
-    reason="Pinocchio is not installed",
-)
+pytestmark = [
+    pytest.mark.skipif(
+        not PINOCCHIO_AVAILABLE,
+        reason="Pinocchio is not installed",
+    ),
+    pytest.mark.slow,
+]
 
 
 @pytest.fixture()

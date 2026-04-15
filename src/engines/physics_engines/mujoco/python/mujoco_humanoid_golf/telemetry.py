@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import csv
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 import mujoco
@@ -31,7 +31,7 @@ class SimulationSample:
     actuator_torques: dict[str, float]
     constraint_torques: dict[str, float]
     body_forces: dict[str, np.ndarray]
-    custom_metrics: dict[str, float] = None  # type: ignore[assignment]
+    custom_metrics: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass

@@ -209,21 +209,19 @@ jobs:
           PYTHONPATH: .:src:src/engines/physics_engines/mujoco/python:src/engines/physics_engines/mujoco/python/mujoco_humanoid_golf
           QT_QPA_PLATFORM: offscreen
         run: |
-          PYTEST_XDIST_ARGS="-n auto"
-          if [ "${{ needs.pick-runner.outputs.runner }}" = "ubuntu-latest" ]; then
-            # Hosted fallback has been dropping xdist workers; use a smaller fan-out there.
-            PYTEST_XDIST_ARGS="-n 2"
-          fi
+          export COVERAGE_FILE="$RUNNER_TEMP/.coverage"
 
           # Run the default, dependency-light CI lane:
-          # - Parallel execution (-n auto)
+          # - Serial execution for runner and coverage stability
           # - 60 second timeout per test
           # - Skip slow tests in CI for faster feedback
           # - Coverage measurement on src/ (pytest-cov)
           # Optional native-engine extras such as Drake/Pinocchio/OpenSim/MyoSuite
           # are intentionally not provisioned here.
           xvfb-run --auto-servernum pytest \
-            $PYTEST_XDIST_ARGS \
+            -p no:xvfb \
+            -p no:pytest_xvfb \
+            -n 0 \
             --timeout=60 \
             --timeout-method=thread \
             --ignore=tests/shared_contracts \
@@ -248,6 +246,9 @@ jobs:
           echo "- This step exercises the dependency-free validator logic only." >> "$GITHUB_STEP_SUMMARY"
           echo "- It does not install or verify Drake, Pinocchio, OpenSim, or MyoSuite." >> "$GITHUB_STEP_SUMMARY"
           xvfb-run --auto-servernum pytest tests/integration/test_cross_engine_validation.py \
+            -p no:xvfb \
+            -p no:pytest_xvfb \
+            -n 0 \
             --timeout=60 \
             --timeout-method=thread \
             -v --tb=short 2>&1 | tee cross-engine-results.txt
@@ -311,6 +312,8 @@ jobs:
           REQUIRE_REAL_TOOLS_REPO: "1"
         run: |
           xvfb-run --auto-servernum pytest tests/shared_contracts/ \
+            -p no:xvfb \
+            -p no:pytest_xvfb \
             --tools-mode=vendored \
             --timeout=60 \
             --timeout-method=thread \
