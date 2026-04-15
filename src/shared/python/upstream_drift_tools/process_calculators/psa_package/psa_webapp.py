@@ -12,7 +12,7 @@ Run with: streamlit run psa_webapp.py
 """
 
 from dataclasses import dataclass, field
-from typing import TypedDict
+from typing import Any, TypedDict
 
 import numpy as np
 import pandas as pd
@@ -20,7 +20,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from numpy.typing import NDArray
-from streamlit.delta_generator import DeltaGenerator
 
 # ============== PSA Model (embedded for standalone operation) ==============
 
@@ -497,7 +496,7 @@ _O2_SAFETY_INLET_VALUES: list[float] = [0.5, 1.0, 2.0, 5.0]
 
 
 def _render_o2_safety_controls(
-    o2_col1: DeltaGenerator, o2_col2: DeltaGenerator, o2_col3: DeltaGenerator
+    o2_col1: Any, o2_col2: Any, o2_col3: Any
 ) -> tuple[str, int]:
     """Render checkbox/slider controls and return (plot_mode, num_points)."""
     with o2_col1:
