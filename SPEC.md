@@ -10,7 +10,7 @@
 | Primary Language(s) | Python 3.10+, Rust, TypeScript, MATLAB |
 | License | MIT |
 | Current Version | `2.1.0` |
-| Spec Version | `1.0.13` |
+| Spec Version | `1.0.14` |
 | Last Spec Update | `2026-04-15` |
 
 ## 2. Purpose
@@ -130,6 +130,7 @@ The repository is organized around a Python application core with multiple front
 
 | Date | Version | Changes |
 | --- | --- | --- |
+| 2026-04-15 | 1.0.14 | Marked the advanced putting-green simulator scenarios as slow so stochastic multi-ball scatter simulations stay out of the default core CI lane while lighter putting-green coverage remains active. |
 | 2026-04-15 | 1.0.13 | Hardened the cross-engine validator CI step with the same Xvfb plugin disable flags and serial pytest execution used by the core Python lane, preventing worker-level Xvfb startup failures after the main suite passes. |
 | 2026-04-15 | 1.0.12 | Marked the legacy performance benchmark module with the benchmark marker so the core CI lane skips timing-sensitive assertions, and made telemetry export tests tolerate unrelated process-log writes while still asserting the intended export open call occurred. |
 | 2026-04-15 | 1.0.8 | Stabilized the required Python test lane by disabling xdist for serial execution, avoiding late worker crashes and cancellation while preserving per-job coverage isolation and test timeouts. |
