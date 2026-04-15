@@ -9,7 +9,7 @@ from src.shared.python.engine_core.engine_availability import (
 
 # Skip entire module if Pinocchio is not installed - mocking pinocchio at module level
 # is unreliable and leads to AttributeError on patched module globals
-pytestmark = skip_if_unavailable("pinocchio")
+pytestmark = [skip_if_unavailable("pinocchio"), pytest.mark.slow]
 
 # Explicit attribute lists for Pinocchio C++ types (pinocchio bindings).
 _PIN_MODEL_SPEC = [
