@@ -6,12 +6,14 @@ and REST fallback endpoints.
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 
+from src.api.dependencies import get_chat_service
 from src.api.routes import chat_ws
 
 pytestmark = pytest.mark.anyio
@@ -189,3 +191,25 @@ class TestRESTEndpoints:
         assert data["session_id"] == "test-session-123"
         assert len(data["messages"]) == 1
         assert data["messages"][0]["role"] == "user"
+
+
+class TestDependencyProvider:
+    """Tests for the chat service dependency."""
+
+    def test_get_chat_service_returns_state_service(self, mock_chat_service):
+        """The dependency should resolve the service from app state."""
+        connection = SimpleNamespace(
+            app=SimpleNamespace(state=SimpleNamespace(chat_service=mock_chat_service))
+        )
+
+        assert get_chat_service(connection) is mock_chat_service
+
+    def test_get_chat_service_missing_raises_503(self):
+        """The dependency should fail clearly when the service is absent."""
+        connection = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace()))
+
+        with pytest.raises(HTTPException) as excinfo:
+            get_chat_service(connection)
+
+        assert excinfo.value.status_code == 503
+        assert excinfo.value.detail == "Chat service not initialized"
