@@ -10,10 +10,13 @@ from src.shared.python.engine_core.engine_availability import (
     PYTEST_QT_AVAILABLE,
 )
 
-pytestmark = pytest.mark.skipif(
-    not PYQT6_AVAILABLE or not PYTEST_QT_AVAILABLE,
-    reason="PyQt6 or pytest-qt not available",
-)
+pytestmark = [
+    pytest.mark.skipif(
+        not PYQT6_AVAILABLE or not PYTEST_QT_AVAILABLE,
+        reason="PyQt6 or pytest-qt not available",
+    ),
+    pytest.mark.slow,
+]
 
 # Mock flight_models using patch.dict (auto-cleans) before importing shot_tracer
 with patch.dict(sys.modules, {"flight_models": MagicMock()}):
