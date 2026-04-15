@@ -124,7 +124,9 @@ async def list_sessions(chat_service: Any = Depends(get_chat_service)) -> list[d
 
 @router.get("/chat/sessions/{session_id}/history")
 @precondition(
-    lambda session_id, chat_service: session_id is not None and len(session_id.strip()) > 0,
+    lambda session_id, chat_service: (
+        session_id is not None and len(session_id.strip()) > 0
+    ),
     "Session ID must be a non-empty string",
 )
 async def get_history(
