@@ -216,11 +216,8 @@ class MuscleDrivenEnv:
     def _get_muscle_names(self) -> list[str]:
         """Get list of muscle names in system."""
         if isinstance(self.muscle_system, AntagonistPair):
-            names = list(self.muscle_system.agonist.muscles.keys())
-            names.extend(self.muscle_system.antagonist.muscles.keys())
-        else:
-            names = list(self.muscle_system.muscles.keys())
-        return names
+            return self.muscle_system.muscle_names()
+        return list(self.muscle_system.muscles.keys())
 
     def _action_to_excitations(self, action: np.ndarray) -> dict[str, float]:
         """Convert RL action to muscle excitations.

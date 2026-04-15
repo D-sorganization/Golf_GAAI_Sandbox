@@ -148,6 +148,17 @@ class AntagonistPair:
         self.agonist = agonist
         self.antagonist = antagonist
 
+    def muscle_names(self) -> list[str]:
+        """Return muscle names from both agonist and antagonist groups.
+
+        Prefer this over ``pair.agonist.muscles.keys()`` at the call site to
+        keep the Law of Demeter: callers interact with the pair object, not
+        its internal MuscleGroup composition.
+        """
+        names: list[str] = list(self.agonist.muscles.keys())
+        names.extend(self.antagonist.muscles.keys())
+        return names
+
     def compute_net_torque(
         self,
         agonist_activations: dict[str, float],
