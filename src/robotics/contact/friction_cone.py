@@ -65,7 +65,7 @@ class FrictionCone:
         Returns:
             True if force satisfies friction constraint.
         """
-        if not (force is not None):
+        if force is None:
             raise ValueError("force must be provided")
         force = np.asarray(force, dtype=np.float64)
         f_n = float(np.dot(force, self.normal))
@@ -279,7 +279,7 @@ def project_to_friction_cone(
     Returns:
         Projected force (3,) inside the cone.
     """
-    if not (force is not None):
+    if force is None:
         raise ValueError("force must be provided")
     force = np.asarray(force, dtype=np.float64)
 
@@ -330,7 +330,7 @@ def _project_to_cone_surface(
     """
     # Find point on cone edge that minimizes distance
     # The cone edge is at angle arctan(mu) from normal
-    if not (f_n is not None):
+    if f_n is None:
         raise ValueError("f_n must be provided")
     if f_t_mag < 1e-10:
         return np.zeros(3)

@@ -305,7 +305,7 @@ class EngineStateMixin:
         Args:
             state: New lifecycle state
         """
-        if not (state is not None):
+        if state is None:
             raise ValueError("state must be provided")
         old_state = self._lifecycle_state
         self._lifecycle_state = state

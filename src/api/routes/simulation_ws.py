@@ -35,7 +35,7 @@ async def _load_simulation_engine(
     Returns:
         The active physics engine, or None if loading failed.
     """
-    if not (engine_manager is not None):
+    if engine_manager is None:
         raise ValueError("engine_manager must be provided")
     require(
         engine_type is not None and len(engine_type.strip()) > 0,
@@ -110,7 +110,7 @@ async def _run_simulation_loop(
     Returns:
         Tuple of (frame_count, time_elapsed).
     """
-    if not (websocket is not None):
+    if websocket is None:
         raise ValueError("websocket must be provided")
     duration = config.get("duration", 3.0)
     timestep = config.get("timestep", 0.002)
@@ -189,7 +189,7 @@ async def simulation_stream(
 
     No authentication required in local mode.
     """
-    if not (websocket is not None):
+    if websocket is None:
         raise ValueError("websocket must be provided")
     await websocket.accept()
 

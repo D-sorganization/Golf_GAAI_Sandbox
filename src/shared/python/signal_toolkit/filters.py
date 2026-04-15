@@ -89,7 +89,7 @@ class FilterSpec:
         Returns:
             Tuple of (frequencies, magnitude, phase).
         """
-        if not (num_points is not None):
+        if num_points is None:
             raise ValueError("num_points must be provided")
         w, h = scipy_signal.freqz(self.b, self.a, worN=num_points, fs=self.fs)
         magnitude = np.abs(h)
@@ -108,7 +108,7 @@ class FilterSpec:
         Returns:
             Tuple of (time, impulse_response).
         """
-        if not (num_samples is not None):
+        if num_samples is None:
             raise ValueError("num_samples must be provided")
         impulse = np.zeros(num_samples)
         impulse[0] = 1.0
@@ -182,7 +182,7 @@ class FilterDesigner:
         Returns:
             FilterSpec with filter coefficients.
         """
-        if not (filter_type is not None):
+        if filter_type is None:
             raise ValueError("filter_type must be provided")
         require(order > 0, f"Filter order must be positive, got {order}")
         require(fs > 0, f"Sampling frequency must be positive, got {fs}")
@@ -218,7 +218,7 @@ class FilterDesigner:
         Returns:
             FilterSpec with filter coefficients.
         """
-        if not (filter_type is not None):
+        if filter_type is None:
             raise ValueError("filter_type must be provided")
         wn, btype = _normalize_cutoff(filter_type, cutoff, fs)
         b, a = cheby1(order, ripple_db, wn, btype=btype)
@@ -252,7 +252,7 @@ class FilterDesigner:
         Returns:
             FilterSpec with filter coefficients.
         """
-        if not (filter_type is not None):
+        if filter_type is None:
             raise ValueError("filter_type must be provided")
         wn, btype = _normalize_cutoff(filter_type, cutoff, fs)
         b, a = cheby2(order, attenuation_db, wn, btype=btype)
@@ -288,7 +288,7 @@ class FilterDesigner:
         Returns:
             FilterSpec with filter coefficients.
         """
-        if not (filter_type is not None):
+        if filter_type is None:
             raise ValueError("filter_type must be provided")
         wn, btype = _normalize_cutoff(filter_type, cutoff, fs)
         b, a = ellip(order, ripple_db, attenuation_db, wn, btype=btype)
@@ -320,7 +320,7 @@ class FilterDesigner:
         Returns:
             FilterSpec with filter coefficients.
         """
-        if not (filter_type is not None):
+        if filter_type is None:
             raise ValueError("filter_type must be provided")
         wn, btype = _normalize_cutoff(filter_type, cutoff, fs)
         b, a = _scipy_bessel(order, wn, btype=btype, norm="phase")
@@ -350,7 +350,7 @@ def apply_filter(
     Returns:
         Filtered signal.
     """
-    if not (signal is not None):
+    if signal is None:
         raise ValueError("signal must be provided")
     if zero_phase:
         # Zero-phase filtering (no phase distortion)
@@ -393,7 +393,7 @@ def create_butterworth_filter(
     Returns:
         FilterSpec.
     """
-    if not (filter_type is not None):
+    if filter_type is None:
         raise ValueError("filter_type must be provided")
     ft = FilterType(filter_type)
     return FilterDesigner.butterworth(ft, cutoff, fs, order)
@@ -418,7 +418,7 @@ def create_chebyshev_filter(
     Returns:
         FilterSpec.
     """
-    if not (filter_type is not None):
+    if filter_type is None:
         raise ValueError("filter_type must be provided")
     ft = FilterType(filter_type)
     return FilterDesigner.chebyshev1(ft, cutoff, fs, order, ripple_db)
@@ -456,7 +456,7 @@ def create_savgol_filter(
     Returns:
         Function that applies Savitzky-Golay filter to values.
     """
-    if not (window_length is not None):
+    if window_length is None:
         raise ValueError("window_length must be provided")
     if window_length % 2 == 0:
         window_length += 1
@@ -482,7 +482,7 @@ def apply_moving_average(
     Returns:
         Filtered signal.
     """
-    if not (signal is not None):
+    if signal is None:
         raise ValueError("signal must be provided")
     filter_func = create_moving_average_filter(window_size)
     filtered_values = filter_func(signal.values)
@@ -511,7 +511,7 @@ def apply_savgol(
     Returns:
         Filtered signal.
     """
-    if not (signal is not None):
+    if signal is None:
         raise ValueError("signal must be provided")
     if window_length % 2 == 0:
         window_length += 1
@@ -550,7 +550,7 @@ def apply_median_filter(
     Returns:
         Filtered signal.
     """
-    if not (signal is not None):
+    if signal is None:
         raise ValueError("signal must be provided")
     if kernel_size % 2 == 0:
         kernel_size += 1
@@ -579,7 +579,7 @@ def apply_exponential_smoothing(
     Returns:
         Smoothed signal.
     """
-    if not (signal is not None):
+    if signal is None:
         raise ValueError("signal must be provided")
     require(0.0 < alpha <= 1.0, f"alpha must be in (0, 1], got {alpha}")
     values = signal.values
@@ -611,7 +611,7 @@ def apply_gaussian_smoothing(
     Returns:
         Smoothed signal.
     """
-    if not (signal is not None):
+    if signal is None:
         raise ValueError("signal must be provided")
     require(sigma > 0.0, f"sigma must be positive, got {sigma}")
     from scipy.ndimage import gaussian_filter1d
@@ -646,7 +646,7 @@ def apply_bilateral_filter(
     Returns:
         Filtered signal.
     """
-    if not (signal is not None):
+    if signal is None:
         raise ValueError("signal must be provided")
     values = signal.values
     n = len(values)
@@ -710,7 +710,7 @@ class AdaptiveFilter:
         Returns:
             Tuple of (filtered_signal, error_signal).
         """
-        if not (signal is not None):
+        if signal is None:
             raise ValueError("signal must be provided")
         n = len(signal.values)
         x = signal.values
@@ -762,7 +762,7 @@ class AdaptiveFilter:
         Returns:
             Tuple of (filtered_signal, error_signal).
         """
-        if not (signal is not None):
+        if signal is None:
             raise ValueError("signal must be provided")
         n = len(signal.values)
         x = signal.values

@@ -10,7 +10,7 @@ class ValidationHandlersMixin:
 
     def validate_urdf(self, request: APIRequest) -> APIResponse:
         """Validate URDF content."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.editor.text_editor import (
             URDFTextEditor,
@@ -57,7 +57,7 @@ class ValidationHandlersMixin:
 
     def parse_urdf(self, request: APIRequest) -> APIResponse:
         """Parse URDF and return structure."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.converters.urdf_parser import URDFParser
 

@@ -13,7 +13,7 @@ class LibraryHandlersMixin:
 
     def library_list_models(self, request: APIRequest) -> APIResponse:
         """List models in library."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.library import ModelLibrary
 
@@ -54,7 +54,7 @@ class LibraryHandlersMixin:
 
     def library_get_model(self, request: APIRequest) -> APIResponse:
         """Get model details."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.library import ModelLibrary
 
@@ -83,7 +83,7 @@ class LibraryHandlersMixin:
 
     def library_add_model(self, request: APIRequest) -> APIResponse:
         """Add model to library."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.library import ModelCategory, ModelLibrary
 
@@ -133,7 +133,7 @@ class LibraryHandlersMixin:
 
     def library_remove_model(self, request: APIRequest) -> APIResponse:
         """Remove model from library."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.library import ModelLibrary
 
@@ -147,7 +147,7 @@ class LibraryHandlersMixin:
 
     def library_download_model(self, request: APIRequest) -> APIResponse:
         """Download model URDF."""
-        if not (request is not None):
+        if request is None:
             raise ValueError("request must be provided")
         from model_generation.library import ModelLibrary
 

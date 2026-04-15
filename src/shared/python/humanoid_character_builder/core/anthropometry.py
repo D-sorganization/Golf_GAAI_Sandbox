@@ -73,7 +73,7 @@ class AnthropometryData:
         Returns:
             Interpolated SegmentAnthropometry
         """
-        if not (segment_name is not None):
+        if segment_name is None:
             raise ValueError("segment_name must be provided")
         male_data = self.male.get(segment_name)
         female_data = self.female.get(segment_name)
@@ -455,7 +455,7 @@ def get_segment_mass_ratio(segment_name: str, gender_factor: float = 0.5) -> flo
     Returns:
         Mass ratio (0.0 - 1.0)
     """
-    if not (segment_name is not None):
+    if segment_name is None:
         raise ValueError("segment_name must be provided")
     key = get_anthropometry_key(segment_name)
     data = DE_LEVA_DATA.get_segment_data(key, gender_factor)
@@ -473,7 +473,7 @@ def get_segment_length_ratio(segment_name: str, gender_factor: float = 0.5) -> f
     Returns:
         Length ratio (0.0 - 1.0)
     """
-    if not (segment_name is not None):
+    if segment_name is None:
         raise ValueError("segment_name must be provided")
     key = get_anthropometry_key(segment_name)
     data = DE_LEVA_DATA.get_segment_data(key, gender_factor)

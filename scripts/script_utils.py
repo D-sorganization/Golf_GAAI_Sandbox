@@ -188,7 +188,7 @@ def run_pytest(
     logger: logging.Logger | None = None,
 ) -> bool:
     """Run pytest with consistent configuration."""
-    if not (path is not None):
+    if path is None:
         raise ValueError("path must be provided")
     assert isinstance(verbose, bool), "verbose must be a bool"
     if markers is not None:

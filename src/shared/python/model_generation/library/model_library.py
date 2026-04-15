@@ -128,7 +128,7 @@ class ModelEntry:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> ModelEntry:
         """Create from dictionary."""
-        if not (data is not None):
+        if data is None:
             raise ValueError("data must be provided")
         fmt_str = data.get("model_format", "urdf")
         try:
@@ -420,7 +420,7 @@ class ModelLibrary:
 
     def _load_mjcf(self, path: Path, read_only: bool = False) -> ParsedModel:
         """Load an MJCF file into a ParsedModel."""
-        if not (path is not None):
+        if path is None:
             raise ValueError("path must be provided")
         import defusedxml.ElementTree as DefusedET
         from model_generation.converters.mjcf_converter import MJCFConverter
@@ -560,7 +560,7 @@ class ModelLibrary:
         Returns:
             List of discovered models
         """
-        if not (repo_name is not None):
+        if repo_name is None:
             raise ValueError("repo_name must be provided")
         if repo_name in self.KNOWN_REPOSITORIES:
             repo_config = self.KNOWN_REPOSITORIES[repo_name]
@@ -585,7 +585,7 @@ class ModelLibrary:
         config: dict[str, Any],
     ) -> list[ModelEntry]:
         """Fetch model list from repository."""
-        if not (repo_name is not None):
+        if repo_name is None:
             raise ValueError("repo_name must be provided")
         models = []
 
@@ -604,7 +604,7 @@ class ModelLibrary:
         config: dict[str, Any],
     ) -> list[ModelEntry]:
         """Fetch models from GitHub repository."""
-        if not (repo_name is not None):
+        if repo_name is None:
             raise ValueError("repo_name must be provided")
         models = []  # type: ignore
 
@@ -691,7 +691,7 @@ class ModelLibrary:
         config: dict[str, Any],
     ) -> list[ModelEntry]:
         """Fetch models from direct URL."""
-        if not (repo_name is not None):
+        if repo_name is None:
             raise ValueError("repo_name must be provided")
         models = []
         url = config.get("url")
@@ -713,7 +713,7 @@ class ModelLibrary:
 
     def _download_model(self, entry: ModelEntry) -> bool:
         """Download a model to local cache."""
-        if not (entry is not None):
+        if entry is None:
             raise ValueError("entry must be provided")
         if not entry.source_url:
             return False

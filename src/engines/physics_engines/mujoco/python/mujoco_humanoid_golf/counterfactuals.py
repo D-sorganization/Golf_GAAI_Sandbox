@@ -90,7 +90,7 @@ class CounterfactualAnalyzer:
         Args:
             model: MuJoCo model
         """
-        if not (model is not None):
+        if model is None:
             raise ValueError("model must be provided")
         self.model = model
 
@@ -128,7 +128,7 @@ class CounterfactualAnalyzer:
             CounterfactualResult with torque attribution
         """
         # 1. Compute OBSERVED acceleration (with control)
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         self._data_observed.qpos[:] = qpos
         self._data_observed.qvel[:] = qvel
@@ -214,7 +214,7 @@ class CounterfactualAnalyzer:
             CounterfactualResult with velocity attribution
         """
         # 1. Compute OBSERVED acceleration (with velocity)
-        if not (qpos is not None):
+        if qpos is None:
             raise ValueError("qpos must be provided")
         self._data_observed.qpos[:] = qpos
         self._data_observed.qvel[:] = qvel
@@ -289,7 +289,7 @@ class CounterfactualAnalyzer:
         Returns:
             List of CounterfactualResult (ZTCF) for each timestep
         """
-        if not (qpos_traj is not None):
+        if qpos_traj is None:
             raise ValueError("qpos_traj must be provided")
         results = []
 
@@ -313,7 +313,7 @@ class CounterfactualAnalyzer:
         Returns:
             List of CounterfactualResult (ZVCF) for each timestep
         """
-        if not (qpos_traj is not None):
+        if qpos_traj is None:
             raise ValueError("qpos_traj must be provided")
         results = []
 
@@ -341,7 +341,7 @@ class CounterfactualAnalyzer:
             results: Counterfactual results for trajectory
             joint_idx: Joint index to plot
         """
-        if not (times is not None):
+        if times is None:
             raise ValueError("times must be provided")
         try:
             import matplotlib.pyplot as plt

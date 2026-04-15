@@ -390,7 +390,7 @@ def compare_friction_methods(
     Example:
         >>> compare_friction_methods(100000, 0.001)
     """
-    if not (reynolds_number is not None):
+    if reynolds_number is None:
         raise ValueError("reynolds_number must be provided")
     logger.info(
         "\n╔═══════════════════════════════════════════════════════════════════╗"
@@ -496,7 +496,7 @@ def _validate_flow_params(
     errors: list[str],
 ) -> None:
     """Validate flow rate value and unit."""
-    if not (errors is not None):
+    if errors is None:
         raise ValueError("errors must be provided")
     if flow_rate is not None:
         if flow_rate <= 0:
@@ -526,7 +526,7 @@ def _validate_conditions(
     warnings: list[str],
 ) -> None:
     """Validate pressure and temperature values."""
-    if not (errors is not None):
+    if errors is None:
         raise ValueError("errors must be provided")
     if pressure is not None:
         if pressure <= 0:
@@ -556,7 +556,7 @@ def _validate_composition_and_fittings(
     warnings: list[str],
 ) -> None:
     """Validate gas composition and fitting specifications."""
-    if not (errors is not None):
+    if errors is None:
         raise ValueError("errors must be provided")
     if gas_composition:
         total = sum(gas_composition.values())
@@ -587,7 +587,7 @@ def _log_validation_report(
     is_valid: bool, errors: list[str], warnings: list[str]
 ) -> None:
     """Log a formatted validation report."""
-    if not (is_valid is not None):
+    if is_valid is None:
         raise ValueError("is_valid must be provided")
     logger.info(
         "\n╔═══════════════════════════════════════════════════════════════════╗"
@@ -664,7 +664,7 @@ def validate_inputs(
 
 def _wrap_text(text: str, width: int) -> list[str]:
     """Wrap text to specified width."""
-    if not (text is not None):
+    if text is None:
         raise ValueError("text must be provided")
     words = text.split()
     lines = []
@@ -701,7 +701,7 @@ def _resolve_pipe_geometry(
     Returns:
         Tuple of (diameter_m, roughness_m).
     """
-    if not (pipe_material is not None):
+    if pipe_material is None:
         raise ValueError("pipe_material must be provided")
     if pipe_diameter is None:
         if pipe_size is None or pipe_schedule is None:
@@ -736,7 +736,7 @@ def _resolve_gas_and_flow(
     Returns:
         Tuple of (composition, mass_flow_kg_s).
     """
-    if not (flow_rate is not None):
+    if flow_rate is None:
         raise ValueError("flow_rate must be provided")
     if gas_composition is None:
         gas_composition = {"Air": 1.0}
@@ -857,7 +857,7 @@ def calculate_pressure_drop(
         ... )
         >>> print(f"ΔP = {result['pressure_drop_bar']:.4f} bar")
     """
-    if not (pipe_length is not None):
+    if pipe_length is None:
         raise ValueError("pipe_length must be provided")
     temp_k = _convert_temperature(temperature, temperature_unit, "K")
     pressure_pa = _convert_pressure(pressure, pressure_unit, "Pa")
@@ -1002,7 +1002,7 @@ def calculate_pressure_drop_syngas(
         ... )
     """
     # Create syngas composition
-    if not (pipe_size is not None):
+    if pipe_size is None:
         raise ValueError("pipe_size must be provided")
     syngas = {
         "H2": H2_fraction,
@@ -1228,7 +1228,7 @@ def _print_warnings_and_recommendations(
     results: dict[str, Any], show_recommendations: bool
 ) -> None:
     """Log warnings and engineering recommendations."""
-    if not (results is not None):
+    if results is None:
         raise ValueError("results must be provided")
     if results.get("warnings"):
         warnings = results["warnings"]
@@ -1267,7 +1267,7 @@ def print_results(
         title: Title for the output
         show_recommendations: Whether to show engineering recommendations
     """
-    if not (results is not None):
+    if results is None:
         raise ValueError("results must be provided")
     logger.info("\n" + "═" * 80)
     logger.info(f"  {title}  ".center(80, "═"))

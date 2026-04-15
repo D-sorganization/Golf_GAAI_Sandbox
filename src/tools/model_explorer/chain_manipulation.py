@@ -174,7 +174,7 @@ class KinematicTree:
 
         def set_depth(node: ChainNode, depth: int) -> None:
             """Recursively assign depth values to each node."""
-            if not (node is not None):
+            if node is None:
                 raise ValueError("node must be provided")
             node.depth = depth
             for child in node.children:
@@ -250,7 +250,7 @@ class KinematicTree:
 
         def collect_chains(node: ChainNode, current_chain: list[ChainNode]) -> None:
             """Recursively collect root-to-leaf chains."""
-            if not (node is not None):
+            if node is None:
                 raise ValueError("node must be provided")
             current_chain = current_chain + [node]
             if node.is_leaf():
@@ -294,7 +294,7 @@ class ChainVisualizer(QGraphicsView):
 
     def set_tree(self, tree: KinematicTree) -> None:
         """Set the kinematic tree to visualize."""
-        if not (tree is not None):
+        if tree is None:
             raise ValueError("tree must be provided")
         self.tree = tree
         self._render_tree()
@@ -367,7 +367,7 @@ class ChainVisualizer(QGraphicsView):
 
     def _draw_node(self, node: ChainNode, x: float, y: float) -> None:
         """Draw a single node."""
-        if not (node is not None):
+        if node is None:
             raise ValueError("node must be provided")
         r = self.node_radius
 
@@ -430,7 +430,7 @@ class InsertSegmentDialog(QDialog):
         parent: QWidget | None = None,
     ) -> None:
         """Initialize the dialog."""
-        if not (tree is not None):
+        if tree is None:
             raise ValueError("tree must be provided")
         super().__init__(parent)
         self.tree = tree
@@ -456,7 +456,7 @@ class InsertSegmentDialog(QDialog):
     def _create_insertion_group(
         self, tree: KinematicTree, insert_after: str | None
     ) -> QGroupBox:
-        if not (tree is not None):
+        if tree is None:
             raise ValueError("tree must be provided")
         insertion_group = QGroupBox("Insertion Point")
         insertion_layout = QFormLayout(insertion_group)
@@ -522,7 +522,7 @@ class InsertSegmentDialog(QDialog):
         return joint_group
 
     def _create_reparent_group(self, tree: KinematicTree) -> QGroupBox:
-        if not (tree is not None):
+        if tree is None:
             raise ValueError("tree must be provided")
         reparent_group = QGroupBox("Re-parent Children")
         reparent_layout = QVBoxLayout(reparent_group)
@@ -553,7 +553,7 @@ class InsertSegmentDialog(QDialog):
 
     def _update_reparent_list(self, parent_name: str) -> None:
         """Update the reparent list when parent selection changes."""
-        if not (parent_name is not None):
+        if parent_name is None:
             raise ValueError("parent_name must be provided")
         if self.reparent_list is None:
             return
@@ -724,7 +724,7 @@ class ChainManipulationWidget(QWidget):
 
     def _on_node_selected(self, name: str) -> None:
         """Handle node selection."""
-        if not (name is not None):
+        if name is None:
             raise ValueError("name must be provided")
         self.selected_node = name
         node = self.tree.nodes.get(name)
@@ -763,7 +763,7 @@ class ChainManipulationWidget(QWidget):
 
     def _insert_segment(self, config: dict[str, Any]) -> None:
         """Insert a new segment into the URDF."""
-        if not (config is not None):
+        if config is None:
             raise ValueError("config must be provided")
         try:
             root = DefusedET.fromstring(self.urdf_content)

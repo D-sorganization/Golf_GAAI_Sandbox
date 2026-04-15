@@ -163,7 +163,7 @@ class PendulumPhysicsEngine(BasePhysicsEngine):
 
     def _restore_extra_checkpoint_state(self, checkpoint: StateCheckpoint) -> None:
         """Restore pendulum-specific state from checkpoint."""
-        if not (checkpoint is not None):
+        if checkpoint is None:
             raise ValueError("checkpoint must be provided")
         self.time = checkpoint.timestamp
         if "phi" in checkpoint.engine_state:
@@ -279,7 +279,7 @@ class PendulumPhysicsEngine(BasePhysicsEngine):
         Returns:
             Acceleration with tau=0 [rad/s**2] (2,)
         """
-        if not (q is not None):
+        if q is None:
             raise ValueError("q must be provided")
         if len(q) < 2 or len(v) < 2:
             return np.array([])
@@ -319,7 +319,7 @@ class PendulumPhysicsEngine(BasePhysicsEngine):
         Returns:
             Acceleration with v=0 but tau preserved [rad/s**2] (2,)
         """
-        if not (q is not None):
+        if q is None:
             raise ValueError("q must be provided")
         if len(q) < 2:
             return np.array([])

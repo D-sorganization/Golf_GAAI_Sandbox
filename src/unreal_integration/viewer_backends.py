@@ -369,7 +369,7 @@ class MeshcatBackend(ViewerBackend):
     @property
     def _visualizer(self) -> Any:
         """Get the meshcat visualizer, asserting it's initialized."""
-        if not (self._vis is not None):
+        if self._vis is None:
             raise ValueError("Meshcat visualizer not initialized")
         return self._vis
 
@@ -420,7 +420,7 @@ class MeshcatBackend(ViewerBackend):
         scale: float = 1.0,
     ) -> str:
         """Add mesh to Meshcat scene."""
-        if not (mesh is not None):
+        if mesh is None:
             raise ValueError("mesh must be provided")
         if not self._is_initialized:
             raise RuntimeError("Backend not initialized")
@@ -501,7 +501,7 @@ class MeshcatBackend(ViewerBackend):
     ) -> None:
         """Apply transform to Meshcat object."""
         # Build transformation matrix
-        if not (name is not None):
+        if name is None:
             raise ValueError("name must be provided")
         T = np.eye(4)
 
@@ -541,7 +541,7 @@ class MeshcatBackend(ViewerBackend):
 
     def remove_object(self, name: str) -> bool:
         """Remove object from Meshcat scene."""
-        if not (name is not None):
+        if name is None:
             raise ValueError("name must be provided")
         if not self._is_initialized:
             return False
@@ -609,7 +609,7 @@ class MockBackend(ViewerBackend):
         scale: float = 1.0,
     ) -> str:
         """Add mesh to mock scene."""
-        if not (mesh is not None):
+        if mesh is None:
             raise ValueError("mesh must be provided")
         if name is None:
             name = f"mock_mesh_{len(self._objects)}"
@@ -640,7 +640,7 @@ class MockBackend(ViewerBackend):
 
     def remove_object(self, name: str) -> bool:
         """Remove mock object."""
-        if not (name is not None):
+        if name is None:
             raise ValueError("name must be provided")
         if name in self._objects:
             del self._objects[name]
@@ -689,7 +689,7 @@ class PyVistaBackend(ViewerBackend):
     @property
     def plotter(self) -> Any:
         """Get the PyVista plotter, asserting it's initialized."""
-        if not (self._plotter is not None):
+        if self._plotter is None:
             raise ValueError("PyVista plotter not initialized")
         return self._plotter
 
@@ -741,7 +741,7 @@ class PyVistaBackend(ViewerBackend):
         scale: float = 1.0,
     ) -> str:
         """Add mesh to PyVista scene."""
-        if not (mesh is not None):
+        if mesh is None:
             raise ValueError("mesh must be provided")
         if not self._is_initialized:
             raise RuntimeError("Backend not initialized")
@@ -825,7 +825,7 @@ class PyVistaBackend(ViewerBackend):
     ) -> None:
         """Apply transform to PyVista actor."""
         # Build transformation matrix
-        if not (scale is not None):
+        if scale is None:
             raise ValueError("scale must be provided")
         T = np.eye(4)
 
@@ -866,7 +866,7 @@ class PyVistaBackend(ViewerBackend):
 
     def remove_object(self, name: str) -> bool:
         """Remove object from PyVista scene."""
-        if not (name is not None):
+        if name is None:
             raise ValueError("name must be provided")
         if not self._is_initialized:
             return False
@@ -1063,7 +1063,7 @@ class UnrealBridgeBackend(ViewerBackend):
         scale: float = 1.0,
     ) -> str:
         """Add mesh to tracked objects."""
-        if not (mesh is not None):
+        if mesh is None:
             raise ValueError("mesh must be provided")
         if not self._is_initialized:
             raise RuntimeError("Backend not initialized")
@@ -1105,7 +1105,7 @@ class UnrealBridgeBackend(ViewerBackend):
 
     def remove_object(self, name: str) -> bool:
         """Remove object."""
-        if not (name is not None):
+        if name is None:
             raise ValueError("name must be provided")
         if not self._is_initialized:
             return False
