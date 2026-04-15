@@ -246,6 +246,9 @@ jobs:
           echo "- This step exercises the dependency-free validator logic only." >> "$GITHUB_STEP_SUMMARY"
           echo "- It does not install or verify Drake, Pinocchio, OpenSim, or MyoSuite." >> "$GITHUB_STEP_SUMMARY"
           xvfb-run --auto-servernum pytest tests/integration/test_cross_engine_validation.py \
+            -p no:xvfb \
+            -p no:pytest_xvfb \
+            -n 0 \
             --timeout=60 \
             --timeout-method=thread \
             -v --tb=short 2>&1 | tee cross-engine-results.txt
