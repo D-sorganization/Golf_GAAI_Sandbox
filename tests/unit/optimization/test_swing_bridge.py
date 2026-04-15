@@ -519,3 +519,171 @@ class TestOptimizeSwingWithMockEngine:
 
         # Terminal velocity is the velocity part of fixed_state
         assert result.clubhead_velocity == pytest.approx(99.0)
+
+
+# =========================================================================
+# Decomposition helpers extracted from optimize_swing (issue #142)
+# =========================================================================
+
+
+class TestValidateInitialState:
+    """Unit tests for ``SwingOptimizationBridge._validate_initial_state``."""
+
+    def test_accepts_valid_state(self, small_bridge: SwingOptimizationBridge) -> None:
+        state = np.zeros(small_bridge.state_dim)
+        # Should not raise
+        small_bridge._validate_initial_state(state)
+
+    def test_rejects_non_array(self, small_bridge: SwingOptimizationBridge) -> None:
+        with pytest.raises(TypeError, match="initial_state"):
+            small_bridge._validate_initial_state([0.0] * small_bridge.state_dim)  # type: ignore[arg-type]
+
+    def test_rejects_non_1d(self, small_bridge: SwingOptimizationBridge) -> None:
+        with pytest.raises(ValueError, match="1-D"):
+            small_bridge._validate_initial_state(np.zeros((2, 2)))
+
+    def test_rejects_wrong_length(self, small_bridge: SwingOptimizationBridge) -> None:
+        with pytest.raises(ValueError, match="length"):
+            small_bridge._validate_initial_state(np.zeros(small_bridge.state_dim + 1))
+
+    def test_rejects_nonfinite(self, small_bridge: SwingOptimizationBridge) -> None:
+        bad = np.zeros(small_bridge.state_dim)
+        bad[0] = np.nan
+        with pytest.raises(ValueError, match="finite"):
+            small_bridge._validate_initial_state(bad)
+
+
+class TestComputeTotalCost:
+    """Unit tests for ``SwingOptimizationBridge._compute_total_cost``."""
+
+    def test_zero_controls_at_target_velocity(
+        self, small_bridge: SwingOptimizationBridge
+    ) -> None:
+        n = small_bridge.config.n_joints
+        controls = [np.zeros(n) for _ in range(small_bridge.config.horizon_steps)]
+        target = small_bridge.config.target_clubhead_velocity
+        total, err = small_bridge._compute_total_cost(controls, clubhead_vel=target)
+        assert err == pytest.approx(0.0)
+        assert total == pytest.approx(0.0)
+
+    def test_velocity_error_sign(self, small_bridge: SwingOptimizationBridge) -> None:
+        n = small_bridge.config.n_joints
+        controls = [np.zeros(n) for _ in range(small_bridge.config.horizon_steps)]
+        _, err = small_bridge._compute_total_cost(controls, clubhead_vel=0.0)
+        # Error = target - achieved > 0 when below target
+        assert err == pytest.approx(small_bridge.config.target_clubhead_velocity)
+
+    def test_running_cost_nonneg(self, small_bridge: SwingOptimizationBridge) -> None:
+        n = small_bridge.config.n_joints
+        controls = [np.ones(n) for _ in range(small_bridge.config.horizon_steps)]
+        target = small_bridge.config.target_clubhead_velocity
+        total, _ = small_bridge._compute_total_cost(controls, clubhead_vel=target)
+        # Terminal cost is zero when at target; running cost must be > 0
+        assert total > 0.0
+
+
+class TestHasConverged:
+    """Unit tests for ``SwingOptimizationBridge._has_converged``."""
+
+    def test_first_iteration_never_converged(
+        self, small_bridge: SwingOptimizationBridge
+    ) -> None:
+        assert not small_bridge._has_converged(
+            best_cost=10.0, total_cost=10.0, iteration=1
+        )
+
+    def test_inf_best_cost_never_converged(
+        self, small_bridge: SwingOptimizationBridge
+    ) -> None:
+        assert not small_bridge._has_converged(
+            best_cost=float("inf"), total_cost=1.0, iteration=5
+        )
+
+    def test_large_improvement_not_converged(
+        self, small_bridge: SwingOptimizationBridge
+    ) -> None:
+        assert not small_bridge._has_converged(
+            best_cost=100.0, total_cost=1.0, iteration=5
+        )
+
+    def test_tiny_improvement_converged(
+        self, small_bridge: SwingOptimizationBridge
+    ) -> None:
+        # Relative improvement ~1e-8 is below default tol 1e-6 for the
+        # small bridge (tol=1e-4 in small_config).
+        assert small_bridge._has_converged(
+            best_cost=1.0, total_cost=1.0 - 1e-8, iteration=5
+        )
+
+
+class TestApplyGradientStep:
+    """Unit tests for ``SwingOptimizationBridge._apply_gradient_step``."""
+
+    def test_leaves_first_quarter_unchanged(
+        self, small_bridge: SwingOptimizationBridge
+    ) -> None:
+        n = small_bridge.config.n_joints
+        horizon = small_bridge.config.horizon_steps
+        controls = [np.ones(n) for _ in range(horizon)]
+        before_prefix = [c.copy() for c in controls[: int(0.75 * horizon)]]
+
+        small_bridge._apply_gradient_step(controls, velocity_error=1.0, iteration=1)
+
+        for before, after in zip(
+            before_prefix, controls[: int(0.75 * horizon)], strict=True
+        ):
+            np.testing.assert_array_equal(before, after)
+
+    def test_modifies_last_quarter(self, small_bridge: SwingOptimizationBridge) -> None:
+        n = small_bridge.config.n_joints
+        horizon = small_bridge.config.horizon_steps
+        controls = [np.ones(n) for _ in range(horizon)]
+        start_idx = int(0.75 * horizon)
+
+        small_bridge._apply_gradient_step(controls, velocity_error=1.0, iteration=1)
+
+        for c in controls[start_idx:]:
+            assert not np.allclose(c, np.ones(n))
+
+    def test_zero_velocity_error_no_terminal_gradient(
+        self, small_bridge: SwingOptimizationBridge
+    ) -> None:
+        # With zero velocity_error the terminal contribution vanishes;
+        # the update is purely the control-cost regulariser.
+        n = small_bridge.config.n_joints
+        horizon = small_bridge.config.horizon_steps
+        controls = [np.zeros(n) for _ in range(horizon)]
+
+        small_bridge._apply_gradient_step(controls, velocity_error=0.0, iteration=1)
+
+        # Zero controls + zero error => zero gradient => unchanged
+        for c in controls:
+            np.testing.assert_array_equal(c, np.zeros(n))
+
+
+class TestRunOptimizationLoop:
+    """Unit tests for ``SwingOptimizationBridge._run_optimization_loop``."""
+
+    def test_returns_tuple_shape(self, small_bridge: SwingOptimizationBridge) -> None:
+        n = small_bridge.config.n_joints
+        horizon = small_bridge.config.horizon_steps
+        controls = [np.zeros(n) for _ in range(horizon)]
+        x0 = np.zeros(small_bridge.state_dim)
+
+        best_cost, converged, iteration = small_bridge._run_optimization_loop(
+            controls, x0
+        )
+
+        assert isinstance(best_cost, float)
+        assert isinstance(converged, bool)
+        assert isinstance(iteration, int)
+        assert 1 <= iteration <= small_bridge.config.max_iterations
+
+    def test_best_cost_finite(self, small_bridge: SwingOptimizationBridge) -> None:
+        n = small_bridge.config.n_joints
+        horizon = small_bridge.config.horizon_steps
+        controls = [np.zeros(n) for _ in range(horizon)]
+        x0 = np.zeros(small_bridge.state_dim)
+
+        best_cost, _, _ = small_bridge._run_optimization_loop(controls, x0)
+        assert np.isfinite(best_cost)
