@@ -12,7 +12,7 @@ Run with: streamlit run psa_webapp.py
 """
 
 from dataclasses import dataclass, field
-from typing import TypedDict
+from typing import Any, TypedDict
 
 import numpy as np
 import pandas as pd
@@ -492,36 +492,30 @@ def _render_sensitivity_tab(
         st.plotly_chart(fig2, use_container_width=True)
 
 
-def _render_o2_safety_tab(
-    total_feed: float,
-    components: list[ComponentData],
-) -> None:
-    """Render Tab 3 — O2 flammability / safety analysis."""
-    if total_feed is None:
-        raise ValueError("total_feed must be provided")
-    st.subheader("O2 Safety Analysis")
-    st.markdown("""
-    **Critical Thresholds:**
-    - H2 LFL: 4%, UFL: 75%
-    - O2 Danger Level: >2% with H2 >4%
-    """)
+_O2_SAFETY_INLET_VALUES: list[float] = [0.5, 1.0, 2.0, 5.0]
 
-    # Plot options for O2 safety
-    o2_col1, o2_col2, o2_col3 = st.columns(3)
+
+def _render_o2_safety_controls(
+    o2_col1: Any, o2_col2: Any, o2_col3: Any
+) -> tuple[str, int]:
+    """Render checkbox/slider controls and return (plot_mode, num_points)."""
     with o2_col1:
         o2_show_lines = st.checkbox("Show Lines", value=True, key="o2_lines")
     with o2_col2:
         o2_show_markers = st.checkbox("Show Markers", value=False, key="o2_markers")
     with o2_col3:
         o2_num_points = st.slider("Number of Points", 11, 51, 21, 5, key="o2_points")
+    return _resolve_plot_mode(o2_show_lines, o2_show_markers), o2_num_points
 
-    o2_plot_mode = _resolve_plot_mode(o2_show_lines, o2_show_markers)
 
-    # O2 analysis
-    inlet_o2_values = [0.5, 1.0, 2.0, 5.0]
-    s1_removal_range = np.linspace(50, 95, o2_num_points)
-
-    o2_data = []
+def _compute_o2_sensitivity_table(
+    total_feed: float,
+    components: list[ComponentData],
+    s1_removal_range: NDArray[np.floating],
+    inlet_o2_values: list[float],
+) -> pd.DataFrame:
+    """Run PSA model sweep over (S1 removal, inlet O2) and return DataFrame."""
+    o2_data: list[dict[str, float]] = []
     for s1_rem in s1_removal_range:
         row: dict[str, float] = {"S1 O2 Removal (%)": float(s1_rem)}
         for inlet_o2 in inlet_o2_values:
@@ -546,10 +540,16 @@ def _render_o2_safety_tab(
             )
             row[f"{inlet_o2}% Inlet"] = m.calculate().s2_tail_o2_pct
         o2_data.append(row)
+    return pd.DataFrame(o2_data)
 
-    df_o2 = pd.DataFrame(o2_data)
 
-    # Line plot with options
+def _render_o2_line_and_heatmap(
+    df_o2: pd.DataFrame,
+    s1_removal_range: NDArray[np.floating],
+    inlet_o2_values: list[float],
+    o2_plot_mode: str,
+) -> None:
+    """Render the O2 line plot and heatmap side by side."""
     fig_line = go.Figure()
     for inlet_o2 in inlet_o2_values:
         fig_line.add_trace(
@@ -572,7 +572,6 @@ def _render_o2_safety_tab(
     )
     st.plotly_chart(fig_line, use_container_width=True)
 
-    # Heatmap
     fig = px.imshow(
         df_o2.set_index("S1 O2 Removal (%)").T,
         labels={
@@ -585,18 +584,47 @@ def _render_o2_safety_tab(
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    # Table with highlighting
+
+def _o2_highlight_danger(val: float) -> str:
+    """Return CSS background color for an O2 cell based on danger thresholds."""
+    if isinstance(val, int | float) and val > 2.0:
+        return "background-color: #ffcccc"
+    if isinstance(val, int | float) and val > 1.5:
+        return "background-color: #ffffcc"
+    return ""
+
+
+def _render_o2_safety_tab(
+    total_feed: float,
+    components: list[ComponentData],
+) -> None:
+    """Render Tab 3 — O2 flammability / safety analysis."""
+    if total_feed is None:
+        raise ValueError("total_feed must be provided")
+    st.subheader("O2 Safety Analysis")
+    st.markdown("""
+    **Critical Thresholds:**
+    - H2 LFL: 4%, UFL: 75%
+    - O2 Danger Level: >2% with H2 >4%
+    """)
+
+    o2_col1, o2_col2, o2_col3 = st.columns(3)
+    o2_plot_mode, o2_num_points = _render_o2_safety_controls(o2_col1, o2_col2, o2_col3)
+
+    s1_removal_range = np.linspace(50, 95, o2_num_points)
+    df_o2 = _compute_o2_sensitivity_table(
+        total_feed, components, s1_removal_range, _O2_SAFETY_INLET_VALUES
+    )
+
+    _render_o2_line_and_heatmap(
+        df_o2, s1_removal_range, _O2_SAFETY_INLET_VALUES, o2_plot_mode
+    )
+
     st.markdown("**Detailed Values (Red = Dangerous >2%)**")
-
-    def highlight_danger(val: float) -> str:
-        if isinstance(val, int | float) and val > 2.0:
-            return "background-color: #ffcccc"
-        elif isinstance(val, int | float) and val > 1.5:
-            return "background-color: #ffffcc"
-        return ""
-
     st.dataframe(
-        df_o2.style.map(highlight_danger, subset=df_o2.columns[1:]).format(precision=2)
+        df_o2.style.map(_o2_highlight_danger, subset=df_o2.columns[1:]).format(
+            precision=2
+        )
     )
 
 

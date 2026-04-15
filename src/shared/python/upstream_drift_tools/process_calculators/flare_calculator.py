@@ -69,6 +69,87 @@ class FlareCalculator:
         """Initialize the flare calculator."""
         self.gas_properties = GAS_PROPERTIES
 
+    def _normalize_composition(
+        self, gas_composition: dict[str, float]
+    ) -> dict[str, float]:
+        """Normalize mole composition to fractions summing to 1 (or all zero)."""
+        total_comp = sum(gas_composition.values())
+        if total_comp == 0:
+            return dict.fromkeys(gas_composition, 0.0)
+        return {k: v / total_comp for k, v in gas_composition.items()}
+
+    def _compute_mixture_properties(
+        self, comp_fractions: dict[str, float]
+    ) -> tuple[float, float]:
+        """Compute mixture molecular weight (g/mol) and heating value (kJ/kg)."""
+        mix_mw = sum(
+            comp_fractions[gas] * self.gas_properties[gas]["mw"]
+            for gas in comp_fractions
+        )
+        mix_hv = sum(
+            comp_fractions[gas] * self.gas_properties[gas]["hv"]
+            for gas in comp_fractions
+        )
+        return mix_mw, mix_hv
+
+    def _compute_gas_density(
+        self, mix_mw: float, temperature: float, pressure: float
+    ) -> float:
+        """Compute gas density [kg/m³] from Ideal Gas Law; fallback 1.0 if T<=0."""
+        pressure_pa = pressure * BAR_TO_PA  # bar to Pa
+        mix_mw_kg = mix_mw / G_MOL_TO_KG_MOL  # g/mol to kg/mol
+
+        if temperature > 0:
+            return pressure_pa / ((R_UNIVERSAL / mix_mw_kg) * temperature)
+        return 1.0  # Fallback
+
+    def _compute_flare_diameter(
+        self, total_flow: float, gas_density: float, target_velocity: float
+    ) -> float:
+        """Compute flare stack diameter [m] from mass flow, density and exit velocity."""
+        mass_flow_kg_s = total_flow / SECONDS_PER_HOUR
+        if gas_density > 0 and target_velocity > 0:
+            area = mass_flow_kg_s / (gas_density * target_velocity)
+            return math.sqrt(4 * area / math.pi)
+        return 0.0
+
+    def _compute_flare_height(
+        self, heat_release: float, target_radiation: float
+    ) -> float:
+        """Compute flare height [m] from point source radiation model,
+        clamped to the configured minimum."""
+        emissivity = FLARE_FLAME_EMISSIVITY  # Typical for clean hydrocarbon flames
+        if target_radiation > 0:
+            height = math.sqrt(
+                emissivity * heat_release / (4 * math.pi * target_radiation)
+            )
+        else:
+            height = 0.0
+        return max(height, FLARE_MIN_HEIGHT)
+
+    @staticmethod
+    def _validate_flare_inputs(
+        total_flow: float,
+        gas_composition: dict[str, float],
+        temperature: float,
+        pressure: float,
+    ) -> None:
+        """Validate flare sizing preconditions (DbC)."""
+        assert total_flow > 0, f"total_flow must be positive, got {total_flow}"
+        assert temperature > 0, f"temperature must be positive (K), got {temperature}"
+        assert pressure > 0, f"pressure must be positive (bar), got {pressure}"
+        assert len(gas_composition) > 0, "gas_composition must not be empty"
+
+    @staticmethod
+    def _validate_flare_result(result: FlareDesign) -> None:
+        """Validate flare sizing postconditions (DbC)."""
+        assert result.height >= FLARE_MIN_HEIGHT, (
+            f"Flare height must be >= minimum ({FLARE_MIN_HEIGHT}), got {result.height}"
+        )
+        assert result.diameter >= 0, (
+            f"Flare diameter must be non-negative, got {result.diameter}"
+        )
+
     def calculate_flare_size(
         self,
         total_flow: float,  # kg/hr
@@ -87,93 +168,26 @@ class FlareCalculator:
         Returns:
             FlareDesign object with calculated parameters
         """
-        # DbC preconditions
-        assert total_flow > 0, f"total_flow must be positive, got {total_flow}"
-        assert temperature > 0, f"temperature must be positive (K), got {temperature}"
-        assert pressure > 0, f"pressure must be positive (bar), got {pressure}"
-        assert len(gas_composition) > 0, "gas_composition must not be empty"
+        self._validate_flare_inputs(total_flow, gas_composition, temperature, pressure)
 
-        # Normalize composition to fractions
-        total_comp = sum(gas_composition.values())
-        if total_comp == 0:
-            comp_fractions = dict.fromkeys(gas_composition, 0.0)
-        else:
-            comp_fractions = {k: v / total_comp for k, v in gas_composition.items()}
-
-        # Calculate mixture properties
-        mix_mw = sum(
-            comp_fractions[gas] * self.gas_properties[gas]["mw"]
-            for gas in comp_fractions
-        )
-        mix_hv = sum(
-            comp_fractions[gas] * self.gas_properties[gas]["hv"]
-            for gas in comp_fractions
-        )
-
-        # Calculate heat release
-        # kg/hr * kJ/kg * (1 hr / 3600 s) = kJ/s = kW
+        comp_fractions = self._normalize_composition(gas_composition)
+        mix_mw, mix_hv = self._compute_mixture_properties(comp_fractions)
         heat_release = total_flow * mix_hv / SECONDS_PER_HOUR
+        gas_density = self._compute_gas_density(mix_mw, temperature, pressure)
 
-        # Calculate gas density [kg/m³] using Ideal Gas Law
-        # P = density * R_specific * T
-        # density = P / (R_specific * T)
-        # R_specific = R_universal / MW
-        # Pressure in Pa, MW in kg/mol (g/mol / 1000)
-        pressure_pa = pressure * BAR_TO_PA  # bar to Pa
-        mix_mw_kg = mix_mw / G_MOL_TO_KG_MOL  # g/mol to kg/mol
-
-        if temperature > 0:
-            gas_density = pressure_pa / ((R_UNIVERSAL / mix_mw_kg) * temperature)
-        else:
-            gas_density = 1.0  # Fallback
-
-        # Calculate flare diameter (simplified API 521 method)
-        # Exit velocity target: 0.5 Mach for smokeless operation or max 170 m/s
-        # Using simplified target velocity
         target_velocity = FLARE_MAX_EXIT_VELOCITY  # m/s
-
-        # Calculate required cross-sectional area
-        mass_flow_kg_s = total_flow / SECONDS_PER_HOUR
-        if gas_density > 0 and target_velocity > 0:
-            area = mass_flow_kg_s / (gas_density * target_velocity)
-            diameter = math.sqrt(4 * area / math.pi)
-        else:
-            diameter = 0.0
-
-        # Calculate flare height (simplified radiation method)
-        # Target radiation intensity: 1.6 kW/m² at ground level for safe access
         target_radiation = FLARE_SAFE_RADIATION_INTENSITY  # kW/m²
-        emissivity = FLARE_FLAME_EMISSIVITY  # Typical for clean hydrocarbon flames
-
-        # Simplified height calculation from point source model
-        # I = (tau * F * Q) / (4 * pi * R^2)
-        # Assuming tau(transmissivity) integrated into emissivity or simplistic model
-        # D = sqrt((tau * F * Q) / (4 * pi * K))
-        # Here matching original logic: H = sqrt(em * Q / (4 * pi * I))
-        if target_radiation > 0:
-            height = math.sqrt(
-                emissivity * heat_release / (4 * math.pi * target_radiation)
-            )
-        else:
-            height = 0.0
-
-        # Ensure minimum height
-        height = max(height, FLARE_MIN_HEIGHT)
 
         result = FlareDesign(
-            height=height,
-            diameter=diameter,
+            height=self._compute_flare_height(heat_release, target_radiation),
+            diameter=self._compute_flare_diameter(
+                total_flow, gas_density, target_velocity
+            ),
             exit_velocity=target_velocity,
             heat_release=heat_release,
             radiation_intensity=target_radiation,
         )
-        # DbC postconditions
-        assert result.height >= FLARE_MIN_HEIGHT, (
-            f"Flare height must be >= minimum ({FLARE_MIN_HEIGHT}), got {result.height}"
-        )
-        assert result.diameter >= 0, (
-            f"Flare diameter must be non-negative, got {result.diameter}"
-        )
+        self._validate_flare_result(result)
         return result
 
     def calculate_radiation_zones(self, flare_design: FlareDesign) -> dict[str, float]:

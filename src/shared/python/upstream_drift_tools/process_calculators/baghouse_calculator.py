@@ -320,41 +320,17 @@ class BaghouseCalculator:
             a_fill,
         )
 
-    def calculate(
-        self,
+    @staticmethod
+    def _validate_calculate_inputs(
         gas_flow_kg_s: float,
         inlet_temp_k: float,
         pressure_pa: float,
-        composition: dict[str, float],
-        solid_carbon_in_kg_hr: float,
-        ash_in_kg_hr: float,
-        carbon_removal_efficiency: float,  # 0-1
-        ash_removal_efficiency: float,  # 0-1
-        heat_loss_w: float,
+        carbon_removal_efficiency: float,
+        ash_removal_efficiency: float,
         drum_volume_m3: float,
         solid_density_kg_m3: float,
-        bag_area_ft2: float,
-    ) -> BaghouseResult:
-        """Calculate baghouse performance.
-
-        Args:
-            gas_flow_kg_s: Gas mass flow rate [kg/s]
-            inlet_temp_k: Inlet temperature [K]
-            pressure_pa: Pressure [Pa]
-            composition: Gas composition dictionary
-            solid_carbon_in_kg_hr: Solid carbon input rate [kg/hr]
-            ash_in_kg_hr: Ash input rate [kg/hr]
-            carbon_removal_efficiency: Carbon removal efficiency (0-1)
-            ash_removal_efficiency: Ash removal efficiency (0-1)
-            heat_loss_w: Heat loss rate [W]
-            drum_volume_m3: Collection drum volume [m³]
-            solid_density_kg_m3: Density of collected solids [kg/m³]
-            bag_area_ft2: Total bag filter area [ft²]
-
-        Returns:
-            BaghouseResult object
-        """
-        # DbC preconditions on physical quantities
+    ) -> None:
+        """Validate physical preconditions for ``calculate``."""
         assert gas_flow_kg_s > 0, f"Gas flow must be positive, got {gas_flow_kg_s}"
         assert inlet_temp_k > 0, f"Temperature must be positive (K), got {inlet_temp_k}"
         assert pressure_pa > 0, f"Pressure must be positive, got {pressure_pa}"
@@ -369,14 +345,36 @@ class BaghouseCalculator:
             f"Solid density must be positive, got {solid_density_kg_m3}"
         )
 
-        outlet_temp_c, flow_acfm, flow_scfm = self._calculate_outlet_thermal(
-            gas_flow_kg_s,
-            inlet_temp_k,
-            pressure_pa,
-            composition,
-            heat_loss_w,
-        )
+    @staticmethod
+    def _compute_ash_stream_composition(
+        carbon_removed: float, ash_removed: float, total_solids: float
+    ) -> dict[str, float]:
+        """Compute ash stream fractional composition."""
+        return {
+            "carbon_fraction": (
+                carbon_removed / total_solids if total_solids > 0 else 0.0
+            ),
+            "ash_fraction": (ash_removed / total_solids if total_solids > 0 else 0.0),
+        }
 
+    @staticmethod
+    def _compute_air_to_cloth(flow_acfm: float, bag_area_ft2: float) -> float:
+        """Return the air-to-cloth ratio [ft/min]; zero if bag area is non-positive."""
+        return flow_acfm / bag_area_ft2 if bag_area_ft2 > 0 else 0.0
+
+    def _build_baghouse_result(
+        self,
+        *,
+        gas_flow_kg_s: float,
+        bag_area_ft2: float,
+        outlet_temp_c: float,
+        flow_acfm: float,
+        flow_scfm: float,
+        drum_sizing: tuple[float, float, float, float, float, float, float],
+        carbon_removal_efficiency: float,
+        ash_removal_efficiency: float,
+    ) -> BaghouseResult:
+        """Assemble the final BaghouseResult dataclass from pre-computed quantities."""
         (
             carbon_removed,
             ash_removed,
@@ -385,24 +383,7 @@ class BaghouseCalculator:
             fill_days,
             c_fill,
             a_fill,
-        ) = self._calculate_drum_sizing(
-            solid_carbon_in_kg_hr,
-            ash_in_kg_hr,
-            carbon_removal_efficiency,
-            ash_removal_efficiency,
-            drum_volume_m3,
-            solid_density_kg_m3,
-        )
-
-        air_to_cloth = flow_acfm / bag_area_ft2 if bag_area_ft2 > 0 else 0.0
-
-        ash_stream_comp = {
-            "carbon_fraction": (
-                carbon_removed / total_solids if total_solids > 0 else 0.0
-            ),
-            "ash_fraction": (ash_removed / total_solids if total_solids > 0 else 0.0),
-        }
-
+        ) = drum_sizing
         return BaghouseResult(
             carbon_removed_rate=carbon_removed,
             ash_removed_rate=ash_removed,
@@ -414,11 +395,60 @@ class BaghouseCalculator:
             clean_gas_flow_rate=gas_flow_kg_s * SECONDS_PER_HOUR,
             flow_acfm=flow_acfm,
             flow_scfm=flow_scfm,
-            air_to_cloth_ratio=air_to_cloth,
+            air_to_cloth_ratio=self._compute_air_to_cloth(flow_acfm, bag_area_ft2),
             outlet_temperature_c=outlet_temp_c,
-            ash_stream_composition=ash_stream_comp,
+            ash_stream_composition=self._compute_ash_stream_composition(
+                carbon_removed, ash_removed, total_solids
+            ),
             removal_efficiency={
                 "carbon": carbon_removal_efficiency * 100.0,
                 "ash": ash_removal_efficiency * 100.0,
             },
+        )
+
+    def calculate(
+        self,
+        gas_flow_kg_s: float,
+        inlet_temp_k: float,
+        pressure_pa: float,
+        composition: dict[str, float],
+        solid_carbon_in_kg_hr: float,
+        ash_in_kg_hr: float,
+        carbon_removal_efficiency: float,
+        ash_removal_efficiency: float,
+        heat_loss_w: float,
+        drum_volume_m3: float,
+        solid_density_kg_m3: float,
+        bag_area_ft2: float,
+    ) -> BaghouseResult:
+        """Calculate baghouse performance; see :class:`BaghouseResult` for output."""
+        self._validate_calculate_inputs(
+            gas_flow_kg_s,
+            inlet_temp_k,
+            pressure_pa,
+            carbon_removal_efficiency,
+            ash_removal_efficiency,
+            drum_volume_m3,
+            solid_density_kg_m3,
+        )
+        outlet_temp_c, flow_acfm, flow_scfm = self._calculate_outlet_thermal(
+            gas_flow_kg_s, inlet_temp_k, pressure_pa, composition, heat_loss_w
+        )
+        drum_sizing = self._calculate_drum_sizing(
+            solid_carbon_in_kg_hr,
+            ash_in_kg_hr,
+            carbon_removal_efficiency,
+            ash_removal_efficiency,
+            drum_volume_m3,
+            solid_density_kg_m3,
+        )
+        return self._build_baghouse_result(
+            gas_flow_kg_s=gas_flow_kg_s,
+            bag_area_ft2=bag_area_ft2,
+            outlet_temp_c=outlet_temp_c,
+            flow_acfm=flow_acfm,
+            flow_scfm=flow_scfm,
+            drum_sizing=drum_sizing,
+            carbon_removal_efficiency=carbon_removal_efficiency,
+            ash_removal_efficiency=ash_removal_efficiency,
         )
