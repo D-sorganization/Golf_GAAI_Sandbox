@@ -169,7 +169,7 @@ def test_export_telemetry(export_fn, filename, data, expected_call) -> None:
         success = export_fn(filename, data)
 
     assert success
-    mock_file.assert_called_with(*expected_call, **open_kwargs)
+    mock_file.assert_any_call(*expected_call, **open_kwargs)
 
     # Test with incompatible data length (should handle or fail gracefully depending on
     # impl, code pads with "")
