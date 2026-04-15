@@ -17,9 +17,10 @@ except (ImportError, OSError):
     QFileDialog = None  # type: ignore[misc, assignment]
     QMessageBox = None  # type: ignore[misc, assignment]
 
-pytestmark = pytest.mark.skipif(
-    not PYQT6_AVAILABLE, reason="PyQt6 GUI libraries not available"
-)
+pytestmark = [
+    pytest.mark.skipif(not PYQT6_AVAILABLE, reason="PyQt6 GUI libraries not available"),
+    pytest.mark.slow,
+]
 
 if PYQT6_AVAILABLE:
     from shared.python.pose_estimation.openpose_gui import OpenPoseGUI
