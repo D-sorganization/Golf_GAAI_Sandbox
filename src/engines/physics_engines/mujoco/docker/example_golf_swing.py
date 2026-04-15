@@ -87,14 +87,23 @@ SWING_SEQUENCE = ["Address", "Backswing", "Downswing", "Impact", "FollowThrough"
 DURATION = [50, 60, 20, 10, 60]  # ticks per phase
 
 
+def _qpos_row_names(env) -> list[str]:
+    """Extract the qpos row-axis joint names from a dm_control environment.
+
+    Wraps the deep ``env.physics.named.data.qpos.axes.row.names`` chain into
+    a single named helper so callers don't need to reach through the
+    dm_control internal API structure (Law of Demeter).
+    """
+    return list(env.physics.named.data.qpos.axes.row.names)
+
+
 def get_cmu_joint_names(env) -> list[str]:
     """Retrieve joint names for the CMU model."""
     # This is a best-effort inspection.
     # If explicit names aren't in named.data, we might need a hardcoded
     # mapping or try to print them.
     try:
-        names = env.physics.named.data.qpos.axes.row.names
-        return list(names)
+        return _qpos_row_names(env)
     except (RuntimeError, ValueError, OSError):
         return []
 

@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import contextlib
+from typing import Any
 
-from fastapi import APIRouter, Request, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, Request, WebSocket, WebSocketDisconnect
 
 from src.shared.python.core.contracts import precondition
 from src.shared.python.logging_pkg.logging_config import get_logger
@@ -12,6 +13,16 @@ from src.shared.python.logging_pkg.logging_config import get_logger
 logger = get_logger(__name__)
 
 router = APIRouter()
+
+
+def get_chat_service(request: Request) -> Any:
+    """FastAPI dependency that returns the chat service from app state.
+
+    Wraps the ``request.app.state.chat_service`` chain so REST handlers
+    don't reach three levels into the framework; they declare their need
+    with ``chat_service: ChatService = Depends(get_chat_service)``.
+    """
+    return request.app.state.chat_service
 
 
 @router.websocket("/ws/chat/{session_id}")
@@ -31,7 +42,7 @@ async def chat_stream(websocket: WebSocket, session_id: str = "new") -> None:
             {"type": "history", "messages": [...]}
             {"type": "error", "detail": "..."}
     """
-    if websocket is None:
+    if not (websocket is not None):
         raise ValueError("websocket must be provided")
     await websocket.accept()
 
@@ -106,19 +117,20 @@ async def chat_stream(websocket: WebSocket, session_id: str = "new") -> None:
 
 
 @router.get("/chat/sessions")
-async def list_sessions(request: Request) -> list[dict]:
+async def list_sessions(chat_service: Any = Depends(get_chat_service)) -> list[dict]:
     """List all active chat sessions."""
-    return request.app.state.chat_service.list_sessions()  # type: ignore[no-any-return]
+    return chat_service.list_sessions()  # type: ignore[no-any-return]
 
 
 @router.get("/chat/sessions/{session_id}/history")
 @precondition(
-    lambda request, session_id: session_id is not None and len(session_id.strip()) > 0,
+    lambda session_id, chat_service: session_id is not None and len(session_id.strip()) > 0,
     "Session ID must be a non-empty string",
 )
-async def get_history(request: Request, session_id: str) -> dict:
+async def get_history(
+    session_id: str,
+    chat_service: Any = Depends(get_chat_service),
+) -> dict:
     """Get message history for a session."""
-    if request is None:
-        raise ValueError("request must be provided")
-    messages = request.app.state.chat_service.get_session_history(session_id)
+    messages = chat_service.get_session_history(session_id)
     return {"session_id": session_id, "messages": messages}
