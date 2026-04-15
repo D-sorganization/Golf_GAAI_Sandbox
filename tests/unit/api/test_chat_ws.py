@@ -189,12 +189,12 @@ class TestChatActionHelpers:
             async def send_json(self, payload):
                 sent.append(payload)
 
-        session_id = await chat_ws._create_new_session(FakeWebSocket(), mock_chat_service)
+        session_id = await chat_ws._create_new_session(
+            FakeWebSocket(), mock_chat_service
+        )
 
         assert session_id == "test-session-123"
-        assert sent == [
-            {"type": "session_created", "session_id": "test-session-123"}
-        ]
+        assert sent == [{"type": "session_created", "session_id": "test-session-123"}]
 
 
 class TestRESTEndpoints:

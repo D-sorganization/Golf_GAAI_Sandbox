@@ -97,9 +97,7 @@ async def _chat_receive_loop(
     """Receive and dispatch chat actions until the client disconnects."""
     while True:
         msg = await websocket.receive_json()
-        session_id = await _handle_chat_action(
-            websocket, chat_service, session_id, msg
-        )
+        session_id = await _handle_chat_action(websocket, chat_service, session_id, msg)
 
 
 @router.websocket("/ws/chat/{session_id}")
@@ -152,8 +150,9 @@ async def list_sessions(
 
 @router.get("/chat/sessions/{session_id}/history")
 @precondition(
-    lambda session_id, **_kwargs: session_id is not None
-    and len(session_id.strip()) > 0,
+    lambda session_id, **_kwargs: (
+        session_id is not None and len(session_id.strip()) > 0
+    ),
     "Session ID must be a non-empty string",
 )
 async def get_history(
