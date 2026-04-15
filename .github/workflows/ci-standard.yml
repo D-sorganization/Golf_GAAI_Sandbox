@@ -160,7 +160,7 @@ jobs:
   tests:
     needs: [pick-runner, quality-gate]
     runs-on: ${{ needs.pick-runner.outputs.runner }}
-    timeout-minutes: 45 # Allow the four-worker core suite to finish.
+    timeout-minutes: 45 # Allow the serial core suite to finish.
     strategy:
       matrix:
         python: ["3.11"]
@@ -209,13 +209,13 @@ jobs:
           PYTHONPATH: .:src:src/engines/physics_engines/mujoco/python:src/engines/physics_engines/mujoco/python/mujoco_humanoid_golf
           QT_QPA_PLATFORM: offscreen
         run: |
-          # Keep fan-out modest across hosted and self-hosted runners. Large
-          # auto-sized xdist pools have caused workers to die near suite end,
-          # leaving pytest without a failure summary until the job times out.
-          PYTEST_XDIST_ARGS="-n 4"
+          # Disable xdist in the self-hosted core lane. Worker processes have
+          # repeatedly died near suite end, leaving pytest without a failure
+          # summary until the job times out.
+          PYTEST_XDIST_ARGS="-n 0"
 
           # Run the default, dependency-light CI lane:
-          # - Parallel execution (-n 4)
+          # - Serial execution (-n 0)
           # - 60 second timeout per test
           # - Skip slow tests in CI for faster feedback
           # - Full test execution without coverage instrumentation; coverage
