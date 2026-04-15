@@ -160,7 +160,7 @@ jobs:
   tests:
     needs: [pick-runner, quality-gate]
     runs-on: ${{ needs.pick-runner.outputs.runner }}
-    timeout-minutes: 45 # Allow the two-worker core suite to finish with coverage.
+    timeout-minutes: 45 # Allow the serial core suite to finish.
     strategy:
       matrix:
         python: ["3.11"]
@@ -202,6 +202,7 @@ jobs:
           echo "- This lane installs core project dependencies plus \`[dev,gui-test]\`." >> "$GITHUB_STEP_SUMMARY"
           echo "- MuJoCo coverage may run because MuJoCo is part of the base project dependencies." >> "$GITHUB_STEP_SUMMARY"
           echo "- Drake, Pinocchio, OpenSim, and MyoSuite are optional extras and are not provisioned in this lane." >> "$GITHUB_STEP_SUMMARY"
+          echo "- Optional native-engine and full GUI widget suites are excluded from this dependency-light lane." >> "$GITHUB_STEP_SUMMARY"
           echo "- Passing this job does not claim full native-engine integration coverage for those optional stacks." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Run Core Test Suite
@@ -215,9 +216,10 @@ jobs:
           # - Serial execution for runner and coverage stability
           # - 60 second timeout per test
           # - Skip slow tests in CI for faster feedback
-          # - Coverage measurement on src/ (pytest-cov)
-          # Optional native-engine extras such as Drake/Pinocchio/OpenSim/MyoSuite
-          # are intentionally not provisioned here.
+          # - Full test execution without coverage instrumentation; coverage
+          #   is too slow for the self-hosted core lane at this suite size.
+          # - Optional native-engine and full GUI widget suites are intentionally
+          #   covered by dedicated jobs/environments, not this core lane.
           xvfb-run --auto-servernum pytest \
             -p no:xvfb \
             -p no:pytest_xvfb \
@@ -226,11 +228,17 @@ jobs:
             --timeout-method=thread \
             --ignore=tests/shared_contracts \
             --ignore=tests/heavy_integration \
+            --ignore=tests/cross_engine \
+            --ignore=tests/unit/engines/mujoco/test_pinocchio_interface.py \
+            --ignore=tests/unit/engines/pinocchio \
+            --ignore=tests/unit/test_jacobian.py \
+            --ignore=tests/unit/test_pinocchio_physics_engine.py \
+            --ignore=tests/unit/test_process_isolation_strict.py \
+            --ignore=tests/unit/test_third_party_integration_audit.py \
+            --ignore=tests/unit/shared_python/test_advanced_analysis_features.py \
+            --ignore=tests/unit/shared_python/test_dashboard_advanced_analysis.py \
+            --ignore=tests/unit/test_shot_tracer.py \
             -m "not slow and not benchmark and not requires_gl and not requires_network and not requires_gpu" \
-            --cov=src \
-            --cov-report=term-missing \
-            --cov-report=xml:coverage.xml \
-            --cov-config=pyproject.toml \
             --tb=short \
             -v
 

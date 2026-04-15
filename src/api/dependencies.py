@@ -12,12 +12,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, cast
 
 from fastapi import HTTPException, Request
+from starlette.requests import HTTPConnection
 
 if TYPE_CHECKING:
     from src.shared.python.engine_core.engine_manager import EngineManager
     from src.shared.python.gui_pkg.video_pose_pipeline import VideoPosePipeline
 
     from .services.analysis_service import AnalysisService
+    from .services.chat_service import ChatService
     from .services.simulation_service import SimulationService
 
 
@@ -75,6 +77,24 @@ def get_analysis_service(request: Request) -> AnalysisService:
     if service is None:
         raise HTTPException(status_code=503, detail="Analysis service not initialized")
     return cast("AnalysisService", service)
+
+
+def get_chat_service(connection: HTTPConnection) -> ChatService:
+    """Retrieve the ChatService from app state.
+
+    Args:
+        connection: FastAPI request or WebSocket connection.
+
+    Returns:
+        ChatService instance.
+
+    Raises:
+        HTTPException: If chat service not initialized.
+    """
+    service = getattr(connection.app.state, "chat_service", None)
+    if service is None:
+        raise HTTPException(status_code=503, detail="Chat service not initialized")
+    return cast("ChatService", service)
 
 
 def get_video_pipeline(request: Request) -> VideoPosePipeline:

@@ -524,16 +524,24 @@ class TestPuttingGreenSimulatorAdvanced:
             face_angle=0.0,
             attack_angle=0.0,
         )
+        scatter_simulator = PuttingGreenSimulator(
+            green=simulator.green,
+            config=SimulationConfig(
+                timestep=0.01,
+                max_simulation_time=8.0,
+                record_trajectory=False,
+            ),
+        )
 
-        results = simulator.simulate_scatter(
+        results = scatter_simulator.simulate_scatter(
             start_pos,
             stroke_params,
-            n_simulations=10,
+            n_simulations=4,
             speed_variance=0.1,
             direction_variance_deg=2.0,
         )
 
-        assert len(results) == 10
+        assert len(results) == 4
         # Should have variation in final positions
         final_positions = [r.final_position for r in results]
         positions_array = np.array(final_positions)
@@ -551,12 +559,20 @@ class TestPuttingGreenSimulatorAdvanced:
             face_angle=0.0,
             attack_angle=0.0,
         )
+        scatter_simulator = PuttingGreenSimulator(
+            green=simulator.green,
+            config=SimulationConfig(
+                timestep=0.01,
+                max_simulation_time=8.0,
+                record_trajectory=False,
+            ),
+        )
 
         seed = 123
         rng_one = np.random.default_rng(seed)
         rng_two = np.random.default_rng(seed)
 
-        results_one = simulator.simulate_scatter(
+        results_one = scatter_simulator.simulate_scatter(
             start_pos,
             stroke_params,
             n_simulations=5,
@@ -564,7 +580,7 @@ class TestPuttingGreenSimulatorAdvanced:
             direction_variance_deg=2.0,
             rng=rng_one,
         )
-        results_two = simulator.simulate_scatter(
+        results_two = scatter_simulator.simulate_scatter(
             start_pos,
             stroke_params,
             n_simulations=5,

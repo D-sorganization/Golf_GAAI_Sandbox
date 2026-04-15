@@ -6,12 +6,14 @@ and REST fallback endpoints.
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 
+from src.api.dependencies import get_chat_service
 from src.api.routes import chat_ws
 
 pytestmark = pytest.mark.anyio
@@ -169,6 +171,32 @@ class TestWebSocket:
             assert "Unknown action" in error["detail"]
 
 
+class TestChatActionHelpers:
+    """Tests for focused WebSocket action helpers."""
+
+    def test_resolve_new_session(self, mock_chat_service):
+        """The session resolver should create a session for the new sentinel."""
+        assert chat_ws._resolve_session_id(mock_chat_service, "new") == (
+            "test-session-123"
+        )
+        mock_chat_service.get_or_create_session.assert_called_with(None)
+
+    async def test_create_new_session_sends_response(self, mock_chat_service):
+        """The new-session helper should return and emit the created session."""
+        sent: list[dict] = []
+
+        class FakeWebSocket:
+            async def send_json(self, payload):
+                sent.append(payload)
+
+        session_id = await chat_ws._create_new_session(
+            FakeWebSocket(), mock_chat_service
+        )
+
+        assert session_id == "test-session-123"
+        assert sent == [{"type": "session_created", "session_id": "test-session-123"}]
+
+
 class TestRESTEndpoints:
     """Tests for the REST fallback endpoints."""
 
@@ -189,3 +217,25 @@ class TestRESTEndpoints:
         assert data["session_id"] == "test-session-123"
         assert len(data["messages"]) == 1
         assert data["messages"][0]["role"] == "user"
+
+
+class TestDependencyProvider:
+    """Tests for the chat service dependency."""
+
+    def test_get_chat_service_returns_state_service(self, mock_chat_service):
+        """The dependency should resolve the service from app state."""
+        connection = SimpleNamespace(
+            app=SimpleNamespace(state=SimpleNamespace(chat_service=mock_chat_service))
+        )
+
+        assert get_chat_service(connection) is mock_chat_service
+
+    def test_get_chat_service_missing_raises_503(self):
+        """The dependency should fail clearly when the service is absent."""
+        connection = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace()))
+
+        with pytest.raises(HTTPException) as excinfo:
+            get_chat_service(connection)
+
+        assert excinfo.value.status_code == 503
+        assert excinfo.value.detail == "Chat service not initialized"
