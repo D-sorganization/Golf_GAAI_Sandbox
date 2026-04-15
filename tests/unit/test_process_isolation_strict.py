@@ -20,9 +20,17 @@ TEST_PINOCCHIO_STRICT = ISOLATED_TESTS_DIR / "test_pinocchio_strict.py"
 class TestProcessIsolationStrict:
     """Run specific strict unit tests in isolated subprocesses."""
 
-    def run_isolated_test(self, test_file: Path):
+    def run_isolated_test(self, test_file: Path) -> None:
         """Helper to run pytest on a single file in a subprocess."""
-        cmd = [sys.executable, "-m", "pytest", str(test_file), "-v", "--no-cov"]
+        cmd = [
+            sys.executable,
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            str(test_file),
+            "-v",
+        ]
 
         import os
 
@@ -30,13 +38,21 @@ class TestProcessIsolationStrict:
         env.pop("MUJOCO_GL", None)
 
         # Capture output to help debugging if it fails
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=False,  # We check returncode manually for better error reporting
-            env=env,
-        )
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=False,  # We check returncode manually for better error reporting
+                env=env,
+                timeout=30,
+            )
+        except subprocess.TimeoutExpired as exc:
+            pytest.fail(
+                f"Isolated test {test_file.name} timed out after {exc.timeout}s.\n"
+                f"--- STDOUT ---\n{exc.stdout or ''}\n"
+                f"--- STDERR ---\n{exc.stderr or ''}"
+            )
 
         if result.returncode != 0:
             pytest.fail(
