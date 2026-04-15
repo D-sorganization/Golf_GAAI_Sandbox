@@ -10,8 +10,8 @@
 | Primary Language(s) | Python 3.10+, Rust, TypeScript, MATLAB |
 | License | MIT |
 | Current Version | `2.1.0` |
-| Spec Version | `1.0.5` |
-| Last Spec Update | `2026-04-14` |
+| Spec Version | `1.0.6` |
+| Last Spec Update | `2026-04-15` |
 
 ## 2. Purpose
 
@@ -130,6 +130,7 @@ The repository is organized around a Python application core with multiple front
 
 | Date | Version | Changes |
 | --- | --- | --- |
+| 2026-04-15 | 1.0.6 | Disabled both pytest Xvfb plugin entrypoint names in the CI standard test lanes so the `xvfb-run` wrapper remains the only X server provider on self-hosted runners. |
 | 2026-04-14 | 1.0.5 | Disabled the `pytest_xvfb` plugin in the CI standard workflow so the `xvfb-run`-wrapped test lanes do not try to start a second Xvfb instance. |
 | 2026-04-11 | 1.0.4 | Decomposed the 5 largest Python functions into private helpers (issue #146): `_add_live_kinematics_overlays`, `compute_jacobian`, `validate_physical_bounds`, `_build_engine_profiles`, and `draw_letter`. Public signatures unchanged. |
 | 2026-04-11 | 1.0.3 | Removed 7 `print()` call violations from `src/` to satisfy the `no-print-in-src` pre-commit rule (issue #148): converted subprocess check code to `sys.stdout.write`, switched a MakeHuman script template warning to `sys.stderr.write`, and reformatted doctest examples in `mesh_loader.py`. |
