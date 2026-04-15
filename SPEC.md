@@ -10,7 +10,7 @@
 | Primary Language(s) | Python 3.10+, Rust, TypeScript, MATLAB |
 | License | MIT |
 | Current Version | `2.1.0` |
-| Spec Version | `1.0.6` |
+| Spec Version | `1.0.7` |
 | Last Spec Update | `2026-04-15` |
 
 ## 2. Purpose
@@ -130,6 +130,7 @@ The repository is organized around a Python application core with multiple front
 
 | Date | Version | Changes |
 | --- | --- | --- |
+| 2026-04-15 | 1.0.7 | Stabilized the standard Python test lane by using a per-job runner-temp coverage data file and bounding self-hosted xdist fanout so full-suite runs do not overload runners or reuse stale coverage databases. |
 | 2026-04-15 | 1.0.6 | Disabled both pytest Xvfb plugin entrypoint names in the CI standard test lanes so the `xvfb-run` wrapper remains the only X server provider on self-hosted runners. |
 | 2026-04-14 | 1.0.5 | Disabled the `pytest_xvfb` plugin in the CI standard workflow so the `xvfb-run`-wrapped test lanes do not try to start a second Xvfb instance. |
 | 2026-04-11 | 1.0.4 | Decomposed the 5 largest Python functions into private helpers (issue #146): `_add_live_kinematics_overlays`, `compute_jacobian`, `validate_physical_bounds`, `_build_engine_profiles`, and `draw_letter`. Public signatures unchanged. |

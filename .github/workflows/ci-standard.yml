@@ -209,14 +209,15 @@ jobs:
           PYTHONPATH: .:src:src/engines/physics_engines/mujoco/python:src/engines/physics_engines/mujoco/python/mujoco_humanoid_golf
           QT_QPA_PLATFORM: offscreen
         run: |
-          PYTEST_XDIST_ARGS="-n auto"
+          export COVERAGE_FILE="$RUNNER_TEMP/.coverage"
+          PYTEST_XDIST_ARGS="-n 4"
           if [ "${{ needs.pick-runner.outputs.runner }}" = "ubuntu-latest" ]; then
             # Hosted fallback has been dropping xdist workers; use a smaller fan-out there.
             PYTEST_XDIST_ARGS="-n 2"
           fi
 
           # Run the default, dependency-light CI lane:
-          # - Parallel execution (-n auto)
+          # - Bounded parallel execution for runner stability
           # - 60 second timeout per test
           # - Skip slow tests in CI for faster feedback
           # - Coverage measurement on src/ (pytest-cov)
