@@ -1,0 +1,643 @@
+{
+  "timestamp": "2026-04-15T17:48:59.542421",
+  "repository": "Golf_GAAI_Sandbox",
+  "files_analyzed": 1897,
+  "issues": [
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/build_hooks.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/tests/unit/test_build_hooks.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/setup_golf_suite.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/mujoco/python/playground_experiments/humanoid_cm_demo.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 6 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/examples/01_basic_simulation.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/scripts/migrate_api_keys.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/setup_golf_suite.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/mujoco/python/playground_experiments/humanoid_cm_demo.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/mujoco/python/playground_experiments/mocapact_demo.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/scripts/baseline_assessments.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/start_api_server.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/opensim/python/opensim_physics_engine.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/cors.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/opensim/python/opensim_physics_engine.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/cors.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/output_manager.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/tests/unit/shared_python/test_output_manager.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/common/capabilities.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/capabilities.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/docker_config.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/gui_launcher/launcher.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/docker_config.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/gui_launcher/launcher.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/cli_utils.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/cli_utils.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/cli_utils.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/pendulum_models/python/double_pendulum_model/physics/double_pendulum.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/safe_eval.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 3 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/mujoco/docker/src/humanoid_golf/visualization.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/myosuite/python/myosuite_physics_engine.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/safe_eval.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 14 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/loaders.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/drake/python/src/drake_golf_model.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/pinocchio/python/pinocchio_golf/coppelia_bridge.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/launchers/launcher_model_handlers.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/model_generation/__init__.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 25 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/scripts/check_vendor_updates.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/api/aip/methods.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/api/routes/terrain.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/Simscape_Multibody_Models/3D_Golf_Model/matlab/src/apps/golf_gui/Simscape Multibody Data Plotters/Python Version/golf_gui_r0/golf_camera_system.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/mujoco/docker/src/humanoid_golf/visualization.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 9 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/api/utils/error_codes.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/putting_green/python/putter_stroke.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/putting_green/python/turf_properties.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_interface.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 7 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/api/utils/error_codes.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/putting_green/python/turf_properties.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_interface.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/humanoid_character_builder/core/body_parameters.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 3 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/putting_green/python/turf_properties.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_interface.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_interface.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_interface.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_interface.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_interface.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 8 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/myosuite/python/myosuite_physics_engine.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/engines/physics_engines/opensim/python/opensim_physics_engine.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_interface.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/dashboard/recorder.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/control_features_registry.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/scripts/verify_installation.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/launcher_factory.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/engine_core/engine_availability.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/core/contracts/level.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/core/contracts/level.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/core/contracts/level.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 3 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/core/contracts/decorators.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/core/error_decorators.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/core/contracts/decorators.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/core/contracts/decorators.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/core/contracts/decorators.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/core/contracts/decorators.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 3 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/core/error_decorators.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/tests/test_golf_gui_tabs.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "DRY",
+      "severity": "MAJOR",
+      "title": "Duplicate code block",
+      "description": "Found in 2 locations",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/contracts.py",
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/core/contracts/invariants.py"
+      ],
+      "recommendation": "Refactor into shared utility"
+    },
+    {
+      "principle": "REVERSIBILITY",
+      "severity": "MAJOR",
+      "title": "Hardcoded API Key",
+      "description": "Secrets in code",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/ai/adapters/openai_adapter.py"
+      ],
+      "recommendation": "Use env vars"
+    },
+    {
+      "principle": "REVERSIBILITY",
+      "severity": "MAJOR",
+      "title": "Hardcoded API Key",
+      "description": "Secrets in code",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/src/shared/python/ai/adapters/anthropic_adapter.py"
+      ],
+      "recommendation": "Use env vars"
+    },
+    {
+      "principle": "REVERSIBILITY",
+      "severity": "MAJOR",
+      "title": "Hardcoded API Key",
+      "description": "Secrets in code",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/tests/unit/test_security_and_module_fixes.py"
+      ],
+      "recommendation": "Use env vars"
+    },
+    {
+      "principle": "REVERSIBILITY",
+      "severity": "MAJOR",
+      "title": "Hardcoded API Key",
+      "description": "Secrets in code",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/tests/unit/test_issue_fixes_1777_1778_1779_1782.py"
+      ],
+      "recommendation": "Use env vars"
+    },
+    {
+      "principle": "REVERSIBILITY",
+      "severity": "MAJOR",
+      "title": "Hardcoded API Key",
+      "description": "Secrets in code",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/tests/unit/shared_python/ai/adapters/test_anthropic_adapter.py"
+      ],
+      "recommendation": "Use env vars"
+    },
+    {
+      "principle": "REVERSIBILITY",
+      "severity": "MAJOR",
+      "title": "Hardcoded API Key",
+      "description": "Secrets in code",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/tests/unit/shared_python/ai/adapters/test_gemini_adapter.py"
+      ],
+      "recommendation": "Use env vars"
+    },
+    {
+      "principle": "REVERSIBILITY",
+      "severity": "MAJOR",
+      "title": "Hardcoded API Key",
+      "description": "Secrets in code",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/tests/unit/shared_python/ai/adapters/test_openai_adapter.py"
+      ],
+      "recommendation": "Use env vars"
+    },
+    {
+      "principle": "REVERSIBILITY",
+      "severity": "MAJOR",
+      "title": "Hardcoded API Key",
+      "description": "Secrets in code",
+      "files": [
+        "/home/dieterolson/actions-runners/runner-5/_work/Golf_GAAI_Sandbox/Golf_GAAI_Sandbox/tests/unit/api/test_security.py"
+      ],
+      "recommendation": "Use env vars"
+    }
+  ]
+}
