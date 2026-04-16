@@ -16,6 +16,16 @@ from __future__ import annotations
 
 import pytest
 
+from src.shared.python.upstream_drift_tools.process_calculators.pressure_drop_calculator.calculation_helpers import (
+    _normalise_composition,
+    build_fitting_list,
+)
+from src.shared.python.upstream_drift_tools.process_calculators.pressure_drop_calculator.ui.display_helpers import (
+    _classify_fitting,
+    _erosion_status_label,
+    generate_recommendations,
+    wrap_text,
+)
 from src.shared.python.upstream_drift_tools.process_calculators.pressure_drop_calculator.unit_converters import (
     convert_pressure,
     convert_temperature,
@@ -27,17 +37,6 @@ from src.shared.python.upstream_drift_tools.process_calculators.pressure_drop_ca
     validate_inputs,
     validate_pipe_params,
 )
-from src.shared.python.upstream_drift_tools.process_calculators.pressure_drop_calculator.calculation_helpers import (
-    _normalise_composition,
-    build_fitting_list,
-)
-from src.shared.python.upstream_drift_tools.process_calculators.pressure_drop_calculator.ui.display_helpers import (
-    _classify_fitting,
-    _erosion_status_label,
-    generate_recommendations,
-    wrap_text,
-)
-
 
 # ---------------------------------------------------------------------------
 # unit_converters
@@ -232,7 +231,9 @@ class TestBuildFittingList:
         assert result[0].k_factor == 0.0
 
     def test_explicit_k_factor_used(self):
-        result = build_fitting_list([{"type": "custom", "quantity": 1, "k_factor": 3.5}])
+        result = build_fitting_list(
+            [{"type": "custom", "quantity": 1, "k_factor": 3.5}]
+        )
         assert result[0].k_factor == pytest.approx(3.5)
 
 
