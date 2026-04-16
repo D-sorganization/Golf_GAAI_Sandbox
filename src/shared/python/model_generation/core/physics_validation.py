@@ -111,12 +111,9 @@ class PhysicsValidator:
     ) -> InertiaValidationResult:
         """Validate an inertia tensor comprehensively.
 
-        Checks:
-        - Symmetry of the 3x3 matrix
-        - Positive definiteness via Cholesky
-        - Triangle inequality: |Ia - Ib| <= Ic <= Ia + Ib
-        - Condition number for numerical stability
-        - Eigenvalue analysis
+        Checks symmetry, positive definiteness, triangle inequality, condition
+        number, and eigenvalue analysis.  Delegates each concern to a focused
+        helper method.
 
         Args:
             inertia: Inertia object to validate
@@ -133,8 +130,6 @@ class PhysicsValidator:
             is_positive_definite=True,
             satisfies_triangle_inequality=True,
         )
-
-        # Build the 3x3 inertia matrix
         tensor = np.array(
             [
                 [inertia.ixx, inertia.ixy, inertia.ixz],
@@ -142,8 +137,19 @@ class PhysicsValidator:
                 [inertia.ixz, inertia.iyz, inertia.izz],
             ]
         )
+        self._check_symmetry(tensor, result, component)
+        if not self._check_eigenvalues(tensor, result):
+            return result
+        self._check_triangle_inequality(inertia, result)
+        return result
 
-        # Check symmetry
+    @staticmethod
+    def _check_symmetry(
+        tensor: np.ndarray,
+        result: InertiaValidationResult,
+        component: str | None,
+    ) -> None:
+        """Mark result as asymmetric if the tensor is not numerically symmetric."""
         if not np.allclose(tensor, tensor.T, rtol=1e-10):
             result.is_symmetric = False
             result.is_valid = False
@@ -151,12 +157,19 @@ class PhysicsValidator:
                 f"Inertia tensor is not symmetric for {component or 'unknown'}"
             )
 
-        # Compute eigenvalues
+    @staticmethod
+    def _check_eigenvalues(
+        tensor: np.ndarray,
+        result: InertiaValidationResult,
+    ) -> bool:
+        """Check positive definiteness, condition number and principal axes.
+
+        Returns True on success, False if eigenvalue decomposition fails.
+        """
         try:
             eigenvalues = np.linalg.eigvalsh(tensor)
             result.eigenvalues = tuple(eigenvalues.tolist())
 
-            # Check positive definiteness
             if not np.all(eigenvalues > 0):
                 result.is_positive_definite = False
                 result.is_valid = False
@@ -165,7 +178,6 @@ class PhysicsValidator:
                     f"Eigenvalues: {eigenvalues}"
                 )
 
-            # Compute condition number
             if eigenvalues.min() > 0:
                 result.condition_number = float(eigenvalues.max() / eigenvalues.min())
                 if result.condition_number > 1e5:
@@ -174,37 +186,38 @@ class PhysicsValidator:
                         "may cause numerical instability"
                     )
 
-            # Compute principal axes
             _, eigenvectors = np.linalg.eigh(tensor)
             result.principal_axes = eigenvectors
+            return True
 
         except np.linalg.LinAlgError as e:
             result.is_valid = False
             result.errors.append(f"Failed to compute eigenvalues: {e}")
-            return result
+            return False
 
-        # Check triangle inequality
+    @staticmethod
+    def _check_triangle_inequality(
+        inertia: Inertia,
+        result: InertiaValidationResult,
+    ) -> None:
+        """Verify principal moments satisfy the triangle inequality."""
         Ixx, Iyy, Izz = inertia.ixx, inertia.iyy, inertia.izz
         inequalities = [
             (Ixx + Iyy >= Izz, f"Ixx + Iyy >= Izz: {Ixx} + {Iyy} >= {Izz}"),
             (Iyy + Izz >= Ixx, f"Iyy + Izz >= Ixx: {Iyy} + {Izz} >= {Ixx}"),
             (Izz + Ixx >= Iyy, f"Izz + Ixx >= Iyy: {Izz} + {Ixx} >= {Iyy}"),
         ]
-
         for valid, desc in inequalities:
             if not valid:
                 result.satisfies_triangle_inequality = False
                 result.warnings.append(f"Triangle inequality violated: {desc}")
 
-        # Check for very small inertia values
         min_inertia = min(Ixx, Iyy, Izz)
         if min_inertia < 1e-9:
             result.warnings.append(
                 f"Very small inertia value ({min_inertia:.2e}) may cause "
                 "numerical instability"
             )
-
-        return result
 
     @staticmethod
     def _compute_center_of_mass(
@@ -362,6 +375,43 @@ class PhysicsValidator:
             tipping_angle_deg=tipping_angle,
         )
 
+    @staticmethod
+    def _extract_bounding_spheres(
+        links: list[Link],
+    ) -> list[tuple[str, np.ndarray, float]]:
+        """Extract bounding sphere (name, center, radius) for each link collision."""
+        spheres = []
+        for link in links:
+            if hasattr(link, "collision") and link.collision:
+                geom = link.collision.geometry
+                origin = link.collision.origin
+                if hasattr(geom, "radius"):
+                    radius = geom.radius
+                elif hasattr(geom, "size"):
+                    radius = max(geom.size) / 2
+                else:
+                    radius = 0.1  # Default
+                center = np.array([origin.x, origin.y, origin.z])
+                spheres.append((link.name, center, radius))
+        return spheres
+
+    @staticmethod
+    def _check_sphere_pairwise_distances(
+        spheres: list[tuple[str, np.ndarray, float]],
+        result: CollisionCheckResult,
+    ) -> None:
+        """Update result with pairwise sphere intersection data."""
+        for i, (name1, center1, radius1) in enumerate(spheres):
+            for _j, (name2, center2, radius2) in enumerate(spheres[i + 1 :]):
+                distance = np.linalg.norm(center1 - center2)
+                min_separation = distance - radius1 - radius2
+                result.min_separation = min(result.min_separation, min_separation)
+                if min_separation < 0:
+                    result.has_self_intersection = True
+                    result.penetration_pairs.append((name1, name2))
+                    contact = (center1 + center2) / 2
+                    result.contact_points.append(tuple(contact.tolist()))
+
     def check_collision_geometry(
         self,
         links: list[Link],
@@ -380,42 +430,58 @@ class PhysicsValidator:
         if links is None:
             raise ValueError("links must be provided")
         result = CollisionCheckResult(has_self_intersection=False)
-        collision_spheres = []
-
-        # Extract bounding spheres for each collision geometry
-        for link in links:
-            if hasattr(link, "collision") and link.collision:
-                # Simplified: use bounding sphere approximation
-                geom = link.collision.geometry
-                origin = link.collision.origin
-
-                # Estimate bounding sphere based on geometry type
-                if hasattr(geom, "radius"):
-                    radius = geom.radius
-                elif hasattr(geom, "size"):
-                    radius = max(geom.size) / 2
-                else:
-                    radius = 0.1  # Default
-
-                center = np.array([origin.x, origin.y, origin.z])
-                collision_spheres.append((link.name, center, radius))
-
-        # Check pairwise distances
-        for i, (name1, center1, radius1) in enumerate(collision_spheres):
-            for _j, (name2, center2, radius2) in enumerate(collision_spheres[i + 1 :]):
-                distance = np.linalg.norm(center1 - center2)
-                min_separation = distance - radius1 - radius2
-
-                result.min_separation = min(result.min_separation, min_separation)
-
-                if min_separation < 0:
-                    result.has_self_intersection = True
-                    result.penetration_pairs.append((name1, name2))
-                    # Approximate contact point
-                    contact = (center1 + center2) / 2
-                    result.contact_points.append(tuple(contact.tolist()))
-
+        spheres = self._extract_bounding_spheres(links)
+        self._check_sphere_pairwise_distances(spheres, result)
         return result
+
+    def _accumulate_link_inertia(
+        self,
+        links: list[Link],
+        result: PhysicsValidationResult,
+    ) -> tuple[float, np.ndarray]:
+        """Validate inertia tensors and accumulate mass/COM data for all links."""
+        total_mass = 0.0
+        weighted_position = np.zeros(3)
+        for link in links:
+            if hasattr(link, "inertial") and link.inertial:
+                inertial = link.inertial
+                has_inertia_tensor = hasattr(inertial, "ixx") and hasattr(
+                    inertial, "iyy"
+                )
+                if has_inertia_tensor:
+                    inertia_result = self.validate_inertia_tensor(
+                        inertial, component=link.name
+                    )
+                    result.inertia_results[link.name] = inertia_result
+                    if not inertia_result.is_valid:
+                        result.is_valid = False
+                        result.errors.extend(inertia_result.errors)
+                    result.warnings.extend(inertia_result.warnings)
+                mass = inertial.mass
+                origin = inertial.origin
+                weighted_position += mass * np.array([origin.x, origin.y, origin.z])
+                total_mass += mass
+        return total_mass, weighted_position
+
+    def _apply_stability_and_collision_checks(
+        self,
+        links: list[Link],
+        result: PhysicsValidationResult,
+        check_stability: bool,
+        check_collisions: bool,
+    ) -> None:
+        """Run stability and collision sub-checks and append warnings to result."""
+        if check_stability:
+            result.stability = self.check_static_stability(links)
+            if not result.stability.is_stable:
+                result.warnings.append("Model may be statically unstable")
+        if check_collisions:
+            result.collision = self.check_collision_geometry(links)
+            if result.collision.has_self_intersection:
+                result.warnings.append(
+                    f"Self-intersection detected in collision geometry: "
+                    f"{result.collision.penetration_pairs}"
+                )
 
     def validate_physics(
         self,
@@ -438,68 +504,21 @@ class PhysicsValidator:
         if links is None:
             raise ValueError("links must be provided")
         result = PhysicsValidationResult(is_valid=True)
-
-        # Validate each link's inertia
-        total_mass = 0.0
-        weighted_position = np.zeros(3)
-
-        for link in links:
-            if hasattr(link, "inertial") and link.inertial:
-                inertial = link.inertial
-
-                # Check if inertial has full tensor attributes
-                has_inertia_tensor = hasattr(inertial, "ixx") and hasattr(
-                    inertial, "iyy"
-                )
-
-                if has_inertia_tensor:
-                    inertia_result = self.validate_inertia_tensor(
-                        inertial, component=link.name
-                    )
-                    result.inertia_results[link.name] = inertia_result
-
-                    if not inertia_result.is_valid:
-                        result.is_valid = False
-                        result.errors.extend(inertia_result.errors)
-                    result.warnings.extend(inertia_result.warnings)
-
-                # Accumulate for COM
-                mass = inertial.mass
-                origin = inertial.origin
-                pos = np.array([origin.x, origin.y, origin.z])
-                weighted_position += mass * pos
-                total_mass += mass
-
+        total_mass, weighted_position = self._accumulate_link_inertia(links, result)
         result.total_mass = total_mass
         if total_mass > 0:
             com = weighted_position / total_mass
             result.center_of_mass = tuple(com.tolist())
-
-        # Stability analysis
-        if check_stability:
-            result.stability = self.check_static_stability(links)
-            if not result.stability.is_stable:
-                result.warnings.append("Model may be statically unstable")
-
-        # Collision check
-        if check_collisions:
-            result.collision = self.check_collision_geometry(links)
-            if result.collision.has_self_intersection:
-                result.warnings.append(
-                    f"Self-intersection detected in collision geometry: "
-                    f"{result.collision.penetration_pairs}"
-                )
-
-        # Base validation
+        self._apply_stability_and_collision_checks(
+            links, result, check_stability, check_collisions
+        )
         if joints:
-            # link_names = {link.name for link in links}
             base_result = Validator.validate_model(links, joints)
             result.validation_result = base_result
             if not base_result.is_valid:
                 result.is_valid = False
                 result.errors.extend(base_result.get_error_messages())
             result.warnings.extend(base_result.get_warning_messages())
-
         return result
 
     @staticmethod

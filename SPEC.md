@@ -10,8 +10,8 @@
 | Primary Language(s) | Python 3.10+, Rust, TypeScript, MATLAB |
 | License | MIT |
 | Current Version | `2.1.0` |
-| Spec Version | `1.0.14` |
-| Last Spec Update | `2026-04-15` |
+| Spec Version | `1.0.15` |
+| Last Spec Update | `2026-04-16` |
 
 ## 2. Purpose
 
@@ -130,6 +130,7 @@ The repository is organized around a Python application core with multiple front
 
 | Date | Version | Changes |
 | --- | --- | --- |
+| 2026-04-16 | 1.0.15 | Excluded Jupyter notebooks from T201 ruff lint rule (print is standard display in notebooks); decomposed `PhysicsValidator.validate_inertia_tensor` (101 LOC) into `_check_symmetry`, `_check_eigenvalues`, and `_check_triangle_inequality` helpers (partial fix for #142 and #150). |
 | 2026-04-15 | 1.0.14 | Marked the advanced putting-green simulator scenarios as slow so stochastic multi-ball scatter simulations stay out of the default core CI lane while lighter putting-green coverage remains active. |
 | 2026-04-15 | 1.0.13 | Hardened the cross-engine validator CI step with the same Xvfb plugin disable flags and serial pytest execution used by the core Python lane, preventing worker-level Xvfb startup failures after the main suite passes. |
 | 2026-04-15 | 1.0.12 | Marked the legacy performance benchmark module with the benchmark marker so the core CI lane skips timing-sensitive assertions, and made telemetry export tests tolerate unrelated process-log writes while still asserting the intended export open call occurred. |

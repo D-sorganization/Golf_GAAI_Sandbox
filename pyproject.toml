@@ -142,12 +142,15 @@ path = "build_hooks.py"
 line-length = 88
 target-version = "py310"
 # Exclude third-party model files (legacy Python 2 scripts from OpenSim)
+# and Jupyter notebooks (print() is the standard display mechanism; converting
+# to logging would break notebook output cells).
 exclude = [
     "src/shared/models/opensim/opensim-models/**",
     "shared/models/opensim/opensim-models/**",
     "shared/models/myosuite/**",
     "src/shared/models/myosuite/**",
     "vendor/**",
+    "**/*.ipynb",
 ]
 
 [tool.ruff.lint]
@@ -174,6 +177,7 @@ ignore = [
 "scripts/**" = ["T201"]
 "tests/**" = ["T201"]
 "examples/**" = ["T201"]
+
 
 [tool.black]
 line-length = 88
