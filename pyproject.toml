@@ -324,8 +324,8 @@ omit = [
 
 [tool.coverage.report]
 # Coverage threshold — enforced in CI and locally when running with --cov.
-# Set to 45% (actual measured: ~46%) per issue #97; target remains 60% (#1630).
-fail_under = 45
+# Raised to 50% per issue #143 (was 45%); target remains 60% (#1630).
+fail_under = 50
 show_missing = true
 skip_empty = true
 precision = 1
