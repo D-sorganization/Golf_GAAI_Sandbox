@@ -15,7 +15,7 @@
 ## Feature Gap Matrix
 | Module | Missing Features Count | Example Gaps |
 |--------|------------------------|--------------|
-| multiple | 1047 | See .jules/completist_data/abstract_methods.txt |
+| multiple | 110 | See .jules/completist_data/todo_markers.txt |
 
 ## Technical Debt Register
 | Location | Description |
