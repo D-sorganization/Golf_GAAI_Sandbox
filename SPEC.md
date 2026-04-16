@@ -10,7 +10,7 @@
 | Primary Language(s) | Python 3.10+, Rust, TypeScript, MATLAB |
 | License | MIT |
 | Current Version | `2.1.0` |
-| Spec Version | `1.0.16` |
+| Spec Version | `1.0.17` |
 | Last Spec Update | `2026-04-16` |
 
 ## 2. Purpose
