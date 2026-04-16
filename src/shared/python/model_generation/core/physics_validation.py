@@ -111,12 +111,9 @@ class PhysicsValidator:
     ) -> InertiaValidationResult:
         """Validate an inertia tensor comprehensively.
 
-        Checks:
-        - Symmetry of the 3x3 matrix
-        - Positive definiteness via Cholesky
-        - Triangle inequality: |Ia - Ib| <= Ic <= Ia + Ib
-        - Condition number for numerical stability
-        - Eigenvalue analysis
+        Checks symmetry, positive definiteness, triangle inequality, condition
+        number, and eigenvalue analysis.  Delegates each concern to a focused
+        helper method.
 
         Args:
             inertia: Inertia object to validate
@@ -133,8 +130,6 @@ class PhysicsValidator:
             is_positive_definite=True,
             satisfies_triangle_inequality=True,
         )
-
-        # Build the 3x3 inertia matrix
         tensor = np.array(
             [
                 [inertia.ixx, inertia.ixy, inertia.ixz],
@@ -142,8 +137,19 @@ class PhysicsValidator:
                 [inertia.ixz, inertia.iyz, inertia.izz],
             ]
         )
+        self._check_symmetry(tensor, result, component)
+        if not self._check_eigenvalues(tensor, result):
+            return result
+        self._check_triangle_inequality(inertia, result)
+        return result
 
-        # Check symmetry
+    @staticmethod
+    def _check_symmetry(
+        tensor: np.ndarray,
+        result: InertiaValidationResult,
+        component: str | None,
+    ) -> None:
+        """Mark result as asymmetric if the tensor is not numerically symmetric."""
         if not np.allclose(tensor, tensor.T, rtol=1e-10):
             result.is_symmetric = False
             result.is_valid = False
@@ -151,12 +157,19 @@ class PhysicsValidator:
                 f"Inertia tensor is not symmetric for {component or 'unknown'}"
             )
 
-        # Compute eigenvalues
+    @staticmethod
+    def _check_eigenvalues(
+        tensor: np.ndarray,
+        result: InertiaValidationResult,
+    ) -> bool:
+        """Check positive definiteness, condition number and principal axes.
+
+        Returns True on success, False if eigenvalue decomposition fails.
+        """
         try:
             eigenvalues = np.linalg.eigvalsh(tensor)
             result.eigenvalues = tuple(eigenvalues.tolist())
 
-            # Check positive definiteness
             if not np.all(eigenvalues > 0):
                 result.is_positive_definite = False
                 result.is_valid = False
@@ -165,7 +178,6 @@ class PhysicsValidator:
                     f"Eigenvalues: {eigenvalues}"
                 )
 
-            # Compute condition number
             if eigenvalues.min() > 0:
                 result.condition_number = float(eigenvalues.max() / eigenvalues.min())
                 if result.condition_number > 1e5:
@@ -174,37 +186,38 @@ class PhysicsValidator:
                         "may cause numerical instability"
                     )
 
-            # Compute principal axes
             _, eigenvectors = np.linalg.eigh(tensor)
             result.principal_axes = eigenvectors
+            return True
 
         except np.linalg.LinAlgError as e:
             result.is_valid = False
             result.errors.append(f"Failed to compute eigenvalues: {e}")
-            return result
+            return False
 
-        # Check triangle inequality
+    @staticmethod
+    def _check_triangle_inequality(
+        inertia: Inertia,
+        result: InertiaValidationResult,
+    ) -> None:
+        """Verify principal moments satisfy the triangle inequality."""
         Ixx, Iyy, Izz = inertia.ixx, inertia.iyy, inertia.izz
         inequalities = [
             (Ixx + Iyy >= Izz, f"Ixx + Iyy >= Izz: {Ixx} + {Iyy} >= {Izz}"),
             (Iyy + Izz >= Ixx, f"Iyy + Izz >= Ixx: {Iyy} + {Izz} >= {Ixx}"),
             (Izz + Ixx >= Iyy, f"Izz + Ixx >= Iyy: {Izz} + {Ixx} >= {Iyy}"),
         ]
-
         for valid, desc in inequalities:
             if not valid:
                 result.satisfies_triangle_inequality = False
                 result.warnings.append(f"Triangle inequality violated: {desc}")
 
-        # Check for very small inertia values
         min_inertia = min(Ixx, Iyy, Izz)
         if min_inertia < 1e-9:
             result.warnings.append(
                 f"Very small inertia value ({min_inertia:.2e}) may cause "
                 "numerical instability"
             )
-
-        return result
 
     @staticmethod
     def _compute_center_of_mass(
