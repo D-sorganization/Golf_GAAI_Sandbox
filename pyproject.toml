@@ -177,6 +177,7 @@ ignore = [
 "scripts/**" = ["T201"]
 "tests/**" = ["T201"]
 "examples/**" = ["T201"]
+"src/shared/python/upstream_drift_tools/process_calculators/pressure_drop_calculator/utils/pipe_database.py" = ["C401", "RET505", "SIM118"]
 
 
 [tool.black]
