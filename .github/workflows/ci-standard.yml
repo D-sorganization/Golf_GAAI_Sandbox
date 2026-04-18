@@ -60,6 +60,9 @@ jobs:
     runs-on: ${{ needs.pick-runner.outputs.runner }}
     timeout-minutes: 20
     steps:
+      - name: Enable long Git paths
+        run: git config --global core.longpaths true
+
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
