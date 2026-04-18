@@ -12,7 +12,11 @@ References:
     - Colebrook, C.F. (1939): "Turbulent flow in pipes"
 """
 
+import logging
+
 from ..models.pressure_drop_data_models import PipeSpecification
+
+logger = logging.getLogger(__name__)
 
 # ============================================================================
 # MATERIAL ROUGHNESS VALUES
@@ -74,11 +78,12 @@ def get_roughness(material: str, unit: str = "m") -> float:
 
     if unit == "m":
         return roughness_mm / 1000.0
-    if unit == "mm":
+    elif unit == "mm":
         return roughness_mm
-    if unit == "ft":
+    elif unit == "ft":
         return roughness_ft
-    raise ValueError(f"Unit '{unit}' not recognized. Use 'm', 'mm', or 'ft'")
+    else:
+        raise ValueError(f"Unit '{unit}' not recognized. Use 'm', 'mm', or 'ft'")
 
 
 # ============================================================================
@@ -302,7 +307,7 @@ def get_pipe_spec(
 
     Example:
         >>> spec = get_pipe_spec("4", "40")
-        >>> print(spec.inner_diameter)  # mm
+        >>> logger.debug(spec.inner_diameter)  # mm
         102.26
     """
     key = (nominal_size, schedule)
@@ -326,7 +331,7 @@ def get_pipe_spec(
 def list_available_sizes() -> list[str]:
     """List all available nominal pipe sizes."""
     sizes = sorted(
-        {nps for nps, _ in STEEL_PIPE_DIMENSIONS},
+        set(nps for nps, _ in STEEL_PIPE_DIMENSIONS.keys()),
         key=lambda x: float(x.replace("/", ".")) if "/" in x else float(x),
     )
     return sizes
@@ -334,7 +339,9 @@ def list_available_sizes() -> list[str]:
 
 def list_schedules_for_size(nominal_size: str) -> list[str]:
     """List all available schedules for a given nominal size."""
-    schedules = [sch for nps, sch in STEEL_PIPE_DIMENSIONS if nps == nominal_size]
+    schedules = [
+        sch for nps, sch in STEEL_PIPE_DIMENSIONS.keys() if nps == nominal_size
+    ]
     return sorted(schedules, key=lambda x: "000" if x in ["STD", "XS", "XXS"] else x)
 
 
