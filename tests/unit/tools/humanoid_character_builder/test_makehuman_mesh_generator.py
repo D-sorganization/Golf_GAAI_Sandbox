@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
 
+import numpy as np
 import pytest
 from humanoid_character_builder.core.body_parameters import BodyParameters
 from humanoid_character_builder.generators.makehuman_mesh_generator import (
@@ -122,6 +123,101 @@ class TestMakeHumanMeshGeneratorGenerate:
         assert result.mesh_paths["head"].suffix == ".stl"
         assert (tmp_path / "out" / "visual").is_dir()
         assert (tmp_path / "out" / "collision").is_dir()
+
+    @patch(
+        "humanoid_character_builder.generators.mesh_generator.TRIMESH_AVAILABLE", True
+    )
+    @patch("humanoid_character_builder.generators.mesh_generator._trimesh_module")
+    def test_generate_keeps_successful_segments_when_one_export_fails(
+        self,
+        mock_trimesh: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        gen = MakeHumanMeshGenerator(makehuman_path=tmp_path)
+        mock_trimesh.Trimesh = _fake_trimesh_factory()
+
+        vertices = np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+            ]
+        )
+        faces = np.array([[0, 1, 2]])
+        visual_dir = tmp_path / "visual"
+        collision_dir = tmp_path / "collision"
+
+        def mock_export_segment(
+            segment: tuple[np.ndarray, np.ndarray],
+            segment_name: str,
+            export_visual_dir: Path,
+            export_collision_dir: Path,
+        ) -> None:
+            del segment
+            if segment_name == "head":
+                raise ValueError("head export failed")
+            export_visual_dir.mkdir(parents=True, exist_ok=True)
+            export_collision_dir.mkdir(parents=True, exist_ok=True)
+            (export_visual_dir / f"{segment_name}.stl").touch()
+            (export_collision_dir / f"{segment_name}.stl").touch()
+
+        with patch.object(gen, "_export_segment", side_effect=mock_export_segment):
+            result = gen._export_grouped_segments(
+                vertices,
+                faces,
+                {"head": [0, 1, 2], "neck": [0, 1, 2]},
+                visual_dir,
+                collision_dir,
+            )
+
+        assert result.success is True
+        assert "head" not in result.mesh_paths
+        assert "neck" in result.mesh_paths
+        assert (visual_dir / "neck.stl").exists()
+        assert (collision_dir / "neck.stl").exists()
+        assert not (visual_dir / "head.stl").exists()
+        assert not (collision_dir / "head.stl").exists()
+
+    def test_segment_by_vertex_groups_only_records_successful_exports(
+        self, tmp_path: Path
+    ) -> None:
+        visual_dir = tmp_path / "visual"
+        collision_dir = tmp_path / "collision"
+
+        def mock_export_submesh(
+            mesh: Any,
+            vertex_indices: list[int],
+            segment_name: str,
+            export_visual_dir: Path,
+            export_collision_dir: Path,
+        ) -> None:
+            del mesh, vertex_indices
+            if segment_name != "neck":
+                return
+            export_visual_dir.mkdir(parents=True, exist_ok=True)
+            export_collision_dir.mkdir(parents=True, exist_ok=True)
+            (export_visual_dir / f"{segment_name}.stl").touch()
+            (export_collision_dir / f"{segment_name}.stl").touch()
+
+        with patch(
+            "humanoid_character_builder.generators.makehuman_mesh_generator.export_submesh",
+            side_effect=mock_export_submesh,
+        ):
+            mesh_paths, collision_paths = (
+                MakeHumanMeshGenerator._segment_by_vertex_groups(
+                    object(),
+                    visual_dir,
+                    collision_dir,
+                    {"Head": [0, 1, 2], "Neck": [0, 1, 2]},
+                    {"head": "head", "neck": "neck"},
+                    {"head", "neck"},
+                )
+            )
+
+        assert mesh_paths == {"neck": visual_dir / "neck.stl"}
+        assert collision_paths == {"neck": collision_dir / "neck.stl"}
+        assert not (visual_dir / "head.stl").exists()
+        assert not (collision_dir / "head.stl").exists()
 
 
 def _fake_trimesh_factory() -> type:

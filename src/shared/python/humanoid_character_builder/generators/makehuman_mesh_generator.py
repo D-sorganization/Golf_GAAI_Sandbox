@@ -153,7 +153,15 @@ class MakeHumanMeshGenerator(MeshGeneratorInterface):
             segment = segment_by_index_range(vertices, faces, indices)
             if segment is None:
                 continue
-            self._export_segment(segment, segment_name, visual_dir, collision_dir)
+            try:
+                self._export_segment(segment, segment_name, visual_dir, collision_dir)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(
+                    "Failed to export MakeHuman segment %s: %s",
+                    segment_name,
+                    exc,
+                )
+                continue
             mesh_paths[segment_name] = visual_dir / f"{segment_name}.stl"
             collision_paths[segment_name] = collision_dir / f"{segment_name}.stl"
         return GeneratedMeshResult(
@@ -230,8 +238,12 @@ class MakeHumanMeshGenerator(MeshGeneratorInterface):
             export_submesh(
                 mesh, vertex_indices, segment_name, visual_dir, collision_dir
             )
-            mesh_paths[segment_name] = visual_dir / f"{segment_name}.stl"
-            collision_paths[segment_name] = collision_dir / f"{segment_name}.stl"
+            mesh_path = visual_dir / f"{segment_name}.stl"
+            collision_path = collision_dir / f"{segment_name}.stl"
+            if not mesh_path.exists() or not collision_path.exists():
+                continue
+            mesh_paths[segment_name] = mesh_path
+            collision_paths[segment_name] = collision_path
         return mesh_paths, collision_paths
 
     @staticmethod
