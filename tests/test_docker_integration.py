@@ -46,9 +46,10 @@ class TestDockerBuild(unittest.TestCase):
         content = dockerfile_path.read_text()
 
         # Check for required components (multi-stage build with pinned version)
-        self.assertIn("FROM continuumio/miniconda3:24.11.1-0 AS builder", content)
-        self.assertIn("FROM continuumio/miniconda3:24.11.1-0 AS runtime", content)
-        self.assertIn('ENV PYTHONPATH="/workspace"', content)
+        self.assertIn("FROM python:3.12-slim AS builder", content)
+        self.assertIn("FROM python:3.12-slim AS runtime", content)
+        self.assertIn('ENV PATH="/opt/venv/bin:$PATH"', content)
+        self.assertIn('PYTHONPATH="/workspace"', content)
         self.assertIn("WORKDIR /workspace", content)
 
     def test_dockerfile_pythonpath_setup(self):
@@ -64,7 +65,7 @@ class TestDockerBuild(unittest.TestCase):
         self.assertIn("/workspace", pythonpath_line)
         self.assertEqual(
             pythonpath_line.strip(),
-            'ENV PYTHONPATH="/workspace"',
+            'PYTHONPATH="/workspace"',
             "PYTHONPATH should be set to /workspace only",
         )
 
@@ -409,16 +410,12 @@ class TestContainerEnvironment(unittest.TestCase):
         pythonpath_lines = [
             line for line in content.split("\n") if "PYTHONPATH=" in line
         ]
-        self.assertEqual(
-            len(pythonpath_lines), 1, "Should have exactly one PYTHONPATH definition"
-        )
+        self.assertEqual(len(pythonpath_lines), 1)
 
         pythonpath_line = pythonpath_lines[0]
-        # so that "from src.xxx" imports work inside the container.
         self.assertEqual(
             pythonpath_line.strip(),
-            'ENV PYTHONPATH="/workspace"',
-            "PYTHONPATH should be set to /workspace",
+            'PYTHONPATH="/workspace"',
         )
 
     def test_workspace_directory_creation(self):
@@ -432,20 +429,29 @@ class TestContainerEnvironment(unittest.TestCase):
         self.assertIn("mkdir -p /workspace", content)
         self.assertIn("WORKDIR /workspace", content)
 
-    def test_conda_environment_setup(self):
-        """Test conda environment configuration."""
+    def test_runtime_environment_setup(self):
+        """Test runtime environment configuration."""
         dockerfile_path = get_repo_root() / "Dockerfile"
         content = dockerfile_path.read_text()
 
         # Verify base image (pinned version, multi-stage build) and package installation
-        self.assertIn("FROM continuumio/miniconda3:24.11.1-0 AS builder", content)
-        self.assertIn("conda install", content)
-        self.assertIn("python=3.12", content)
+        self.assertIn("FROM python:3.12-slim AS builder", content)
+        self.assertIn("FROM python:3.12-slim AS runtime", content)
+        self.assertIn("COPY requirements.lock /tmp/requirements.lock", content)
+        self.assertIn("RUN pip install -r /tmp/requirements.lock", content)
 
         # Check for required packages
-        required_packages = ["numpy", "scipy", "matplotlib", "pandas", "pyqt6"]
+        lockfile_content = (dockerfile_path.parent / "requirements.lock").read_text()
+        required_packages = [
+            "numpy",
+            "scipy",
+            "matplotlib",
+            "pandas",
+            "sympy",
+            "defusedxml",
+        ]
         for package in required_packages:
-            self.assertIn(package, content, f"Should install {package}")
+            self.assertIn(package, lockfile_content, f"Should lock {package}")
 
 
 class TestModuleAccessibility(unittest.TestCase):
