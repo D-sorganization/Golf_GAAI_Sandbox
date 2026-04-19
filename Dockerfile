@@ -51,11 +51,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 # MuJoCo headless rendering + health check
 # X11/XCB/PyQt6 libs removed — not needed in a headless API server
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
+    libgl1 \
     libosmesa6 \
     libglew2.2 \
     libegl1 \
-    libglib2.0-0 \
+    libglib2.0-0t64 \
     patchelf \
     ffmpeg \
     curl \
