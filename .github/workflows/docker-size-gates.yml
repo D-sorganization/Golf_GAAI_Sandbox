@@ -75,3 +75,41 @@ jobs:
           docker run --rm upstream-drift:runtime python -c "import mujoco, numpy, scipy, pandas, matplotlib, sympy, defusedxml; print('Core physics and analysis stack OK')"
           docker run --rm upstream-drift:runtime python -c "import fastapi, uvicorn; print('API server stack OK')"
           docker run --rm upstream-drift:runtime python -c "import pinocchio; print('Pinocchio OK')"
+
+      - name: Verify API Server Import
+        run: |
+          docker run --rm upstream-drift:runtime python -c "from src.api import server; print('API server module import OK')"
+
+      - name: Verify API Health Endpoint
+        run: |
+          # Start the API server in detached mode, forwarding port 8000
+          CID=$(docker run -d -p 8000:8000 \
+            -e API_HOST=0.0.0.0 \
+            -e ENVIRONMENT=development \
+            upstream-drift:runtime \
+            python -c "
+          import uvicorn
+          from src.api.server import app
+          uvicorn.run(app, host='0.0.0.0', port=8000, log_level='warning')
+          ")
+          echo "Container ID: $CID"
+
+          # Wait for the server to become ready (up to 30 s)
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8000/health > /dev/null 2>&1; then
+              echo "Health endpoint responded on attempt $i"
+              break
+            fi
+            sleep 1
+          done
+
+          # Assert the endpoint returns HTTP 200
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health)
+          docker stop "$CID" || true
+
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::/health returned HTTP $STATUS (expected 200)"
+            exit 1
+          fi
+          echo "/health endpoint smoke test passed."
