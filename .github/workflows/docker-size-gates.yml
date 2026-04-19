@@ -75,3 +75,12 @@ jobs:
           docker run --rm upstream-drift:runtime python -c "import mujoco, numpy, scipy; print('Core physics stack OK')"
           docker run --rm upstream-drift:runtime python -c "import fastapi, uvicorn; print('API server stack OK')"
           docker run --rm upstream-drift:runtime python -c "import pinocchio; print('Pinocchio OK')"
+
+      - name: Verify API server imports end-to-end
+        # Catches cases where individual packages import fine but the actual
+        # server module fails (e.g. missing pandas/matplotlib coming from the
+        # old conda base). A green import here means `CMD uvicorn ...` will
+        # also boot, instead of crashing at runtime and never being noticed
+        # because nobody runs the image past `docker build`.
+        run: |
+          docker run --rm upstream-drift:runtime python -c "from src.api import server; print('server import OK')"

@@ -31,6 +31,16 @@ RUN pip install \
     structlog>=24.1.0 \
     colorama>=0.4.6
 
+# Shared-code runtime deps imported at module top-level by
+# src/shared/python (pandas, matplotlib, sympy) and API routes that parse
+# XML (defusedxml). These used to come from the conda base; keep them
+# explicit for the slim build so the API import chain actually resolves.
+RUN pip install \
+    "pandas>=2.0.0" \
+    "matplotlib>=3.7.0" \
+    "sympy>=1.12" \
+    "defusedxml>=0.7.1"
+
 # Pinocchio via pip (binary wheels available since 2024 — no conda needed)
 RUN pip install \
     pin \
