@@ -27,7 +27,12 @@ def pytest_addoption(parser: pytest.Parser) -> None:
 
 
 def pytest_configure(config: pytest.Config) -> None:
-    """Dynamically adjust system path based on selected Tools mode."""
+    """Configure pytest, set environment variables, and adjust system path based on selected Tools mode."""
+    # Set environment variables to handle DLL issues on Windows
+    if sys.platform == "win32" and sys.version_info >= (3, 13):
+        os.environ.setdefault("SKIP_MUJOCO_IMPORT", "false")
+
+    # Dynamically adjust system path based on selected Tools mode
     mode = config.getoption("--tools-mode")
     root_dir = Path(__file__).resolve().parent.parent
     local_path = str((root_dir / "src/shared/python").resolve())
